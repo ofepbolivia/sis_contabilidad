@@ -1393,11 +1393,11 @@ Phx.vista.DocCompraVenta = Ext.extend(Phx.gridInterfaz,{
 	        fieldName = grid.getColumnModel().getDataIndex(columnIndex); // Get field name
      	
      	if(fieldName == 'revisado') {
-	       	if(!record.data['id_int_comprobante']){
+	       //if(!record.data['id_int_comprobante']){	//comentado p/permitir el estado revisado de las facturas de F.A.
 	       	   if(record.data.tipo_reg != 'summary'){
 	       	     this.cambiarRevision(record);
 	       	   }
-	       	}
+	       	//}
 	    }
      },
      cambiarRevision: function(record){

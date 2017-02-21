@@ -88,7 +88,7 @@ class MODIntComprobante extends MODbase{
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
-		//echo $this->getConsulta();exit;         
+		//echo $this->getConsulta();exit;
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
