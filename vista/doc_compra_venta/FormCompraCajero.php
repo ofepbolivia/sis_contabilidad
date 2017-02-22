@@ -1133,7 +1133,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         pageSize: 20,
                         queryDelay: 500,
                         anchor: '80%',
-                        minChars: 1,
+                        minChars:1,
                         maskRe: /[0-9/-]+/i,
                         regex: /[0-9/-]+/i
                     },
@@ -1171,13 +1171,13 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'Nro Factura / Doc',
                         allowBlank: false,
                         anchor: '80%',
-                        maxLength: 100,
+                        maxLength:100,
                         maskRe: /[0-9/-]+/i,
                         regex: /[0-9/-]+/i
                     },
-                    type: 'TextField',
-                    id_grupo: 1,
-                    form: true
+                    type:'NumberField',
+                    id_grupo:1,
+                    form:true
                 },
                 {
                     config: {
@@ -1234,13 +1234,13 @@ header("content-type: text/javascript; charset=UTF-8");
                         triggerAction: 'all',
                         lazyRender: true,
                         mode: 'local',
-                        store: ['CBB', 'LPB', 'SRZ', 'CIJ', 'TJA', 'POI', 'ORU', 'TDD', 'SRE', 'UYU', 'CCA', 'RIB', 'RBQ', 'GYA', 'BYC']
+                        store: ['CBB','LPB','SRZ','CIJ','TJA','POI','ORU','TDD','SRE','UYU', 'CCA', 'RIB', 'RBQ', 'GYA', 'BYC']
                     },
                     type: 'ComboBox',
                     id_grupo: 1,
                     filters: {
                         type: 'list',
-                        options: ['CBB', 'LPB', 'SRZ', 'CIJ', 'TJA', 'POI', 'ORU', 'TDD', 'SRE', 'UYU', 'CCA', 'RIB', 'RBQ', 'GYA', 'BYC']
+                        options: ['CBB','LPB','SRZ','CIJ','TJA','POI','ORU','TDD','SRE','UYU', 'CCA', 'RIB', 'RBQ', 'GYA', 'BYC']
                     },
                     grid: true,
                     egrid: true,
@@ -1302,15 +1302,12 @@ header("content-type: text/javascript; charset=UTF-8");
                                     field: 'codigo_noiata',
                                     direction: 'ASC'
                                 },
-                                totalProperty: 'total',
-                                fields: ['id_agencia', 'nombre', 'codigo_noiata', 'codigo'],
+                                totalProperty:'total',
+                                fields: ['id_agencia','nombre','codigo_noiata','codigo'],
                                 remoteSort: true,
-                                baseParams: {
-                                    par_filtro: 'age.nombre#age.codigo_noiata#age.codigo',
-                                    tipo_agencia: 'noiata'
-                                }
+                                baseParams:{par_filtro:'age.nombre#age.codigo_noiata#age.codigo', tipo_agencia: 'noiata'}
                             }),
-                        tpl: '<tpl for="."><div class="x-combo-list-item"><p>{nombre}</p><p>Codigo Global: {codigo}</p><p>Codigo NO IATA: {codigo_noiata}</p></div></tpl>',
+                        tpl:'<tpl for="."><div class="x-combo-list-item"><p>{nombre}</p><p>Codigo Global: {codigo}</p><p>Codigo NO IATA: {codigo_noiata}</p></div></tpl>',
                         valueField: 'id_agencia',
                         hiddenValue: 'id_agencia',
                         displayField: 'codigo_noiata',
@@ -1713,9 +1710,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.importe_anticipo.on('change', this.calculaMontoPago, this);
             this.Cmp.importe_retgar.on('change', this.calculaMontoPago, this);
 
-
-            this.Cmp.nro_autorizacion.on('change', function (fild, newValue, oldValue) {
-                if (newValue[3] == '4' || newValue[3] == '8' || newValue[3] == '6') {
+            this.Cmp.nro_autorizacion.on('change',function(fild, newValue, oldValue){
+                if (newValue[3] == '4' || newValue[3] == '8' || newValue[3] == '6'){
                     this.mostrarComponente(this.Cmp.codigo_control);
                     this.Cmp.codigo_control.allowBlank = false;
                 }
@@ -2169,46 +2165,4 @@ header("content-type: text/javascript; charset=UTF-8");
                     var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
 
                     if (reg.ROOT.error) {
-                        Ext.Msg.alert('Error', 'Error a recuperar la variable global')
-                    } else {
-                        if (reg.ROOT.datos.valor != 'si') {
-                            me.listadoConcepto = '../../sis_parametros/control/ConceptoIngas/listarConceptoIngas';
-                            me.parFilConcepto = 'desc_ingas';
-                            me.mostrarPartidas = false;
-                        }
-
-
-                        me.constructorEtapa2(config);
-
-                    }
-                },
-                failure: this.conexionFailure,
-                timeout: this.timeout,
-                scope: this
-            });
-
-        },
-
-        cargarRazonSocial: function (nit) {
-            //Busca en la base de datos la razon social en función del NIT digitado. Si Razon social no esta vacío, entonces no hace nada
-            if (this.getComponente('razon_social').getValue() == '') {
-                Phx.CP.loadingShow();
-                Ext.Ajax.request({
-                    url: '../../sis_contabilidad/control/DocCompraVenta/obtenerRazonSocialxNIT',
-                    params: {'nit': nit},
-                    success: function (resp) {
-                        Phx.CP.loadingHide();
-                        var objRes = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-
-                        var razonSocial = objRes.ROOT.datos.razon_social;
-                        this.getComponente('razon_social').setValue(razonSocial);
-                    },
-                    failure: this.conexionFailure,
-                    timeout: this.timeout,
-                    scope: this
-                });
-            }
-        }
-    })
-</script>
-      
+                        Ext.Msg.alert('Error', 'Error a recuperar la variable
