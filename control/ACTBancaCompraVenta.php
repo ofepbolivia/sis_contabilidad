@@ -210,21 +210,21 @@ class ACTBancaCompraVenta extends ACTbase{
 
 
 				$Escribo = "".$dato['modalidad_transaccion'] ."|"
-					.strftime("%d/%m/%Y", strtotime($dato['fecha_documento'])) ."|"
-					.$dato['tipo_transaccion'] ."|"
-					.$dato['nit_ci'] ."|"
-					.$dato['razon'] ."|"
-					.$dato['num_documento'] ."|"
-					.$contrato
-					.$dato['importe_documento'] ."|"
-					.$dato['autorizacion'] ."|"
-					.$dato['num_cuenta_pago'] ."|"
-					.$dato['monto_pagado'] ."|"
-					.$dato['monto_acumulado'] ."|"
-					.$dato['nit_entidad'] ."|"
-					.$dato['num_documento_pago'] ."|"
-					.$dato['tipo_documento_pago']."|"
-					.strftime("%d/%m/%Y", strtotime($dato['fecha_de_pago']));
+						.strftime("%d/%m/%Y", strtotime($dato['fecha_documento'])) ."|"
+						.$dato['tipo_transaccion'] ."|"
+						.$dato['nit_ci'] ."|"
+						.$dato['razon'] ."|"
+						.$dato['num_documento'] ."|"
+						.$contrato
+						.$dato['importe_documento'] ."|"
+						.$dato['autorizacion'] ."|"
+						.$dato['num_cuenta_pago'] ."|"
+						.$dato['monto_pagado'] ."|"
+						.$dato['monto_acumulado'] ."|"
+						.$dato['nit_entidad'] ."|"
+						.$dato['num_documento_pago'] ."|"
+						.$dato['tipo_documento_pago']."|"
+						.strftime("%d/%m/%Y", strtotime($dato['fecha_de_pago']));
 
 			}else if($this->objParam->getParametro('tipo') == 'Ventas'){
 
