@@ -1,14 +1,14 @@
-CREATE OR REPLACE FUNCTION "conta"."ft_bancarizacion_gestion_ime" (	
+CREATE OR REPLACE FUNCTION "conta"."ft_archivo_airbp_ime" (	
 				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
 RETURNS character varying AS
 $BODY$
 
 /**************************************************************************
  SISTEMA:		Sistema de Contabilidad
- FUNCION: 		conta.ft_bancarizacion_gestion_ime
- DESCRIPCION:   Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'conta.tbancarizacion_gestion'
- AUTOR: 		 (admin)
- FECHA:	        09-02-2017 20:12:18
+ FUNCION: 		conta.ft_archivo_airbp_ime
+ DESCRIPCION:   Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'conta.tarchivo_airbp'
+ AUTOR: 		 (gsarmiento)
+ FECHA:	        12-01-2017 21:44:52
  COMENTARIOS:	
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
@@ -26,52 +26,54 @@ DECLARE
 	v_resp		            varchar;
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
-	v_id_bancarizacion_gestion	integer;
+	v_id_archivo_airbp	integer;
 			    
 BEGIN
 
-    v_nombre_funcion = 'conta.ft_bancarizacion_gestion_ime';
+    v_nombre_funcion = 'conta.ft_archivo_airbp_ime';
     v_parametros = pxp.f_get_record(p_tabla);
 
 	/*********************************    
- 	#TRANSACCION:  'CONTA_BANGES_INS'
+ 	#TRANSACCION:  'CONTA_AIRBP_INS'
  	#DESCRIPCION:	Insercion de registros
- 	#AUTOR:		admin	
- 	#FECHA:		09-02-2017 20:12:18
+ 	#AUTOR:		gsarmiento	
+ 	#FECHA:		12-01-2017 21:44:52
 	***********************************/
 
-	if(p_transaccion='CONTA_BANGES_INS')then
+	if(p_transaccion='CONTA_AIRBP_INS')then
 					
         begin
         	--Sentencia de la insercion
-        	insert into conta.tbancarizacion_gestion(
+        	insert into conta.tarchivo_airbp(
+			nombre_archivo,
+			anio,
+			mes,
 			estado_reg,
-			estado,
-			id_gestion,
+			id_usuario_ai,
 			id_usuario_reg,
 			fecha_reg,
 			usuario_ai,
-			id_usuario_ai,
-			id_usuario_mod,
-			fecha_mod
+			fecha_mod,
+			id_usuario_mod
           	) values(
+			v_parametros.nombre_archivo,
+			v_parametros.anio,
+			v_parametros.mes,
 			'activo',
-			v_parametros.estado,
-			v_parametros.id_gestion,
+			v_parametros._id_usuario_ai,
 			p_id_usuario,
 			now(),
 			v_parametros._nombre_usuario_ai,
-			v_parametros._id_usuario_ai,
 			null,
 			null
 							
 			
 			
-			)RETURNING id_bancarizacion_gestion into v_id_bancarizacion_gestion;
+			)RETURNING id_archivo_airbp into v_id_archivo_airbp;
 			
 			--Definicion de la respuesta
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Bancarizacion Gestion almacenado(a) con exito (id_bancarizacion_gestion'||v_id_bancarizacion_gestion||')'); 
-            v_resp = pxp.f_agrega_clave(v_resp,'id_bancarizacion_gestion',v_id_bancarizacion_gestion::varchar);
+			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Archivo AIR BP almacenado(a) con exito (id_archivo_airbp'||v_id_archivo_airbp||')'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'id_archivo_airbp',v_id_archivo_airbp::varchar);
 
             --Devuelve la respuesta
             return v_resp;
@@ -79,28 +81,29 @@ BEGIN
 		end;
 
 	/*********************************    
- 	#TRANSACCION:  'CONTA_BANGES_MOD'
+ 	#TRANSACCION:  'CONTA_AIRBP_MOD'
  	#DESCRIPCION:	Modificacion de registros
- 	#AUTOR:		admin	
- 	#FECHA:		09-02-2017 20:12:18
+ 	#AUTOR:		gsarmiento	
+ 	#FECHA:		12-01-2017 21:44:52
 	***********************************/
 
-	elsif(p_transaccion='CONTA_BANGES_MOD')then
+	elsif(p_transaccion='CONTA_AIRBP_MOD')then
 
 		begin
 			--Sentencia de la modificacion
-			update conta.tbancarizacion_gestion set
-			estado = v_parametros.estado,
-			id_gestion = v_parametros.id_gestion,
-			id_usuario_mod = p_id_usuario,
+			update conta.tarchivo_airbp set
+			nombre_archivo = v_parametros.nombre_archivo,
+			anio = v_parametros.anio,
+			mes = v_parametros.mes,
 			fecha_mod = now(),
+			id_usuario_mod = p_id_usuario,
 			id_usuario_ai = v_parametros._id_usuario_ai,
 			usuario_ai = v_parametros._nombre_usuario_ai
-			where id_bancarizacion_gestion=v_parametros.id_bancarizacion_gestion;
+			where id_archivo_airbp=v_parametros.id_archivo_airbp;
                
 			--Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Bancarizacion Gestion modificado(a)'); 
-            v_resp = pxp.f_agrega_clave(v_resp,'id_bancarizacion_gestion',v_parametros.id_bancarizacion_gestion::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Archivo AIR BP modificado(a)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'id_archivo_airbp',v_parametros.id_archivo_airbp::varchar);
                
             --Devuelve la respuesta
             return v_resp;
@@ -108,22 +111,22 @@ BEGIN
 		end;
 
 	/*********************************    
- 	#TRANSACCION:  'CONTA_BANGES_ELI'
+ 	#TRANSACCION:  'CONTA_AIRBP_ELI'
  	#DESCRIPCION:	Eliminacion de registros
- 	#AUTOR:		admin	
- 	#FECHA:		09-02-2017 20:12:18
+ 	#AUTOR:		gsarmiento	
+ 	#FECHA:		12-01-2017 21:44:52
 	***********************************/
 
-	elsif(p_transaccion='CONTA_BANGES_ELI')then
+	elsif(p_transaccion='CONTA_AIRBP_ELI')then
 
 		begin
 			--Sentencia de la eliminacion
-			delete from conta.tbancarizacion_gestion
-            where id_bancarizacion_gestion=v_parametros.id_bancarizacion_gestion;
+			delete from conta.tarchivo_airbp
+            where id_archivo_airbp=v_parametros.id_archivo_airbp;
                
             --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Bancarizacion Gestion eliminado(a)'); 
-            v_resp = pxp.f_agrega_clave(v_resp,'id_bancarizacion_gestion',v_parametros.id_bancarizacion_gestion::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Archivo AIR BP eliminado(a)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'id_archivo_airbp',v_parametros.id_archivo_airbp::varchar);
               
             --Devuelve la respuesta
             return v_resp;
@@ -149,4 +152,4 @@ END;
 $BODY$
 LANGUAGE 'plpgsql' VOLATILE
 COST 100;
-ALTER FUNCTION "conta"."ft_bancarizacion_gestion_ime"(integer, integer, character varying, character varying) OWNER TO postgres;
+ALTER FUNCTION "conta"."ft_archivo_airbp_ime"(integer, integer, character varying, character varying) OWNER TO postgres;
