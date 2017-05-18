@@ -1154,6 +1154,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'Nro Factura / Doc',
                         allowBlank: false,
                         anchor: '80%',
+                        allowDecimals: false,
                         maxLength:100,
                         maskRe: /[0-9/-]+/i,
                         regex: /[0-9/-]+/i
@@ -1328,6 +1329,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'Monto',
                         allowBlank: false,
                         allowNegative :false,
+                      
                         anchor: '80%',
                         gwidth: 100,
                         maxLength:1179650
@@ -1528,7 +1530,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
                 if(this.data.tipoDoc == 'compra'){
                     this.Cmp.nit.setValue(rec.data.nit);
-                    this.Cmp.razon_social.setValue(rec.data.razon_social);
+                    this.Cmp.razon_social.setValue(rec.data.razon_social);///
                 }
 
             } ,this);
@@ -1553,7 +1555,7 @@ header("content-type: text/javascript; charset=UTF-8");
             } ,this);
 
             this.Cmp.nit.on('change', function(cmb,newval,oldval){
-                var rec = cmb.getStore().getById(newval)
+                var rec = cmb.getStore().getById(newval);
                 if(!rec){
                     //si el combo no tiene resultado
                     if(cmb.lastQuery){
@@ -1727,66 +1729,72 @@ header("content-type: text/javascript; charset=UTF-8");
 
             this.Cmp.codigo_qr.on('specialkey',function(cmb, e){
 
-                if(e.getKey() == e.ENTER) {
-                    var res = cmb.getValue().split("|"),
-                        plt = this.plantilla_qr.split("|");
+              if(e.getKey() == e.ENTER) {
+                   var res = cmb.getValue().split("|"),
+                       plt = this.plantilla_qr.split("|");
 
-                    console.log('........', res, plt);
+                   console.log('........', res, plt);
 
-                    //if(res.length == 12) {
+                 //if(res.length == 12) {
 
-                    for (var i = 0; i < plt.length; i++) {
+                     for (var i = 0; i < plt.length; i++) {
 
-                        if (this.Cmp[plt[i]]) {
+                         if (this.Cmp[plt[i]]) {
 
-                            if (plt[i] == 'importe_excento') {
-                                var aux = 0;
-                                if (this.Cmp[plt[i]].getValue()) {
-                                    aux = this.Cmp[plt[i]].getValue();
-                                }
-                                this.Cmp[plt[i]].setValue(res[i] + aux);
-                                console.log(res[i], aux)
-                            }
-                            else {
-                                this.Cmp[plt[i]].setValue(res[i]);
-                            }
+                             if (plt[i] == 'importe_excento') {
+                                 var aux = 0;
+                                 if (this.Cmp[plt[i]].getValue()) {
+                                     aux = this.Cmp[plt[i]].getValue();
+                                 }
+                                 this.Cmp[plt[i]].setValue(res[i] + aux);
+                                 console.log(res[i], aux)
+                             }
+                             else {
+                                 this.Cmp[plt[i]].setValue(res[i]);
+                             }
 
-                            if (plt[i] == 'nit') {
-                                this.cargarRazonSocial();
-                            }
-                            if (plt[i]=='nro_documento'){
-                                var nro_doc = Math.floor(res[1]);
-                                this.getComponente('nro_documento').setValue(nro_doc);
-                            }
-                            if(plt[i]=='fecha'){
+                             if (plt[i] == 'nit') {
+                                 this.cargarRazonSocial();
+                             }
+                             if (plt[i]=='nro_documento'){
+                                 var nro_doc = Math.floor(res[1]);
+                                 this.getComponente('nro_documento').setValue(nro_doc);
+                             }
+                             if(plt[i]=='importe_doc'){
 
-                                var mesPeriodo = this.data.tmpPeriodo > 9 ? this.data.tmpPeriodo : '0' + this.data.tmpPeriodo;
-                                var fechaInt = this.data.tmpGestion + '-' + mesPeriodo + '-' + '30';
-                                var mesPer = new Date(fechaInt).getMonth();
-                                var mesFactura = res[3].split("/");
-                                var fechaFac = mesFactura[2] + '-' + mesFactura[1] + '-' + mesFactura[0];
-                                var mesFac = new Date(fechaFac).getMonth();
-                                var monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Mayo",
-                                    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-                                ];
-                                var literalFactura = monthNames[mesFac];
-                                var literalPeriodo = monthNames[mesPer];
-                                if (mesFactura[1] != mesPeriodo) {
-                                    this.mensaje_('ALERTA', 'Actualmente se encuentra en el periodo: ' + literalPeriodo + ', la factura corresponde al periodo de: ' + literalFactura, 'ERROR');
-                                }
+                                 var importe = this.controlMiles(res[4]);
+                                 this.getComponente('importe_doc').setValue(importe);
 
-                            }
+                             }
+                             if(plt[i]=='fecha'){
 
-                        }
-                        console.log(plt[i]);
-                    }
-                    // }
-                }
-                // else{
-                // 	alert('la plantilla de array no se corresponde con el QR');
-                //  }
+                                 var mesPeriodo = this.data.tmpPeriodo > 9 ? this.data.tmpPeriodo : '0' + this.data.tmpPeriodo;
+                                 var fechaInt = this.data.tmpGestion + '-' + mesPeriodo + '-' + '30';
+                                 var mesPer = new Date(fechaInt).getMonth();
+                                 var mesFactura = res[3].split("/");
+                                 var fechaFac = mesFactura[2] + '-' + mesFactura[1] + '-' + mesFactura[0];
+                                 var mesFac = new Date(fechaFac).getMonth();
+                                 var monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Mayo",
+                                     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+                                 ];
+                                 var literalFactura = monthNames[mesFac];
+                                 var literalPeriodo = monthNames[mesPer];
+                                 if (mesFactura[1] != mesPeriodo) {
+                                     this.mensaje_('ALERTA', 'Actualmente se encuentra en el periodo: ' + literalPeriodo + ', la factura corresponde al periodo de: ' + literalFactura, 'ERROR');
+                                 }
 
-                this.calculaMontoPago();
+                             }
+
+                         }
+                         console.log(plt[i]);
+                     }
+                // }
+                   }
+                    // else{
+                    // 	alert('la plantilla de array no se corresponde con el QR');
+                    //  }
+
+                    this.calculaMontoPago();
 
 
                 //}
@@ -2225,6 +2233,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 icon: tipo
             })
 
+        },
+        controlMiles:function (value) {
+            return value
+                .replace(/\D/g, "")
+                .replace(/([0-9])([0-9]{2})$/, '$1.$2')
+                .replace(/\B(?=(\d{3})+(?!\d)\.?)/g, "")
+                ;
         }
 
 
