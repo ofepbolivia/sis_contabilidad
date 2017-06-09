@@ -3423,4 +3423,138 @@ ALTER TABLE conta.torden_suborden
 
 
 
+/**********************************I-DEP-RAC-CONTA-0-31/05/2017****************************************/
 
+
+CREATE OR REPLACE VIEW conta.vorden_trabajo(
+    id_orden_trabajo,
+    estado_reg,
+    fecha_final,
+    fecha_inicio,
+    desc_orden,
+    motivo_orden,
+    fecha_reg,
+    id_usuario_reg,
+    id_usuario_mod,
+    fecha_mod,
+    usr_reg,
+    usr_mod,
+    id_grupo_ots,
+    id_orden_trabajo_fk,
+    tipo,
+    movimiento,
+    codigo,
+    descripcion,
+    desc_otp)
+AS
+  SELECT odt.id_orden_trabajo,
+         odt.estado_reg,
+         odt.fecha_final,
+         odt.fecha_inicio,
+         odt.desc_orden,
+         odt.motivo_orden,
+         odt.fecha_reg,
+         odt.id_usuario_reg,
+         odt.id_usuario_mod,
+         odt.fecha_mod,
+         usu1.cuenta AS usr_reg,
+         usu2.cuenta AS usr_mod,
+         pxp.aggarray(god.id_grupo_ot) AS id_grupo_ots,
+         odt.id_orden_trabajo_fk,
+         odt.tipo,
+         odt.movimiento,
+         odt.codigo,
+         (COALESCE(odt.codigo, ''::character varying)::text || ' '::text) ||
+           odt.desc_orden::text AS descripcion,
+         ((otp.codigo::text || ' '::text) || otp.desc_orden::text)::character
+           varying AS desc_otp
+  FROM conta.torden_trabajo odt
+       JOIN segu.tusuario usu1 ON usu1.id_usuario = odt.id_usuario_reg
+       LEFT JOIN conta.torden_trabajo otp ON otp.id_orden_trabajo =
+         odt.id_orden_trabajo_fk
+       LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = odt.id_usuario_mod
+       LEFT JOIN conta.tgrupo_ot_det god ON god.id_orden_trabajo =
+         odt.id_orden_trabajo AND god.estado_reg::text = 'activo'::text
+  WHERE odt.estado_reg::text = 'activo'::text
+  GROUP BY odt.id_orden_trabajo,
+           odt.estado_reg,
+           odt.fecha_final,
+           odt.fecha_inicio,
+           odt.desc_orden,
+           odt.motivo_orden,
+           odt.fecha_reg,
+           odt.id_usuario_reg,
+           odt.id_usuario_mod,
+           odt.fecha_mod,
+           usu1.cuenta,
+           usu2.cuenta,
+           otp.codigo,
+           otp.desc_orden;
+
+
+--------------- SQL ---------------
+
+ALTER TABLE conta.ttipo_cc_ot
+  ADD CONSTRAINT ttipo_cc_ot_fk FOREIGN KEY (id_tipo_cc)
+    REFERENCES param.ttipo_cc(id_tipo_cc)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+--------------- SQL ---------------
+
+ALTER TABLE conta.ttipo_cc_ot
+  ADD CONSTRAINT ttipo_cc_ot_fk1 FOREIGN KEY (id_orden_trabajo)
+    REFERENCES conta.torden_trabajo(id_orden_trabajo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;    
+    
+/**********************************F-DEP-RAC-CONTA-0-31/05/2017****************************************/
+
+
+/**********************************I-DEP-RAC-CONTA-0-05/06/2017****************************************/
+CREATE OR REPLACE VIEW conta.vot_arb(
+    ids,
+    id_orden_trabajo,
+    id_orden_trabajo_fk,
+    desc_orden,
+    codigo,
+    movimiento)
+AS
+WITH RECURSIVE ordenes_costos(
+    ids,
+    id_orden_trabajo,
+    id_orden_trabajo_fk,
+    desc_orden,
+    codigo,
+    movimiento) AS(
+  SELECT ARRAY [ c_1.id_orden_trabajo ] AS "array",
+         c_1.id_orden_trabajo,
+         c_1.id_orden_trabajo_fk,
+         c_1.desc_orden,
+         c_1.codigo,
+         c_1.movimiento
+  FROM conta.torden_trabajo c_1
+  WHERE c_1.id_orden_trabajo_fk IS NULL AND
+        c_1.estado_reg::text = 'activo'::text
+  UNION
+  SELECT pc.ids || c2.id_orden_trabajo,
+         c2.id_orden_trabajo,
+         c2.id_orden_trabajo_fk,
+         c2.desc_orden,
+         c2.codigo,
+         c2.movimiento
+  FROM conta.torden_trabajo c2,
+       ordenes_costos pc
+  WHERE c2.id_orden_trabajo_fk = pc.id_orden_trabajo AND
+        c2.estado_reg::text = 'activo'::text)
+      SELECT c.ids,
+             c.id_orden_trabajo,
+             c.id_orden_trabajo_fk,
+             c.desc_orden,
+             c.codigo,
+             c.movimiento
+      FROM ordenes_costos c;
+      
+/**********************************F-DEP-RAC-CONTA-0-05/06/2017****************************************/
