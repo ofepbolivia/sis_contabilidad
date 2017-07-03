@@ -1249,3 +1249,68 @@ select pxp.f_insert_testructura_gui ('RECBTAX', 'CBTE.1');
 /**********************************F-DAT-RAC-CONTA-1-02/06/2017*****************************************/  
 
 
+
+/**********************************I-DAT-RAC-CONTA-1-13/06/2017*****************************************/  
+
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES  (E'conta_val_doc_venta', E'no', E'validar que el cbte cuadre con los documentos de venta');
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES 
+  (E'conta_val_doc_compra', E'no', E'validar que el cbte cuadre con los documentos de compra');
+  
+  
+/* Data for the 'pxp.variable_global' table  (Records 1 - 1) */
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES 
+  (E'conta_dif_doc_cbte', E'0.6', E'la difenrecia permitida al validar cbtes y documentos  facturas, invoice etc');  
+  
+/**********************************F-DAT-RAC-CONTA-1-13/06/2017*****************************************/  
+
+  
+
+
+/**********************************I-DAT-RAC-CONTA-1-19/06/2017*****************************************/  
+
+
+/* Data for the 'pxp.variable_global' table  (Records 1 - 1) */
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES 
+  (E'conta_val_doc_otros_subcuentas_compras', E'INVERSION,ACTIVO FIJO,ALMACENES,OTROS ACTIVOS', E'Nombre de subcuenta que tienen que incluirse en la validacion de documentos de compras,al vaidar cbte, se las separa por comas');
+  
+/**********************************F-DAT-RAC-CONTA-1-19/06/2017*****************************************/  
+ /**********************************I-DAT-MMV-CONTA-1-28/06/2017*****************************************/
+ select pxp.f_insert_tgui ('Resolución 101700000010', 'Resolución 101700000010', 'RESO', 'si', 11, '', 3, '', '', 'CONTA');
+ select pxp.f_insert_tgui ('Comisionistas', 'Comisionistas', 'COMISI', 'si', 1, 'sis_contabilidad/vista/comisionistas/Comisionistas.php', 4, '', 'Comisionistas', 'CONTA');
+ select pxp.f_insert_tgui ('Régimen Simplificado', 'RÃ©gimen Simplificado', 'SIMPLI', 'si', 2, 'sis_contabilidad/vista/regimen_simplificado/RegimenSimplificado.php', 4, '', 'RegimenSimplificado', 'CONTA');
+ select pxp.f_insert_tgui ('Personas Naturales', 'Personas Naturales', 'PERNAT', 'si', 3, 'sis_contabilidad/vista/persona_naturales/PersonaNaturales.php', 4, '', 'PersonaNaturales', 'CONTA');
+ select pxp.f_insert_tgui ('Anexos Actualizaciones', 'Anexos Actualizaciones', 'ANS', 'si', 4, 'sis_contabilidad/vista/anexos_actualizaciones/AnexosActualizaciones.php', 4, '', 'AnexosActualizaciones', 'CONTA');
+ select pxp.f_insert_tgui ('Periodo Resolución ', 'Periodo Resolución ', 'PRC', 'si', 9, 'sis_contabilidad/vista/periodo_resolucion/DeptoConta.php', 3, '', 'DeptoConta', 'CONTA');
+ select pxp.f_insert_testructura_gui ('RESO', 'CONTA');
+ select pxp.f_insert_testructura_gui ('COMISI', 'RESO');
+ select pxp.f_insert_testructura_gui ('SIMPLI', 'RESO');
+ select pxp.f_insert_testructura_gui ('PERNAT', 'RESO');
+ select pxp.f_insert_testructura_gui ('ANS', 'RESO');
+ select pxp.f_insert_testructura_gui ('PRC', 'CONF');
+ /**********************************F-DAT-MMV-CONTA-1-28/06/2017*****************************************/
+
+
+
+/**********************************I-DAT-RAC-CONTA-1-29/06/2017*****************************************/
+select pxp.f_insert_tgui ('Análisis de Costos', 'Análisis de Costos', 'ANCOS', 'si', 20, 'sis_contabilidad/vista/rango/TipoCcArbRep.php', 3, '', 'TipoCcArbRep', 'CONTA');
+select pxp.f_insert_testructura_gui ('ANCOS', 'REPCON');
+/**********************************F-DAT-RAC-CONTA-1-29/06/2017*****************************************/
+
+
+
+
+/***********************************I-DAT-RAC-CONTA-0-03/07/2017*****************************************/
+
+select pxp.f_insert_tgui ('Balance por Tipos de Centros ', 'Balance por Tipos de Centros ', 'BATCC', 'si', 12, 'sis_contabilidad/vista/cuenta/FormFiltroBalanceTipoCC.php', 3, '', 'FormFiltroBalanceTipoCC', 'CONTA');
+select pxp.f_insert_testructura_gui ('BATCC', 'REPCON');
+
+/***********************************F-DAT-RAC-CONTA-0-03/07/2017*****************************************/
+
