@@ -912,6 +912,7 @@ header("content-type: text/javascript; charset=UTF-8");
 				type : 'date'
 			},
 			id_grupo : 3,
+			egrid : true,
 			grid : true,
 			form : true
 		}, {
@@ -932,6 +933,7 @@ header("content-type: text/javascript; charset=UTF-8");
 				type : 'date'
 			},
 			id_grupo : 3,
+			egrid : true,
 			grid : true,
 			form : true
 		}, {
@@ -1591,21 +1593,25 @@ header("content-type: text/javascript; charset=UTF-8");
         
     },
     successWizard: function(resp){
+		var rec=this.sm.getSelected();
         Phx.CP.loadingHide();
        
         var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+
+		var patron = /^FA*/;
        
         if(reg.ROOT.datos.operacion == 'falla'){
-        	
-        	reg.ROOT.datos.desc_falla
-        	if(confirm(reg.ROOT.datos.desc_falla+"\n¿Desea continuar de todas formas?")){
-        		this.mandarDatosWizard(resp.argument.wizard, resp.argument.resp, false);
-        	}
-        	else{
-        		resp.argument.wizard.panel.destroy()
-	            this.reload();
-        	}
-        	
+
+			if(patron.test(rec.data.nro_tramite)==false) {
+				reg.ROOT.datos.desc_falla
+				if (confirm(reg.ROOT.datos.desc_falla + "\n¿Desea continuar de todas formas?")) {
+					this.mandarDatosWizard(resp.argument.wizard, resp.argument.resp, false);
+				}
+				else {
+					resp.argument.wizard.panel.destroy()
+					this.reload();
+				}
+			}
         }
         else{
 	        resp.argument.wizard.panel.destroy()

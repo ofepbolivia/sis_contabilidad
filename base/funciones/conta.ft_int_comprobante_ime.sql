@@ -402,7 +402,7 @@ BEGIN
 			------------------
         	-- VALIDACIONES
         	------------------
-        	select 
+            select 
               id_subsistema
               into 
              v_id_subsistema_conta
@@ -425,16 +425,19 @@ BEGIN
             END IF;
             
             --SUBSISTEMA: Obtiene el id_subsistema del Sistema de Contabilidad si es que no llega como parámetro
-        	IF  pxp.f_existe_parametro(p_tabla,'id_subsistema') THEN
-        		
-                 IF v_parametros.id_subsistema is not NULL THEN
-               	     v_id_subsistema = v_parametros.id_subsistema;
-        	     else
+        	
+        	
+            --RAC, 15/08/2017
+            --  este cambio trabjo problema al editar comprobante de planillas (integrascion con libro de bancos, lo cbte de planillas no generan cheques,  OJO ANALIZAR)
+            --  parece logico no cambiar el sistema donde se origina el cbte
+            -- sin embargo no me acerudo por que se hizo, probablemente es por alguna validacion que solo se aplica al sistema contable
+           
+             IF v_reg_cbte.id_subsistema is not NULL THEN
+               	     v_id_subsistema = v_reg_cbte.id_subsistema;
+             else
                     v_id_subsistema = v_id_subsistema_conta;
-                 end if;
-        	ELSE
-                v_id_subsistema = v_id_subsistema_conta;
-            end if;
+             end if;
+        	
         	
         	--PERIODO
         	--Obtiene el periodo a partir de la fecha
@@ -519,6 +522,12 @@ BEGIN
               v_tc_3 = v_parametros.tipo_cambio_3;
               
             
+            END IF;
+            
+            --valida fechas de costos
+            
+            IF v_parametros.fecha_costo_fin <  v_parametros.fecha_costo_ini THEN
+               raise exception 'la fecha final no puede ser menor a la fecha inicial';
             END IF;
             
            
@@ -1877,6 +1886,44 @@ BEGIN
             return v_resp;
 
 		end;
+    
+    
+    /*********************************    
+ 	#TRANSACCION:  'CONTA_UPDFECOS_MOD'
+ 	#DESCRIPCION:	permite modificar las fecha de costos iniciales y finales, en comprobantes validados
+ 	#AUTOR:		admin	
+ 	#FECHA:		29-08-2013 00:28:30
+	***********************************/
+
+	elsif(p_transaccion='CONTA_UPDFECOS_MOD')then
+
+		begin
+		
+            
+             IF v_parametros.fecha_costo_fin <  v_parametros.fecha_costo_ini THEN
+               raise exception 'la fecha final no puede ser menor a la fecha inicial';
+             END IF;
+        
+			------------------------------
+			--Sentencia de la modificacion
+			------------------------------
+            
+			update conta.tint_comprobante set
+                fecha_costo_ini = v_parametros.fecha_costo_ini,
+                fecha_costo_fin = v_parametros.fecha_costo_fin
+			where id_int_comprobante = v_parametros.id_int_comprobante;
+            
+            
+               
+			--Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Fechas de costos  modificadas en cbte validado'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'id_int_comprobante',v_parametros.id_int_comprobante::varchar);
+               
+            --Devuelve la respuesta
+            return v_resp;
+            
+		end;    
+        
      
     
     
