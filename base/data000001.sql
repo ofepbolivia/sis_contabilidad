@@ -1346,3 +1346,31 @@ VALUES
 
 
 
+/***********************************I-DAT-RAC-CONTA-0-29/08/2017*****************************************/
+
+/* Data for the 'pxp.variable_global' table  (Records 1 - 1) */
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES 
+  (E'conta_ajustar_tipo_cambio_cbte_rel', E'no', E'ajustar automaticamente diferencia por tipo de cambio en trasaccion y comprobantes reacionados');
+
+
+/***********************************F-DAT-RAC-CONTA-0-29/08/2017*****************************************/
+
+
+/***********************************I-DAT-RAC-CONTA-0-08/09/2017*****************************************/
+
+select pxp.f_insert_tgui ('Cuentas por Tipo de Centro', 'Cuentas por Tipo de Centro', 'TCCUAX', 'si', 5, 'sis_contabilidad/vista/tipo_cc_cuenta/TipoCcConf.php', 3, '', 'TipoCcConf', 'CONTA');
+select pxp.f_insert_testructura_gui ('TCCUAX', 'CNOM');
+
+/* Data for the 'pxp.variable_global' table  (Records 1 - 1) */
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES (E'conta_filtrar_cuenta_por_tipo_cc_interface_junior', E'no', E'esta variable habilita el filtro de cuentas y auxiliares segun el tipo de centor de consto en la inteface de cntadores junior');
+
+/***********************************F-DAT-RAC-CONTA-0-08/09/2017*****************************************/
+
+/***********************************I-DAT-MANU-CONTA-0-25/09/2017*****************************************/ 
+select pxp.f_insert_tgui ('Reporte Retencion', 'Reporte Retencion', 'REPRET', 'si', 13, 'sis_contabilidad/reportes/formularios/LibroComprasVentasRetenciones.php', 3, '', 'ReporteRetenciones', 'CONTA');
+/***********************************F-DAT-MANU-CONTA-0-25/09/2017*****************************************/                          
+

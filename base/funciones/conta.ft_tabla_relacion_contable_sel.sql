@@ -17,7 +17,6 @@ $body$
  COMENTARIOS:	
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
-
  DESCRIPCION:	
  AUTOR:			
  FECHA:		
@@ -61,8 +60,8 @@ BEGIN
 						tabrecon.tabla_id_fk,
 						tabrecon.recorrido_arbol,
                         tabrecon.tabla_codigo_auxiliar,
-                        tabrecon.tabla_id_auxiliar
-                        	
+                        tabrecon.tabla_id_auxiliar,
+                        tabrecon.tabla_codigo_aplicacion
 						from conta.ttabla_relacion_contable tabrecon
 						inner join segu.tusuario usu1 on usu1.id_usuario = tabrecon.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = tabrecon.id_usuario_mod

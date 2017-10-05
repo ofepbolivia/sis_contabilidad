@@ -17,7 +17,6 @@ $body$
  COMENTARIOS:	
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
-
  DESCRIPCION:	
  AUTOR:			
  FECHA:		
@@ -61,7 +60,8 @@ BEGIN
 			tabla_id_fk,
 			recorrido_arbol,
             tabla_codigo_auxiliar,
-            tabla_id_auxiliar
+            tabla_id_auxiliar,
+            tabla_codigo_aplicacion
             
             
           	) values(
@@ -76,7 +76,8 @@ BEGIN
 			v_parametros.tabla_id_fk,
 			v_parametros.recorrido_arbol,
             v_parametros.tabla_codigo_auxiliar,
-            v_parametros.tabla_id_auxiliar			
+            v_parametros.tabla_id_auxiliar	,
+            v_parametros.tabla_codigo_aplicacion		
 			)RETURNING id_tabla_relacion_contable into v_id_tabla_relacion_contable;
 			
 			--Definicion de la respuesta
@@ -108,7 +109,8 @@ BEGIN
               tabla_id_fk = v_parametros.tabla_id_fk,
               recorrido_arbol = v_parametros.recorrido_arbol,
               tabla_codigo_auxiliar=v_parametros.tabla_codigo_auxiliar,
-              tabla_id_auxiliar=v_parametros.tabla_id_auxiliar
+              tabla_id_auxiliar=v_parametros.tabla_id_auxiliar,
+              tabla_codigo_aplicacion=  v_parametros.tabla_codigo_aplicacion
             
 			where id_tabla_relacion_contable=v_parametros.id_tabla_relacion_contable;
                

@@ -183,11 +183,30 @@ Phx.vista.TablaRelacionContable=Ext.extend(Phx.gridInterfaz,{
                 maxLength:200
             },
             type:'TextField',
-            filters:{pfiltro:'tabrecon.tabla_id',type:'string'},
+            filters:{pfiltro:'tabrecon.tabla_codigo_auxiliar',type:'string'},
             id_grupo:1,
             grid:true,
             form:true
         },
+        
+        {
+            config:{
+                name: 'tabla_codigo_aplicacion',
+                fieldLabel: 'Codigo Aplicación',
+                qtip:'hace referencia al nombre de campo que contiene codigo de la aplicacion. (Este código puede servir como criterio para escoger una relación contable u otra), si se configura tiene que configurar  un catalogo',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 150,
+                maxLength:200
+            },
+            type:'TextField',
+            filters:{pfiltro:'tabrecon.tabla_codigo_aplicacion',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+        
+        
 		{
 			config:{
 				name: 'estado_reg',
@@ -286,7 +305,8 @@ Phx.vista.TablaRelacionContable=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_mod', type: 'string'},
 		{name:'recorrido_arbol', type: 'string'},
 		'tabla_codigo_auxiliar',
-        'tabla_id_auxiliar'
+        'tabla_id_auxiliar',
+        {name:'tabla_id_fk', type: 'string'},'tabla_codigo_aplicacion'
 	],
 	sortInfo:{
 		field: 'id_tabla_relacion_contable',

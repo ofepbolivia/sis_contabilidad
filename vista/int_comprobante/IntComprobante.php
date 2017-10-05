@@ -47,6 +47,14 @@ header("content-type: text/javascript; charset=UTF-8");
 						tooltip: 'Subir archivo facturas AIRBP'
 					}
 			);
+			
+			this.addButton('chkdep',{	text:'Dependencias',
+				iconCls: 'blist',
+				disabled: true,
+				handler: this.checkDependencias,
+				tooltip: '<b>Revisar Dependencias </b><p>Revisar dependencias del comprobante</p>'
+			});
+			
 
 			this.addButton('btnRelDev', {
 				text : 'Rel Dev',
@@ -56,12 +64,8 @@ header("content-type: text/javascript; charset=UTF-8");
 				tooltip : '<b>Relación con el devengado</b><br/>Solo para comprobantes de pago presupuestario'
 			});
 			
-			this.addButton('chkpresupuesto',{text:'Chk Presupuesto',
-				iconCls: 'blist',
-				disabled: true,
-				handler: this.checkPresupuesto,
-				tooltip: '<b>Revisar Presupuesto</b><p>Revisar estado de ejecución presupeustaria para el tramite</p>'
-			});
+			this.addBotonesPresupuesto()
+			
 			
 			this.addBotonesGantt();
 	        this.addButton('btnChequeoDocumentosWf',
@@ -1409,30 +1413,7 @@ header("content-type: text/javascript; charset=UTF-8");
 				height : '80%'
 			}, rec.data, this.idContenedor, 'IntRelDevengado');
 		},
-	   checkPresupuesto:function(){                   
-			  var rec=this.sm.getSelected();
-			  var configExtra = [];
-			  this.objChkPres = Phx.CP.loadWindows('../../../sis_presupuestos/vista/presup_partida/ChkPresupuesto.php',
-										'Estado del Presupuesto',
-										{
-											modal:true,
-											width:700,
-											height:450
-										}, {
-											data:{
-											   nro_tramite: rec.data.nro_tramite								  
-											}}, this.idContenedor,'ChkPresupuesto',
-										{
-											config:[{
-													  event:'onclose',
-													  delegate: this.onCloseChk												  
-													}],
-											
-											scope:this
-										 });
-			   
-	 },
-	 
+	  
 	 addBotonesGantt: function() {
         this.menuAdqGantt = new Ext.Toolbar.SplitButton({
             id: 'b-diagrama_gantt-' + this.idContenedor,
@@ -1598,11 +1579,9 @@ header("content-type: text/javascript; charset=UTF-8");
        
         var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
 
-		var patron = /^FA*/;
-       
         if(reg.ROOT.datos.operacion == 'falla'){
 
-			if(patron.test(rec.data.nro_tramite)==false) {
+			
 				reg.ROOT.datos.desc_falla
 				if (confirm(reg.ROOT.datos.desc_falla + "\n¿Desea continuar de todas formas?")) {
 					this.mandarDatosWizard(resp.argument.wizard, resp.argument.resp, false);
@@ -1611,7 +1590,7 @@ header("content-type: text/javascript; charset=UTF-8");
 					resp.argument.wizard.panel.destroy()
 					this.reload();
 				}
-			}
+			
         }
         else{
 	        resp.argument.wizard.panel.destroy()
@@ -1636,6 +1615,85 @@ header("content-type: text/javascript; charset=UTF-8");
         
         
     },
+    addBotonesPresupuesto: function() {
+    	
+        this.menuPre = new Ext.Toolbar.SplitButton({
+            id: 'b-chkpresupuesto-' + this.idContenedor,
+            text: 'Presupuestos.',
+            grupo:[0,1,2],
+            disabled: true,
+            iconCls : 'blist',
+            handler:this.checkPresupuesto,
+            scope: this,
+            menu:{
+            items: [{
+                id:'btn-chkpresupuesto-' + this.idContenedor,
+                text: 'Revisar Presupuesto Comprometido/Ejecutado',
+                tooltip: '<b>Revisar Presupuesto</b><p>Revisar estado de ejecución presupeustaria para el tramite</p>',
+                handler:this.checkPresupuesto,               
+                scope: this
+            }, {
+                id:'b-btnRepOC-' + this.idContenedor,
+                text: 'Verificar presupuesto disponible (Formulado)',
+                tooltip: '<b>Reporte de Pre-orden de Compra</b>',
+                handler:this.checkVerPresupuesto,
+                scope: this
+            }
+        ]}});
+		this.tbar.add(this.menuPre);
+    },
+    
+     checkPresupuesto:function(){                   
+			  var rec=this.sm.getSelected();
+			  var configExtra = [];
+			  this.objChkPres = Phx.CP.loadWindows('../../../sis_presupuestos/vista/presup_partida/ChkPresupuesto.php',
+										'Estado del Presupuesto',
+										{
+											modal:true,
+											width:700,
+											height:450
+										}, {
+											data:{
+											   nro_tramite: rec.data.nro_tramite								  
+											}}, this.idContenedor,'ChkPresupuesto');
+			   
+	 },
+	 
+	  checkVerPresupuesto:function(){                   
+			  var rec=this.sm.getSelected();
+			  var configExtra = [];
+			  this.objChkPres = Phx.CP.loadWindows('../../../sis_presupuestos/vista/verificacion_presup/VerificacionPresup.php',
+										'Verificación de disponibilidad del Presupuesto',
+										{
+											modal: true,
+											width: 700,
+											height: 450
+										}, {
+											  tabla_id: rec.data.id_int_comprobante,
+											  tabla: 'conta.tint_comprobante'								  
+											}, this.idContenedor,'VerificacionPresup');
+											
+											
+										
+			   
+	 },
+	 
+	 checkDependencias: function(){                   
+			  var rec=this.sm.getSelected();
+			  var configExtra = [];
+			  this.objChkPres = Phx.CP.loadWindows('../../../sis_contabilidad/vista/int_comprobante/CbteDependencias.php',
+										'Dependencias',
+										{
+											modal:true,
+											width: '80%',
+											height: '80%'
+										}, 
+										  rec.data, 
+										  this.idContenedor,
+										 'CbteDependencias');			   
+	},
+    
+    
 
 	onButtonAIRBP : function() {
 		var rec=this.sm.getSelected();
