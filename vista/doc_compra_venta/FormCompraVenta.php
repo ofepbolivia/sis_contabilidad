@@ -1288,9 +1288,9 @@ header("content-type: text/javascript; charset=UTF-8");
                                 totalProperty:'total',
                                 fields: ['id_agencia','nombre','codigo_noiata','codigo','tipo_agencia'],
                                 remoteSort: true,
-                                baseParams:{par_filtro:'age.nombre#age.codigo_noiata#age.codigo#age.tipo_agencia', tipo_agencia: ''}
+                                baseParams:{par_filtro:'age.nombre#age.codigo_noiata#age.codigo#age.tipo_agencia#codigo_int', tipo_agencia: ''}
                             }),
-                        tpl:'<tpl for="."><div class="x-combo-list-item"><p>{nombre}</p><p>Codigo IATA: {codigo}</p><p>Codigo NO IATA: {codigo_noiata}</p></div></tpl>',
+                        tpl:'<tpl for="."><div class="x-combo-list-item"><p>{nombre}</p><p>Codigo IATA: {codigo}</p><p>Codigo NO IATA: {codigo_noiata}</p><p>OficceId: {codigo_int}</p></div></tpl>',
                         valueField: 'id_agencia',
                         hiddenValue: 'id_agencia',
                         displayField: 'nombre',//codigo_noiata
