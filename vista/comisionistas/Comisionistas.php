@@ -70,7 +70,7 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
             handler : this.addListaNegra,
             tooltip : '<b>Lista Negra</b><br/><b>Agrega a la lista negra</b>'
         });
-        //this.addButton('insertAuto',{argument: {imprimir: 'insertAuto'},text:'<i class="fa fa-file-text-o fa-2x"></i> insertAuto',/*iconCls:'' ,*/disabled:true,handler:this.insertAuto});
+        this.addButton('insertAuto',{argument: {imprimir: 'insertAuto'},text:'<i class="fa fa-file-text-o fa-2x"></i> insertAuto',/*iconCls:'' ,*/disabled:true,handler:this.insertAuto});
         this.addButton('exportar',{argument: {imprimir: 'exportar'},text:'<i class="fa fa-file-text-o fa-2x"></i> Generar Periodo TXT - SIN',/*iconCls:'' ,*/disabled:true,handler:this.generar_txt});
         this.addButton('Importar',{argument: {imprimir: 'Importar'},text:'<i class="fa fa-file-text-o fa-2x"></i> Importar TXT',/*iconCls:'' ,*/disabled:true,handler:this.importar_txt});
         this.addButton('BorrarTodo',{argument: {imprimir: 'BorrarTodo'},text:'<i class="fa fa-file-text-o fa-2x"></i> BorrarTodo',/*iconCls:'' ,*/disabled:true,handler:this.BorrarTodo});
@@ -123,6 +123,8 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
                         momento = 'no';
                     if(value == 'si'){
                         checked = 'checked';;
+                    }else if(value==''){
+                        return value;
                     }
                     return  String.format('<div style="vertical-align:middle;text-align:center;"><input style="height:37px;width:37px;" type="checkbox"  {0}></div>',checked);
 
@@ -133,6 +135,21 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
             id_grupo: 0,
             grid: true,
             form: false
+        },
+        {
+            config:{
+                name: 'nombre_agencia',
+                fieldLabel: 'Agencia',
+                allowBlank: false,
+                anchor: '80%',
+                gwidth: 150,
+                maxLength:500
+            },
+            type:'TextField',
+            filters:{pfiltro:'cm.nombre_agencia',type:'string'},
+            id_grupo:0,
+            grid:true,
+            form:true
         },
 
         {
@@ -268,7 +285,7 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
                 fieldLabel: 'Monto total del producto',
                 allowBlank: false,
                 anchor: '80%',
-                gwidth: 100,
+                gwidth: 150,
                 maxLength:1310720
             },
             type:'NumberField',
@@ -283,7 +300,7 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
                 fieldLabel: 'Monto total de la comisión del producto',
                 allowBlank: false,
                 anchor: '80%',
-                gwidth: 100,
+                gwidth: 150,
                 maxLength:1310720
             },
             type:'NumberField',
@@ -432,7 +449,8 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
         {name:'revisado', type: 'string'},
         {name:'registro', type: 'string'},
         {name:'tipo_comisionista', type: 'string'},
-        {name:'lista_negra', type: 'string'}
+        {name:'lista_negra', type: 'string'},
+        {name:'nombre_agencia', type: 'string'}
 
 	],
 	sortInfo:{
@@ -528,7 +546,7 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
 
     validarFiltros:function(){
         if(this.cmbDepto.getValue() && this.cmbGestion.validate() && this.cmbPeriodo.validate()){
-
+            this.getBoton('insertAuto').enable();
            this.getBoton('exportar').enable();
             this.getBoton('Importar').enable();
             this.getBoton('BorrarTodo').enable();
@@ -746,6 +764,28 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
     },
 
     successAuto:function(){
+        Phx.CP.loadingHide();
+        this.reload();
+    },
+    insertAuto:function(){
+
+        Phx.CP.loadingShow();
+
+        var rec = this.cmbPeriodo.getValue();
+        var id_depto_conta = this.cmbDepto.getValue();
+        var id_gestion = this.cmbGestion.getValue();
+
+        Ext.Ajax.request({
+            url:'../../sis_contabilidad/control/Comisionistas/insertAuto',
+            params:{'id_periodo':rec,'start':0,'limit':100000,id_depto_conta:id_depto_conta,id_gestion:id_gestion},
+            success: this.successAutor,
+
+            failure: this.conexionFailure,
+            timeout:this.timeout,
+            scope:this
+        });
+    },
+    successAutor:function(resp){
         Phx.CP.loadingHide();
         this.reload();
     }

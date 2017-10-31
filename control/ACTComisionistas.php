@@ -28,6 +28,16 @@ class ACTComisionistas extends ACTbase{
 			
 			$this->res=$this->objFunc->listarComisionistas($this->objParam);
 		}
+        $temp = Array();
+        $temp['nombre_agencia'] = 'TOTAL';
+        $temp['monto_total'] = $this->res->extraData['total_monto_total'];
+        $temp['monto_total_comision'] = $this->res->extraData['total_monto_total_comision'];
+        $temp['tipo_reg'] = 'summary';
+        $temp['id_comisionista'] = 0;
+
+        $this->res->total++;
+
+        $this->res->addLastRecDatos($temp);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 				
@@ -131,6 +141,11 @@ class ACTComisionistas extends ACTbase{
         $empresa = $this->res2;
         $nit_empresa = $empresa[0]['nit'];
         return $nit_empresa;
+    }
+    function insertAuto(){
+        $this->objFunc=$this->create('MODComisionistas');
+        $this->res=$this->objFunc->insertAuto($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
     }
 			
 }

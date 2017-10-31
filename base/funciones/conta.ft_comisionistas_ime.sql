@@ -38,6 +38,10 @@ DECLARE
     v_id_periodo			integer;
     v_id_deptor				integer;
 
+    v_consulta				varchar;
+	v_recort				record;
+    v_periodo			integer;
+
 BEGIN
 
     v_nombre_funcion = 'conta.ft_comisionistas_ime';
@@ -469,6 +473,110 @@ BEGIN
         v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'agregado a la lista negra(a)');
    		RETURN v_resp;
    END;
+
+   	/*********************************
+ 	#TRANSACCION:  'CONTA_CMS_AUN'
+ 	#DESCRIPCION:	Insercion de registros automatico
+ 	#AUTOR:		MMV
+ 	#FECHA:		31-05-2017 20:17:02
+	***********************************/
+     ELSIF (p_transaccion='CONTA_CMS_AUN') THEN
+
+      BEGIN
+
+
+      select p.periodo
+               into
+               v_periodo
+      from param.tperiodo p
+      where p.id_periodo = v_parametros.id_periodo and p.id_gestion = v_parametros.id_gestion;
+
+     FOR v_reccord IN (/*
+      select 	a.id_agencia,
+            a.nombre,
+            a.nit,
+            '' as codigo,
+            'Venta de Servicio de Transporte Aereo' as descripcion,
+            1 cantidad,
+            EXTRACT(MONTH FROM bo.fecha_emision),
+            bo.total,
+           round(-1 * bo.comision) as comision
+      from obingresos.tagencia a
+      inner join obingresos.tboleto_2017 bo on bo.id_agencia = a.id_agencia
+      where a.boaagt = 'A' and a.tipo_agencia = 'noiata'  and bo.total <> 0
+      and  EXTRACT(MONTH FROM bo.fecha_emision) = v_periodo
+      order by a.nombre*/
+
+       select 	a.id_agencia,
+            a.nombre,
+            a.nit,
+            '' as codigo,
+            'Venta de Servicio de Transporte Aereo' as descripcion,
+            1 cantidad,
+            bo.neto,
+            bo.total,
+           cb.importe as total_comision
+      from obingresos.tagencia a
+      inner join obingresos.tboleto_2017 bo on bo.id_agencia = a.id_agencia
+      inner join mat.vcomision_boletos cb on cb.id_boleto = bo.id_boleto
+      where a.boaagt = 'A' and a.tipo_agencia = 'noiata'
+      and  EXTRACT(MONTH FROM bo.fecha_emision) = v_periodo
+      order by a.nombre
+
+)LOOP
+insert into conta.tcomisionistas(
+			nit_comisionista,
+			nro_contrato,
+			codigo_producto,
+			estado_reg,
+			descripcion_producto,
+			cantidad_total_entregado,
+			cantidad_total_vendido,
+			precio_unitario,
+			monto_total,
+			monto_total_comision,
+			id_usuario_reg,
+			usuario_ai,
+			fecha_reg,
+			id_usuario_ai,
+			fecha_mod,
+			id_usuario_mod,
+            id_periodo,
+            id_depto_conta,
+            registro,
+            nombre_agencia,
+            revisado
+          	) values(
+			v_reccord.nit,
+			null,
+			v_reccord.codigo,
+			'activo',
+			v_reccord.descripcion,
+			v_reccord.cantidad,
+			v_reccord.cantidad,
+			v_reccord.total,
+			v_reccord.total,
+			v_reccord.comision,
+			p_id_usuario,
+			v_parametros._nombre_usuario_ai,
+			now(),
+			v_parametros._id_usuario_ai,
+			null,
+			null,
+            v_parametros.id_periodo,
+            v_parametros.id_depto_conta,
+            'automatico',
+            v_reccord.nombre,
+            'si'
+			);
+
+END LOOP;
+        v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'anexos actualizaciones automatic(a)');
+        v_resp = pxp.f_agrega_clave(v_resp, 'id_depto_conta', v_parametros.id_depto_conta :: VARCHAR);
+
+        --Devuelve la respuesta
+        RETURN v_resp;
+     END;
 
 	else
 

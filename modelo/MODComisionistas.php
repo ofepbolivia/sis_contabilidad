@@ -20,7 +20,9 @@ class MODComisionistas extends MODbase{
 		$this->procedimiento='conta.ft_comisionistas_sel';
 		$this->transaccion='CONTA_CMS_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-				
+
+        $this->capturaCount('total_monto_total','numeric');
+        $this->capturaCount('total_monto_total_comision','numeric');
 		//Definicion de la lista del resultado del query
 		$this->captura('id_comisionista','int4');
 		$this->captura('nit_comisionista','varchar');
@@ -48,7 +50,7 @@ class MODComisionistas extends MODbase{
 		$this->captura('id_usuario_ai','int4');
 		$this->captura('fecha_mod','timestamp');
 		$this->captura('id_usuario_mod','int4');
-
+		$this->captura('nombre_agencia','varchar');
 
 		
 		//Ejecuta la instruccion
@@ -313,6 +315,23 @@ class MODComisionistas extends MODbase{
         $res->execute();
         $result = $res->fetchAll(PDO::FETCH_ASSOC);
         return $result;
+    }
+    function insertAuto(){
+
+        $this->procedimiento='conta.ft_comisionistas_ime';
+        $this->transaccion='CONTA_CMS_AUN';
+        $this->tipo_procedimiento='IME';
+        //Define los parametros para la funcion
+        $this->setParametro('id_periodo','id_periodo','int4');
+        $this->setParametro('id_depto_conta','id_depto_conta','int4');
+        $this->setParametro('id_gestion','id_gestion','int4');
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+
     }
 }
 ?>
