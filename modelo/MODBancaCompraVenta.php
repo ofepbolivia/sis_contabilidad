@@ -223,6 +223,7 @@ class MODBancaCompraVenta extends MODbase{
 				$this->setParametro('periodo_servicio','periodo_servicio','varchar');
 		
 		$this->setParametro('saldo','saldo','numeric');
+		$this->setParametro('multa_cuota','multa_cuota','numeric');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -619,6 +620,81 @@ class MODBancaCompraVenta extends MODbase{
 
 		//Devuelve la respuesta
 		return $this->respuesta;
+	}
+
+	function listarPosiblesBancarizaciones(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='conta.ft_banca_compra_venta_sel';
+        $this->transaccion='CONTA_BANCA_POSIB';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->count = false;
+
+
+
+        $this->setParametro('id_gestion','id_gestion','int4');
+
+        //Definicion de la lista del resultado del query
+        $this->captura('id_plan_pago_pagado','int4');
+        $this->captura('id_plan_pago_devengado','int4');
+        $this->captura('comprobante_sigma','varchar');
+        $this->captura('id_libro_bancos','int4');
+        $this->captura('tipo','varchar');
+        $this->captura('id_documento','bigint');
+        $this->captura('razon_social','varchar');
+        $this->captura('fecha_documento','date');
+        $this->captura('nro_documento','varchar');
+        $this->captura('nro_autorizacion','varchar');
+        $this->captura('importe_total','numeric');
+        $this->captura('nro_nit','varchar');
+        $this->captura('tipo_informe','varchar');
+        $this->captura('tipo_plantilla','varchar');
+        $this->captura('fecha_dev','date');
+        $this->captura('fecha_pag','date');
+        $this->captura('fecha_costo_ini','date');
+        $this->captura('fecha_costo_fin','date');
+        $this->captura('fecha_pago','date');
+        $this->captura('id_cuenta_bancaria','int4');
+        $this->captura('denominacion','varchar');
+        $this->captura('nro_cuenta','varchar');
+        $this->captura('id_proveedor','int4');
+        $this->captura('numero_contrato','varchar');
+        $this->captura('id_contrato','int4');
+        $this->captura('monto_contrato','numeric');
+        $this->captura('bancarizacion','varchar');
+        $this->captura('num_tramite','varchar');
+        $this->captura('nro_cuota','numeric');
+        $this->captura('forma_pago','varchar');
+        $this->captura('comprobante_c31','varchar');
+        $this->captura('fecha_entrega','date');
+        $this->captura('id_cuenta_bancaria_plan_pago','int4');
+        $this->captura('nro_cheque','int4');
+        $this->captura('id_proceso_wf','int4');
+        $this->captura('resolucion_bancarizacion','varchar');
+        $this->captura('monto_retgar_mo','numeric');
+        $this->captura('liquido_pagable','numeric');
+        $this->captura('monto_pago','numeric');
+        $this->captura('otros_descuentos','numeric');
+        $this->captura('descuento_inter_serv','numeric');
+        $this->captura('estado_libro','varchar');
+        $this->captura('importe_cheque','numeric');
+        $this->captura('importe_debe','int4');
+        $this->captura('importe_gasto','int4');
+        $this->captura('importe_recurso','int4');
+        $this->captura('importe_haber','int4');
+        $this->captura('tipo_monto','varchar');
+
+        
+
+
+
+
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
 	}
 
 	

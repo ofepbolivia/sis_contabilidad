@@ -17,8 +17,8 @@ tipoBan: 'Compras',
 fheight: '80%',
     fwidth: '95%',
 	constructor:function(config){
-		
-	
+
+
 	
 	
 	this.tbarItems = ['-',
@@ -212,6 +212,41 @@ fheight: '80%',
                         }),
 
                     });
+
+
+        this.winConsultaBanca = new Ext.Window(
+            {
+                layout: 'fit',
+                width: 500,
+                height: 250,
+                modal: true,
+                closeAction: 'hide',
+
+                items: new Ext.FormPanel({
+                    labelWidth: 75, // label settings here cascade unless overridden
+
+                    frame: true,
+                    // title: 'Factura Manual Concepto',
+                    bodyStyle: 'padding:5px 5px 0',
+                    width: 339,
+                    defaults: {width: 191},
+                    // defaultType: 'textfield',
+
+                    items: [this.cmbGestion_consultar
+
+                    ],
+
+                    buttons: [{
+                        text: 'Save',
+                        handler: this.consultaBancaPosibles,
+
+                        scope: this
+                    }, {
+                        text: 'Cancel'
+                    }]
+                }),
+
+            });
                     
 		 
 		this.addButton('btnChequeoDocumentosWf',
@@ -253,7 +288,10 @@ fheight: '80%',
 		this.addButton('exportarGestionCompleta',{argument: {imprimir: 'exportarGestionCompleta'},text:'<i class="fa fa-file-text-o fa-2x"></i> Generar Gestion TXT - SIN',/*iconCls:'' ,*/disabled:false,handler:this.exportarGestionCompleta});
 
 
-		//this.load({params:{start:0, limit:this.tam_pag}})
+        this.addButton('consultarPosiblesBancarizaciones',{argument: {imprimir: 'consultarPosiblesBancarizaciones'},text:'<i class="fa fa-file-text-o fa-2x"></i> Posibles Bancarizaciones',/*iconCls:'' ,*/disabled:false,handler:this.consultarPosiblesBancarizaciones});
+
+
+        //this.load({params:{start:0, limit:this.tam_pag}})
 	},
 	
 	
@@ -476,7 +514,37 @@ fheight: '80%',
 				listWidth:'280',
 				width:80
 			}),
-			
+        cmbGestion_consultar: new Ext.form.ComboBox({
+				fieldLabel: 'Gestion',
+				allowBlank: false,
+				emptyText:'Gestion...',
+				blankText: 'Año',
+				store:new Ext.data.JsonStore(
+				{
+					url: '../../sis_parametros/control/Gestion/listarGestion',
+					id: 'id_gestion',
+					root: 'datos',
+					sortInfo:{
+						field: 'gestion',
+						direction: 'DESC'
+					},
+					totalProperty: 'total',
+					fields: ['id_gestion','gestion'],
+					// turn on remote sorting
+					remoteSort: true,
+					baseParams:{par_filtro:'gestion'}
+				}),
+				valueField: 'id_gestion',
+				triggerAction: 'all',
+				displayField: 'gestion',
+			    hiddenName: 'id_gestion',
+    			mode:'remote',
+				pageSize:50,
+				queryDelay:500,
+				listWidth:'280',
+				width:80
+			}),
+
 	iniciarEventos:function(){
 		this.Cmp.tipo_documento_pago.on('select', function(combo, record, index){ 
 			//console.log(this.Cmp.tipo_documento_pago.getValue());
@@ -2247,8 +2315,25 @@ fheight: '80%',
 				height:400
 			},'',this.idContenedor,'PlanPagoDocumentoAirbp')
 
-    }
-    
+    },
+
+        consultarPosiblesBancarizaciones : function () {
+            this.winConsultaBanca.show();
+        },
+
+        consultaBancaPosibles : function () {
+            this.winConsultaBanca.show();
+            var misdatos = new Object();
+            misdatos.id_gestion = this.cmbGestion_consultar.getValue();
+            Phx.CP.loadWindows('../../../sis_contabilidad/vista/banca_compra_venta/PosiblesBancarizaciones.php',
+                'PosiblesBancarizaciones',
+                {
+                    width:900,
+                    height:400
+                },misdatos,this.idContenedor,'PosiblesBancarizaciones')
+
+        }
+
     
 		
 		/*,

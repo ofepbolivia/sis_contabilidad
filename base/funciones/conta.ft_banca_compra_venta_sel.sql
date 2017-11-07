@@ -28,6 +28,7 @@ DECLARE
   v_host varchar;
   
   v_id_banca_compra_venta_seleccionado integer;
+  v_gestion INTEGER;
 
 BEGIN
 
@@ -275,6 +276,124 @@ BEGIN
       return v_consulta;
 
     end;
+
+    /*********************************
+     #TRANSACCION:  'CONTA_BANCA_POSIB'
+     #DESCRIPCION:    datos posibles para bancarizar
+     #AUTOR:        favio figueroa
+     #FECHA:        06-11-2017 14:36:46
+    ***********************************/
+
+    elsif(p_transaccion='CONTA_BANCA_POSIB')then
+
+    begin
+      --Sentencia de la consulta de conteo de registros
+
+
+      SELECT gestion into v_gestion FROM param.tgestion where id_gestion = v_parametros.id_gestion;
+      v_host:='dbname=dbendesis host=192.168.100.30 user=ende_pxp password=ende_pxp';
+
+      --creacion de tabla temporal del endesis
+      v_consulta = conta.f_obtener_string_documento_bancarizacion(v_gestion::INTEGER);
+
+      v_consulta:= v_consulta || 'select pg_pagado.id_plan_pago as id_plan_pago_pagado,
+      pg_devengado.id_plan_pago id_plan_pago_devengado,
+      libro.comprobante_sigma,
+      libro.id_libro_bancos,
+      libro.tipo,
+      doc.id_documento::bigint as id_documento,
+      doc.razon_social,
+      doc.fecha_documento,
+      doc.nro_documento::varchar,
+       doc.nro_autorizacion,
+      doc.importe_total,
+      doc.nro_nit,
+      plantilla.tipo_informe,
+      plantilla.tipo_plantilla,
+      pg_devengado.fecha_dev,
+      pg_pagado.fecha_pag,
+      pg_devengado.fecha_costo_ini,
+      pg_devengado.fecha_costo_fin,
+      libro.fecha as fecha_pago,
+      cuenta.id_cuenta_bancaria,
+      cuenta.denominacion,
+      cuenta.nro_cuenta,
+      provee.id_proveedor,
+      contra.numero as numero_contrato,
+      contra.id_contrato,
+      contra.monto as monto_contrato,
+      contra.bancarizacion,
+      obliga.num_tramite,
+      pg_devengado.nro_cuota,
+       pg_pagado.forma_pago,
+      sigma.comprobante_c31,
+      sigma.fecha_entrega,
+      pg_pagado.id_cuenta_bancaria as id_cuenta_bancaria_plan_pago,
+      libro.nro_cheque,
+      pg_pagado.id_proceso_wf,
+      contra.resolucion_bancarizacion,
+      pg_pagado.monto_retgar_mo,
+      pg_pagado.liquido_pagable,
+      pg_pagado.monto as monto_pago,
+      pg_pagado.otros_descuentos,
+      pg_pagado.descuento_inter_serv,
+      libro.estado as estado_libro,
+      libro.importe_cheque,
+      doc.importe_debe::integer,
+      doc.importe_gasto::integer,
+      sigma.importe_recurso::integer,
+      sigma.importe_haber::integer,
+      contra.tipo_monto
+      --libro_fk.importe_cheque as importe_cheque_fk
+      --libro_fk.nro_cheque as nro_cheque_fk
+from tes.tplan_pago pg_pagado
+inner join tes.tplan_pago pg_devengado on pg_devengado.id_plan_pago = pg_pagado.id_plan_pago_fk
+inner join param.tplantilla plantilla  on plantilla.id_plantilla = pg_devengado.id_plantilla
+
+left join tabla_temporal_sigma sigma on sigma.id_int_comprobante = pg_pagado.id_int_comprobante
+left join tes.tts_libro_bancos libro on libro.id_int_comprobante = pg_pagado.id_int_comprobante
+--left join tes.tts_libro_bancos libro_fk on libro_fk.id_libro_bancos_fk = libro.id_libro_bancos
+
+
+left join tes.tcuenta_bancaria cuenta on cuenta.id_cuenta_bancaria = pg_pagado.id_cuenta_bancaria
+
+inner join tes.tobligacion_pago obliga on obliga.id_obligacion_pago = pg_pagado.id_obligacion_pago
+left join leg.tcontrato contra on contra.id_contrato = obliga.id_contrato
+
+inner join param.tproveedor provee on provee.id_proveedor = obliga.id_proveedor
+
+inner join tabla_temporal_documentos doc on doc.id_int_comprobante = pg_devengado.id_int_comprobante
+
+
+where pg_pagado.estado=''pagado'' and pg_devengado.estado = ''devengado''
+and (libro.tipo=''cheque'' or  pg_pagado.forma_pago = ''transferencia'' or pg_pagado.forma_pago = ''cheque'')
+and ( pg_pagado.forma_pago = ''transferencia'' or pg_pagado.forma_pago=''cheque'')
+-- and plantilla.tipo_informe in (''lcv'',''retenciones'')
+
+and (
+        libro.estado in (''cobrado'',''entregado'',''anulado'',''borrador'',''depositado'')
+        or libro.estado is null
+        or (pg_pagado.forma_pago = ''transferencia'' and libro.estado in(''cobrado'',''entregado'',''anulado'',''borrador'') )
+      )
+
+
+and (
+(doc.importe_total >= 50000)
+ or (contra.bancarizacion = ''si'' and contra.tipo_monto=''cerrado'')
+  or (contra.bancarizacion=''si'' and contra.tipo_monto=''abierto'' and doc.importe_total >= 50000)
+  )
+ ORDER BY doc.fecha_documento,doc.nro_documento ,libro.estado asc ';
+
+      --Definicion de la respuesta
+      --v_consulta:=v_consulta||v_parametros.filtro;
+
+      --Devuelve la respuesta
+      return v_consulta;
+
+    end;
+
+
+
 
     else
 
