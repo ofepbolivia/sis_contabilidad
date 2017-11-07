@@ -375,7 +375,8 @@ BEGIN
           id_periodo            = v_id_periodo,
           saldo                 = v_saldo,
           tramite_cuota         = v_parametros.tramite_cuota,
-          periodo_servicio      = v_parametros.periodo_servicio
+          periodo_servicio      = v_parametros.periodo_servicio,
+          multa_cuota           = v_parametros.multa_cuota
 
         WHERE id_banca_compra_venta = v_parametros.id_banca_compra_venta;
 

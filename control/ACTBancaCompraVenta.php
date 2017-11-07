@@ -304,6 +304,22 @@ class ACTBancaCompraVenta extends ACTbase{
 		$this->res=$this->objFunc->clonar($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
+<<<<<<< HEAD
+=======
+
+	function listarPosiblesBancarizaciones(){
+
+
+
+		$this->objFunc=$this->create('MODBancaCompraVenta');
+		$this->res=$this->objFunc->listarPosiblesBancarizaciones($this->objParam);
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
+	
+	
+	
+>>>>>>> de4eeebf06385759120316ed52ef0dc5decad354
 
 
 
