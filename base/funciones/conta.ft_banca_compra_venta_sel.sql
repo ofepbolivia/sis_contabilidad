@@ -381,11 +381,11 @@ and (
 (doc.importe_total >= 50000)
  or (contra.bancarizacion = ''si'' and contra.tipo_monto=''cerrado'')
   or (contra.bancarizacion=''si'' and contra.tipo_monto=''abierto'' and doc.importe_total >= 50000)
-  )
- ORDER BY doc.fecha_documento,doc.nro_documento ,libro.estado asc ';
+  ) and  ';
 
       --Definicion de la respuesta
-      --v_consulta:=v_consulta||v_parametros.filtro;
+      v_consulta:=v_consulta||v_parametros.filtro;
+      v_consulta = v_consulta || ' ORDER BY doc.fecha_documento,doc.nro_documento ,libro.estado asc ';
 
       --Devuelve la respuesta
       return v_consulta;
