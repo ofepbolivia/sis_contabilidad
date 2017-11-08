@@ -162,7 +162,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.comprobante_sigma',type:'string'},
+                    filters:{pfiltro:'libro.comprobante_sigma',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -177,7 +177,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.tipo',type:'string'},
+                    filters:{pfiltro:'libro.tipo',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -192,10 +192,12 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.razon_social',type:'string'},
+                    filters:{pfiltro:'doc.razon_social',type:'string'},
                     id_grupo:2,
                     grid:true,
-                    form:false
+                    form:false,
+                    bottom_filter : true
+
                 },
 
 
@@ -210,7 +212,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
                     },
                     type:'DateField',
-                    filters:{pfiltro:'banca.fecha_documento',type:'date'},
+                    filters:{pfiltro:'doc.fecha_documento',type:'date'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -225,10 +227,12 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.nro_documento',type:'string'},
+                    filters:{pfiltro:'doc.nro_documento',type:'string'},
                     id_grupo:2,
                     grid:true,
-                    form:false
+                    form:false,
+                    bottom_filter : true
+
                 },
                 {
                     config:{
@@ -240,7 +244,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.nro_autorizacion',type:'string'},
+                    filters:{pfiltro:'doc.nro_autorizacion',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -256,7 +260,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.importe_total',type:'string'},
+                    filters:{pfiltro:'doc.importe_total',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -272,7 +276,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.nro_nit',type:'string'},
+                    filters:{pfiltro:'doc.nro_nit',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -287,7 +291,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.tipo_informe',type:'string'},
+                    filters:{pfiltro:'plantilla.tipo_informe',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -303,7 +307,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.tipo_plantilla',type:'string'},
+                    filters:{pfiltro:'plantilla.tipo_plantilla',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -319,7 +323,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
                     },
                     type:'DateField',
-                    filters:{pfiltro:'banca.fecha_dev',type:'date'},
+                    filters:{pfiltro:'pg_devengado.fecha_dev',type:'date'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -335,7 +339,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
                     },
                     type:'DateField',
-                    filters:{pfiltro:'banca.fecha_pag',type:'date'},
+                    filters:{pfiltro:'pg_pagado.fecha_pag',type:'date'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -351,7 +355,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
                     },
                     type:'DateField',
-                    filters:{pfiltro:'banca.fecha_costo_ini',type:'date'},
+                    filters:{pfiltro:'pg_devengado.fecha_costo_ini',type:'date'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -367,7 +371,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
                     },
                     type:'DateField',
-                    filters:{pfiltro:'banca.fecha_costo_fin',type:'date'},
+                    filters:{pfiltro:'pg_devengado.fecha_costo_fin',type:'date'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -383,7 +387,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
                     },
                     type:'DateField',
-                    filters:{pfiltro:'banca.fecha_pago',type:'date'},
+                    filters:{pfiltro:'libro.fecha_pago',type:'date'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -398,7 +402,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.denominacion',type:'string'},
+                    filters:{pfiltro:'cuenta.denominacion',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -413,7 +417,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.nro_cuenta',type:'string'},
+                    filters:{pfiltro:'cuenta.nro_cuenta',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -428,7 +432,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.numero_contrato',type:'string'},
+                    filters:{pfiltro:'contra.numero_contrato',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -443,7 +447,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.monto_contrato',type:'string'},
+                    filters:{pfiltro:'contra.monto_contrato',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -458,7 +462,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.bancarizacion',type:'string'},
+                    filters:{pfiltro:'contra.bancarizacion',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -473,7 +477,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.num_tramite',type:'string'},
+                    filters:{pfiltro:'obliga.num_tramite',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -488,7 +492,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.nro_cuota',type:'string'},
+                    filters:{pfiltro:'pg_devengado.nro_cuota',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -503,7 +507,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.forma_pago',type:'string'},
+                    filters:{pfiltro:'pg_pagado.forma_pago',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -519,7 +523,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.comprobante_c31',type:'string'},
+                    filters:{pfiltro:'sigma.comprobante_c31',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -535,7 +539,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
                     },
                     type:'DateField',
-                    filters:{pfiltro:'banca.fecha_entrega',type:'date'},
+                    filters:{pfiltro:'sigma.fecha_entrega',type:'date'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -550,7 +554,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.nro_cheque',type:'string'},
+                    filters:{pfiltro:'libro.nro_cheque',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -565,7 +569,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.resolucion_bancarizacion',type:'string'},
+                    filters:{pfiltro:'contra.resolucion_bancarizacion',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -580,7 +584,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.monto_retgar_mo',type:'string'},
+                    filters:{pfiltro:'pg_pagado.monto_retgar_mo',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -595,7 +599,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.liquido_pagable',type:'string'},
+                    filters:{pfiltro:'pg_pagado.liquido_pagable',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -610,7 +614,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.monto_pago',type:'string'},
+                    filters:{pfiltro:'pg_pagado.monto_pago',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -625,7 +629,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.otros_descuentos',type:'string'},
+                    filters:{pfiltro:'pg_pagado.otros_descuentos',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -640,7 +644,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.descuento_inter_serv',type:'string'},
+                    filters:{pfiltro:'pg_pagado.descuento_inter_serv',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -655,7 +659,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.estado_libro',type:'string'},
+                    filters:{pfiltro:'libro.estado_libro',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -670,7 +674,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.importe_cheque',type:'string'},
+                    filters:{pfiltro:'libro.importe_cheque',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -685,7 +689,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.importe_debe',type:'string'},
+                    filters:{pfiltro:'doc.importe_debe',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -701,7 +705,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.importe_gasto',type:'string'},
+                    filters:{pfiltro:'doc.importe_gasto',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -716,7 +720,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.importe_recurso',type:'string'},
+                    filters:{pfiltro:'sigma.importe_recurso',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -731,7 +735,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.importe_haber',type:'string'},
+                    filters:{pfiltro:'sigma.importe_haber',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false
@@ -746,7 +750,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:300
                     },
                     type:'TextField',
-                    filters:{pfiltro:'banca.tipo_monto',type:'string'},
+                    filters:{pfiltro:'contra.tipo_monto',type:'string'},
                     id_grupo:2,
                     grid:true,
                     form:false

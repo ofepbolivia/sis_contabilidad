@@ -12,9 +12,9 @@ header("content-type: text/javascript; charset=UTF-8");
 <script>
 Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 
-tabEnter: true,
-tipoBan: 'Compras',
-fheight: '80%',
+    tabEnter: true,
+    tipoBan: 'Compras',
+    fheight: '80%',
     fwidth: '95%',
 	constructor:function(config){
 
