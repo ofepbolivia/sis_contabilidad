@@ -30,6 +30,7 @@ DECLARE
   v_id_banca_compra_venta_seleccionado integer;
   v_gestion INTEGER;
 
+  v_documentos_no VARCHAR ;
 BEGIN
 
   v_nombre_funcion = 'conta.ft_banca_compra_venta_sel';
@@ -290,6 +291,8 @@ BEGIN
       --Sentencia de la consulta de conteo de registros
 
 
+
+
       SELECT gestion into v_gestion FROM param.tgestion where id_gestion = v_parametros.id_gestion;
       v_host:='dbname=dbendesis host=192.168.100.30 user=ende_pxp password=ende_pxp';
 
@@ -363,6 +366,7 @@ left join leg.tcontrato contra on contra.id_contrato = obliga.id_contrato
 inner join param.tproveedor provee on provee.id_proveedor = obliga.id_proveedor
 
 inner join tabla_temporal_documentos doc on doc.id_int_comprobante = pg_devengado.id_int_comprobante
+left join conta.tbanca_compra_venta banca on banca.id_documento = doc.id_documento
 
 
 where pg_pagado.estado=''pagado'' and pg_devengado.estado = ''devengado''
@@ -381,7 +385,8 @@ and (
 (doc.importe_total >= 50000)
  or (contra.bancarizacion = ''si'' and contra.tipo_monto=''cerrado'')
   or (contra.bancarizacion=''si'' and contra.tipo_monto=''abierto'' and doc.importe_total >= 50000)
-  ) and  ';
+  ) and banca.id_documento is null and ';
+
 
       --Definicion de la respuesta
       v_consulta:=v_consulta||v_parametros.filtro;

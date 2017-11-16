@@ -209,7 +209,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         anchor: '80%',
                         gwidth: 100,
                         format: 'd/m/Y',
-                        renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+                        renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
                     },
                     type:'DateField',
                     filters:{pfiltro:'doc.fecha_documento',type:'date'},
@@ -320,7 +320,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         anchor: '80%',
                         gwidth: 100,
                         format: 'd/m/Y',
-                        renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+                        renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
                     },
                     type:'DateField',
                     filters:{pfiltro:'pg_devengado.fecha_dev',type:'date'},
@@ -336,7 +336,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         anchor: '80%',
                         gwidth: 100,
                         format: 'd/m/Y',
-                        renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+                        renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
                     },
                     type:'DateField',
                     filters:{pfiltro:'pg_pagado.fecha_pag',type:'date'},
@@ -352,7 +352,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         anchor: '80%',
                         gwidth: 100,
                         format: 'd/m/Y',
-                        renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+                        renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
                     },
                     type:'DateField',
                     filters:{pfiltro:'pg_devengado.fecha_costo_ini',type:'date'},
@@ -368,7 +368,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         anchor: '80%',
                         gwidth: 100,
                         format: 'd/m/Y',
-                        renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+                        renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
                     },
                     type:'DateField',
                     filters:{pfiltro:'pg_devengado.fecha_costo_fin',type:'date'},
@@ -384,7 +384,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         anchor: '80%',
                         gwidth: 100,
                         format: 'd/m/Y',
-                        renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+                        renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
                     },
                     type:'DateField',
                     filters:{pfiltro:'libro.fecha_pago',type:'date'},
@@ -536,7 +536,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         anchor: '80%',
                         gwidth: 100,
                         format: 'd/m/Y',
-                        renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+                        renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
                     },
                     type:'DateField',
                     filters:{pfiltro:'sigma.fecha_entrega',type:'date'},
@@ -768,7 +768,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
 
 
-                {name:'id_banca_compra_venta', type: 'numeric'},
+                /*{name:'id_banca_compra_venta', type: 'numeric'},
                 {name:'num_cuenta_pago', type: 'string'},
                 {name:'tipo_documento_pago', type: 'numeric'},
                 {name:'num_documento', type: 'string'},
@@ -817,7 +817,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 'monto_contrato'
                 ,'gestion','banca_seleccionada',
                 'numero_cuota',
-                'tramite_cuota',
+                'tramite_cuota',*/
 
                 'id_plan_pago_pagado',
                 'id_plan_pago_devengado',
@@ -826,7 +826,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 'tipo',
                 'id_documento',
                 'razon_social',
-                {name:'fecha_documento', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
+                {name:'fecha_documento', type: 'date',dateFormat:'Y-m-d'},
 
                 'nro_documento',
                 'nro_autorizacion',
@@ -834,11 +834,11 @@ header("content-type: text/javascript; charset=UTF-8");
                 'nro_nit',
                 'tipo_informe',
                 'tipo_plantilla',
-                {name:'fecha_dev', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
-                {name:'fecha_pag', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
-                {name:'fecha_costo_ini', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
-                {name:'fecha_costo_fin', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
-                {name:'fecha_pago', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
+                {name:'fecha_dev', type: 'date',dateFormat:'Y-m-d'},
+                {name:'fecha_pag', type: 'date',dateFormat:'Y-m-d'},
+                {name:'fecha_costo_ini', type: 'date',dateFormat:'Y-m-d'},
+                {name:'fecha_costo_fin', type: 'date',dateFormat:'Y-m-d'},
+                {name:'fecha_pago', type: 'date',dateFormat:'Y-m-d'},
 
 
                 'id_cuenta_bancaria',
