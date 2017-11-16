@@ -1571,6 +1571,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             //this.Cmp.nro_autorizacion .on('blur',this.cargarRazonSocial,this);
             this.Cmp.id_plantilla.on('select',function(cmb,rec,i){
+
                 console.log('id_plantilla ' + rec);
                 this.esconderImportes();
                 //si es el formulario para nuevo reseteamos los valores ...
@@ -1883,11 +1884,21 @@ header("content-type: text/javascript; charset=UTF-8");
                     excento = this.Cmp.importe_excento.getValue();
                 }
                 if(this.Cmp.porc_iva_cf.getValue() > 0){
+                    //validacion excento mayot monto mmv
+                    if (excento > this.Cmp.importe_neto.getValue()){
+                        alert('El Importe Exento: '+excento+', no puede ser mayor al Monto Total: '+ this.Cmp.importe_neto.getValue()+'. Revise los importes.');
+                    }else{
+                        this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_cf.getValue()*(this.Cmp.importe_neto.getValue() - excento));
+                   }
 
-                    this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_cf.getValue()*(this.Cmp.importe_neto.getValue() - excento));
                 }
                 else {
-                    this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_df.getValue()*(this.Cmp.importe_neto.getValue() - excento));
+                    //validacion excento mayot monto mmv
+                    if (excento > this.Cmp.importe_neto.getValue()){
+                        alert('El Importe Exento: '+excento+', no puede ser mayor al Monto Total: '+ this.Cmp.importe_neto.getValue()+'. Revise los importes.');
+                    }else {
+                        this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_df.getValue() * (this.Cmp.importe_neto.getValue() - excento));
+                   }
                 }
             }
             else{
@@ -1954,6 +1965,7 @@ header("content-type: text/javascript; charset=UTF-8");
         },
 
         esconderImportes:function(){
+
             this.ocultarComponente(this.Cmp.importe_descuento);
             this.ocultarComponente(this.Cmp.importe_neto);
             this.ocultarComponente(this.Cmp.nro_autorizacion);
@@ -2242,8 +2254,6 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         controlMiles:function (value) {
             return value    .replace(',', "")
-                            //.replace(/([0-9])([0-9]{2})$/, '$1.$2')
-                            //.replace(/\B(?=(\d{3})+(?!\d)\.?)/g, "");
         }
 
 

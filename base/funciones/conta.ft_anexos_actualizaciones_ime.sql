@@ -201,12 +201,12 @@ BEGIN
 
 		end;
     /*********************************
- 	#TRANSACCION:  'CONTA_ANS_CONT'
+ 	#TRANSACCION:  'CONTA_ANS_IN'
  	#DESCRIPCION:	Control revision
  	#AUTOR:		MMV
  	#FECHA:		14-06-2017
 	***********************************/
-	elsif (p_transaccion='CONTA_ANS_CONT')then
+	elsif (p_transaccion='CONTA_ANS_IN')then
 
         begin
 
