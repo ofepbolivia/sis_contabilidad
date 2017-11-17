@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.ft_doc_compra_venta_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -21,7 +19,7 @@ $body$
  ISSUE            FECHA:		      AUTOR               DESCRIPCION
  #0				 18-08-2015        RAC KPLIAN 		Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'conta.tdoc_compra_venta'
  #14, BOA		 18/10/2017		   RAC KPLIAN		Al validar comprobantes vamos actualizar e nro de tramite en doc_compra_venta si estan relacionados en las trasacciones CONTA_DCV_INS y CONTA_ADDCBTE_IME
-  
+
 ***************************************************************************/
 
 DECLARE
@@ -130,7 +128,7 @@ BEGIN
 
 
       if (pxp.f_existe_parametro(p_tabla,'id_int_comprobante')) then
-          v_id_int_comprobante = v_parametros.id_int_comprobante;          
+          v_id_int_comprobante = v_parametros.id_int_comprobante;
           --#14,  se recupera el nro_tramite del comprobante si es que existe
           select
              c.nro_tramite
@@ -138,7 +136,7 @@ BEGIN
              v_nro_tramite
           from conta.tint_comprobante c
           where c.id_int_comprobante = v_id_int_comprobante;
-          
+
       end if;
 
 
@@ -186,7 +184,10 @@ BEGIN
       IF v_registros.sw_ic = 'si' then
         v_importe_ice = v_parametros.importe_excento;
       END IF;
-
+      ----validacion exento mayot monto mmv
+      IF v_parametros.importe_excento > v_parametros.importe_neto THEN
+      raise exception 'El Importe Exento: %, no puede ser mayor al Monto Total: %. Revise los importes.',v_parametros.importe_excento,v_parametros.importe_neto;
+	  END IF;
 
       --Sentencia de la insercion
       insert into conta.tdoc_compra_venta(

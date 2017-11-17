@@ -1571,6 +1571,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             //this.Cmp.nro_autorizacion .on('blur',this.cargarRazonSocial,this);
             this.Cmp.id_plantilla.on('select',function(cmb,rec,i){
+                console.log('ehhh pues eh llegado',rec.data);
                 console.log('id_plantilla ' + rec);
                 this.esconderImportes();
                 //si es el formulario para nuevo reseteamos los valores ...
@@ -1685,6 +1686,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 else{
                     this.ocultarComponente(this.Cmp.id_agencia);
                     this.Cmp.id_agencia.reset();
+                }
+                if (rec.data.desc_plantilla == 'Póliza de Importación - DUI'){
+                    this.Cmp.importe_doc.on('change',this.calcularDuis,this);
                 }
             },this);
 
@@ -1876,18 +1880,28 @@ header("content-type: text/javascript; charset=UTF-8");
 
             //calculo iva cf
             if(this.Cmp.porc_iva_cf.getValue() > 0 || this.Cmp.porc_iva_df.getValue() > 0){
-
+                    //console.log('iva',this.Cmp.porc_iva_cf.getValue());
                 var excento = 0.00;
 
                 if(this.Cmp.importe_excento.getValue() > 0){
                     excento = this.Cmp.importe_excento.getValue();
                 }
                 if(this.Cmp.porc_iva_cf.getValue() > 0){
+                    //validacion excento mayot monto mmv
+                    if (excento > this.Cmp.importe_neto.getValue()){
+                        alert('El Importe Exento: '+excento+', no puede ser mayor al Monto Total: '+ this.Cmp.importe_neto.getValue()+'. Revise los importes.');
+                    }else{
+                        this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_cf.getValue()*(this.Cmp.importe_neto.getValue() - excento));
+                   }
 
-                    this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_cf.getValue()*(this.Cmp.importe_neto.getValue() - excento));
                 }
                 else {
-                    this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_df.getValue()*(this.Cmp.importe_neto.getValue() - excento));
+                    //validacion excento mayot monto mmv
+                    if (excento > this.Cmp.importe_neto.getValue()){
+                        alert('El Importe Exento: '+excento+', no puede ser mayor al Monto Total: '+ this.Cmp.importe_neto.getValue()+'. Revise los importes.');
+                    }else {
+                        this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_df.getValue() * (this.Cmp.importe_neto.getValue() - excento));
+                   }
                 }
             }
             else{
@@ -1906,12 +1920,23 @@ header("content-type: text/javascript; charset=UTF-8");
                 }
                 this.Cmp.id_auxiliar.validate();
             }
-
             var liquido =  this.Cmp.importe_neto.getValue()   -  this.Cmp.importe_retgar.getValue() -  this.Cmp.importe_anticipo.getValue() -  this.Cmp.importe_pendiente.getValue()  -  this.Cmp.importe_descuento_ley.getValue();
             this.Cmp.importe_pago_liquido.setValue(liquido>0?liquido:0);
 
 
 
+        },
+        //puntero
+        calcularDuis :function () {
+
+            var liquido ;
+            if(this.Cmp.porc_iva_cf.getValue() > 0){
+                liquido =  this.Cmp.porc_iva_cf.getValue()*this.Cmp.importe_doc.getValue();
+            }
+            else {
+                liquido = this.Cmp.porc_iva_df.getValue()*this.Cmp.importe_doc.getValue();
+            }
+            this.Cmp.importe_pago_liquido.setValue(liquido>0?liquido:0);
         },
 
         getDetallePorAplicar:function(id_plantilla){
@@ -1945,7 +1970,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 //aplicar  ice
                 this.Cmp.porc_ice.setValue(reg.ROOT.datos.porc_ice*1);
                 //habilitar campos
-                this.mostrarImportes(reg.ROOT.datos)
+                this.mostrarImportes(reg.ROOT.datos);
                 this.calculaMontoPago();
             }
             else{
@@ -1954,6 +1979,7 @@ header("content-type: text/javascript; charset=UTF-8");
         },
 
         esconderImportes:function(){
+
             this.ocultarComponente(this.Cmp.importe_descuento);
             this.ocultarComponente(this.Cmp.importe_neto);
             this.ocultarComponente(this.Cmp.nro_autorizacion);
@@ -2002,7 +2028,7 @@ header("content-type: text/javascript; charset=UTF-8");
             if( datos.descuento_porc !== '0'){
                 this.mostrarComponente(this.Cmp.importe_descuento_ley);
             }
-
+                //puntero
             if(this.mostrarFormaPago){
                 this.mostrarComponente(this.Cmp.importe_pendiente);
                 this.mostrarComponente(this.Cmp.importe_anticipo);
@@ -2242,8 +2268,6 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         controlMiles:function (value) {
             return value    .replace(',', "")
-                            //.replace(/([0-9])([0-9]{2})$/, '$1.$2')
-                            //.replace(/\B(?=(\d{3})+(?!\d)\.?)/g, "");
         }
 
 
