@@ -49,6 +49,7 @@ DECLARE
   v_id_moneda				integer;
   v_nomeda					varchar;
   v_nro_tramite				varchar;
+  v_id_periodo				integer;
 
 
 BEGIN
@@ -594,6 +595,8 @@ BEGIN
 
        v_rec = param.f_get_periodo_gestion(v_parametros.fecha);
 
+       v_id_periodo = v_rec.po_id_periodo;
+
       -- 13/01/2017
       --TODO RAC, me parece buena idea  que al cerrar el periodo revise que no existan documentos pendientes  antes de cerrar
       -- valida que period de libro de compras y ventas este abierto para la nueva fecha
@@ -703,7 +706,7 @@ BEGIN
         codigo_control =  upper(COALESCE(v_parametros.codigo_control,'0')),
         importe_it = v_parametros.importe_it,
         razon_social = upper(trim(v_parametros.razon_social)),
-        id_periodo = v_rec.po_id_periodo,
+        id_periodo = v_id_periodo,
         nro_dui = v_parametros.nro_dui,
         id_moneda = v_parametros.id_moneda,
         importe_pendiente = COALESCE(v_parametros.importe_pendiente,0),
@@ -764,6 +767,8 @@ BEGIN
     begin
 
        v_rec = param.f_get_periodo_gestion(v_parametros.fecha);
+
+       v_id_periodo = v_rec.po_id_periodo;
 
       -- 13/01/2017
       --TODO RAC, me parece buena idea  que al cerrar el periodo revise que no existan documentos pendientes  antes de cerrar
@@ -868,7 +873,7 @@ BEGIN
         codigo_control =  upper(COALESCE(v_parametros.codigo_control,'0')),
         importe_it = v_parametros.importe_it,
         razon_social = upper(trim(v_parametros.razon_social)),
-        id_periodo = v_rec.po_id_periodo,
+        id_periodo = v_id_periodo,
         nro_dui = v_parametros.nro_dui,
         id_moneda = v_parametros.id_moneda,
         importe_pendiente = COALESCE(v_parametros.importe_pendiente,0),
@@ -1172,9 +1177,9 @@ BEGIN
 
         raise exception 'El documento no existe o ya tiene un cbte relacionado';
       END IF;
-      
+
       --#14, recupera nro de tramite del cbte
-      
+
       select
          cbte.nro_tramite
       into
