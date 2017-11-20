@@ -103,7 +103,8 @@ class MODBancaCompraVenta extends MODbase{
 	$this->captura('lista_negra','varchar');
 	
 	$this->captura('tipo_bancarizacion','varchar');
-	
+	$this->captura('comentario','text');
+
 	
 	
 	
@@ -224,6 +225,7 @@ class MODBancaCompraVenta extends MODbase{
 		
 		$this->setParametro('saldo','saldo','numeric');
 		$this->setParametro('multa_cuota','multa_cuota','numeric');
+		$this->setParametro('comentario','comentario','text');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

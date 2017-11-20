@@ -1755,6 +1755,36 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 				form:false,
 				bottom_filter : true
 		},
+
+        {
+            config:{
+                name: 'comentario',
+                fieldLabel: 'comentario',
+                qtip:'',
+                allowBlank: true,
+                anchor: '100%',
+                gwidth: 100,
+                width: 250,
+                maxLength:500,
+                renderer:function (value,p,record){
+
+
+
+
+                    p.css = 'multilineColumn';
+                    return String.format('{0}', value);
+
+
+
+                }
+            },
+            type:'TextArea',
+
+            id_grupo:2,
+            grid:true,
+            form:true
+        },
+
 		
 		
 	],
@@ -1815,7 +1845,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		  'numero_cuota',
             			'tramite_cuota','id_proceso_wf'	,'resolucion',
             			'tipo_monto','rotulo_comercial','estado_libro',
-            			'periodo_servicio','lista_negra','tipo_bancarizacion','multa_cuota'
+            			'periodo_servicio','lista_negra','tipo_bancarizacion','multa_cuota','comentario'
 	],
 	sortInfo:{
 		field: 'id_banca_compra_venta',
