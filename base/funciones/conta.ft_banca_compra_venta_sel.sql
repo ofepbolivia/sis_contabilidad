@@ -207,7 +207,8 @@ BEGIN
                         banca.estado_libro,
                         banca.periodo_servicio,
                         banca.lista_negra,
-                        banca.tipo_bancarizacion
+                        banca.tipo_bancarizacion,
+                        banca.comentario
 						from conta.tbanca_compra_venta banca
 						inner join segu.tusuario usu1 on usu1.id_usuario = banca.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = banca.id_usuario_mod

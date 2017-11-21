@@ -4465,13 +4465,10 @@ centralizando la parametrizacion en un unico lugar y facilitar la generacion de 
 /***********************************F-SCP-RAC-CONTA-1-01/09/2017****************************************/
 
 
-
-  
- 
  
  
 /***********************************I-SCP-RAC-CONTA-1-13/09/2017****************************************/
-  
+ 
 
 ALTER TABLE conta.tdoc_compra_venta
   ADD COLUMN nro_tramite VARCHAR;
@@ -4483,5 +4480,11 @@ IS 'identifica el nro de tramite donde fue generada la factura';
 /***********************************F-SCP-RAC-CONTA-1-13/09/2017****************************************/
  
 
+/***********************************I-SCP-FFP-CONTA-1-20/11/2017****************************************/
+
+
+ALTER TABLE conta.tbanca_compra_venta ADD comentario TEXT NULL;
+
+/***********************************F-SCP-FFP-CONTA-1-11/20/2017****************************************/
 
 
