@@ -196,6 +196,7 @@ class MODDocCompraVenta extends MODbase{
 		$this->captura('nombre','varchar');
 		$this->captura('id_agencia','integer');
 		$this->captura('codigo_noiata','varchar');
+        $this->captura('c31','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -483,7 +484,7 @@ class MODDocCompraVenta extends MODbase{
 			$this->setParametro('importe_neto','importe_neto','numeric');			
 		    $this->setParametro('id_auxiliar','id_auxiliar','integer');
 			$this->setParametro('id_int_comprobante','id_int_comprobante','integer');
-
+            $this->setParametro('desc_clase_comprobante','desc_clase_comprobante','varchar');
 			$this->setParametro('estacion','estacion','varchar');
 			$this->setParametro('id_punto_venta','id_punto_venta','integer');
 			$this->setParametro('id_agencia','id_agencia','integer');
@@ -1458,6 +1459,48 @@ class MODDocCompraVenta extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+    function listarDiferenciaPeriodo(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='conta.ft_doc_compra_venta_sel';
+        $this->transaccion='CONTA_REP_DIF';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(false);
+
+        //Definicion de la lista del resultado del query
+
+        $this->captura('id_doc_compra_venta','BIGINT');
+        $this->captura('nro_documento','varchar');
+        $this->captura('nro_autorizacion','varchar');
+        $this->captura('desc_persona','text');
+        $this->captura('importe_iva','numeric');
+        $this->captura('periodo_doc','int4');
+        $this->captura('nro_tramite','varchar');
+        $this->captura('nombre','varchar');
+        $this->captura('codigo_control','varchar');
+        $this->captura('fecha','date');
+        $this->captura('importe_ice','numeric');
+        $this->captura('importe_pago_liquido','numeric');
+        $this->captura('tipo','varchar');
+        $this->captura('obs','varchar');
+        $this->captura('nit','varchar');
+        $this->captura('desc_plantilla','varchar');
+        $this->captura('razon_social','varchar');
+        $this->captura('importe_doc','numeric');
+        $this->captura('importe_excento','numeric');
+        $this->captura('periodo','int4');
+        $this->captura('importe_neto','numeric');
+        $this->captura('importe_it','numeric');
+        $this->captura('importe_descuento_ley','numeric');
+        $this->captura('gestion','int4');
+
+
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 			
 }
 ?>

@@ -30,15 +30,24 @@ Phx.vista.FormCompraVentaCbte = {
 				},
 				type:'Field',
 				form:true 
-		}
+		},
+        {
+            //configuracion del componente
+            config:{
+                labelSeparator:'',
+                inputType:'hidden',
+                name: 'desc_clase_comprobante'
+            },
+            type:'Field',
+            form:true
+        }
      ],
     
 	onNew: function(){    	
     	Phx.vista.FormCompraVentaCbte.superclass.onNew.call(this);
     	this.Cmp.id_int_comprobante.setValue(this.data.id_int_comprobante);
-    	
-    	 console.log('datos.....', this.data)
-       
+        this.Cmp.desc_clase_comprobante.setValue(this.data.objPadre.desc_clase_comprobante);
+    	 console.log('datos.....', this.data);
 	},
 	
 	onEdit: function(){    	

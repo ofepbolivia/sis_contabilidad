@@ -608,6 +608,20 @@ Phx.vista.DocCompraVenta = Ext.extend(Phx.gridInterfaz,{
 	            //bottom_filter: true,
 	            form: false
 	       },
+           {
+               config:{
+                   name: 'c31',
+                   fieldLabel: 'C13',
+                   allowBlank: false,
+                   anchor: '80%',
+                   gwidth: 100,
+                   maxLength:100
+               },
+               type:'TextField',
+               id_grupo:0,
+               grid:true,
+               form:false
+           },
 		   {
 				config:{
 					name: 'id_int_comprobante',
@@ -1352,7 +1366,7 @@ Phx.vista.DocCompraVenta = Ext.extend(Phx.gridInterfaz,{
 		'importe_pago_liquido','nro_dui','id_moneda','desc_moneda',
 		'desc_tipo_doc_compra_venta','id_tipo_doc_compra_venta','nro_tramite',
 		'desc_comprobante','id_int_comprobante','id_auxiliar','codigo_auxiliar','nombre_auxiliar','tipo_reg',
-		'estacion', 'id_punto_venta', 'nombre', 'id_agencia', 'codigo_noiata'
+		'estacion', 'id_punto_venta', 'nombre', 'id_agencia', 'codigo_noiata','c31'
 	],
 	sortInfo:{
 		field: 'id_doc_compra_venta',
