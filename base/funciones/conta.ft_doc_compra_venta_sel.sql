@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.ft_doc_compra_venta_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -108,14 +106,14 @@ BEGIN
                             dcv.id_tipo_doc_compra_venta,
                             (tdcv.codigo||'' - ''||tdcv.nombre)::Varchar as desc_tipo_doc_compra_venta,
                             (dcv.importe_doc -  COALESCE(dcv.importe_descuento,0) - COALESCE(dcv.importe_excento,0))     as importe_aux_neto
-                            
+
 						from conta.tdoc_compra_venta dcv
                           inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
                           inner join param.tplantilla pla on pla.id_plantilla = dcv.id_plantilla
                           inner join param.tmoneda mon on mon.id_moneda = dcv.id_moneda
                           inner join conta.ttipo_doc_compra_venta tdcv on tdcv.id_tipo_doc_compra_venta = dcv.id_tipo_doc_compra_venta
                           left join conta.tauxiliar aux on aux.id_auxiliar = dcv.id_auxiliar
-                          left join conta.tint_comprobante ic on ic.id_int_comprobante = dcv.id_int_comprobante                         
+                          left join conta.tint_comprobante ic on ic.id_int_comprobante = dcv.id_int_comprobante
                           left join param.tdepto dep on dep.id_depto = dcv.id_depto_conta
                           left join segu.tusuario usu2 on usu2.id_usuario = dcv.id_usuario_mod
 				        where  ';
@@ -161,7 +159,7 @@ BEGIN
                           inner join param.tmoneda mon on mon.id_moneda = dcv.id_moneda
                           inner join conta.ttipo_doc_compra_venta tdcv on tdcv.id_tipo_doc_compra_venta = dcv.id_tipo_doc_compra_venta
                           left join conta.tauxiliar aux on aux.id_auxiliar = dcv.id_auxiliar
-                          left join conta.tint_comprobante ic on ic.id_int_comprobante = dcv.id_int_comprobante                         
+                          left join conta.tint_comprobante ic on ic.id_int_comprobante = dcv.id_int_comprobante
                           left join param.tdepto dep on dep.id_depto = dcv.id_depto_conta
                           left join segu.tusuario usu2 on usu2.id_usuario = dcv.id_usuario_mod
 				        where  ';
@@ -172,9 +170,9 @@ BEGIN
 			--Devuelve la respuesta
 			return v_consulta;
 
-		end;   
-        
-        
+		end;
+
+
     /*********************************
  	#TRANSACCION:  'CONTA_DCVCAJ_SEL'
  	#DESCRIPCION:	Consulta de libro de compras que considera agencias , propio de BOA
@@ -243,7 +241,8 @@ BEGIN
                             dcv.id_punto_venta,
                             (ob.nombre ||'' - ''|| upper(ob.tipo_agencia))::Varchar as nombre,
                             dcv.id_agencia,
-                            ob.codigo_noiata
+                            ob.codigo_noiata,
+                            ic.c31
 
 						from conta.tdoc_compra_venta dcv
                           inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
@@ -264,8 +263,8 @@ BEGIN
 			--Devuelve la respuesta
 			return v_consulta;
 
-		end;  
-        
+		end;
+
      /*********************************
  	#TRANSACCION:  'CONTA_DCVCAJ_CONT'
  	#DESCRIPCION:	Conteo de registros
@@ -311,7 +310,7 @@ BEGIN
 			--Devuelve la respuesta
 			return v_consulta;
 
-		end;        
+		end;
 
 	/*********************************
  	#TRANSACCION:  'CONTA_DCVNA_SEL'
@@ -674,7 +673,51 @@ BEGIN
 
 		end;
 
+    /*********************************
+ 	#TRANSACCION:  'CONTA_REP_DIF'
+ 	#DESCRIPCION:	Reporte detalde de facturas fecha contra periodo diferente
+ 	#AUTOR:		MMV
+ 	#FECHA:		24-11-2017
+	***********************************/
 
+	ELSEIF(p_transaccion='CONTA_REP_DIF')then
+
+    	begin
+        v_consulta:='select
+						dff.id_doc_compra_venta,
+						dff.nro_documento,
+						dff.nro_autorizacion,
+						dff.desc_persona,
+						dff.importe_iva,
+						dff.periodo_doc,
+						dff.nro_tramite,
+						dff.nombre,
+						dff.codigo_control,
+						dff.fecha,
+						dff.importe_ice,
+						dff.importe_pago_liquido,
+						dff.tipo,
+						dff.obs,
+						dff.nit,
+						dff.desc_plantilla,
+						dff.razon_social,
+						dff.importe_doc,
+						dff.importe_excento,
+						dff.periodo,
+						dff.importe_neto,
+						dff.importe_it,
+						dff.importe_descuento_ley,
+                        dff.gestion
+						from conta.vdiferencia_periodo dff
+                        where';
+             v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
+        	 raise notice '%', v_consulta;
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
     else
 
 		raise exception 'Transaccion inexistente';

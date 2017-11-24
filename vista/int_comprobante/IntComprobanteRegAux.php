@@ -174,11 +174,17 @@ Phx.vista.IntComprobanteRegAux = {
                 this.getBoton('diagrama_gantt').enable();
                 this.getBoton('btnObs').enable(); 
 			}
-			
-			
-            
-			
-			return tb;
+           if(rec.data.momento =='presupuestario'){
+               this.getBoton('btnDocCmpVnt').disable();
+           }else{
+               this.getBoton('btnDocCmpVnt').enable();
+           }
+
+
+
+
+
+           return tb;
 		},
 		liberaMenu : function() {
 			var tb = Phx.vista.IntComprobanteRegAux.superclass.liberaMenu.call(this);

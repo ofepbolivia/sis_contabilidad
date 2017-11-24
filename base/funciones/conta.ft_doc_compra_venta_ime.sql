@@ -70,6 +70,12 @@ BEGIN
 
 
 
+    if (pxp.f_existe_parametro(p_tabla,'desc_clase_comprobante')) then
+        if(v_parametros.desc_clase_comprobante = 'Comprobante de Pago Presupuestario') then
+			RAISE  EXCEPTION 'Solo puede registar factoras en Comprobante de Diario Contable';
+        end if;
+      end if;
+
       --  calcula valores pode defecto para el tipo de doc compra venta
 		IF v_parametros.id_moneda is null THEN
           raise EXCEPTION 'Es necesario indicar la Moneda del documento, revise los datos.';

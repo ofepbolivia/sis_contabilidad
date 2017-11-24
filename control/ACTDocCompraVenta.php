@@ -452,6 +452,16 @@ class ACTDocCompraVenta extends ACTbase{
 		fclose($file);
 		return $fileName;
 	}
+    function listarDiferenciaPeriodo(){
+        $this->objParam->defecto('ordenacion','id_doc_compra_venta');
+        $this->objParam->defecto('dir_ordenacion','asc');
+        if($this->objParam->getParametro('id_gestion')!='' ){
+            $this->objParam->addFiltro("dff.gestion = ".$this->objParam->getParametro('id_gestion'));
+        }
+        $this->objFunc=$this->create('MODDocCompraVenta');
+        $this->res=$this->objFunc->listarDiferenciaPeriodo($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 	
 	
 	
