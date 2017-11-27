@@ -175,9 +175,9 @@ Phx.vista.IntComprobanteRegAux = {
                 this.getBoton('btnObs').enable(); 
 			}
            if(rec.data.momento =='presupuestario'){
-               this.getBoton('btnDocCmpVnt').disable();
-           }else{
                this.getBoton('btnDocCmpVnt').enable();
+           }else{
+               this.getBoton('btnDocCmpVnt').disable();
            }
 
 

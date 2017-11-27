@@ -71,8 +71,8 @@ BEGIN
 
 
     if (pxp.f_existe_parametro(p_tabla,'desc_clase_comprobante')) then
-        if(v_parametros.desc_clase_comprobante = 'Comprobante de Pago Presupuestario') then
-			RAISE  EXCEPTION 'Solo puede registar factoras en Comprobante de Diario Contable';
+        if(v_parametros.desc_clase_comprobante = 'Comprobante de Pago Contable') then
+			RAISE  EXCEPTION 'Solo puede registar factoras en Comprobante de Pago Presupuestario';
         end if;
       end if;
 
