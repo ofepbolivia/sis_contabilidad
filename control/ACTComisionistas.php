@@ -104,7 +104,7 @@ class ACTComisionistas extends ACTbase{
                 .$dato['cantidad_total_vendido']."|"
                 .$dato['precio_unitario']."|"
                 .$dato['monto_total']."|"
-                .$dato['monto_total_comision']."|"
+                .$dato['monto_total_comision']
                ;
 
             fwrite($MiDocumento, $Escribo);
