@@ -333,5 +333,30 @@ class MODComisionistas extends MODbase{
         return $this->respuesta;
 
     }
+    function reporteGeneral(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='conta.ft_comisionistas_sel';
+        $this->transaccion='CONTA_CMS_REPO';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(false);
+
+        $this->setParametro('id_periodo','id_periodo','int4');
+
+        $this->captura('nombre_agencia','varchar');
+        $this->captura('nit_comisionista','varchar');
+        $this->captura('nro_contrato','varchar');
+        $this->captura('periodo','int4');
+        $this->captura('cantidad','int4');
+        $this->captura('precio_unitario_total','numeric');
+        $this->captura('monto_total','numeric');
+        $this->captura('total_comision','numeric');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+       // var_dump($this->respuesta);exit;
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 }
 ?>

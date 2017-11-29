@@ -62,6 +62,14 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
             this.capturaFiltros();
         },this);
         this.init();
+        this.addButton('Reporte_general',{
+            grupo:[0,1,2,3,4],
+            text :'Reporte Gral.',
+            iconCls : 'bpdf32',
+            disabled: true,
+            handler : this.reporteGeneral,
+            tooltip : '<b>Reporte general totales por agencias</b>'
+        });
         this.addButton('listaNegra',{
             grupo:[0,1,2,3,4],
             text :'Lista Negra',
@@ -494,17 +502,21 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
             this.getBoton('edit').enable();
             this.getBoton('del').enable();
 
+
+
         }
         else{
             this.getBoton('edit').disable();
             this.getBoton('del').disable();
+
         }
         this.getBoton('listaNegra').enable();
+
     },
 
     liberaMenu:function(tb){
         Phx.vista.Comisionistas.superclass.liberaMenu.call(this,tb);
-
+        this.getBoton('Reporte_general').enable();
     },
     onButtonNew:function(){
 
@@ -788,6 +800,18 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
     successAutor:function(resp){
         Phx.CP.loadingHide();
         this.reload();
+    },
+
+    reporteGeneral : function(){
+        var id_periodo = this.cmbPeriodo.getValue();
+        Ext.Ajax.request({
+            url:'../../sis_contabilidad/control/Comisionistas/reporteGeneral',
+            params:{'id_periodo':id_periodo},
+            success: this.successExport,
+            failure: this.conexionFailure,
+            timeout:this.timeout,
+            scope:this
+        });
     }
 
 	}

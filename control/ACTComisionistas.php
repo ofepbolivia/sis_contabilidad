@@ -6,7 +6,7 @@
 *@date 31-05-2017 20:17:02
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 */
-
+require_once(dirname(__FILE__).'/../reportes/RComisionistasTotalesAgencia.php');
 class ACTComisionistas extends ACTbase{    
 			
 	function listarComisionistas(){
@@ -146,6 +146,27 @@ class ACTComisionistas extends ACTbase{
         $this->objFunc=$this->create('MODComisionistas');
         $this->res=$this->objFunc->insertAuto($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    function reporteGeneral(){
+        $this->objFunc=$this->create('MODComisionistas');
+        $this->res=$this->objFunc->reporteGeneral($this->objParam);
+        //var_dump( $this->res);exit;
+        $titulo = 'Reporte totales generales comisionistas ';
+        //Genera el nombre del archivo (aleatorio + titulo)
+        $nombreArchivo = uniqid(md5(session_id()) . $titulo);
+
+        $nombreArchivo .= '.xls';
+        $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
+        $this->objParam->addParametro('datos', $this->res->datos);
+        //Instancia la clase de excel
+        $this->objReporteFormato = new RComisionistasTotalesAgencia($this->objParam);
+        $this->objReporteFormato->generarDatos();
+        $this->objReporteFormato->generarReporte();
+
+        $this->mensajeExito = new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado','Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
     }
 			
 }
