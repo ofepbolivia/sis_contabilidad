@@ -491,25 +491,13 @@ BEGIN
       from param.tperiodo p
       where p.id_periodo = v_parametros.id_periodo and p.id_gestion = v_parametros.id_gestion;
 
-     FOR v_reccord IN (/*
-      select 	a.id_agencia,
+     FOR v_reccord IN (
+select 	a.id_agencia,
             a.nombre,
             a.nit,
-            '' as codigo,
-            'Venta de Servicio de Transporte Aereo' as descripcion,
-            1 cantidad,
-            EXTRACT(MONTH FROM bo.fecha_emision),
-            bo.total,
-           round(-1 * bo.comision) as comision
-      from obingresos.tagencia a
-      inner join obingresos.tboleto_2017 bo on bo.id_agencia = a.id_agencia
-      where a.boaagt = 'A' and a.tipo_agencia = 'noiata'  and bo.total <> 0
-      and  EXTRACT(MONTH FROM bo.fecha_emision) = v_periodo
-      order by a.nombre*/
-
-       select 	a.id_agencia,
-            a.nombre,
-            a.nit,
+            (select pxp.list ( regexp_replace( regexp_replace(c.numero::text, 'OB.GL.CC.',''),'.2017',''||'/2017'))
+            from leg.tcontrato c
+            where c.id_agencia = a.id_agencia) as nro_contrato,
             '' as codigo,
             'Venta de Servicio de Transporte Aereo' as descripcion,
             1 cantidad,
@@ -522,6 +510,7 @@ BEGIN
       where a.boaagt = 'A' and a.tipo_agencia = 'noiata'
       and  EXTRACT(MONTH FROM bo.fecha_emision) = v_periodo
       order by a.nombre
+
 
 )LOOP
 insert into conta.tcomisionistas(
@@ -548,15 +537,15 @@ insert into conta.tcomisionistas(
             revisado
           	) values(
 			v_reccord.nit,
-			null,
+			v_reccord.nro_contrato,
 			v_reccord.codigo,
 			'activo',
 			v_reccord.descripcion,
 			v_reccord.cantidad,
 			v_reccord.cantidad,
+			v_reccord.neto,
 			v_reccord.total,
-			v_reccord.total,
-			v_reccord.comision,
+			v_reccord.total_comision,
 			p_id_usuario,
 			v_parametros._nombre_usuario_ai,
 			now(),
@@ -567,7 +556,7 @@ insert into conta.tcomisionistas(
             v_parametros.id_depto_conta,
             'automatico',
             v_reccord.nombre,
-            'si'
+            'no'
 			);
 
 END LOOP;
