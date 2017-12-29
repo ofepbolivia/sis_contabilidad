@@ -70,8 +70,17 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
             handler : this.reporteGeneral,
             tooltip : '<b>Reporte general totales por agencias</b>'
         });
+        /*this.addButton('Revizar',{
+
+            text: 'Revizar',
+            iconCls: 'bdocuments',
+            disabled: false,
+            handler: this.onButtonRevizar,
+            tooltip: '<b>Revizar</b>',
+            scope:this
+        });*/
         this.addButton('listaNegra',{
-            grupo:[0,1,2,3,4],
+
             text :'Lista Negra',
             iconCls : 'bcancelfile',
             disabled: true,
@@ -221,6 +230,21 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
             },
             type:'TextField',
             filters:{pfiltro:'cm.codigo_producto',type:'string'},
+            id_grupo:0,
+            grid:true,
+            form:true
+        },
+        {
+            config:{
+                name: 'nro_boleto',
+                fieldLabel: 'Nro Boleto',
+                allowBlank: false,
+                anchor: '80%',
+                gwidth: 150,
+                maxLength:500
+            },
+            type:'TextField',
+            filters:{pfiltro:'cm.nro_boleto',type:'string'},
             id_grupo:0,
             grid:true,
             form:true
@@ -458,7 +482,8 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
         {name:'registro', type: 'string'},
         {name:'tipo_comisionista', type: 'string'},
         {name:'lista_negra', type: 'string'},
-        {name:'nombre_agencia', type: 'string'}
+        {name:'nombre_agencia', type: 'string'},
+        {name:'nro_boleto', type: 'string'}
 
 	],
 	sortInfo:{
@@ -804,6 +829,7 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
 
     reporteGeneral : function(){
         var id_periodo = this.cmbPeriodo.getValue();
+        Phx.CP.loadingShow();
         Ext.Ajax.request({
             url:'../../sis_contabilidad/control/Comisionistas/reporteGeneral',
             params:{'id_periodo':id_periodo},
@@ -813,6 +839,21 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
             scope:this
         });
     }
+    /*onButtonRevizar:function() {
+
+        var me = this;
+        me.objSolForm =Phx.CP.loadWindows('../../../sis_contabilidad/vista/comisionistas/RevisarComisionistas.php',
+            'Control Comisionistas',
+            {
+                width:'90%',
+                height:'70%'
+            },
+            {data:{objPadre: me}
+            },
+            this.idContenedor,
+            'RevisarComisionistas'
+        )
+    }*/
 
 	}
 )

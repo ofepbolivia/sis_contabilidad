@@ -51,6 +51,7 @@ class MODComisionistas extends MODbase{
 		$this->captura('fecha_mod','timestamp');
 		$this->captura('id_usuario_mod','int4');
 		$this->captura('nombre_agencia','varchar');
+		$this->captura('nro_boleto','varchar');
 
 		
 		//Ejecuta la instruccion
@@ -345,16 +346,52 @@ class MODComisionistas extends MODbase{
         $this->captura('nombre_agencia','varchar');
         $this->captura('nit_comisionista','varchar');
         $this->captura('nro_contrato','varchar');
+        $this->captura('nro_boleto','varchar');
         $this->captura('periodo','int4');
-        $this->captura('cantidad','int4');
-        $this->captura('precio_unitario_total','numeric');
+        $this->captura('cantidad','numeric');
+        $this->captura('precio_unitario','numeric');
         $this->captura('monto_total','numeric');
-        $this->captura('total_comision','numeric');
+        $this->captura('monto_total_comision','numeric');
+        $this->captura('tipo','varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
        // var_dump($this->respuesta);exit;
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function listarRevisarComisionistas(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='conta.ft_comisionistas_sel';
+        $this->transaccion='CONTA_RCA_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+
+        //Definicion de la lista del resultado del query
+        $this->captura('id_comisionista_rev','int4');
+        $this->captura('nit_comisionista','varchar');
+        $this->captura('nro_contrato','varchar');
+        $this->captura('nombre_agencia','varchar');
+        $this->captura('precio_unitario','numeric');
+        $this->captura('id_periodo','int4');
+        $this->captura('monto_total','numeric');
+        $this->captura('estado_reg','varchar');
+        $this->captura('monto_total_comision','numeric');
+        $this->captura('revisado','varchar');
+        $this->captura('id_depto_conta','int4');
+        $this->captura('id_usuario_ai','int4');
+        $this->captura('fecha_reg','timestamp');
+        $this->captura('usuario_ai','varchar');
+        $this->captura('id_usuario_reg','int4');
+        $this->captura('id_usuario_mod','int4');
+        $this->captura('fecha_mod','timestamp');
+        $this->captura('usr_reg','varchar');
+        $this->captura('usr_mod','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
         //Devuelve la respuesta
         return $this->respuesta;
     }

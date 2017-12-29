@@ -39,11 +39,11 @@ class RComisionistasTotalesAgencia
             76=>'BY',77=>'BZ');
 
     }
-    function imprimeCabecera() {
+    function imprimeCabecera($sheet) {
         $datos = $this->objParam->getParametro('datos');
-        $this->docexcel->createSheet();
+        $this->docexcel->createSheet($sheet);
+        $this->docexcel->setActiveSheetIndex($sheet);
         $this->docexcel->getActiveSheet()->setTitle($this->mesliteral($datos = $datos[0]['periodo']));
-        $this->docexcel->setActiveSheetIndex(0);
 
         $styleTitulos1 = array(
             'font'  => array(
@@ -62,10 +62,7 @@ class RComisionistasTotalesAgencia
             'font'  => array(
                 'bold'  => true,
                 'size'  => 9,
-                'name'  => 'Arial',
-                'color' => array(
-                    'rgb' => 'FFFFFF'
-                )
+                'name'  => 'Arial'
 
             ),
             'alignment' => array(
@@ -75,7 +72,7 @@ class RComisionistasTotalesAgencia
             'fill' => array(
                 'type' => PHPExcel_Style_Fill::FILL_SOLID,
                 'color' => array(
-                    'rgb' => '0066CC'
+                    'rgb' => '277FF7'
                 )
             ),
             'borders' => array(
@@ -86,7 +83,7 @@ class RComisionistasTotalesAgencia
 
         //titulos
         $datos = $this->objParam->getParametro('datos');
-        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,2,'TOTALES GENERALES POR AGENCIAS' );
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,2,'REPORTE POR AGENCIAS COMISIONISTAS' );
         $this->docexcel->getActiveSheet()->getStyle('A2:H2')->applyFromArray($styleTitulos1);
         $this->docexcel->getActiveSheet()->mergeCells('A2:H2');
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,4,'Mes: '.  $this->mesliteral($datos = $datos[0]['periodo']) );
@@ -96,13 +93,13 @@ class RComisionistasTotalesAgencia
         $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(25);
         $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(20);
         $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(20);
-        $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(20);
-        $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(35);
-        $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(35);
+        $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(10);
+        $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(15);
+        $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(15);
+        $this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(15);
 
 
-
+        $this->docexcel->getActiveSheet(0)->freezePaneByColumnAndRow(1,6);
         $this->docexcel->getActiveSheet()->getStyle('A5:H5')->getAlignment()->setWrapText(true);
         $this->docexcel->getActiveSheet()->getStyle('A5:H5')->applyFromArray($styleTitulos2);
 
@@ -110,13 +107,13 @@ class RComisionistasTotalesAgencia
 
         //*************************************Cabecera*****************************************
         $this->docexcel->getActiveSheet()->setCellValue('A5','Nº');
-        $this->docexcel->getActiveSheet()->setCellValue('B5','NOMBRE AGENCIA');
+        $this->docexcel->getActiveSheet()->setCellValue('B5','NRO. BOLETO');
         $this->docexcel->getActiveSheet()->setCellValue('C5','NIT COMISIONISTA');
         $this->docexcel->getActiveSheet()->setCellValue('D5','NRO CONTRATO');
-        $this->docexcel->getActiveSheet()->setCellValue('E5','CANTIDAD BOLETOS');
-        $this->docexcel->getActiveSheet()->setCellValue('F5','TOTAL PRECIO UNITARIO');
-        $this->docexcel->getActiveSheet()->setCellValue('G5','TOTAL MONTO');
-        $this->docexcel->getActiveSheet()->setCellValue('H5','TOTAL COMISION');
+        $this->docexcel->getActiveSheet()->setCellValue('E5','CANTIDAD');
+        $this->docexcel->getActiveSheet()->setCellValue('F5','PRECIO UNITARIO');
+        $this->docexcel->getActiveSheet()->setCellValue('G5','TOTAL');
+        $this->docexcel->getActiveSheet()->setCellValue('H5','COMISION');
 
     }
     function generarDatos()
@@ -127,38 +124,169 @@ class RComisionistasTotalesAgencia
                 'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
             ),
         );
+        $styleArray = array(
+            'borders' => array(
+                'allborders' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_THIN
+                )
+            )
+        );
+        $stylePrecioUnitario = array(
+            'font'  => array(
+                'bold'  => true,
+                'size'  => 10,
+                'name'  => 'Arial'
+            ),
+
+            'fill' => array(
+                'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                'color' => array(
+                    'rgb' => '79C4EA'
+                )
+            )
+        );
+        $styleTotal = array(
+            'font'  => array(
+                'bold'  => true,
+                'size'  => 10,
+                'name'  => 'Arial'
+            ),
+
+            'fill' => array(
+                'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                'color' => array(
+                    'rgb' => '90F05F'
+                )
+            )
+        );
+        $styleComision = array(
+            'font'  => array(
+                'bold'  => true,
+                'size'  => 10,
+                'name'  => 'Arial'
+            ),
+
+            'fill' => array(
+                'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                'color' => array(
+                    'rgb' => 'F0D15F'
+                )
+            )
+        );
+
+        $styleFinal = array(
+        'font'  => array(
+            'bold'  => true,
+            'size'  => 10,
+            'name'  => 'Arial'
+        ),
+
+        'fill' => array(
+            'type' => PHPExcel_Style_Fill::FILL_SOLID,
+            'color' => array(
+                'rgb' => 'E06E64'
+            )
+        )
+    );
 
         $this->numero = 1;
+        $sheet = 0;
+        $ger = '';
         $fila = 6;
         $datos = $this->objParam->getParametro('datos');
-        $this->imprimeCabecera(0);
-        foreach ($datos as $value)
-        {
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $this->numero);
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['nombre_agencia']);
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['nit_comisionista']);
+        $this->imprimeCabecera($sheet);
+
+        foreach ($datos as $value) {
+
+            if ($value['nombre_agencia'] != $ger) {
+                $this->imprimeSubtitulo($fila,$value['nombre_agencia']);
+                $ger = $value['nombre_agencia'];
+                $fila++;
+            }
+
+            if ( $value['nro_boleto'] == "0") {
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, " ");
+            }else{
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $this->numero);
+            }
+            if ( $value['nro_boleto'] == "0") {
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, "TOTAL");
+            }else{
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['nro_boleto']);
+            }
+            if ( $value['nro_boleto'] == "0") {
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, " ");
+            }else{
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['nit_comisionista']);
+            }
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['nro_contrato']);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['cantidad']);
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['precio_unitario_total']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['precio_unitario']);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $value['monto_total']);
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['total_comision']);
-            $this->docexcel->getActiveSheet()->getStyle("E$fila:E$fila")->applyFromArray($styleTitulos3);
-            $this->docexcel->getActiveSheet()->getStyle("B$fila:B$fila")->applyFromArray($styleTitulos3);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['monto_total_comision']);
             $this->docexcel->getActiveSheet()->getStyle("F$fila:H$fila")->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat :: FORMAT_NUMBER_COMMA_SEPARATED1);
+            $this->docexcel->getActiveSheet()->getStyle("B$fila")->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER);
+            $this->docexcel->getActiveSheet()->getStyle("E$fila:E$fila")->applyFromArray($styleTitulos3);
+            $this->docexcel->getActiveSheet()->getStyle("A$fila:H$fila")->applyFromArray($styleArray);
+            if ( $value['nro_boleto'] != "0") {
+                $this->docexcel->getActiveSheet()->getStyle("F$fila:F$fila")->applyFromArray($stylePrecioUnitario);
+            }
+            if ( $value['nro_boleto'] != "0") {
+                $this->docexcel->getActiveSheet()->getStyle("G$fila:G$fila")->applyFromArray($styleTotal);
+            }
+            if ( $value['nro_boleto'] != "0") {
+                $this->docexcel->getActiveSheet()->getStyle("H$fila:H$fila")->applyFromArray($styleComision);
+            }
+            if ( $value['nro_boleto'] == "0") {
+                $this->docexcel->getActiveSheet()->getStyle("A$fila:H$fila")->applyFromArray($styleFinal);
+            }
             $fila++;
-            $this->numero++;
+            if ( $value['nro_boleto'] != "0"){
+                $this->numero++;
+            }
         }
+
+        $sheet ++;
+        //$this->totales ($sheet);
+    }
+
+    function  totales ($sheet){
+        $this->docexcel->createSheet($sheet );
+        $this->docexcel->setActiveSheetIndex($sheet );
+        $this->docexcel->getActiveSheet()->setTitle('Totales');
+        $this->imprimeCabecera($sheet);
+
     }
     function  mesliteral ($mes){
         $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
         return  $meses[$mes-1];
+    }
+    function imprimeSubtitulo($fila, $valor) {
+        $styleTitulos = array(
+            'font'  => array(
+                'bold'  => true,
+                'size'  => 12,
+                'name'  => 'Arial'
+            ));
+        $style = array(
+
+            'fill' => array(
+                'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                'color' => array(
+                    'rgb' => 'EBEF62'
+                )
+            )
+        );
+        $this->docexcel->getActiveSheet()->getStyle("A$fila:H$fila")->applyFromArray($style);
+        $this->docexcel->getActiveSheet()->getStyle("A$fila:A$fila")->applyFromArray($styleTitulos);
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $valor);
+
     }
     function generarReporte(){
 
         //$this->docexcel->setActiveSheetIndex(0);
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->docexcel, 'Excel5');
         $this->objWriter->save($this->url_archivo);
-        $this->imprimeCabecera(0);
 
     }
 
