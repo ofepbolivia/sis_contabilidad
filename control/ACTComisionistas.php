@@ -109,7 +109,6 @@ class ACTComisionistas extends ACTbase{
                ;
 
             fwrite($MiDocumento, $Escribo);
-            fwrite($MiDocumento, 'hola');
             fwrite($MiDocumento, chr(13).chr(10)); //genera el salto de linea
         }
         fclose($MiDocumento);
