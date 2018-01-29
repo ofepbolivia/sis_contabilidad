@@ -41,6 +41,7 @@ DECLARE
     v_consulta				varchar;
 	v_recort				record;
     v_periodo			integer;
+    v_id_agencia		integer;
 
 BEGIN
 
@@ -490,12 +491,12 @@ BEGIN
                v_periodo
       from param.tperiodo p
       where p.id_periodo = v_parametros.id_periodo and p.id_gestion = v_parametros.id_gestion;
-
+     --raise exception '%',v_periodo;
      FOR v_reccord IN (
 select 	a.id_agencia,
             a.nombre,
             a.nit,
-            (select pxp.list ( regexp_replace( regexp_replace(c.numero::text, 'OB.GL.CC.',''),'.2017',''||'/2017'))
+            (select  pxp.list ( RIGHT(c.numero,19))
             from leg.tcontrato c
             where c.id_agencia = a.id_agencia) as nro_contrato,
             '' as codigo,
@@ -503,17 +504,19 @@ select 	a.id_agencia,
             1 cantidad,
             bo.neto,
             bo.total,
-           cb.importe as total_comision
+           cb.importe as total_comision,
+			bo.nro_boleto
       from obingresos.tagencia a
       inner join obingresos.tboleto_2017 bo on bo.id_agencia = a.id_agencia
       inner join mat.vcomision_boletos cb on cb.id_boleto = bo.id_boleto
-      where a.boaagt = 'A' and a.tipo_agencia = 'noiata'
+      where a.boaagt = 'A' and a.tipo_agencia = 'noiata' and cb.importe <> 0 and bo.estado_reg = 'activo'
       and  EXTRACT(MONTH FROM bo.fecha_emision) = v_periodo
       order by a.nombre
 
 
 )LOOP
-insert into conta.tcomisionistas(
+
+	insert into conta.tcomisionistas(
 			nit_comisionista,
 			nro_contrato,
 			codigo_producto,
@@ -534,7 +537,9 @@ insert into conta.tcomisionistas(
             id_depto_conta,
             registro,
             nombre_agencia,
-            revisado
+            revisado,
+            nro_boleto,
+            id_agencia
           	) values(
 			v_reccord.nit,
 			v_reccord.nro_contrato,
@@ -556,16 +561,88 @@ insert into conta.tcomisionistas(
             v_parametros.id_depto_conta,
             'automatico',
             v_reccord.nombre,
-            'no'
+            'no',
+            v_reccord.nro_boleto,
+            v_reccord.id_agencia
 			);
 
 END LOOP;
+insert  into conta.trevisar_comisionistas (	  nombre_agencia,
+                                              nit_comisionista,
+                                              nro_contrato,
+                                              precio_unitario ,
+                                              monto_total,
+                                              monto_total_comision,
+                                              id_periodo ,
+                                              id_depto_conta ,
+                                              id_usuario_reg,
+                                              id_agencia
+                                              )select	c.nombre_agencia,
+                                                        c.nit_comisionista,
+                                                        c.nro_contrato,
+                                                        sum(c.precio_unitario) as precio_unitario,
+                                                        sum(c.monto_total) as monto_total,
+                                                        sum(c.monto_total_comision) as monto_total_comision,
+                                                        v_parametros.id_periodo::integer as id_periodo,
+                                                        v_parametros.id_depto_conta::integer as id_depto_conta,
+                                                        p_id_usuario::integer as id_usuario_reg,
+                                                        c.id_agencia
+                                                        from conta.tcomisionistas c
+                                                        where c.id_periodo = v_parametros.id_periodo  and c.id_depto_conta = v_parametros.id_depto_conta
+                                                        group by c.nombre_agencia,c.nit_comisionista,c.nro_contrato,c.id_agencia;
+
         v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'anexos actualizaciones automatic(a)');
         v_resp = pxp.f_agrega_clave(v_resp, 'id_depto_conta', v_parametros.id_depto_conta :: VARCHAR);
 
         --Devuelve la respuesta
         RETURN v_resp;
      END;
+       /*********************************
+ 	#TRANSACCION:  'CONTA_RECA_IME'
+ 	#DESCRIPCION:	Control revision catalogo
+ 	#AUTOR:		MMV
+ 	#FECHA:		14-06-2017
+	***********************************/
+	elsif (p_transaccion='CONTA_RECA_IME')then
+
+        begin
+
+            select co.revisado,
+            		co.id_agencia
+            		into
+                    v_revisado,
+                    v_id_agencia
+            from conta.trevisar_comisionistas co
+			where co.id_comisionista_rev = v_parametros.id_comisionista_rev;
+
+            if v_revisado = 'si' then
+            update conta.trevisar_comisionistas set
+            revisado = 'no'
+            where id_comisionista_rev = v_parametros.id_comisionista_rev;
+
+            update conta.tcomisionistas set
+            revisado = 'no'
+            where id_agencia = v_id_agencia;
+
+            end if;
+            if v_revisado = 'no' then
+            update conta.trevisar_comisionistas set
+            revisado = 'si'
+           	where id_comisionista_rev = v_parametros.id_comisionista_rev;
+
+            update conta.tcomisionistas set
+            revisado = 'si'
+            where id_agencia = v_id_agencia;
+            end if;
+
+			--Definicion de la respuesta
+			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Revision con exito (id_comisionista'||v_parametros.id_comisionista_rev||')');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_comisionista_rev',v_parametros.id_comisionista_rev::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
 
 	else
 

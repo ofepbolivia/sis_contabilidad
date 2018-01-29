@@ -70,7 +70,8 @@ BEGIN
                                     cm.id_usuario_ai,
                                     cm.fecha_mod,
                                     cm.id_usuario_mod,
-                                    cm.nombre_agencia
+                                    cm.nombre_agencia,
+                                    cm.nro_boleto
                                     from conta.tcomisionistas cm
                                     inner join segu.tusuario usu1 on usu1.id_usuario = cm.id_usuario_reg
                                     inner join param.tperiodo per on per.id_periodo = cm.id_periodo
@@ -126,23 +127,146 @@ BEGIN
 
     begin
 
-
     		--Sentencia de la consulta
-			v_consulta:=' select  cm.nombre_agencia,
-                                  cm.nit_comisionista,
-                                  cm.nro_contrato,
-                                  per.periodo,
-        						  count(cm.nombre_agencia)::integer as cantidad,
-                                  COALESCE(sum(cm.precio_unitario),0)::numeric as precio_unitario_total,
-                                  COALESCE(sum(cm.monto_total),0)::numeric as monto_total,
-                                  COALESCE(sum(cm.monto_total_comision),0)::numeric as total_comision
-                                  from conta.tcomisionistas cm
-                                  inner join segu.tusuario usu1 on usu1.id_usuario = cm.id_usuario_reg
-                                  inner join param.tperiodo per on per.id_periodo = cm.id_periodo
-                                  inner join param.tgestion ges on ges.id_gestion = per.id_gestion
-                                  left join segu.tusuario usu2 on usu2.id_usuario = cm.id_usuario_mod
-                                  where cm.id_periodo = '||v_parametros.id_periodo||'
-                                  group by cm.nombre_agencia ,cm.nit_comisionista ,cm.nro_contrato,per.periodo';
+			v_consulta:='select 	c.nombre_agencia,
+                                    c.nit_comisionista,
+                                    c.nro_contrato,
+                                    c.nro_boleto,
+                                    per.periodo,
+                                    c.cantidad_total_vendido as cantidad,
+                                    c.precio_unitario,
+                                    c.monto_total,
+                                    c.monto_total_comision,
+                                    ''A''::varchar as tipo
+                            from conta.tcomisionistas c
+                            inner join param.tperiodo per on per.id_periodo = c.id_periodo
+                            inner join param.tgestion ges on ges.id_gestion = per.id_gestion
+                            where c.id_periodo = '||v_parametros.id_periodo||'
+                            union
+                            select  cm.nombre_agencia,
+                                    cm.nit_comisionista,
+                                    cm.nro_contrato,
+                                    ''0''::varchar as nro_boleto,
+                                    per.periodo,
+                                    count(cm.nombre_agencia)::integer as cantidad,
+                                    COALESCE(sum(cm.precio_unitario),0)::numeric as precio_unitario,
+                                    COALESCE(sum(cm.monto_total),0)::numeric as monto_total,
+                                    COALESCE(sum(cm.monto_total_comision),0)::numeric as monto_total_comision,
+                                    ''B''::varchar as tipo
+                                    from conta.tcomisionistas cm
+                                    inner join param.tperiodo per on per.id_periodo = cm.id_periodo
+                                    inner join param.tgestion ges on ges.id_gestion = per.id_gestion
+                                    where cm.id_periodo = '||v_parametros.id_periodo||'
+                                    group by cm.nombre_agencia ,cm.nit_comisionista ,cm.nro_contrato,per.periodo
+                                    order by nombre_agencia,  nro_boleto desc';
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+    	/*********************************
+ 	#TRANSACCION:  'CONTA_RCA_SEL'
+ 	#DESCRIPCION:	Consulta de datos
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:		28-12-2017 21:31:21
+	***********************************/
+
+	elsif(p_transaccion='CONTA_RCA_SEL')then
+
+    	begin
+    		--Sentencia de la consulta
+			v_consulta:='select
+						rca.id_comisionista_rev,
+						rca.nit_comisionista,
+						rca.nro_contrato,
+						rca.nombre_agencia,
+						rca.precio_unitario,
+						rca.id_periodo,
+						rca.monto_total,
+						rca.estado_reg,
+						rca.monto_total_comision,
+						rca.revisado,
+						rca.id_depto_conta,
+						rca.id_usuario_ai,
+						rca.fecha_reg,
+						rca.usuario_ai,
+						rca.id_usuario_reg,
+						rca.id_usuario_mod,
+						rca.fecha_mod,
+						usu1.cuenta as usr_reg,
+						usu2.cuenta as usr_mod
+						from conta.trevisar_comisionistas rca
+						inner join segu.tusuario usu1 on usu1.id_usuario = rca.id_usuario_reg
+						left join segu.tusuario usu2 on usu2.id_usuario = rca.id_usuario_mod
+				        where  ';
+
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+	/*********************************
+ 	#TRANSACCION:  'CONTA_RCA_CONT'
+ 	#DESCRIPCION:	Conteo de registros
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:		28-12-2017 21:31:21
+	***********************************/
+
+	elsif(p_transaccion='CONTA_RCA_CONT')then
+
+		begin
+			--Sentencia de la consulta de conteo de registros
+			v_consulta:='select count(id_comisionista_rev)
+					    from conta.trevisar_comisionistas rca
+					    inner join segu.tusuario usu1 on usu1.id_usuario = rca.id_usuario_reg
+						left join segu.tusuario usu2 on usu2.id_usuario = rca.id_usuario_mod
+					    where ';
+
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+        	/*********************************
+ 	#TRANSACCION:  'CONTA_REPO_SEL'
+ 	#DESCRIPCION:	Consulta de datos
+ 	#AUTOR:		miguel.mamani
+ 	#FECHA:		28-12-2017 21:31:21
+	***********************************/
+
+	elsif(p_transaccion='CONTA_REPO_SEL')then
+
+    	begin
+    		--Sentencia de la consulta
+			v_consulta:='select
+						rca.id_comisionista_rev,
+						rca.nit_comisionista,
+						rca.nro_contrato,
+						rca.nombre_agencia,
+						rca.precio_unitario,
+						rca.id_periodo,
+						rca.monto_total,
+						rca.estado_reg,
+						rca.monto_total_comision,
+						rca.revisado,
+						rca.id_depto_conta,
+						rca.id_usuario_ai,
+						rca.fecha_reg,
+						rca.usuario_ai,
+						rca.id_usuario_reg,
+						rca.id_usuario_mod,
+						rca.fecha_mod,
+						usu1.cuenta as usr_reg,
+						usu2.cuenta as usr_mod
+						from conta.trevisar_comisionistas rca
+						inner join segu.tusuario usu1 on usu1.id_usuario = rca.id_usuario_reg
+						left join segu.tusuario usu2 on usu2.id_usuario = rca.id_usuario_mod
+				        where rca.id_periodo ='||v_parametros.id_periodo;
 
 			--Devuelve la respuesta
 			return v_consulta;

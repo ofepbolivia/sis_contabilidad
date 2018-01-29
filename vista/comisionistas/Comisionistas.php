@@ -70,15 +70,15 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
             handler : this.reporteGeneral,
             tooltip : '<b>Reporte general totales por agencias</b>'
         });
-        /*this.addButton('Revizar',{
+        this.addButton('Revizar',{
 
-            text: 'Revizar',
+            text: 'Catálogo Agencias',
             iconCls: 'bdocuments',
             disabled: false,
             handler: this.onButtonRevizar,
-            tooltip: '<b>Revizar</b>',
+            tooltip: '<b>Catálogo Agencias</b>',
             scope:this
-        });*/
+        });
         this.addButton('listaNegra',{
 
             text :'Lista Negra',
@@ -166,7 +166,8 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
             filters:{pfiltro:'cm.nombre_agencia',type:'string'},
             id_grupo:0,
             grid:true,
-            form:true
+            form:true,
+            bottom_filter: true
         },
 
         {
@@ -838,22 +839,23 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
             timeout:this.timeout,
             scope:this
         });
-    }
-    /*onButtonRevizar:function() {
-
+    },
+    onButtonRevizar:function() {
+        var id_periodo = this.cmbPeriodo.getValue();
+        var id_depto_conta = this.cmbDepto.getValue();
         var me = this;
         me.objSolForm =Phx.CP.loadWindows('../../../sis_contabilidad/vista/comisionistas/RevisarComisionistas.php',
-            'Control Comisionistas',
+            'Catálogo Agencias',
             {
                 width:'90%',
                 height:'70%'
             },
-            {data:{objPadre: me}
+            {data:{id_periodo: id_periodo ,id_depto_conta:id_depto_conta}
             },
             this.idContenedor,
             'RevisarComisionistas'
         )
-    }*/
+    }
 
 	}
 )
