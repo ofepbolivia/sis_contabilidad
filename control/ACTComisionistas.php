@@ -216,6 +216,15 @@ class ACTComisionistas extends ACTbase{
         $this->mensajeExito->setArchivoGenerado($nombreArchivo);
         $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
     }
+    function insertarRevisarComisionistas(){
+        $this->objFunc=$this->create('MODComisionistas');
+        if($this->objParam->insertar('id_comisionista_rev')){
+            $this->res=$this->objFunc->insertarRevisarComisionistas($this->objParam);
+        } else{
+            $this->res=$this->objFunc->ModificarRevisarComisionistas($this->objParam);
+        }
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 			
 }
 
