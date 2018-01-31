@@ -42,6 +42,8 @@ DECLARE
 	v_recort				record;
     v_periodo			integer;
     v_id_agencia		integer;
+    v_recorer 			record;
+    v_id_periodos		integer;
 
 BEGIN
 
@@ -485,7 +487,7 @@ BEGIN
 
       BEGIN
 
-
+--raise exception '%',v_parametros.id_periodo;
       select p.periodo
                into
                v_periodo
@@ -496,9 +498,11 @@ BEGIN
 select 	a.id_agencia,
             a.nombre,
             a.nit,
-            (select  pxp.list ( RIGHT(c.numero,19))
+            (select  RIGHT(c.numero,19)
             from leg.tcontrato c
-            where c.id_agencia = a.id_agencia) as nro_contrato,
+            where c.id_agencia = a.id_agencia and c.fecha_fin = (select max(d.fecha_fin)
+			from leg.tcontrato d
+			where d.id_agencia = a.id_agencia)) as nro_contrato,
             '' as codigo,
             'Venta de Servicio de Transporte Aereo' as descripcion,
             1 cantidad,
@@ -515,6 +519,11 @@ select 	a.id_agencia,
 
 
 )LOOP
+
+
+
+
+
 
 	insert into conta.tcomisionistas(
 			nit_comisionista,
@@ -567,6 +576,32 @@ select 	a.id_agencia,
 			);
 
 END LOOP;
+
+FOR v_recorer IN( select	c.nombre_agencia,
+                                                        c.nit_comisionista,
+                                                        c.nro_contrato,
+                                                        sum(c.precio_unitario) as precio_unitario,
+                                                        sum(c.monto_total) as monto_total,
+                                                        sum(c.monto_total_comision) as monto_total_comision,
+                                                        c.id_agencia
+                                                        from conta.tcomisionistas c
+                                                        where c.id_periodo = v_parametros.id_periodo  and c.id_depto_conta = v_parametros.id_depto_conta
+                                                        group by c.nombre_agencia,c.nit_comisionista,c.nro_contrato,c.id_agencia)LOOP
+
+
+IF EXISTS (select 1
+           from conta.trevisar_comisionistas d
+           where d.id_agencia = v_recorer.id_agencia and
+           d.id_periodo = v_parametros.id_periodo - 1) THEN
+           v_revisado = 'si';
+             update conta.tcomisionistas set
+            revisado = 'si'
+            where id_agencia = v_recorer.id_agencia and id_periodo = v_parametros.id_periodo;
+           ELSE
+           v_revisado = 'no';
+           END IF;
+
+
 insert  into conta.trevisar_comisionistas (	  nombre_agencia,
                                               nit_comisionista,
                                               nro_contrato,
@@ -576,20 +611,38 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
                                               id_periodo ,
                                               id_depto_conta ,
                                               id_usuario_reg,
-                                              id_agencia
-                                              )select	c.nombre_agencia,
-                                                        c.nit_comisionista,
-                                                        c.nro_contrato,
-                                                        sum(c.precio_unitario) as precio_unitario,
-                                                        sum(c.monto_total) as monto_total,
-                                                        sum(c.monto_total_comision) as monto_total_comision,
-                                                        v_parametros.id_periodo::integer as id_periodo,
-                                                        v_parametros.id_depto_conta::integer as id_depto_conta,
-                                                        p_id_usuario::integer as id_usuario_reg,
-                                                        c.id_agencia
-                                                        from conta.tcomisionistas c
-                                                        where c.id_periodo = v_parametros.id_periodo  and c.id_depto_conta = v_parametros.id_depto_conta
-                                                        group by c.nombre_agencia,c.nit_comisionista,c.nro_contrato,c.id_agencia;
+                                              id_agencia,
+                                              revisado
+                                              )VALUES(
+                                              v_recorer.nombre_agencia,
+                                              v_recorer.nit_comisionista,
+                                              v_recorer.nro_contrato,
+                                              v_recorer.precio_unitario,
+                                              v_recorer.monto_total,
+                                              v_recorer.monto_total_comision,
+                                              v_parametros.id_periodo,
+                                              v_parametros.id_depto_conta,
+                                              p_id_usuario,
+                                              v_recorer.id_agencia,
+                                              v_revisado
+                                              );
+/*IF EXISTS (select 1
+           from conta.trevisar_comisionistas d
+           where d.id_agencia = v_recorer.id_agencia and
+           d.id_periodo = v_parametros.id_periodo - 1) THEN
+          raise EXCEPTION 'id % o %', v_recorer.id_agencia,v_parametros.id_periodo;
+           update conta.trevisar_comisionistas set
+           revisado = 'si'
+           where id_agencia = v_recorer.id_agencia and id_periodo = v_parametros.id_periodo ;
+
+            update conta.tcomisionistas set
+            revisado = 'si'
+            where id_agencia = v_recorer.id_agencia and id_periodo = v_parametros.id_periodo;
+END IF;*/
+
+END LOOP;
+
+
 
         v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'anexos actualizaciones automatic(a)');
         v_resp = pxp.f_agrega_clave(v_resp, 'id_depto_conta', v_parametros.id_depto_conta :: VARCHAR);
@@ -608,10 +661,12 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
         begin
 
             select co.revisado,
-            		co.id_agencia
+            		co.id_agencia,
+                    co.id_periodo
             		into
                     v_revisado,
-                    v_id_agencia
+                    v_id_agencia,
+                    v_id_periodos
             from conta.trevisar_comisionistas co
 			where co.id_comisionista_rev = v_parametros.id_comisionista_rev;
 
@@ -622,7 +677,7 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
 
             update conta.tcomisionistas set
             revisado = 'no'
-            where id_agencia = v_id_agencia;
+            where id_agencia = v_id_agencia and id_periodo = v_id_periodos ;
 
             end if;
             if v_revisado = 'no' then
@@ -632,7 +687,7 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
 
             update conta.tcomisionistas set
             revisado = 'si'
-            where id_agencia = v_id_agencia;
+            where id_agencia = v_id_agencia and id_periodo = v_id_periodos ;
             end if;
 
 			--Definicion de la respuesta
@@ -643,7 +698,50 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
             return v_resp;
 
 		end;
+         /*********************************
+ 	#TRANSACCION:  'CONTA_REM_IME'
+ 	#DESCRIPCION:	Control revision catalogo
+ 	#AUTOR:		MMV
+ 	#FECHA:		14-06-2017
+	***********************************/
+	elsif (p_transaccion='CONTA_REM_IME')then
 
+        begin
+
+        --
+            UPDATE  conta.trevisar_comisionistas SET
+            id_usuario_mod = p_id_usuario,
+            fecha_mod = now(),
+            id_usuario_ai = v_parametros._id_usuario_ai,
+            usuario_ai = v_parametros._nombre_usuario_ai,
+            nit_comisionista = v_parametros.nit_comisionista,
+            nro_contrato = v_parametros.nro_contrato
+            WHERE   id_comisionista_rev = v_parametros.id_comisionista_rev;
+
+            select  c.id_periodo,
+            	 	c.id_agencia
+                    into
+                    v_id_periodos,
+                    v_id_agencia
+
+            from conta.trevisar_comisionistas  c
+            where c.id_comisionista_rev = v_parametros.id_comisionista_rev;
+
+
+            UPDATE  conta.tcomisionistas  set
+            nro_contrato = RIGHT(v_parametros.nro_contrato,19),
+            nit_comisionista = v_parametros.nit_comisionista
+            where id_agencia = v_id_agencia and id_periodo = v_id_periodos;
+
+
+
+			--Definicion de la respuesta
+			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Revision con exito (id_comisionista'||v_parametros.id_comisionista_rev||')');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_comisionista_rev',v_parametros.id_comisionista_rev::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+            end;
 	else
 
     	raise exception 'Transaccion inexistente: %',p_transaccion;

@@ -90,13 +90,13 @@ class MODComisionistas extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function modificarComisionistas(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='conta.ft_comisionistas_ime';
 		$this->transaccion='CONTA_CMS_MOD';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_comisionista','id_comisionista','int4');
         $this->setParametro('nit_comisionista','nit_comisionista','varchar');
@@ -439,6 +439,26 @@ class MODComisionistas extends MODbase{
         $this->captura('fecha_mod','timestamp');
         $this->captura('usr_reg','varchar');
         $this->captura('usr_mod','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function ModificarRevisarComisionistas(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_comisionistas_ime';
+        $this->transaccion='CONTA_REM_IME';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_comisionista_rev','id_comisionista_rev','int4');
+        $this->setParametro('nit_comisionista','nit_comisionista','varchar');
+        $this->setParametro('nro_contrato','nro_contrato','varchar');
+        $this->setParametro('id_periodo','id_periodo','int4');
+        $this->setParametro('id_depto_conta','id_depto_conta','int4');
 
         //Ejecuta la instruccion
         $this->armarConsulta();

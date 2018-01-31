@@ -85,7 +85,7 @@ Phx.vista.RevisarComisionistas=Ext.extend(Phx.gridInterfaz, {
                 filters: {pfiltro: 'rca.nombre_agencia', type: 'string'},
                 id_grupo: 1,
                 grid: true,
-                form: true,
+                form: false,
                 bottom_filter: true
             },
             {
@@ -101,6 +101,7 @@ Phx.vista.RevisarComisionistas=Ext.extend(Phx.gridInterfaz, {
                 id_grupo: 1,
                 grid: true,
                 form: true,
+                egrid:true,
                 bottom_filter: true
             },
             {
@@ -116,6 +117,7 @@ Phx.vista.RevisarComisionistas=Ext.extend(Phx.gridInterfaz, {
                 id_grupo: 1,
                 grid: true,
                 form: true,
+                egrid:true,
                 bottom_filter: true
             },
 
@@ -136,7 +138,7 @@ Phx.vista.RevisarComisionistas=Ext.extend(Phx.gridInterfaz, {
                 filters: {pfiltro: 'rca.precio_unitario', type: 'numeric'},
                 id_grupo: 1,
                 grid: true,
-                form: true
+                form: false
             },
             {
                 config: {
@@ -155,7 +157,7 @@ Phx.vista.RevisarComisionistas=Ext.extend(Phx.gridInterfaz, {
                 filters: {pfiltro: 'rca.monto_total', type: 'numeric'},
                 id_grupo: 1,
                 grid: true,
-                form: true
+                form: false
             },
 
             {
@@ -175,7 +177,7 @@ Phx.vista.RevisarComisionistas=Ext.extend(Phx.gridInterfaz, {
                 filters: {pfiltro: 'rca.monto_total_comision', type: 'numeric'},
                 id_grupo: 1,
                 grid: true,
-                form: true
+                form: false
             },
             {
                 config: {
@@ -292,6 +294,7 @@ Phx.vista.RevisarComisionistas=Ext.extend(Phx.gridInterfaz, {
         tam_pag: 50,
         title: 'Revisar Comisionista ',
         ActList: '../../sis_contabilidad/control/Comisionistas/listarRevisarComisionistas',
+        ActSave:'../../sis_contabilidad/control/Comisionistas/insertarRevisarComisionistas',
         id_store: 'id_comisionista_rev',
         fields: [
             {name: 'id_comisionista_rev', type: 'numeric'},
@@ -320,8 +323,8 @@ Phx.vista.RevisarComisionistas=Ext.extend(Phx.gridInterfaz, {
             direction: 'ASC'
         },
         bdel: false,
-        bsave: false,
-        bedit: false,
+        bsave: true,
+        bedit: true,
         bnew: false,
 
         oncellclick : function(grid, rowIndex, columnIndex, e) {
@@ -363,7 +366,15 @@ Phx.vista.RevisarComisionistas=Ext.extend(Phx.gridInterfaz, {
                 timeout:this.timeout,
                 scope:this
             });
-        }
+        },
+    successSave:function(resp){
+        Phx.vista.RevisarComisionistas.superclass.successSave.call(this,resp);
+        Phx.CP.getPagina(this.idContenedorPadre).reload();
+    },
+    successEdit:function(resp){
+        Phx.vista.RevisarComisionistas.superclass.successEdit.call(this,resp);
+        Phx.CP.getPagina(this.idContenedorPadre).reload();
+    }
     }
 )
 </script>
