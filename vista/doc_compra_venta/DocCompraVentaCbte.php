@@ -644,7 +644,7 @@ Phx.vista.DocCompraVentaCbte=Ext.extend(Phx.gridInterfaz,{
 		}
 	],
 	tam_pag: 50,	
-	title: 'Documentos Compra/Venta',
+	title: 'Documentos Compra Venta',
 	ActSave: '../../sis_contabilidad/control/DocCompraVenta/agregarCbteDoc',
 	ActDel: '../../sis_contabilidad/control/DocCompraVenta/quitarCbteDoc',
 	ActList: '../../sis_contabilidad/control/DocCompraVenta/listarDocCompraVenta',
