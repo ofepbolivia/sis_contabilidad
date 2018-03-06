@@ -424,6 +424,22 @@ class MODCuenta extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+    function replicarPartida(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.f_cuenta_ime';
+        $this->transaccion='CONTA_REPAR_IME';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_gestion','id_gestion','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 
 
 			
