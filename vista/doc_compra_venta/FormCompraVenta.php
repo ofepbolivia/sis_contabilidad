@@ -28,6 +28,7 @@ header("content-type: text/javascript; charset=UTF-8");
         parFilConcepto:'desc_ingas#par.codigo',
         tipo_pres_gasto: 'gasto',
         tipo_pres_recurso: 'recurso',
+        aux: '',
         constructor:function(config)
         {
             this.addEvents('beforesave');
@@ -154,7 +155,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     sysorigen:'sis_contabilidad',
                     fieldLabel: 'Orden Trabajo',
                     origen:'OT',
-                    baseParams: {tipo_pres: 'recurso'},
+                    //baseParams: {tipo_pres: 'recurso'},
                     allowBlank:true
                 }),
 
@@ -236,6 +237,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.detCmp.id_concepto_ingas.on('select',function( cmb, rec, ind){
                 console.log('concepto_gasto ' + rec);
                 this.detCmp.id_orden_trabajo.store.baseParams = {
+                    par_filtro: 'codigo#desc_orden#motivo_orden',
                     filtro_ot:rec.data.filtro_ot,
                     requiere_ot:rec.data.requiere_ot,
                     id_grupo_ots:rec.data.id_grupo_ots
@@ -1286,7 +1288,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                     direction:'ASC'
                                 },
                                 totalProperty:'total',
-                                fields: ['id_agencia','nombre','codigo_noiata','codigo','tipo_agencia'],
+                                fields: ['id_agencia','nombre','codigo_noiata','codigo','tipo_agencia','codigo_int'],
                                 remoteSort: true,
                                 baseParams:{par_filtro:'age.nombre#age.codigo_noiata#age.codigo#age.tipo_agencia#codigo_int', tipo_agencia: ''}
                             }),
@@ -1689,6 +1691,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 }
                 if (rec.data.desc_plantilla == 'Póliza de Importación - DUI'){
                     this.Cmp.importe_doc.on('change',this.calcularDuis,this);
+                    this.aux = 'Póliza de Importación - DUI';
                 }
             },this);
 
@@ -1920,9 +1923,10 @@ header("content-type: text/javascript; charset=UTF-8");
                 }
                 this.Cmp.id_auxiliar.validate();
             }
-            var liquido =  this.Cmp.importe_neto.getValue()   -  this.Cmp.importe_retgar.getValue() -  this.Cmp.importe_anticipo.getValue() -  this.Cmp.importe_pendiente.getValue()  -  this.Cmp.importe_descuento_ley.getValue();
-            this.Cmp.importe_pago_liquido.setValue(liquido>0?liquido:0);
-
+            if (this.aux != 'Póliza de Importación - DUI') {
+                var liquido = this.Cmp.importe_neto.getValue() - this.Cmp.importe_retgar.getValue() - this.Cmp.importe_anticipo.getValue() - this.Cmp.importe_pendiente.getValue() - this.Cmp.importe_descuento_ley.getValue();
+                this.Cmp.importe_pago_liquido.setValue(liquido > 0 ? liquido : 0);
+            }
 
 
         },
@@ -2114,17 +2118,26 @@ header("content-type: text/javascript; charset=UTF-8");
 
                 if( i > 0 &&  !this.editorDetail.isVisible()){
 
+                    if(this.aux != 'Póliza de Importación - DUI'){
+                       // importe_pago_liquido
+                        if ((total_det.toFixed(2) * 1) == this.Cmp.importe_doc.getValue()) {
+                            Phx.vista.FormCompraVenta.superclass.onSubmit.call(this, o, undefined, true);
+                        }
+                        else {
+                            alert('El total del detalle no cuadra con el total del documento');
+                        }
+
+                    }else {
 
 
+                        if ((total_det.toFixed(2) * 1) == this.Cmp.importe_pago_liquido.getValue()) {
+                            Phx.vista.FormCompraVenta.superclass.onSubmit.call(this, o, undefined, true);
+                        }
+                        else {
+                            alert('El total del detalle no cuadra con el Liquido Pagado');
+                        }
 
-                    if ((total_det.toFixed(2)*1) == this.Cmp.importe_doc.getValue()){
-                        Phx.vista.FormCompraVenta.superclass.onSubmit.call(this, o, undefined, true);
                     }
-                    else{
-                        alert('El total del detalle no cuadra con el total del documento');
-                    }
-
-
                 }
                 else{
                     alert('no tiene ningun concepto  en el documento')
