@@ -530,7 +530,11 @@ class ACTCuenta extends ACTbase{
 		}
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
-  	 
+    function replicarPartida(){
+        $this->objFunc=$this->create('MODCuenta');
+        $this->res=$this->objFunc->replicarPartida($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 			
 }
 

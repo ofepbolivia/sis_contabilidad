@@ -31,6 +31,15 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 				tooltip: '<b>Imprimir Plan de Cuentas</b><br/>Imprime el Plan de Cuentas en el formato oficial.'
 			}
 		);
+        this.addButton('btnRePar',
+            {
+                text: 'Replicar Partidas',
+                iconCls: 'bchecklist',
+                disabled: false,
+                handler: this.replicarPartidas,
+                tooltip: '<b>Replica las partidas por gestion</b>'
+            }
+        );
 		//Crea el botón para llamar a la replicación
 		this.addButton('btnRepRelCon',
 			{
@@ -67,6 +76,25 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 		}
    		
    },
+    replicarPartidas : function () {
+        if(this.cmbGestion.getValue()){
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url: '../../sis_contabilidad/control/Cuenta/replicarPartida',
+                params:{
+                    id_gestion: this.cmbGestion.getValue()
+                },
+                success: this.successRep,
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope: this
+            });
+        }
+        else{
+            alert('primero debe selecionar la gestion origen');
+        }
+
+    },
    
    successRep:function(resp){
         Phx.CP.loadingHide();

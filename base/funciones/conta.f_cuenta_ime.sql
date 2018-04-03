@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.f_cuenta_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -14,13 +12,13 @@ $body$
  DESCRIPCION:   Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'conta.tcuenta'
  AUTOR: 		Gonzalo Sarmiento Sejas
  FECHA:	        21-02-2013 15:04:03
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION:
+ AUTOR:
+ FECHA:
 ***************************************************************************/
 
 DECLARE
@@ -32,7 +30,7 @@ DECLARE
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
 	v_id_cuenta				integer;
-    
+
     v_id_cuenta_padre 		integer;
     v_tipo_cuenta_pat 		varchar;
     v_registros_cuenta		record;
@@ -42,61 +40,61 @@ DECLARE
     v_conta					integer;
     v_id_cuenta_padre_des	integer;
     v_reg_cuenta_ori		record;
-			    
+
 BEGIN
 
     v_nombre_funcion = 'conta.f_cuenta_ime';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'CONTA_CTA_INS'
  	#DESCRIPCION:	Insercion de registros
- 	#AUTOR:		Gonzalo Sarmiento Sejas	
+ 	#AUTOR:		Gonzalo Sarmiento Sejas
  	#FECHA:		21-02-2013 15:04:03
 	***********************************/
 
 	if(p_transaccion='CONTA_CTA_INS')then
-					
+
         begin
-           
+
            IF v_parametros.id_cuenta_padre != 'id' and v_parametros.id_cuenta_padre != '' THEN
              v_id_cuenta_padre = v_parametros.id_cuenta_padre::integer;
            ELSE
            --verificamos que no existe una cuenta raiz para este tipo_cuenta
-           
-               IF(exists (select 1  
-                          from conta.tcuenta  c 
-                          where c.id_gestion = v_parametros.id_gestion 
+
+               IF(exists (select 1
+                          from conta.tcuenta  c
+                          where c.id_gestion = v_parametros.id_gestion
                             and c.tipo_cuenta = v_parametros.tipo_cuenta
                             and c.estado_reg='activo')) THEN
-                            
-                    raise exception 'solo se permite una cuenta base de %',v_parametros.tipo_cuenta;        
-               
+
+                    raise exception 'solo se permite una cuenta base de %',v_parametros.tipo_cuenta;
+
                 END IF;
            END IF;
-        
-        
+
+
         IF v_parametros.tipo_cuenta_pat = '' THEN
        		 v_tipo_cuenta_pat = NULL;
         ELSE
        		 v_tipo_cuenta_pat = v_parametros.tipo_cuenta_pat;
-        
+
         END IF;
-        
+
         -- buscamos que el nuero de cuenta no se repita
-        
+
         IF exists(SELECT 1
-                  from conta.tcuenta c 
+                  from conta.tcuenta c
                   where trim(c.nro_cuenta) = trim(v_parametros.nro_cuenta)
                   and c.id_gestion = v_parametros.id_gestion
                   and c.estado_reg = 'activo') THEN
-            
+
             raise exception 'El código de cuenta  % ya existe', v_parametros.nro_cuenta;
-        
+
         END IF;
-        
-        
-        
+
+
+
         	--Sentencia de la insercion
         	insert into conta.tcuenta(
                 id_cuenta_padre,
@@ -142,11 +140,11 @@ BEGIN
                 v_parametros.sw_control_efectivo,
                 v_parametros.id_config_subtipo_cuenta,
                 v_parametros.tipo_act
-							
+
 			)RETURNING id_cuenta into v_id_cuenta;
-			
+
 			--Definicion de la respuesta
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Cuenta almacenado(a) con exito (id_cuenta'||v_id_cuenta||')'); 
+			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Cuenta almacenado(a) con exito (id_cuenta'||v_id_cuenta||')');
             v_resp = pxp.f_agrega_clave(v_resp,'id_cuenta',v_id_cuenta::varchar);
 
             --Devuelve la respuesta
@@ -154,39 +152,39 @@ BEGIN
 
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'CONTA_CTA_MOD'
  	#DESCRIPCION:	Modificacion de registros
- 	#AUTOR:		Gonzalo Sarmiento Sejas	
+ 	#AUTOR:		Gonzalo Sarmiento Sejas
  	#FECHA:		21-02-2013 15:04:03
 	***********************************/
 
 	elsif(p_transaccion='CONTA_CTA_MOD')then
 
 		begin
-           
+
         IF v_parametros.id_cuenta_padre != 'id' and v_parametros.id_cuenta_padre != '' THEN
              v_id_cuenta_padre=v_parametros.id_cuenta_padre::integer;
         END IF;
-        
-        
+
+
         IF v_parametros.tipo_cuenta_pat = ''  or v_parametros.tipo_cuenta_pat = 'null' THEN
        		 v_tipo_cuenta_pat = NULL;
         ELSE
        		 v_tipo_cuenta_pat = v_parametros.tipo_cuenta_pat;
-        
+
         END IF;
-        
-        
+
+
         IF exists(SELECT 1
-                  from conta.tcuenta c 
+                  from conta.tcuenta c
                   where trim(c.nro_cuenta) = trim(v_parametros.nro_cuenta)
                   and c.id_gestion = v_parametros.id_gestion
                   and c.estado_reg = 'activo'
-                  and c.id_cuenta !=  v_parametros.id_cuenta ) THEN            
-            raise exception 'El código de cuenta  % ya existe', v_parametros.nro_cuenta;        
+                  and c.id_cuenta !=  v_parametros.id_cuenta ) THEN
+            raise exception 'El código de cuenta  % ya existe', v_parametros.nro_cuenta;
         END IF;
-        
+
             --  obtener valores previos
             select
               cue.valor_incremento,
@@ -198,9 +196,9 @@ BEGIN
               v_registros
             from conta.tcuenta cue
             where cue.id_cuenta = v_parametros.id_cuenta;
-            
-           
-        
+
+
+
 			--Sentencia de la modificacion
 			update conta.tcuenta set
               nombre_cuenta = v_parametros.nombre_cuenta,
@@ -221,23 +219,23 @@ BEGIN
               id_config_subtipo_cuenta = v_parametros.id_config_subtipo_cuenta,
               tipo_act  =  v_parametros.tipo_act
 			where id_cuenta = v_parametros.id_cuenta;
-             
+
             --raise exception '% ', v_parametros.id_cuenta;
             --si los valores por defecto cambiarno modificar recursivamente
-            IF       v_registros.eeff != string_to_array(v_parametros.eeff,',')::varchar[] 
-                or   v_registros.valor_incremento != v_parametros.valor_incremento 
-                or  v_registros.tipo_cuenta != v_parametros.tipo_cuenta 
-                or  v_registros.tipo_act != v_parametros.tipo_act   
+            IF       v_registros.eeff != string_to_array(v_parametros.eeff,',')::varchar[]
+                or   v_registros.valor_incremento != v_parametros.valor_incremento
+                or  v_registros.tipo_cuenta != v_parametros.tipo_cuenta
+                or  v_registros.tipo_act != v_parametros.tipo_act
                 or  (
-                		v_registros.id_config_subtipo_cuenta is null 
+                		v_registros.id_config_subtipo_cuenta is null
                       or v_registros.id_config_subtipo_cuenta != v_parametros.id_config_subtipo_cuenta) THEN
-                
+
                  FOR v_registros_cuenta in  (
                      WITH RECURSIVE cuenta_inf(id_cuenta, id_cuenta_padre) AS (
-                          select 
+                          select
                             c.id_cuenta,
                             c.id_cuenta_padre
-                          from conta.tcuenta c  
+                          from conta.tcuenta c
                           where c.id_cuenta = v_parametros.id_cuenta
                         UNION
                           SELECT
@@ -247,67 +245,67 @@ BEGIN
                           WHERE c2.id_cuenta_padre = pc.id_cuenta  and c2.estado_reg = 'activo'
                         )
                        SELECT * FROM cuenta_inf) LOOP
-                       
-                  
-                      
+
+
+
                      IF v_registros.eeff != string_to_array(v_parametros.eeff,',')::varchar[] THEN
                         update conta.tcuenta c  set
                            eeff = string_to_array(v_parametros.eeff,',')::varchar[]
-                        where id_cuenta = v_registros_cuenta.id_cuenta; 
-                      
-                     END IF; 
-                     
-                     IF v_registros.valor_incremento != v_parametros.valor_incremento THEN 
+                        where id_cuenta = v_registros_cuenta.id_cuenta;
+
+                     END IF;
+
+                     IF v_registros.valor_incremento != v_parametros.valor_incremento THEN
                         update conta.tcuenta c  set
                            valor_incremento = v_parametros.valor_incremento
                         where id_cuenta = v_registros_cuenta.id_cuenta;
-                      
-                     END IF;  
-                     
-                     IF v_registros.tipo_cuenta != v_parametros.tipo_cuenta THEN 
+
+                     END IF;
+
+                     IF v_registros.tipo_cuenta != v_parametros.tipo_cuenta THEN
                        update conta.tcuenta c  set
                            tipo_cuenta = v_parametros.tipo_cuenta
                        where id_cuenta = v_registros_cuenta.id_cuenta;
-                      
+
                      END IF;
-                     
-                     IF  v_registros.tipo_act != v_parametros.tipo_act    THEN                        
+
+                     IF  v_registros.tipo_act != v_parametros.tipo_act    THEN
                         update conta.tcuenta c  set
                            tipo_act =  v_parametros.tipo_act
                         where id_cuenta = v_registros_cuenta.id_cuenta;
-                     END IF; 
-                     
-                     IF      v_registros.id_config_subtipo_cuenta is null 
-                         or  v_registros.id_config_subtipo_cuenta != v_parametros.id_config_subtipo_cuenta    THEN 
-                         
+                     END IF;
+
+                     IF      v_registros.id_config_subtipo_cuenta is null
+                         or  v_registros.id_config_subtipo_cuenta != v_parametros.id_config_subtipo_cuenta    THEN
+
                         update conta.tcuenta c  set
                            id_config_subtipo_cuenta = v_parametros.id_config_subtipo_cuenta
                         where id_cuenta = v_registros_cuenta.id_cuenta;
-                      
-                     END IF;    
-                    
-                    
-                     
-                   
-                
+
+                     END IF;
+
+
+
+
+
                END LOOP;
-            
-            
+
+
             END IF;
-              
+
 			--Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Cuenta modificado(a): '|| COALESCE(v_parametros.id_cuenta::varchar,'S/I')); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Cuenta modificado(a): '|| COALESCE(v_parametros.id_cuenta::varchar,'S/I'));
             v_resp = pxp.f_agrega_clave(v_resp,'id_cuenta',v_parametros.id_cuenta::varchar);
-               
+
             --Devuelve la respuesta
             return v_resp;
-            
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'CONTA_CTA_ELI'
  	#DESCRIPCION:	Eliminacion de registros
- 	#AUTOR:		Gonzalo Sarmiento Sejas	
+ 	#AUTOR:		Gonzalo Sarmiento Sejas
  	#FECHA:		21-02-2013 15:04:03
 	***********************************/
 
@@ -317,17 +315,17 @@ BEGIN
 			--Sentencia de la eliminacion
 			delete from conta.tcuenta
             where id_cuenta=v_parametros.id_cuenta;
-               
+
             --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Cuenta eliminado(a)  :'|| COALESCE(v_parametros.id_cuenta::varchar,'S/I')); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Cuenta eliminado(a)  :'|| COALESCE(v_parametros.id_cuenta::varchar,'S/I'));
             v_resp = pxp.f_agrega_clave(v_resp,'id_cuenta',v_parametros.id_cuenta::varchar);
-              
+
             --Devuelve la respuesta
             return v_resp;
 
 		end;
-    
-    /*********************************    
+
+    /*********************************
  	#TRANSACCION:  'CONTA_CLONARCUE_IME'
  	#DESCRIPCION:	Clona el plan de cuentas para la gestion indicada
  	#AUTOR:	    Rensi Arteaga Copari
@@ -337,46 +335,46 @@ BEGIN
 	elsif(p_transaccion='CONTA_CLONARCUE_IME')then
 
 		begin
-			
+
            --  definir id de la gestion siguiente
-    
+
            select
               ges.id_gestion,
               ges.gestion,
               ges.id_empresa
-           into 
+           into
               v_registros_ges
-           from 
+           from
            param.tgestion ges
            where ges.id_gestion = v_parametros.id_gestion;
-          
-          
-          
+
+
+
            select
               ges.id_gestion
-           into 
+           into
               v_id_gestion_destino
-           from 
+           from
            param.tgestion ges
-           where       ges.gestion = v_registros_ges.gestion + 1 
-                   and ges.id_empresa = v_registros_ges.id_empresa 
+           where       ges.gestion = v_registros_ges.gestion + 1
+                   and ges.id_empresa = v_registros_ges.id_empresa
                    and ges.estado_reg = 'activo';
-           
-          IF v_id_gestion_destino is null THEN        
+
+          IF v_id_gestion_destino is null THEN
                    raise exception 'no se encontró una siguiente gestión preparada (primero cree  gestión siguiente)';
           END IF;
           v_conta = 0;
-          
-          
+
+
           --  consulta recursiva de cuentas de la gestion origen
           FOR v_registros_cuenta in  (
                      WITH RECURSIVE cuenta_inf(id_cuenta, id_cuenta_padre) AS (
-                          select 
+                          select
                             c.id_cuenta,
                             c.id_cuenta_padre
-                          from conta.tcuenta c  
+                          from conta.tcuenta c
                           where  c.id_gestion = v_parametros.id_gestion and c.id_cuenta_padre is NULL and c.estado_reg = 'activo'
-                                 
+
                         UNION
                           SELECT
                            c2.id_cuenta,
@@ -385,13 +383,13 @@ BEGIN
                           WHERE c2.id_cuenta_padre = pc.id_cuenta  and c2.estado_reg = 'activo'
                         )
                        SELECT * FROM cuenta_inf) LOOP
-         
-            
-            
+
+
+
                --  busca si ya existe la relacion en la tablas de cuentas ids
                   IF NOT EXISTS(select 1 from conta.tcuenta_ids i where i.id_cuenta_uno =  v_registros_cuenta.id_cuenta) THEN
-                     
-                         
+
+
                          IF v_registros_cuenta.id_cuenta_padre is not null THEN
                             --  busca la cuenta del padre en cuetaids
                              v_id_cuenta_padre_des  = NULL;
@@ -402,13 +400,13 @@ BEGIN
                              from conta.tcuenta_ids cid
                              where  cid.id_cuenta_uno = v_registros_cuenta.id_cuenta_padre;
                          END IF;
-                         
-                         
+
+
                          --obtiene los dastos de la cuenta origen
                          v_reg_cuenta_ori = NULL;
                          select * into v_reg_cuenta_ori from conta.tcuenta c where c.id_cuenta = v_registros_cuenta.id_cuenta;
                          --  inserta la cuenta para la nueva gestion
-                        
+
                         INSERT INTO conta.tcuenta
                                 (
                                   id_usuario_reg,
@@ -429,7 +427,7 @@ BEGIN
                                   sw_auxiliar,
                                   tipo_cuenta_pat,
                                   cuenta_sigma,
-                                  sw_sigma,                              
+                                  sw_sigma,
                                   cuenta_flujo_sigma,
                                   valor_incremento,
                                   eeff,
@@ -455,52 +453,74 @@ BEGIN
                                   v_reg_cuenta_ori.sw_auxiliar,
                                   v_reg_cuenta_ori.tipo_cuenta_pat,
                                   v_reg_cuenta_ori.cuenta_sigma,
-                                  v_reg_cuenta_ori.sw_sigma,                              
+                                  v_reg_cuenta_ori.sw_sigma,
                                   v_reg_cuenta_ori.cuenta_flujo_sigma,
                                   v_reg_cuenta_ori.valor_incremento,
                                   v_reg_cuenta_ori.eeff,
                                   v_reg_cuenta_ori.sw_control_efectivo,
                                   v_reg_cuenta_ori.id_config_subtipo_cuenta
                                 ) RETURNING id_cuenta into v_id_cuenta;
-                          
+
                           --insertar relacion en tre ambas gestion
                           INSERT INTO conta.tcuenta_ids (id_cuenta_uno,id_cuenta_dos, sw_cambio_gestion ) VALUES ( v_registros_cuenta.id_cuenta,v_id_cuenta, 'gestion');
                           v_conta = v_conta + 1;
-                  END IF; 
-            
-               
-           
-        
+                  END IF;
+
+
+
+
              --Definicion de la respuesta
-        
-        
-        
-        
+
+
+
+
            END LOOP;
-            
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Plan de cuentas clonado para la gestion: '||v_registros_ges.gestion::varchar); 
+
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Plan de cuentas clonado para la gestion: '||v_registros_ges.gestion::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'observaciones','Se insertaron cuentas: '|| v_conta::varchar);
-              
+
             --Devuelve la respuesta
             return v_resp;
 
 		end;
-         
+      /*********************************
+ 	#TRANSACCION:  'CONTA_REPAR_IME'
+ 	#DESCRIPCION:	Clona el plan de cuentas para la gestion indicada
+ 	#AUTOR:	    Rensi Arteaga Copari
+ 	#FECHA:		03-08-2015 15:04:03
+	***********************************/
+
+	elsif(p_transaccion='CONTA_REPAR_IME')then
+
+		begin
+
+
+           perform conta.f_replicar_cuentas_partidas (v_parametros.id_gestion-1,p_id_usuario);
+
+
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Plan de cuentas clonado para la gestion: '||v_parametros.id_gestion::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'observaciones','Se insertaron partidas: ');
+
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
+
 	else
-     
+
     	raise exception 'Transaccion inexistente: %',p_transaccion;
 
 	end if;
 
 EXCEPTION
-				
+
 	WHEN OTHERS THEN
 		v_resp='';
 		v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
 		v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
 		v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 		raise exception '%',v_resp;
-				        
+
 END;
 $body$
 LANGUAGE 'plpgsql'

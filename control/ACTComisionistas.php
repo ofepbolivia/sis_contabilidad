@@ -7,6 +7,7 @@
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 */
 require_once(dirname(__FILE__).'/../reportes/RComisionistasTotalesAgencia.php');
+require_once(dirname(__FILE__).'/../reportes/RValidarInformacion.php');
 class ACTComisionistas extends ACTbase{    
 			
 	function listarComisionistas(){
@@ -167,6 +168,62 @@ class ACTComisionistas extends ACTbase{
         $this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado','Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
         $this->mensajeExito->setArchivoGenerado($nombreArchivo);
         $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+    }
+    function listarRevisarComisionistas(){
+        $this->objParam->defecto('ordenacion','id_comisionista_rev');
+        $this->objParam->defecto('dir_ordenacion','asc');
+
+        if($this->objParam->getParametro('id_periodo') != ''){
+            $this->objParam->addFiltro("rca.id_periodo = ".$this->objParam->getParametro('id_periodo'));
+        }
+        if($this->objParam->getParametro('id_depto_conta')!=''){
+            if($this->objParam->getParametro('id_depto_conta')!=0)
+                $this->objParam->addFiltro("rca.id_depto_conta = ".$this->objParam->getParametro('id_depto_conta'));
+        }
+        if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+            $this->objReporte = new Reporte($this->objParam,$this);
+            $this->res = $this->objReporte->generarReporteListado('MODComisionistas','listarRevisarComisionistas');
+        } else{
+            $this->objFunc=$this->create('MODComisionistas');
+
+            $this->res=$this->objFunc->listarRevisarComisionistas($this->objParam);
+        }
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    function cambiarRevisionCat(){
+        $this->objFunc=$this->create('MODComisionistas');
+        $this->res=$this->objFunc->cambiarRevisionCat($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+
+    }
+    function reporteValidar(){
+
+        $this->objFunc=$this->create('MODComisionistas');
+        $this->res=$this->objFunc->reporteValidar($this->objParam);
+        $titulo = 'Reporte validar informacion ';
+        //Genera el nombre del archivo (aleatorio + titulo)
+        $nombreArchivo = uniqid(md5(session_id()) . $titulo);
+        $nombreArchivo .= '.xls';
+        $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
+        $this->objParam->addParametro('datos', $this->res->datos);
+        //Instancia la clase de excel
+        $this->objReporteFormato = new RValidarInformacion($this->objParam);
+        $this->objReporteFormato->generarDatos();
+        $this->objReporteFormato->generarReporte();
+
+        $this->mensajeExito = new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado','Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+    }
+    function insertarRevisarComisionistas(){
+        $this->objFunc=$this->create('MODComisionistas');
+        if($this->objParam->insertar('id_comisionista_rev')){
+            $this->res=$this->objFunc->insertarRevisarComisionistas($this->objParam);
+        } else{
+            $this->res=$this->objFunc->ModificarRevisarComisionistas($this->objParam);
+        }
+        $this->res->imprimirRespuesta($this->res->generarJson());
     }
 			
 }
