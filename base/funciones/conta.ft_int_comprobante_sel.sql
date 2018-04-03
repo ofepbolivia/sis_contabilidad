@@ -14,13 +14,13 @@ $body$
  DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'conta.tint_comprobante'
  AUTOR: 		 (admin)
  FECHA:	        29-08-2013 00:28:30
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION:
+ AUTOR:
+ FECHA:
 ***************************************************************************/
 
 DECLARE
@@ -35,40 +35,44 @@ DECLARE
     v_filtro 			varchar;
     va_id_depto			integer[];
     v_codigo_moneda_base		varchar;
-			    
+
+    --planillas
+    v_llave				varchar;
+    v_desc_orden		varchar = '';
+
 BEGIN
 
 	v_nombre_funcion = 'conta.ft_int_comprobante_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'CONTA_INCBTE_SEL'
  	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		29-08-2013 00:28:30
 	***********************************/
     if(p_transaccion='CONTA_INCBTE_SEL') then
-     				
+
     	begin
-        
+
             v_id_moneda_base=param.f_get_moneda_base();
             v_filtro = ' 0 = 0 and ';
 
-            select 
+            select
              *
             into
              v_registro_moneda
-            from param.tmoneda m 
+            from param.tmoneda m
             where m.id_moneda = v_id_moneda_base;
-            
+
             -- si no es administrador, solo puede listar al responsable del depto o al usuario que creo e documentos
-            IF p_administrador !=1 THEN  
-               
-                select  
+            IF p_administrador !=1 THEN
+
+                select
                    pxp.aggarray(depu.id_depto)
-                into 
+                into
                    va_id_depto
-                from param.tdepto_usuario depu 
+                from param.tdepto_usuario depu
                 where depu.id_usuario =  p_id_usuario and depu.cargo = 'responsable';
 
 				IF v_parametros.nombreVista != 'IntComprobanteLd' THEN
@@ -145,8 +149,8 @@ BEGIN
                               incbte.ope_3,
                               incbte.tipo_cambio_3,
                               incbte.id_moneda_act
-                              
-                              
+
+
                           from conta.vint_comprobante incbte
                           inner join wf.tproceso_wf pwf on pwf.id_proceso_wf = incbte.id_proceso_wf
                           inner join wf.testado_wf ew on ew.id_estado_wf = incbte.id_estado_wf
@@ -163,33 +167,33 @@ BEGIN
 
 		end;
 	---
-    /*********************************    
+    /*********************************
  	#TRANSACCION:  'CONTA_REPINCBTE_SEL'
  	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		mp	
+ 	#AUTOR:		mp
  	#FECHA:		29-08-2013 00:28:30
 	***********************************/
     elsif(p_transaccion='CONTA_REPINCBTE_SEL') then
-     				
-    	begin        
+
+    	begin
             v_id_moneda_base=param.f_get_moneda_base();
             v_filtro = ' 0 = 0 and ';
 
-            select 
+            select
              *
             into
              v_registro_moneda
-            from param.tmoneda m 
+            from param.tmoneda m
             where m.id_moneda = v_id_moneda_base;
-            
+
             -- si no es administrador, solo puede listar al responsable del depto o al usuario que creo e documentos
-            IF p_administrador !=1 THEN  
-               
-                select  
+            IF p_administrador !=1 THEN
+
+                select
                    pxp.aggarray(depu.id_depto)
-                into 
+                into
                    va_id_depto
-                from param.tdepto_usuario depu 
+                from param.tdepto_usuario depu
                 where depu.id_usuario =  p_id_usuario and depu.cargo = 'responsable';
 
 				IF v_parametros.nombreVista != 'IntComprobanteLd' THEN
@@ -269,13 +273,13 @@ BEGIN
                               tra.id_partida,
                               par.nombre_partida,
                               par.codigo
-                                                                                          
+
                               from conta.vint_comprobante incbte
                               inner join wf.tproceso_wf pwf on pwf.id_proceso_wf = incbte.id_proceso_wf
                               inner join wf.testado_wf ew on ew.id_estado_wf = incbte.id_estado_wf
                               join conta.tint_transaccion tra on tra.id_int_comprobante= incbte.id_int_comprobante
                               join pre.tpartida par on par.id_partida = tra.id_partida
-                              where incbte.estado_reg in (''borrador'',''validado'') AND incbte.nro_cbte!= ''null'' 
+                              where incbte.estado_reg in (''borrador'',''validado'') AND incbte.nro_cbte!= ''null''
                               order by incbte.fecha ';
 
 			--v_consulta:=v_consulta||v_parametros.filtro;
@@ -283,9 +287,9 @@ BEGIN
 			--Devuelve la respuesta
 			return v_consulta;
 		end;
-    
-    
-    ---	
+
+
+    ---
 	/*********************************
  	#TRANSACCION:  'CONTA_INCBTE_CONT'
  	#DESCRIPCION:	Conteo de registros
@@ -462,27 +466,43 @@ BEGIN
                           from conta.vint_comprobante incbte
                           left join conta.tentrega_det ed on ed.id_int_comprobante = incbte.id_int_comprobante
                           left join conta.tentrega en on en.id_entrega = ed.id_entrega
-                          
+
                           where incbte.id_proceso_wf = '||v_parametros.id_proceso_wf;
-			
+
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
-		
-	/*********************************    
+
+	/*********************************
  	#TRANSACCION:  'CONTA_DETCBT_SEL'
  	#DESCRIPCION:	detalle para el reporte de Comprobante
- 	#AUTOR:			RCM	
+ 	#AUTOR:			RCM
  	#FECHA:			10/09/2013
 	***********************************/
 
 	elsif(p_transaccion='CONTA_DETCBT_SEL')then
-     				
+
     	begin
-       
+    	  select tp.columna_llave
+        into v_llave
+        from wf.tproceso_wf tpw
+        inner join wf.tproceso_wf tpwp on tpwp.nro_tramite = tpw.nro_tramite
+        inner join wf.ttipo_proceso tp on tp.id_tipo_proceso = tpw.id_tipo_proceso
+        where tpwp.id_proceso_wf = v_parametros.id_proceso_wf and tp.codigo_llave is null;
+
+
+        if(v_llave = 'id_planilla')then
+          v_desc_orden = '(select array_to_string(pxp.aggarray( distinct tot.codigo||'' ''||tot.desc_orden),'','')
+                                              from orga.tcargo_presupuesto tcp
+                                    inner join conta.torden_trabajo tot on tot.id_orden_trabajo = tcp.id_ot
+                                    where tcp.id_centro_costo = tra.id_centro_costo)::varchar as desc_orden';
+        else
+          v_desc_orden = 'ot.desc_orden';
+        end if;
+
     		--Sentencia de la consulta
-			v_consulta:='select    
+			v_consulta:='select
                                 nro_cuenta,
                                 nombre_cuenta,
                                 codigo_auxiliar,
@@ -492,9 +512,9 @@ BEGIN
                                 nombre_partida,
                                 desc_orden,
                                 glosa,
-                                importe_gasto, 
+                                importe_gasto,
                                 importe_recurso,
-                                importe_debe, 
+                                importe_debe,
                                 importe_haber,
                                 importe_debe_mb,
                                 importe_haber_mb,
@@ -502,8 +522,8 @@ BEGIN
                                 tipo_partida,
                                 tipo_cambio
                                 FROM ((select
-                                                  CASE 
-                                                    WHEN  (sum(tra.importe_debe) > 0 or sum(tra.importe_debe_mb) >0) then  1 
+                                                  CASE
+                                                    WHEN  (sum(tra.importe_debe) > 0 or sum(tra.importe_debe_mb) >0) then  1
                                                     ELSE   2
                                                    END as tipo,
                                                   max(tra.orden) as orden_rank,
@@ -514,11 +534,11 @@ BEGIN
                                                   cc.codigo_cc as ccc,
                                                   par.codigo as codigo_partida,
                                                   par.nombre_partida,
-                                                  ot.desc_orden,
+                                                  '||v_desc_orden||',
                                                   tra.glosa::varchar as glosa,
                                                   sum(tra.importe_gasto) as importe_gasto,
                                                   sum(tra.importe_recurso) as importe_recurso,
-                                                  sum(tra.importe_debe) as importe_debe, 
+                                                  sum(tra.importe_debe) as importe_debe,
                                                   sum(tra.importe_haber) as importe_haber,
                                                   sum(tra.importe_debe_mb) as importe_debe_mb,
                                                   sum(tra.importe_haber_mb) as importe_haber_mb,
@@ -527,14 +547,14 @@ BEGIN
                                                   tra.tipo_cambio
                                                 from conta.tint_transaccion tra
                                                 inner join conta.tint_comprobante cbte on cbte.id_int_comprobante = tra.id_int_comprobante
-                                                inner join conta.tcuenta cue on cue.id_cuenta = tra.id_cuenta  
+                                                inner join conta.tcuenta cue on cue.id_cuenta = tra.id_cuenta
                                                 inner join param.vcentro_costo cc on cc.id_centro_costo = tra.id_centro_costo
                                                 left join pre.tpartida par on par.id_partida = tra.id_partida
                                                 left join conta.tauxiliar aux on aux.id_auxiliar = tra.id_auxiliar
                                                 left join conta.torden_trabajo ot on ot.id_orden_trabajo = tra.id_orden_trabajo
                                                 where cbte.id_proceso_wf =  '||v_parametros.id_proceso_wf||'
-                                                
-                                                group by 
+
+                                                group by
                                                   cue.nro_cuenta,
                                                   cue.nombre_cuenta,
                                                   aux.codigo_auxiliar,
@@ -548,38 +568,38 @@ BEGIN
                                                   par.tipo,
                                                   tra.tipo_cambio
                                           )
-                                          
-                                                  
-                                ) iii 
-                                
+
+
+                                ) iii
+
                                 order by tipo, orden_rank';
-						
-			
+
+
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
-        
-    /*********************************    
+
+    /*********************************
  	#TRANSACCION:  'CONTA_DEPCBT_SEL'
  	#DESCRIPCION:	Listado de dependencia en formato arbol
- 	#AUTOR:			RAC	
+ 	#AUTOR:			RAC
  	#FECHA:			11/04/2016
 	***********************************/
 
 	elsif(p_transaccion='CONTA_DEPCBT_SEL')then
-     				
+
     	begin
-        
+
            --si el priemro obtener el razi
-           
-           
+
+
            -- si no obtener los otros
-           
+
            if(v_parametros.id_padre = '%') then
-           
+
                  v_consulta:='WITH RECURSIVE path_rec(id_int_comprobante, id_int_comprobante_fks, nro_tramite, nro_cbte, glosa1,volcado, cbte_reversion,id_tipo_relacion_comprobante, id_proceso_wf ) AS (
-                                SELECT  
+                                SELECT
                                   c.id_int_comprobante,
                                   c.id_int_comprobante_fks,
                                   c.nro_tramite,
@@ -587,13 +607,13 @@ BEGIN
                                   c.glosa1,
                                   c.volcado,
                                   c.cbte_reversion,
-                                  c.id_tipo_relacion_comprobante, 
+                                  c.id_tipo_relacion_comprobante,
                                   c.id_proceso_wf
-                                FROM conta.tint_comprobante c 
+                                FROM conta.tint_comprobante c
                                 WHERE c.id_int_comprobante = '||v_parametros.id_int_comprobante_basico::varchar||'
-                        	
+
                                 UNION
-                                SELECT  
+                                SELECT
                                   c2.id_int_comprobante,
                                   c2.id_int_comprobante_fks,
                                   c2.nro_tramite,
@@ -601,14 +621,14 @@ BEGIN
                                   c2.glosa1,
                                   c2.volcado,
                                   c2.cbte_reversion,
-                                  c2.id_tipo_relacion_comprobante, 
+                                  c2.id_tipo_relacion_comprobante,
                                   c2.id_proceso_wf
                                 FROM conta.tint_comprobante c2
                                 inner join path_rec  pr on c2.id_int_comprobante = ANY(pr.id_int_comprobante_fks)
-                                
-                        	     
+
+
                             )
-                            SELECT 
+                            SELECT
                               c.id_int_comprobante,
                               NULL::integer as id_int_comprobante_padre,
                               c.nro_cbte,
@@ -616,15 +636,15 @@ BEGIN
                               rc.nombre,
                               c.volcado,
                               c.cbte_reversion,
-                              ''raiz''::varchar as tipo_nodo, 
+                              ''raiz''::varchar as tipo_nodo,
                               c.id_proceso_wf
                             FROM path_rec c
                             left join conta.ttipo_relacion_comprobante rc on rc.id_tipo_relacion_comprobante = c.id_tipo_relacion_comprobante
                             order by id_int_comprobante  limit 1 offset 0';
-                  
-                     
+
+
                else
-               
+
                 --Sentencia de la consulta
 			    v_consulta:='SELECT
                               c.id_int_comprobante,
@@ -634,59 +654,59 @@ BEGIN
                               rc.nombre,
                               c.volcado,
                               c.cbte_reversion,
-                              ''hijo''::varchar as tipo_nodo, 
+                              ''hijo''::varchar as tipo_nodo,
                               c.id_proceso_wf
                           FROM conta.tint_comprobante c
                           inner join conta.ttipo_relacion_comprobante rc on rc.id_tipo_relacion_comprobante = c.id_tipo_relacion_comprobante
                           WHERE  '||v_parametros.id_padre||' = ANY(c.id_int_comprobante_fks)';
-              
-              
-              
-              
-              
-              
+
+
+
+
+
+
               end if;
-        
-          
-					
-			
+
+
+
+
 			--Devuelve la respuesta
 			return v_consulta;
-						
-		end;    
-    
-    /*********************************    
+
+		end;
+
+    /*********************************
  	#TRANSACCION:  'CONTA_INCBTEWF_SEL'
  	#DESCRIPCION:	consulta de comprobantes para el wf
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		29-08-2013 00:28:30
 	***********************************/
     elseif(p_transaccion='CONTA_INCBTEWF_SEL') then
-     				
+
     	begin
-        
+
             v_id_moneda_base=param.f_get_moneda_base();
-            
-            select 
+
+            select
              *
             into
              v_registro_moneda
-            from param.tmoneda m 
+            from param.tmoneda m
             where m.id_moneda = v_id_moneda_base;
-            
-            
-             
+
+
+
             IF p_administrador !=1 THEN
                 v_filtro = ' (ew.id_funcionario='||v_parametros.id_funcionario_usu::varchar||') and (lower(incbte.estado_reg)!=''anulado'') and (lower(incbte.estado_reg)!=''borrador'') and (lower(incbte.estado_reg)!=''validado'' ) and ';
             ELSE
                 v_filtro = ' (lower(incbte.estado_reg)!=''borrador'') and (lower(incbte.estado_reg)!=''validado'' ) and ';
             END IF;
-           
-            
-            
-            
+
+
+
+
             --TODO si no es administrador, solo puede listar al responsable del depto o al usuario que creo e documentos
-            
+
     		--Sentencia de la consulta
 			v_consulta := 'select
                               incbte.id_int_comprobante,
@@ -715,7 +735,7 @@ BEGIN
                               incbte.usr_mod,
                               incbte.desc_clase_comprobante,
                               incbte.desc_subsistema,
-                              incbte.desc_depto,	
+                              incbte.desc_depto,
                               incbte.desc_moneda,
                               incbte.desc_firma1,
                               incbte.desc_firma2,
@@ -759,59 +779,59 @@ BEGIN
                           inner join wf.tproceso_wf pwf on pwf.id_proceso_wf = incbte.id_proceso_wf
                           inner join wf.testado_wf ew on ew.id_estado_wf = incbte.id_estado_wf
                           where   incbte.estado_reg not in (''borrador'',''validado'') and '||v_filtro;
-			
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-            
-            --raise exception '--> %', v_consulta;	
+
+            --raise exception '--> %', v_consulta;
             raise notice  '-- % --', v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'CONTA_INCBTEWF_CONT'
  	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		29-08-2013 00:28:30
 	***********************************/
 
 	elsif(p_transaccion='CONTA_INCBTEWF_CONT')then
 
 		begin
-        
+
             IF p_administrador !=1 THEN
                 v_filtro = ' (ew.id_funcionario='||v_parametros.id_funcionario_usu::varchar||') and (lower(incbte.estado_reg)!=''anulado'') and (lower(incbte.estado_reg)!=''borrador'') and (lower(incbte.estado_reg)!=''validado'' ) and ';
             ELSE
                 v_filtro = ' (lower(incbte.estado_reg)!=''borrador'') and (lower(incbte.estado_reg)!=''validado'' ) and ';
             END IF;
-            
+
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_int_comprobante)
 					     from conta.vint_comprobante incbte
                          inner join wf.tproceso_wf pwf on pwf.id_proceso_wf = incbte.id_proceso_wf
                          inner join wf.testado_wf ew on ew.id_estado_wf = incbte.id_estado_wf
                          where incbte.estado_reg not in (''borrador'',''validado'') and '||v_filtro;
-			
-			--Definicion de la respuesta		    
+
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
 			return v_consulta;
 
 		end;
-        
-					
+
+
 	else
-					     
+
 		raise exception 'Transaccion inexistente';
-					         
+
 	end if;
-					
+
 EXCEPTION
-					
+
 	WHEN OTHERS THEN
 			v_resp='';
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
