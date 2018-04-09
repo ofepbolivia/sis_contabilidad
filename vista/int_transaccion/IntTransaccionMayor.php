@@ -56,6 +56,26 @@ Phx.vista.IntTransaccionMayor=Ext.extend(Phx.gridInterfaz,{
 				form:true 
 			},
 			{
+				config:{
+					name: 'desc_centro_costo',
+					fieldLabel: 'Centro Costo',
+					allowBlank: true,
+					anchor: '80%',
+					gwidth: 300,
+					maxLength:1000,
+					renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+						//metaData.css = 'multilineColumn';
+						return String.format('<b style="color: green">{0}</b>', record.data['desc_centro_costo']);
+					}
+				},
+				type:'TextField',
+				filters:{pfiltro:'cc.codigo_cc',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:false
+			},
+
+			{
 	   			config:{
 	   				sysorigen:'sis_contabilidad',
 	       		    name:'id_cuenta',
@@ -591,7 +611,7 @@ Phx.vista.IntTransaccionMayor=Ext.extend(Phx.gridInterfaz,{
 	        )
     }),
     
-    arrayDefaultColumHidden:['fecha_mod','usr_reg','usr_mod','estado_reg','fecha_reg'],
+    arrayDefaultColumHidden:['fecha_mod','usr_reg','usr_mod','estado_reg','fecha_reg', 'desc_centro_costo'],
 
     sortInfo:{
 		field: 'id_int_transaccion',
