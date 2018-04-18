@@ -37,6 +37,11 @@ DECLARE
     v_filtro_tipo_cc	varchar;
     v_filtro			varchar;
 
+    --planillas
+    v_desc_orden		varchar;
+	  v_codigo_orden		varchar;
+    v_planilla			varchar;
+
 BEGIN
 
 	v_nombre_funcion = 'conta.ft_int_transaccion_sel';
@@ -52,6 +57,20 @@ BEGIN
 	if(p_transaccion='CONTA_INTRANSA_SEL')then
 
     	begin
+    	  SELECT case when tpw.nro_tramite like 'PLA%' then 'si' else 'no' end
+        into v_planilla
+        FROM conta.tint_comprobante tc
+        inner join wf.tproceso_wf tpw on tpw.id_proceso_wf = tc.id_proceso_wf
+        WHERE tc.id_int_comprobante = v_parametros.id_int_comprobante;
+
+        if(v_parametros.planilla::boolean)then
+          v_desc_orden = '(select array_to_string(pxp.aggarray(distinct tot.codigo||'' ''||tot.desc_orden),'','')
+                                              from orga.tcargo_presupuesto tcp
+                                    inner join conta.torden_trabajo tot on tot.id_orden_trabajo = tcp.id_ot
+                                    where tcp.id_centro_costo = transa.id_centro_costo)::varchar as desc_orden';
+        else
+          v_desc_orden = 'ot.desc_orden';
+        end if;
     		--Sentencia de la consulta
 			v_consulta:='select
                             transa.id_int_transaccion,
@@ -82,7 +101,7 @@ BEGIN
                             aux.codigo_auxiliar || '' - '' || aux.nombre_auxiliar as desc_auxiliar,
                             par.sw_movimiento as tipo_partida,
                             ot.id_orden_trabajo,
-                            ot.desc_orden,
+                            '||v_desc_orden||',
                             transa.importe_debe,
                             transa.importe_haber,
                             transa.importe_gasto,
@@ -118,7 +137,8 @@ BEGIN
                             suo.id_suborden,
                             (''(''||suo.codigo||'') ''||suo.nombre)::varchar as desc_suborden,
                             ot.codigo as codigo_ot,
-                            cp.codigo_categoria::varchar
+                            cp.codigo_categoria::varchar,
+                            '''||v_planilla||'''::varchar as planilla
                         from conta.tint_transaccion transa
 						inner join segu.tusuario usu1 on usu1.id_usuario = transa.id_usuario_reg
                         inner join conta.tcuenta cue on cue.id_cuenta = transa.id_cuenta
