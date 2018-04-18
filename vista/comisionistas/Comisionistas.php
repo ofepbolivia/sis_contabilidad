@@ -160,7 +160,10 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
                 allowBlank: false,
                 anchor: '80%',
                 gwidth: 150,
-                maxLength:500
+                maxLength:500,
+                renderer: function(value, p, record) {
+                    return '<tpl for="."><div class="x-combo-list-item"><p>'+record.data['nombre_agencia']+'<p><p><font color="blue"><b>'+record.data['registro']+'</b></font><p></div></tpl>';
+                }
             },
             type:'TextField',
             filters:{pfiltro:'cm.nombre_agencia',type:'string'},
@@ -203,7 +206,8 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
             filters:{pfiltro:'cm.nit_comisionista',type:'string'},
             id_grupo:0,
             grid:true,
-            form:true
+            form:true,
+            bottom_filter: true
         },
         {
             config:{
@@ -248,7 +252,8 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
             filters:{pfiltro:'cm.nro_boleto',type:'string'},
             id_grupo:0,
             grid:true,
-            form:true
+            form:true,
+            bottom_filter: true
         },
         {
             config:{
