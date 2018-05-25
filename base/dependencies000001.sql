@@ -4181,3 +4181,7 @@ AS
      JOIN conta.ttipo_doc_compra_venta tdcv ON tdcv.id_tipo_doc_compra_venta = dcv.id_tipo_doc_compra_venta
   WHERE pla.tipo_informe::text = 'retenciones'::text AND pc.descuento::text = 'si'::text;
 /**********************************F-DEP-MANU-CONTA-0-18/10/2017****************************************/
+
+/**********************************I-DEP-MAY-CONTA-0-25/05/2018****************************************/
+select pxp.f_insert_testructura_gui ('DETCOM', 'REPCON');
+/**********************************F-DEP-MAY-CONTA-0-25/05/2018****************************************/

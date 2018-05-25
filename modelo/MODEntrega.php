@@ -257,8 +257,54 @@ class MODEntrega extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
-	
-	
+
+    function listarDetalleComprobante(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='conta.ft_entrega_sel';
+        $this->transaccion='CONTA_DETCOM_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+
+        //$this->setParametro('pes_estado','pes_estado','varchar');
+        //Definicion de la lista del resultado del query
+        $this->captura('id_entrega','int4');
+        $this->captura('fecha_c31','date');
+        $this->captura('c31','varchar');
+        $this->captura('estado','varchar');
+        $this->captura('estado_reg','varchar');
+        $this->captura('id_usuario_ai','int4');
+        $this->captura('usuario_ai','varchar');
+        $this->captura('fecha','date');
+        $this->captura('id_usuario_reg','int4');
+        $this->captura('fecha_mod','timestamp');
+        $this->captura('id_usuario_mod','int4');
+        $this->captura('usr_reg','varchar');
+        $this->captura('usr_mod','varchar');
+        $this->captura('id_depto_conta','int4');
+        $this->captura('id_estado_wf','int4');
+        $this->captura('id_proceso_wf','int4');
+        $this->captura('nro_tramite','varchar');
+        $this->captura('beneficiario','varchar');
+        $this->captura('nro_cbte','varchar');
+        $this->captura('desc_clase_comprobante','varchar');
+        $this->captura('glosa1','varchar');
+        $this->captura('desc_depto','varchar');
+        $this->captura('c31comp','varchar');
+        $this->captura('fecha_c31comp','date');
+        $this->captura('importe_haber','numeric');
+        $this->captura('id_int_comprobante','int4');
+        $this->captura('total_importe','numeric');
+
+
+
+
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 			
 }
 ?>

@@ -1374,3 +1374,7 @@ VALUES (E'conta_filtrar_cuenta_por_tipo_cc_interface_junior', E'no', E'esta vari
 select pxp.f_insert_tgui ('Reporte Retencion', 'Reporte Retencion', 'REPRET', 'si', 13, 'sis_contabilidad/reportes/formularios/LibroComprasVentasRetenciones.php', 3, '', 'ReporteRetenciones', 'CONTA');
 /***********************************F-DAT-MANU-CONTA-0-25/09/2017*****************************************/                          
 
+/***********************************I-DAT-MAY-CONTA-0-25/05/2018*****************************************/
+select pxp.f_insert_tgui ('Comprobante ERP BOA - SIGEP', 'Reporte Documento Comprobante', 'REPDOCCBTE', 'si', 5, 'sis_contabilidad/vista/doc_int_comprobante/FormDocCompraVentaComprobante.php', 3, '', 'FormRepDocCompraVentaIntComprobante', 'CONTA');
+/***********************************F-DAT-MAY-CONTA-0-25/05/2018*****************************************/
+

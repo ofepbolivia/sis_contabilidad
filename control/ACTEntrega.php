@@ -120,5 +120,46 @@ class ACTEntrega extends ACTbase{
 
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+
+    function listarDetalleComprobante(){
+        $this->objParam->defecto('ordenacion','id_entrega');
+        $this->objParam->defecto('dir_ordenacion','asc');
+
+
+//        if($this->objParam->getParametro('id_depto')!=''){
+//            $this->objParam->addFiltro("ent.id_depto_conta = ".$this->objParam->getParametro('id_depto'));
+//        }
+        if ($this->objParam->getParametro('pes_estado') == 'EntregaConsulta') {
+            $this->objParam->addFiltro("ent.estado  in (''vbconta'')");
+        }
+
+        if($this->objParam->getParametro('desde')!='' && $this->objParam->getParametro('hasta')!=''){
+            $this->objParam->addFiltro("(com.fecha::date  BETWEEN ''%".$this->objParam->getParametro('desde')."%''::date  and ''%".$this->objParam->getParametro('hasta')."%''::date)");
+        }
+
+        if($this->objParam->getParametro('desde')!='' && $this->objParam->getParametro('hasta')==''){
+            $this->objParam->addFiltro("(com.fecha::date  >= ''%".$this->objParam->getParametro('desde')."%''::date)");
+        }
+
+        if($this->objParam->getParametro('desde')=='' && $this->objParam->getParametro('hasta')!=''){
+            $this->objParam->addFiltro("(com.fecha::date  <= ''%".$this->objParam->getParametro('hasta')."%''::date)");
+        }
+
+        if($this->objParam->getParametro('id_depto_conta')!=''){
+            $this->objParam->addFiltro("ent.id_depto_conta = ".$this->objParam->getParametro('id_depto_conta'));
+      }
+
+        if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+            $this->objReporte = new Reporte($this->objParam,$this);
+            $this->res = $this->objReporte->generarReporteListado('MODEntrega','listarDetalleComprobante');
+        } else{
+            $this->objFunc=$this->create('MODEntrega');
+
+            $this->res=$this->objFunc->listarDetalleComprobante($this->objParam);
+        }
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+
 }
 ?>
