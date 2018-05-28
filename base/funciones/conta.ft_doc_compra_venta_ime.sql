@@ -50,6 +50,13 @@ DECLARE
   v_nomeda					varchar;
   v_nro_tramite				varchar;
   v_id_periodo				integer;
+  v_sw_nit					varchar;
+    v_plantilla			varchar;
+
+  v_dui_importe			numeric;
+  v_id_planttilla integer;
+  v_plantilla_des varchar;
+
 
 
 BEGIN
@@ -196,6 +203,35 @@ BEGIN
       raise exception 'El Importe Exento: %, no puede ser mayor al Monto Total: %. Revise los importes.',v_parametros.importe_excento,v_parametros.importe_neto;
 	  END IF;
 
+      select p.sw_nit
+      into
+      v_sw_nit
+      from param.tplantilla p
+      where p.id_plantilla = v_parametros.id_plantilla;
+
+      IF  v_sw_nit = 'si' and  v_parametros.nit = '' THEN
+      raise exception 'Falta registrar el nit';
+      END IF;
+
+      IF v_parametros.razon_social is null or v_parametros.razon_social = '' THEN
+      raise exception 'Falta registrar el razon social';
+      END IF;
+
+      select plt.desc_plantilla
+        into
+        v_plantilla
+        from param.tplantilla plt
+        where plt.id_plantilla = v_parametros.id_plantilla;
+
+
+      /*   if v_plantilla = 'Póliza de Importación - DUI'then
+
+         v_dui_importe = v_parametros.importe_pago_liquido;
+         else
+
+         v_dui_importe = v_parametros.importe_doc;
+        end if;*/
+
       --Sentencia de la insercion
       insert into conta.tdoc_compra_venta(
         tipo,
@@ -251,7 +287,7 @@ BEGIN
         v_parametros.importe_descuento,
         v_parametros.importe_descuento_ley,
         v_parametros.importe_pago_liquido,
-        v_parametros.importe_doc,
+      	v_parametros.importe_doc, --Dui
         'si', --sw_contabilizar,
         'registrado', --estado
         v_parametros.id_depto_conta,
@@ -1066,7 +1102,6 @@ BEGIN
 
     begin
 
-
       select
         dcv.revisado
       into
@@ -1109,12 +1144,19 @@ BEGIN
     begin
 
 
-      select
-        dcv.importe_doc
+
+      select dcv.importe_doc,
+      		dcv.id_plantilla,
+            dcv.importe_pago_liquido
       into
         v_registros
       from conta.tdoc_compra_venta dcv where dcv.id_doc_compra_venta =v_parametros.id_doc_compra_venta;
 
+
+      select pl.desc_plantilla
+      into v_plantilla_des
+      from param.tplantilla pl
+      where pl.id_plantilla = v_registros.id_plantilla;
 
       select
         sum (dc.precio_total)
@@ -1123,10 +1165,16 @@ BEGIN
       from conta.tdoc_concepto dc
       where dc.id_doc_compra_venta = v_parametros.id_doc_compra_venta;
 
-      IF COALESCE(v_sum_total,0) !=  COALESCE(v_registros.importe_doc,0)  THEN
-        raise exception 'el total del documento no iguala con el total detallado de conceptos';
+	  IF v_plantilla_des <> 'Póliza de Importación - DUI' THEN
+        IF COALESCE(v_sum_total,0) !=  COALESCE(v_registros.importe_doc,0)  THEN
+        raise exception 'El total del documento no iguala con el total detallado de conceptos';
+      END IF;
+      ELSE
+      IF COALESCE(v_sum_total,0) !=  COALESCE(v_registros.importe_pago_liquido,0)  THEN
+        raise exception 'El total del documento liquido no iguala con el total detallado de conceptos';
       END IF;
 
+	  END IF;
 
       --Definicion de la respuesta
       v_resp = pxp.f_agrega_clave(v_resp,'mensaje','cuadra el documento insertado');

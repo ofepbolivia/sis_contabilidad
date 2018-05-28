@@ -46,6 +46,9 @@ DECLARE
     v_recorer 			record;
     v_id_periodos		integer;
 	v_cont				integer;
+    v_numero			varchar;
+    v_nit				varchar;
+    v_id_agt			integer;
 BEGIN
 
     v_nombre_funcion = 'conta.ft_comisionistas_ime';
@@ -537,15 +540,19 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
 
       BEGIN
 
---raise exception '%',v_parametros.id_periodo;
+      IF  (SELECT max(x.id_periodo)
+          from conta.tcomisionistas x) = v_parametros.id_periodo THEN
+
+           raise exception 'Ya exite datos generados para este mes.';
+      ELSE
+
       select p.periodo
                into
                v_periodo
       from param.tperiodo p
       where p.id_periodo = v_parametros.id_periodo and p.id_gestion = v_parametros.id_gestion;
      --raise exception '%',v_periodo;
-     FOR v_reccord IN (
-select 	a.id_agencia,
+     FOR v_reccord IN (select 	a.id_agencia,
             a.nombre,
             a.nit,
             (select  RIGHT(c.numero,19)
@@ -558,19 +565,16 @@ select 	a.id_agencia,
             1 cantidad,
             bo.neto,
             bo.total,
-           cb.importe as total_comision,
+          (-1* bo.comision) as total_comision,
 			bo.nro_boleto
       from obingresos.tagencia a
       inner join obingresos.tboleto_2018 bo on bo.id_agencia = a.id_agencia
-      inner join mat.vcomision_boletos cb on cb.id_boleto = bo.id_boleto
-      where a.boaagt = 'A' and a.tipo_agencia = 'noiata' and cb.importe <> 0 and bo.estado_reg = 'activo'
+      where a.boaagt = 'A' and a.tipo_agencia = 'noiata' and (-1* bo.comision) <> 0 and bo.estado_reg = 'activo'
       and  EXTRACT(MONTH FROM bo.fecha_emision) = v_periodo
       order by a.nombre
 
 
 )LOOP
-
-
 
 
 
@@ -601,7 +605,7 @@ select 	a.id_agencia,
             id_agencia
           	) values(
 			v_reccord.nit,
-			v_reccord.nro_contrato,
+           v_reccord.nro_contrato,
 			v_reccord.codigo,
 			'activo',
 			v_reccord.descripcion,
@@ -624,6 +628,8 @@ select 	a.id_agencia,
             v_reccord.nro_boleto,
             v_reccord.id_agencia
 			);
+
+
 
 END LOOP;
 
@@ -681,9 +687,32 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
                                               v_revisado
                                               );
 
+		select  rc.id_agencia,
+        		rc.nro_contrato,
+        		rc.nit_comisionista
+                into
+                v_id_agt,
+                v_numero,
+                v_nit
+        from conta.trevisar_comisionistas rc
+        where rc.id_agencia = v_recorer.id_agencia and rc.id_periodo = v_parametros.id_periodo -1 ;
+
+        update conta.trevisar_comisionistas set
+        nit_comisionista = v_nit,
+        nro_contrato = v_numero
+        where id_agencia = v_id_agt and id_periodo = v_parametros.id_periodo;
+
+         update conta.tcomisionistas set
+        nit_comisionista = v_nit,
+        nro_contrato = RIGHT( v_numero,19)
+        where id_agencia = v_id_agt and id_periodo = v_parametros.id_periodo;
+
+
+
+
 
 END LOOP;
-
+END IF;
 
 
         v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'anexos actualizaciones automatic(a)');
@@ -827,7 +856,7 @@ END LOOP;
            cb.importe as total_comision,
 			bo.nro_boleto
       from obingresos.tagencia a
-      inner join obingresos.tboleto_2017 bo on bo.id_agencia = a.id_agencia
+      inner join obingresos.tboleto_2018 bo on bo.id_agencia = a.id_agencia
       inner join mat.vcomision_boletos cb on cb.id_boleto = bo.id_boleto
       where a.boaagt = 'A' and a.tipo_agencia = 'noiata' and cb.importe <> 0 and bo.estado_reg = 'activo'
       and a.id_agencia = v_parametros.id_agencia

@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.ft_doc_retencion_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -38,7 +36,7 @@ DECLARE
     var_1   			VARCHAR;
     var_2   			VARCHAR;
     var_3  				VARCHAR;
-    var_4  				VARCHAR;    
+    var_4  				VARCHAR;
     var_5  				VARCHAR;
     var_6  				VARCHAR;
     v_ini  				VARCHAR;
@@ -47,7 +45,7 @@ BEGIN
 
 	v_nombre_funcion = 'conta.ft_doc_retencion_sel';
     v_parametros = pxp.f_get_record(p_tabla);
-    
+
     /*********************************
     #TRANSACCION:  'CONTA_REPRET_FRM'
     #DESCRIPCION:	listado para reporte de retenciones
@@ -57,6 +55,7 @@ BEGIN
 
 	IF(p_transaccion='CONTA_REPRET_FRM')THEN
     	BEGIN
+
 			v_sincronizar = pxp.f_get_variable_global('sincronizar');
            	SELECT gestion into v_gestion
            	FROM param.tgestion
@@ -67,12 +66,14 @@ BEGIN
             ELSE
             	v_tabla_origen = 'conta.vretencion';
             END IF;
-            
+
             IF v_parametros.filtro_sql = 'periodo'  THEN
             	v_filtro = '(ret.id_periodo = '||v_parametros.id_periodo||')';
-            ELSE
-                v_filtro = '(ret.fecha::Date BETWEEN '||v_ini||'::Date AND '||v_fin||'::Date)';                          
-           	END IF;             
+            ELSIF (v_parametros.filtro_sql = 'fechas' )THEN
+
+                v_filtro = '(ret.fecha::Date BETWEEN '''||v_parametros.fecha_ini||'''::Date AND '''||v_parametros.fecha_fin||'''::Date)';
+                 --  raise exception 'llega %',;
+           	END IF;
 
             IF v_parametros.tipo_ret = 'rcrb' THEN
                 v_tipo = '(ret.id_plantilla = 9)';
@@ -84,20 +85,20 @@ BEGIN
                     	v_tipo = '(ret.id_plantilla = 17)';
                     ELSE
                     	IF v_parametros.tipo_ret = 'todo' THEN
-                    		v_tipo = '(ret.id_plantilla = 9 OR ret.id_plantilla =10 OR ret.id_plantilla =17)';    
+                    		v_tipo = '(ret.id_plantilla = 9 OR ret.id_plantilla =10 OR ret.id_plantilla =17)';
                         END IF;
                     END IF;
-                END IF;                
+                END IF;
             END IF;
-			--RAISE EXCEPTION '%',v_filtro;
+		--RAISE EXCEPTION '%',v_filtro;
             var_1 = '%IT retenciones%';
-            var_2 = '%IT-RET%';            
-            var_3 = '%IUE Retenciones%';     
-            var_4 = '%IUE-RET-BIE%';            
-            var_5 = '%IUE-RET-SERV%';                 
+            var_2 = '%IT-RET%';
+            var_3 = '%IUE Retenciones%';
+            var_4 = '%IUE-RET-BIE%';
+            var_5 = '%IUE-RET-SERV%';
             var_6 = '%RC-IVA%';
             --Sentencia de la consulta
-		  	v_consulta:='SELECT DISTINCT 
+		  	v_consulta:='SELECT DISTINCT
                                 ret.id_doc_compra_venta::BIGINT AS id_doc_compra_venta,
                                 ret.tipo::VARCHAR AS tipo,
                                 ret.fecha::DATE AS fecha,
@@ -111,119 +112,119 @@ BEGIN
                                 ret.codigo_moneda::VARCHAR AS codigo_moneda,
                                 ret.id_periodo::INTEGER AS id_periodo,
                                 ret.id_gestion::INTEGER AS id_gestion,
-                                ret.id_usuario_reg::VARCHAR AS id_usuario_reg,                            
-                                ret.importe_doc::NUMERIC, 
-                                ret.importe_descuento_ley::NUMERIC,   
+                                ret.id_usuario_reg::VARCHAR AS id_usuario_reg,
+                                ret.importe_doc::NUMERIC,
+                                ret.importe_descuento_ley::NUMERIC,
                                 ret.obs::VARCHAR,
                                 ret.nro_tramite::VARCHAR,
                                 CASE
                                     WHEN ret.desc_plantilla=''Recibo con Retenciones Servicios''  THEN ''Servicios''::VARCHAR
-                                    WHEN ret.desc_plantilla=''Recibo con Retenciones Bienes''  THEN ''Bienes''::VARCHAR    
+                                    WHEN ret.desc_plantilla=''Recibo con Retenciones Bienes''  THEN ''Bienes''::VARCHAR
                                     WHEN ret.desc_plantilla=''Recibo con Retenciones de Alquiler''  THEN ''Alquileres''::VARCHAR
-                                END AS plantilla,                        
+                                END AS plantilla,
 								--
                                 MAX(CASE WHEN (c.descripcion LIKE '''||var_1||''' AND c.codigo_tipo_relacion LIKE '''||var_2||''') THEN c.importe_presupuesto::NUMERIC END) AS it,
                                 --MAX(CASE WHEN (c.descripcion LIKE '''||var_1||''' AND c.codigo_tipo_relacion LIKE '''||var_2||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END) AS it_total,
-                                CASE 
-                                    WHEN ret.id_plantilla=9 THEN 
-                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_1||''' AND c.codigo_tipo_relacion LIKE '''||var_2||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)       
+                                CASE
+                                    WHEN ret.id_plantilla=9 THEN
+                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_1||''' AND c.codigo_tipo_relacion LIKE '''||var_2||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)
                                     ELSE
                                         0::NUMERIC
                                 END AS it_bienes,
-                                CASE 
-                                    WHEN ret.id_plantilla=10 THEN 
-                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_1||''' AND c.codigo_tipo_relacion LIKE '''||var_2||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)   
+                                CASE
+                                    WHEN ret.id_plantilla=10 THEN
+                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_1||''' AND c.codigo_tipo_relacion LIKE '''||var_2||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)
                                     ELSE
                                         0::NUMERIC
                                 END AS it_servicios,
-                                CASE 
-                                    WHEN ret.id_plantilla=17 THEN 
+                                CASE
+                                    WHEN ret.id_plantilla=17 THEN
                                         MAX(CASE WHEN (c.descripcion LIKE '''||var_1||''' AND c.codigo_tipo_relacion LIKE '''||var_2||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)
                                     ELSE
                                         0::NUMERIC
                                 END AS it_alquileres,
                                 --
                                 CASE
-                                    WHEN ret.id_plantilla=9 THEN 
-                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_4||''') THEN c.importe_presupuesto::NUMERIC END)       
-                                    WHEN ret.id_plantilla=10 THEN    	
-                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_5||''') THEN c.importe_presupuesto::NUMERIC END)	
-                                    WHEN ret.id_plantilla=17 THEN  
+                                    WHEN ret.id_plantilla=9 THEN
+                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_4||''') THEN c.importe_presupuesto::NUMERIC END)
+                                    WHEN ret.id_plantilla=10 THEN
+                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_5||''') THEN c.importe_presupuesto::NUMERIC END)
+                                    WHEN ret.id_plantilla=17 THEN
                                         MAX(CASE WHEN (c.descripcion LIKE '''||var_6||''' AND c.codigo_tipo_relacion LIKE '''||var_6||''') THEN c.importe_presupuesto::NUMERIC END)
-                                END AS iue_iva,    
+                                END AS iue_iva,
                                 --
                                 CASE
-                                    WHEN ret.id_plantilla=9 THEN 
-                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_4||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)       
-                                    WHEN ret.id_plantilla=10 THEN    	
-                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_5||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)	
-                                    WHEN ret.id_plantilla=17 THEN  
+                                    WHEN ret.id_plantilla=9 THEN
+                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_4||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)
+                                    WHEN ret.id_plantilla=10 THEN
+                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_5||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)
+                                    WHEN ret.id_plantilla=17 THEN
                                         MAX(CASE WHEN (c.descripcion LIKE '''||var_6||''' AND c.codigo_tipo_relacion LIKE '''||var_6||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)
                                 END AS iue_iva_total,
                                 --
                                 --
-                                CASE 
-                                    WHEN ret.id_plantilla=9 THEN 
-                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_4||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)       
+                                CASE
+                                    WHEN ret.id_plantilla=9 THEN
+                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_4||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)
                                     ELSE
                                         0::NUMERIC
                                 END AS iue_bienes,
-                                CASE 
-                                    WHEN ret.id_plantilla=10 THEN 
-                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_5||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)       
+                                CASE
+                                    WHEN ret.id_plantilla=10 THEN
+                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_5||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)
                                     ELSE
                                         0::NUMERIC
                                 END AS iue_servicios,
-                                CASE 
-                                    WHEN ret.id_plantilla=17 THEN 
-                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_6||''' AND c.codigo_tipo_relacion LIKE '''||var_6||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)       
+                                CASE
+                                    WHEN ret.id_plantilla=17 THEN
+                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_6||''' AND c.codigo_tipo_relacion LIKE '''||var_6||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)
                                     ELSE
                                         0::NUMERIC
                                 END AS rc_iva_alquileres,
                                 --
                                 CASE
-                                    WHEN ret.id_plantilla=9 THEN 
+                                    WHEN ret.id_plantilla=9 THEN
                                         ((MAX(CASE WHEN (c.descripcion LIKE '''||var_1||''' AND c.codigo_tipo_relacion LIKE '''||var_2||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)
                                         +MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_4||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)))::NUMERIC
-                                    WHEN ret.id_plantilla=10 THEN    	
+                                    WHEN ret.id_plantilla=10 THEN
                                         (MAX(CASE WHEN (c.descripcion LIKE '''||var_1||''' AND c.codigo_tipo_relacion LIKE '''||var_2||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)+
-                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_5||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END))	
-                                    WHEN ret.id_plantilla=17 THEN  
+                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_5||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END))
+                                    WHEN ret.id_plantilla=17 THEN
                                         ((MAX(CASE WHEN (c.descripcion LIKE '''||var_1||''' AND c.codigo_tipo_relacion LIKE '''||var_2||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)+
                                         MAX(CASE WHEN (c.descripcion LIKE '''||var_6||''' AND c.codigo_tipo_relacion LIKE '''||var_6||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)))::NUMERIC
-                                END AS descuento, 
+                                END AS descuento,
 								--
                                 CASE
-                                    WHEN ret.id_plantilla=9 THEN 
+                                    WHEN ret.id_plantilla=9 THEN
                                         ((ret.importe_doc)::NUMERIC-(MAX(CASE WHEN (c.descripcion LIKE '''||var_1||''' AND c.codigo_tipo_relacion LIKE '''||var_2||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)+
                                         MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_4||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)))::NUMERIC
-                                    WHEN ret.id_plantilla=10 THEN    	
+                                    WHEN ret.id_plantilla=10 THEN
 										((ret.importe_doc)::NUMERIC-(MAX(CASE WHEN (c.descripcion LIKE '''||var_1||''' AND c.codigo_tipo_relacion LIKE '''||var_2||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)+
-                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_5||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)))::NUMERIC	
-                                    WHEN ret.id_plantilla=17 THEN  
+                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_5||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)))::NUMERIC
+                                    WHEN ret.id_plantilla=17 THEN
 										((ret.importe_doc)::NUMERIC-(MAX(CASE WHEN (c.descripcion LIKE '''||var_1||''' AND c.codigo_tipo_relacion LIKE '''||var_2||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)+
                                         MAX(CASE WHEN (c.descripcion LIKE '''||var_6||''' AND c.codigo_tipo_relacion LIKE '''||var_6||''') THEN(c.importe_presupuesto * ret.importe_doc)::NUMERIC END)))::NUMERIC
-                                END AS liquido,                                      
+                                END AS liquido,
                                 --
-                                CASE 
-                                    WHEN ret.id_plantilla=9 THEN 
-                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_4||''') THEN ret.desc_plantilla::VARCHAR END)       
+                                CASE
+                                    WHEN ret.id_plantilla=9 THEN
+                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_4||''') THEN ret.desc_plantilla::VARCHAR END)
                                     ELSE
                                         0::VARCHAR
                                 END AS bienes,
-                                CASE 
-                                    WHEN ret.id_plantilla=10 THEN 
-                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_5||''') THEN ret.desc_plantilla::VARCHAR END)       
+                                CASE
+                                    WHEN ret.id_plantilla=10 THEN
+                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_3||''' AND c.codigo_tipo_relacion LIKE '''||var_5||''') THEN ret.desc_plantilla::VARCHAR END)
                                     ELSE
                                         0::VARCHAR
                                 END AS servicios,
-                                CASE 
-                                    WHEN ret.id_plantilla=17 THEN 
-                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_6||''' AND c.codigo_tipo_relacion LIKE '''||var_6||''') THEN ret.desc_plantilla::VARCHAR END)       
+                                CASE
+                                    WHEN ret.id_plantilla=17 THEN
+                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_6||''' AND c.codigo_tipo_relacion LIKE '''||var_6||''') THEN ret.desc_plantilla::VARCHAR END)
                                     ELSE
                                         0::VARCHAR
-                                END AS alquileres                               
-                                
+                                END AS alquileres
+
                             FROM '||v_tabla_origen||' ret, param.tplantilla p
                             JOIN conta.tplantilla_calculo c ON p.id_plantilla = c.id_plantilla
                             WHERE  '||v_tipo||'
@@ -244,21 +245,21 @@ BEGIN
                                       ret.id_gestion,
                                       ret.periodo,
                                       ret.gestion,
-                                      ret.id_usuario_reg,    
-                                      ret.importe_doc,                       
+                                      ret.id_usuario_reg,
+                                      ret.importe_doc,
                                       ret.importe_descuento_ley,
                                       ret.obs,
                                       ret.nro_tramite,
                                       ret.desc_plantilla
 							ORDER BY ret.id_plantilla';
-			--Devuelve la respuesta   
-			--raise exception '-> %',v_consulta; 
-			RETURN v_consulta;        	
+			--Devuelve la respuesta
+		--	raise exception '-> %',v_consulta;
+			RETURN v_consulta;
 		END;
     ELSE
 		RAISE EXCEPTION 'Transaccion inexistente';
 	END IF;
-    
+
 EXCEPTION
 	WHEN OTHERS THEN
       v_resp='';
