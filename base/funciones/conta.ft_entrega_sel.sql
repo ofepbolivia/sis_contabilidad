@@ -182,11 +182,11 @@ BEGIN
                             com.desc_depto::varchar,
                             com.c31::varchar as c31comp,
                             com.fecha_c31 as fecha_c31comp,
-                            com.importe_haber,
                             com.id_int_comprobante,
-
-                            sum (com.importe_haber) as total_importe
+                            --tran.importe_haber
+                            sum (tran.importe_haber) as total_importe
 						from conta.vint_comprobante com
+                        inner join conta.tint_transaccion tran on tran.id_int_comprobante = com.id_int_comprobante
                         left join conta.tentrega_det det on det.id_int_comprobante = com.id_int_comprobante
                         left join conta.tentrega ent on ent.id_entrega = det.id_entrega
                         left join segu.tusuario usu1 on usu1.id_usuario = ent.id_usuario_reg
@@ -195,9 +195,10 @@ BEGIN
 
                          ';
 
+
         --Definicion de la respuesta
         v_consulta:=v_consulta||v_parametros.filtro;
-        v_consulta:=v_consulta||'group by ent.id_entrega,
+        v_consulta:=v_consulta||'group by  ent.id_entrega,
         									com.fecha,
                                             usu1.cuenta,
                                             usu2.cuenta,
@@ -209,10 +210,12 @@ BEGIN
                                             com.desc_depto,
                                             com.c31,
                                             com.fecha_c31,
-                                            com.importe_haber,
                                             com.id_int_comprobante'||' order by ' ||v_parametros.ordenacion|| ' ' ||
         v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad ||
         ' offset ' || v_parametros.puntero;
+
+        --RAISE EXCEPTION 'el valor es: %',v_consulta ;
+
         RAISE NOTICE '%',v_consulta;
         --Devuelve la respuesta
         return v_consulta;
@@ -229,18 +232,30 @@ BEGIN
 
     begin
       --Sentencia de la consulta de conteo de registros
-      v_consulta:='select count(ent.id_entrega)
+      v_consulta:='select count(com.id_int_comprobante)
 					    from conta.vint_comprobante com
+                        --inner join conta.tint_transaccion tran on tran.id_int_comprobante = com.id_int_comprobante
                         left join conta.tentrega_det det on det.id_int_comprobante = com.id_int_comprobante
                         left join conta.tentrega ent on ent.id_entrega = det.id_entrega
-                       	left join segu.tusuario usu1 on usu1.id_usuario = ent.id_usuario_reg
+                        left join segu.tusuario usu1 on usu1.id_usuario = ent.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = ent.id_usuario_mod
-
 				        where
                           ';
 
       --Definicion de la respuesta
       v_consulta:=v_consulta||v_parametros.filtro;
+/*v_consulta:=v_consulta||'group by com.fecha,
+                                            usu1.cuenta,
+                                            usu2.cuenta,
+                                            com.nro_tramite,
+                                            com.beneficiario,
+                                            com.nro_cbte,
+                                            com.desc_clase_comprobante,
+                                            com.glosa1,
+                                            com.desc_depto,
+                                            com.c31,
+                                            com.fecha_c31,
+                                            com.id_int_comprobante';*/
 
       --Devuelve la respuesta
       return v_consulta;

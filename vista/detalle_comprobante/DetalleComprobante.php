@@ -22,22 +22,32 @@ header("content-type: text/javascript; charset=UTF-8");
 
             Atributos: [
                 {
-
-                    config: {
-                        name: 'id_int_comprobante',
-                        fieldLabel: 'id_comprobante',
-                        allowBlank: false,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 200
+                    //configuracion del componente
+                    config:{
+                        labelSeparator:'',
+                        inputType:'hidden',
+                        name: 'id_int_comprobante'
                     },
-                    type: 'TextField',
-                    filters: {pfiltro: 'com.id_int_comprobante', type: 'string'},
-                    id_grupo: 1,
-                    grid: false,
-                    form: false,
-                    bottom_filter: true
+                    type:'Field',
+                    form:true
                 },
+                // {
+                //
+                //     config: {
+                //         name: 'id_int_comprobante',
+                //         fieldLabel: 'id_comprobante',
+                //         allowBlank: false,
+                //         anchor: '80%',
+                //         gwidth: 100,
+                //         maxLength: 200
+                //     },
+                //     type: 'TextField',
+                //     filters: {pfiltro: 'com.id_int_comprobante', type: 'string'},
+                //     id_grupo: 1,
+                //     grid: false,
+                //     form: false,
+                //     bottom_filter: true
+                // },
                 {
 
                     config: {
@@ -340,7 +350,7 @@ header("content-type: text/javascript; charset=UTF-8");
             //ActSave: '../../sis_contabilidad/control/Entrega/insertarEntrega',
             // ActDel: '../../sis_contabilidad/control/Entrega/eliminarEntrega',
             ActList: '../../sis_contabilidad/control/Entrega/listarDetalleComprobante',
-            id_store: 'id_entrega',
+            id_store: 'id_int_comprobante',
             fields: [
                 {name: 'id_entrega', type: 'numeric'},
                 {name: 'fecha_c31', type: 'date', dateFormat: 'Y-m-d'},
@@ -365,13 +375,12 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name: 'desc_depto', type: 'string'},
                 {name: 'c31comp', type: 'string'},
                 {name: 'fecha_c31comp', type: 'date', dateFormat: 'Y-m-d'},
-                {name: 'importe_haber', type: 'numeric'},
                 {name: 'id_int_comprobante', type: 'numeric'},
                 {name: 'total_importe', type: 'numeric'},
 
             ],
             sortInfo: {
-                field: 'id_entrega',
+                field: 'fecha',
                 direction: 'DESC'
             },
 
