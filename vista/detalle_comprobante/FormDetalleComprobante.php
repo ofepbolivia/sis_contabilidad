@@ -98,7 +98,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     allowBlank: true,
                     emptyText: 'Depto Contable',
                     store: new Ext.data.JsonStore({
-                        url : '../../sis_parametros/control/Depto/listarDeptoFiltradoDeptoUsuario',
+                        //url : '../../sis_parametros/control/Depto/listarDeptoFiltradoDeptoUsuario',
+                        url : '../../sis_parametros/control/Depto/listarDepto',
                         id: 'id_depto_conta',
                         root: 'datos',
                         sortInfo: {
@@ -148,6 +149,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 //grid: true,
                 //form: true
             },
+
 
         ],
         labelSubmit: '<i class="fa fa-check"></i> Aplicar Filtro',
