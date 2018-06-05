@@ -1378,3 +1378,8 @@ select pxp.f_insert_tgui ('Reporte Retencion', 'Reporte Retencion', 'REPRET', 's
 select pxp.f_insert_tgui ('Comprobante ERP BOA - SIGEP', 'Reporte Documento Comprobante', 'REPDOCCBTE', 'si', 5, 'sis_contabilidad/vista/doc_int_comprobante/FormDocCompraVentaComprobante.php', 3, '', 'FormRepDocCompraVentaIntComprobante', 'CONTA');
 /***********************************F-DAT-MAY-CONTA-0-25/05/2018*****************************************/
 
+/***********************************I-DAT-MAY-CONTA-0-05/06/2018*****************************************/
+select pxp.f_insert_tgui ('Estado de Cuenta (Detallado)', 'Estado de Cuenta (Detallado)', 'ESCUDE', 'si', 3, 'sis_contabilidad/vista/int_transaccion/FormFiltroEstadoCuentaDetallado.php', 3, '', 'FormFiltroEstadoCuentaDetallado', 'CONTA');
+
+/***********************************F-DAT-MAY-CONTA-0-05/06/2018*****************************************/
+
