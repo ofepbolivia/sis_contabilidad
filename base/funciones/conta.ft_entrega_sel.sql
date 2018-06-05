@@ -157,10 +157,11 @@ BEGIN
 
      elseif(p_transaccion='CONTA_DETCOM_SEL')then
       BEGIN
+
         v_consulta:='select
                             ent.id_entrega,
-                            ent.fecha_c31,
-                            ent.c31,
+                            coalesce(ent.fecha_c31,com.fecha_c31),
+                            coalesce( ent.c31,com.c31::varchar),
                             ent.estado,
                             ent.estado_reg,
                             ent.id_usuario_ai,
@@ -172,9 +173,9 @@ BEGIN
                             usu1.cuenta as usr_reg,
                             usu2.cuenta as usr_mod,
                             ent.id_depto_conta,
-                            ent.id_estado_wf,
-                            ent.id_proceso_wf,
-							com.nro_tramite::varchar,
+                            com.id_estado_wf,
+                            com.id_proceso_wf,
+                            com.nro_tramite::varchar,
                             com.beneficiario::varchar,
     						com.nro_cbte::varchar,
                             com.desc_clase_comprobante::varchar,
@@ -191,7 +192,7 @@ BEGIN
                         left join conta.tentrega ent on ent.id_entrega = det.id_entrega
                         left join segu.tusuario usu1 on usu1.id_usuario = ent.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = ent.id_usuario_mod
-				        where
+				        where com.nro_cbte is not null and
 
                          ';
 
@@ -210,7 +211,10 @@ BEGIN
                                             com.desc_depto,
                                             com.c31,
                                             com.fecha_c31,
-                                            com.id_int_comprobante'||' order by ' ||v_parametros.ordenacion|| ' ' ||
+                                            com.id_int_comprobante,
+                                            com.id_estado_wf,
+                                            com.id_proceso_wf
+                                            '||' order by ' ||v_parametros.ordenacion|| ' ' ||
         v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad ||
         ' offset ' || v_parametros.puntero;
 

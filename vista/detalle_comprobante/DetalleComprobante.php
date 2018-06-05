@@ -15,39 +15,117 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.init();
                 //this.load({params:{start:0, limit:this.tam_pag}})
 
+                this.addButton('chkdep', {
+                    text: 'Dependencias',
+                    iconCls: 'blist',
+                    disabled: true,
+                    handler: this.checkDependencias,
+                    tooltip: '<b>Revisar Dependencias </b><p>Revisar dependencias del comprobante</p>'
+                });
+
+                this.addButton('btnChequeoDocumentosWf',
+                    {
+                        text: 'Documentos',
+                        grupo:[0,1,2,3],
+                        iconCls: 'bchecklist',
+                        disabled: true,
+                        handler: this.loadCheckDocumentosWf,
+                        tooltip: '<b>Documentos del Trámite</b><br/>Permite ver los documentos asociados al NRO de trámite.'
+                    }
+                );
+
+                this.addButton('chkpresupuesto', {
+                    text: 'Chk Presupuesto',
+                    iconCls: 'blist',
+                    disabled: true,
+                    handler: this.checkPresupuesto,
+                    tooltip: '<b>Revisar Presupuesto</b><p>Revisar estado de ejecución presupeustaria para el tramite</p>'
+                });
+
+                this.addButton('btnDocCmpVnt', {
+                    text: 'Doc Cmp/Vnt',
+                    iconCls: 'brenew',
+                    disabled: true,
+                    handler: this.loadDocCmpVnt,
+                    tooltip: '<b>Documentos de compra/venta</b><br/>Muestras los docuemntos relacionados con el comprobante'
+                });
+
+            },
+            checkDependencias: function () {
+                var rec = this.sm.getSelected();
+                var configExtra = [];
+                this.objChkPres = Phx.CP.loadWindows('../../../sis_contabilidad/vista/int_comprobante/CbteDependencias.php',
+                    'Dependencias',
+                    {
+                        modal: true,
+                        width: '80%',
+                        height: '80%'
+                    },
+                    {id_int_comprobante: rec.data.id_int_comprobante},
+                    this.idContenedor,
+                    'CbteDependencias');
+
+            },
+            checkPresupuesto: function () {
+                var rec = this.sm.getSelected();
+                var configExtra = [];
+                this.objChkPres = Phx.CP.loadWindows('../../../sis_presupuestos/vista/presup_partida/ChkPresupuesto.php',
+                    'Estado del Presupuesto',
+                    {
+                        modal: true,
+                        width: 700,
+                        height: 450
+                    }, {
+                        data: {
+                            nro_tramite: rec.data.nro_tramite
+                        }
+                    }, this.idContenedor, 'ChkPresupuesto',
+                    {
+                        config: [{
+                            event: 'onclose',
+                            delegate: this.onCloseChk
+                        }],
+
+                        scope: this
+                    });
 
             },
 
+            loadCheckDocumentosWf: function () {
+                var rec = this.sm.getSelected();
+                rec.data.nombreVista = this.nombreVista;
+                Phx.CP.loadWindows('../../../sis_workflow/vista/documento_wf/DocumentoWf.php',
+                    'Chequear documento del WF',
+                    {
+                        width: '90%',
+                        height: 500
+                    },
+                    rec.data,
+                    this.idContenedor,
+                    'DocumentoWf'
+                )
+            },
 
+            loadDocCmpVnt: function () {
+                var rec = this.sm.getSelected();
+                Phx.CP.loadWindows('../../../sis_contabilidad/vista/doc_compra_venta/DocCompraVentaCbte.php', 'Documentos del Cbte', {
+                    width: '80%',
+                    height: '80%'
+                }, rec.data, this.idContenedor, 'DocCompraVentaCbte');
+            },
 
             Atributos: [
                 {
                     //configuracion del componente
-                    config:{
-                        labelSeparator:'',
-                        inputType:'hidden',
+                    config: {
+                        labelSeparator: '',
+                        inputType: 'hidden',
                         name: 'id_int_comprobante'
                     },
-                    type:'Field',
-                    form:true
+                    type: 'Field',
+                    form: true
                 },
-                // {
-                //
-                //     config: {
-                //         name: 'id_int_comprobante',
-                //         fieldLabel: 'id_comprobante',
-                //         allowBlank: false,
-                //         anchor: '80%',
-                //         gwidth: 100,
-                //         maxLength: 200
-                //     },
-                //     type: 'TextField',
-                //     filters: {pfiltro: 'com.id_int_comprobante', type: 'string'},
-                //     id_grupo: 1,
-                //     grid: false,
-                //     form: false,
-                //     bottom_filter: true
-                // },
+
                 {
 
                     config: {
@@ -62,7 +140,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     filters: {pfiltro: 'ent.id_entrega', type: 'string'},
                     id_grupo: 1,
                     grid: true,
-                    form: true
+                    form: true,
+                    bottom_filter: true
                 },
                 {
                     config: {
@@ -117,7 +196,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
 
 
-
                 {
                     config: {
                         name: 'nro_cbte',
@@ -170,31 +248,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: false,
                     bottom_filter: true
                 },
-                // {
-                //     config: {
-                //         name: 'importe_haber',
-                //         fieldLabel: 'Importe Total',
-                //         allowBlank: true,
-                //         anchor: '80%',
-                //         gwidth: 100,
-                //         //maxLength: 100
-                //         renderer:function (value,p,record){
-                //             if(record.data.tipo_reg != 'summary'){
-                //                 return  String.format('{0}', Ext.util.Format.number(value,'0,000.00'));
-                //             }
-                //             else{
-                //                 return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
-                //             }
-                //         }
-                //
-                //     },
-                //     type: 'NumberField',
-                //     filters: {pfiltro: 'com.importe_haber', type: 'numeric'},
-                //     id_grupo: 1,
-                //     grid: true,
-                //     form: false,
-                //     //bottom_filter: true
-                // },
+
                 {
                     config: {
                         name: 'total_importe',
@@ -203,12 +257,12 @@ header("content-type: text/javascript; charset=UTF-8");
                         anchor: '80%',
                         gwidth: 100,
                         //maxLength: 100
-                        renderer:function (value,p,record){
-                            if(record.data.tipo_reg != 'summary'){
-                                return  String.format('{0}', Ext.util.Format.number(value,'0,000.00'));
+                        renderer: function (value, p, record) {
+                            if (record.data.tipo_reg != 'summary') {
+                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
                             }
-                            else{
-                                return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+                            else {
+                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
                             }
                         }
 
@@ -304,7 +358,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'TextField',
                     filters: {pfiltro: 'com.c31comp', type: 'string'},
                     id_grupo: 1,
-                    grid: true,
+                    grid: false,
                     form: false,
                     //bottom_filter: true
                 },
@@ -323,7 +377,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'DateField',
                     filters: {pfiltro: 'com.fecha_c31comp', type: 'date'},
                     id_grupo: 1,
-                    grid: true,
+                    grid: false,
                     form: false
                 },
                 {
@@ -347,10 +401,9 @@ header("content-type: text/javascript; charset=UTF-8");
             ],
             tam_pag: 50,
             title: 'Detalle Comprobante',
-            //ActSave: '../../sis_contabilidad/control/Entrega/insertarEntrega',
-            // ActDel: '../../sis_contabilidad/control/Entrega/eliminarEntrega',
             ActList: '../../sis_contabilidad/control/Entrega/listarDetalleComprobante',
             id_store: 'id_int_comprobante',
+            //id_store: 'id_entrega',
             fields: [
                 {name: 'id_entrega', type: 'numeric'},
                 {name: 'fecha_c31', type: 'date', dateFormat: 'Y-m-d'},
