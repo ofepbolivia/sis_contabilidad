@@ -711,7 +711,7 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
 
 
 
-END LOOP;
+	END LOOP;
 END IF;
 
 
@@ -833,7 +833,7 @@ END IF;
       select count(b.id_boleto)
       into
       v_cont
-      from obingresos.tboleto_2017 b
+      from obingresos.tboleto_2018 b
       where b.id_agencia = v_parametros.id_agencia and  EXTRACT(MONTH FROM b.fecha_emision) = v_periodo;
 
      if v_cont = 0 then
@@ -841,27 +841,31 @@ END IF;
      end if;
 
  ---   raise exception '%',v_parametros.id_agencia;
-     FOR v_reccord IN (
-			select 	a.id_agencia,
+     FOR v_reccord IN (select
+     a.id_agencia,
             a.nombre,
             a.nit,
-            (select  pxp.list ( RIGHT(c.numero,19))
+            (select  RIGHT(c.numero,19)
             from leg.tcontrato c
-            where c.id_agencia = a.id_agencia) as nro_contrato,
+            where c.id_agencia = a.id_agencia and c.fecha_fin = (select max(d.fecha_fin)
+			from leg.tcontrato d
+			where d.id_agencia = a.id_agencia)) as nro_contrato,
             '' as codigo,
             'Venta de Servicio de Transporte Aereo' as descripcion,
             1 cantidad,
             bo.neto,
             bo.total,
-           cb.importe as total_comision,
+          (-1* bo.comision) as total_comision,
 			bo.nro_boleto
       from obingresos.tagencia a
       inner join obingresos.tboleto_2018 bo on bo.id_agencia = a.id_agencia
-      inner join mat.vcomision_boletos cb on cb.id_boleto = bo.id_boleto
-      where a.boaagt = 'A' and a.tipo_agencia = 'noiata' and cb.importe <> 0 and bo.estado_reg = 'activo'
-      and a.id_agencia = v_parametros.id_agencia
-      and  EXTRACT(MONTH FROM bo.fecha_emision) = v_periodo
-      order by a.nombre)LOOP
+      where a.boaagt = 'A' and a.tipo_agencia = 'noiata' and (-1* bo.comision) <> 0 and bo.estado_reg = 'activo'
+      and  EXTRACT(MONTH FROM bo.fecha_emision) = v_periodo  and a.id_agencia = v_parametros.id_agencia
+      order by a.nombre )LOOP
+
+
+
+
 
 	insert into conta.tcomisionistas(
 			nit_comisionista,
