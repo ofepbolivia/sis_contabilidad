@@ -1,7 +1,11 @@
-CREATE OR REPLACE FUNCTION conta.ft_plan_pago_documento_airbp_ime(p_administrador int4, p_id_usuario int4, p_tabla varchar, p_transaccion varchar)
-  RETURNS varchar
-AS
-$BODY$
+CREATE OR REPLACE FUNCTION conta.ft_plan_pago_documento_airbp_ime (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
   /**************************************************************************
  SISTEMA:		Sistema de Contabilidad
  FUNCION: 		conta.ft_plan_pago_documento_airbp_ime
@@ -167,7 +171,10 @@ BEGIN
 
 
 
+
 			select * into v_gestion from param.tgestion where gestion = v_parametros.gestion;
+
+
 
 			v_host:='dbname=dbendesis host=192.168.100.30 user=ende_pxp password=ende_pxp';
 
@@ -185,7 +192,9 @@ BEGIN
 																and provee.id_proveedor = 398
 																AND obliga.fecha >= v_gestion.fecha_ini::DATE
 																AND obliga.fecha <= v_gestion.fecha_fin::DATE
+				and plan.nro_cuota != 1.00
 													ORDER BY plan.nro_cuota asc)LOOP
+
 
 
 
@@ -243,11 +252,36 @@ BEGIN
 									 relacionado.monto_disponible
 									 from documentos doc
 				 left join conta.tplan_pago_documento_airbp relacionado on relacionado.id_documento = doc.id_documento
+				 where doc.nit =''1015497027'' and doc.fecha > ''2016-12-31''
 				  ';
 
+        --iniciamos nuevamente la consulta por que esto es para el erp2
+        v_consulta:= '
+
+                  select doc.id_doc_compra_venta as id_documento,
+                    doc.fecha as fecha_documento,
+                    doc.nro_autorizacion,
+                    doc.nro_documento,
+                    doc.nit as nro_nit,
+                    doc.importe_doc as importe_total,
+                    relacionado.usar,
+                           relacionado.monto_disponible
+
+                      from conta.tdoc_compra_venta doc
+                  left join conta.tplan_pago_documento_airbp relacionado on relacionado.id_documento = doc.id_doc_compra_venta
+                  where doc.nit =''1015497027'' and doc.fecha > ''2016-12-31''
+
+        ';
+
+
 				IF v_ids_documentos is not NULL THEN
-					v_consulta = v_consulta || ' where doc.id_documento not in('||v_ids_documentos||') ';
+					v_consulta = v_consulta || ' and doc.id_doc_compra_venta not in('||v_ids_documentos||') ';
 				END IF;
+
+				v_consulta = v_consulta || ' ORDER BY doc.fecha ASC,doc.id_doc_compra_venta';
+
+							--raise exception '%',v_consulta;
+
 
 				--RAISE EXCEPTION '%',v_consulta;
 
@@ -390,5 +424,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 
 END;
-$BODY$
-LANGUAGE plpgsql VOLATILE;
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;

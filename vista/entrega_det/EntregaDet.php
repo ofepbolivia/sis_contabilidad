@@ -22,8 +22,8 @@ Phx.vista.EntregaDet=Ext.extend(Phx.gridInterfaz,{
 				handler: this.checkDependencias,
 				tooltip: '<b>Revisar Dependencias </b><p>Revisar dependencias del comprobante</p>'
 			});
-			
-		this.init();
+
+        this.init();
 	},
 			
 	Atributos:[

@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.ft_int_comprobante_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -39,7 +37,6 @@ DECLARE
     --planillas
     v_llave				varchar;
     v_desc_orden		varchar = '';
-
 BEGIN
 
 	v_nombre_funcion = 'conta.ft_int_comprobante_sel';
@@ -484,7 +481,7 @@ BEGIN
 	elsif(p_transaccion='CONTA_DETCBT_SEL')then
 
     	begin
-    	  select tp.columna_llave
+    	select tp.columna_llave
         into v_llave
         from wf.tproceso_wf tpw
         inner join wf.tproceso_wf tpwp on tpwp.nro_tramite = tpw.nro_tramite
@@ -500,7 +497,6 @@ BEGIN
         else
           v_desc_orden = 'ot.desc_orden';
         end if;
-
     		--Sentencia de la consulta
 			v_consulta:='select
                                 nro_cuenta,
@@ -566,7 +562,8 @@ BEGIN
                                                   tra.glosa,
                                                   par.sw_movimiento,
                                                   par.tipo,
-                                                  tra.tipo_cambio
+                                                  tra.tipo_cambio,
+                                                  tra.id_centro_costo
                                           )
 
 
@@ -574,7 +571,7 @@ BEGIN
 
                                 order by tipo, orden_rank';
 
-
+			raise notice 'v_consulta: %',v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
 

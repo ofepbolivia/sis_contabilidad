@@ -483,6 +483,7 @@ BEGIN
             return v_resp;
 
 		end;
+
       /*********************************
  	#TRANSACCION:  'CONTA_REPAR_IME'
  	#DESCRIPCION:	Clona el plan de cuentas para la gestion indicada
@@ -494,12 +495,12 @@ BEGIN
 
 		begin
 
-
+           --  definir id de la gestion siguiente
            perform conta.f_replicar_cuentas_partidas (v_parametros.id_gestion-1,p_id_usuario);
 
 
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Plan de cuentas clonado para la gestion: '||v_parametros.id_gestion::varchar);
-            v_resp = pxp.f_agrega_clave(v_resp,'observaciones','Se insertaron partidas: ');
+            v_resp = pxp.f_agrega_clave(v_resp,'observaciones','Se insertaron partidas ');
 
             --Devuelve la respuesta
             return v_resp;

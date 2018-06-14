@@ -49,6 +49,25 @@ Phx.vista.RevisarComisionistas=Ext.extend(Phx.gridInterfaz, {
                 form: true
             },
             {
+                //configuracion del componente
+                config: {
+                    labelSeparator: '',
+                    inputType: 'hidden',
+                    name: 'id_periodo'
+                },
+                type: 'Field',
+                form: true
+            }, {
+                //configuracion del componente
+                config: {
+                    labelSeparator: '',
+                    inputType: 'hidden',
+                    name: 'id_gestion'
+                },
+                type: 'Field',
+                form: true
+            },
+            {
                 config: {
                     name: 'revisado',
                     fieldLabel: 'Revisado',
@@ -72,6 +91,47 @@ Phx.vista.RevisarComisionistas=Ext.extend(Phx.gridInterfaz, {
                 id_grupo: 0,
                 grid: true,
                 form: false
+            },
+            {
+                config: {
+                    name: 'id_agencia',
+                    fieldLabel: 'Agencia',
+                    allowBlank: true,
+                    emptyText: 'Agencia...',
+                    store: new Ext.data.JsonStore({
+                        url: '../../sis_obingresos/control/Agencia/listarAgencia',
+                        id: 'id_agencia',
+                        root: 'datos',
+                        sortInfo: {
+                            field: 'nombre',
+                            direction: 'ASC'
+                        },
+                        totalProperty: 'total',
+                        fields: ['id_agencia', 'nombre', 'codigo_int','tipo_agencia','codigo'],
+                        remoteSort: true,
+                        baseParams: {par_filtro: 'age.nombre',comision :'si'}
+                    }),
+                    valueField: 'id_agencia',
+                    displayField: 'nombre',
+                    gdisplayField: 'id_agencia',
+                    hiddenName: 'id_agencia',
+                    anchor: '70%',
+                    tpl:'<tpl for="."><div class="x-combo-list-item"><p><b>{nombre}</b></p><b><p>Codigo:<font color="green">{codigo_int}</font></b></p></div></tpl>',
+                    forceSelection: true,
+                    typeAhead: false,
+                    triggerAction: 'all',
+                    lazyRender: true,
+                    mode: 'remote',
+                    pageSize: 15,
+                    queryDelay: 1000,
+                    gwidth: 150,
+                    listWidth:350,
+                    resizable:true,
+                    minChars: 2
+                },
+                type: 'ComboBox',
+                grid: false,
+                form: true
             },
             {
                 config: {
@@ -325,7 +385,7 @@ Phx.vista.RevisarComisionistas=Ext.extend(Phx.gridInterfaz, {
         bdel: false,
         bsave: true,
         bedit: true,
-        bnew: false,
+        bnew: true,
 
         oncellclick : function(grid, rowIndex, columnIndex, e) {
             var record = this.store.getAt(rowIndex),
@@ -374,6 +434,17 @@ Phx.vista.RevisarComisionistas=Ext.extend(Phx.gridInterfaz, {
     successEdit:function(resp){
         Phx.vista.RevisarComisionistas.superclass.successEdit.call(this,resp);
         Phx.CP.getPagina(this.idContenedorPadre).reload();
+    },
+    onButtonNew:function(){
+        Phx.vista.RevisarComisionistas.superclass.onButtonNew.call(this);
+
+         this.getComponente('id_periodo').setValue(this.maestro.data.id_periodo);
+        this.ocultarComponente(this.Cmp.nit_comisionista);
+        this.ocultarComponente(this.Cmp.nro_contrato);
+    },
+    onButtonEdit:function(){
+        Phx.vista.RevisarComisionistas.superclass.onButtonEdit.call(this);
+        this.ocultarComponente(this.Cmp.id_agencia);
     }
     }
 )

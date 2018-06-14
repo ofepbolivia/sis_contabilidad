@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.ft_int_transaccion_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -37,11 +35,10 @@ DECLARE
     v_filtro_tipo_cc	varchar;
     v_filtro			varchar;
 
-    --planillas
+	--planillas
     v_desc_orden		varchar;
-	  v_codigo_orden		varchar;
+	v_codigo_orden		varchar;
     v_planilla			varchar;
-
 BEGIN
 
 	v_nombre_funcion = 'conta.ft_int_transaccion_sel';
@@ -57,7 +54,7 @@ BEGIN
 	if(p_transaccion='CONTA_INTRANSA_SEL')then
 
     	begin
-    	  SELECT case when tpw.nro_tramite like 'PLA%' then 'si' else 'no' end
+    	SELECT case when tpw.nro_tramite like 'PLA%' then 'si' else 'no' end
         into v_planilla
         FROM conta.tint_comprobante tc
         inner join wf.tproceso_wf tpw on tpw.id_proceso_wf = tc.id_proceso_wf
@@ -541,6 +538,703 @@ BEGIN
 			return v_consulta;
 
 		end;
+
+--INICIO para MayorResumido
+
+/*********************************
+ 	#TRANSACCION:  'CONTA_MAYRE_SEL'
+ 	#DESCRIPCION:	listado de transacicones para el mayor
+ 	#AUTOR:
+ 	#FECHA:
+	***********************************/
+
+	elsif(p_transaccion='CONTA_MAYRE_SEL')then
+
+    	begin
+
+            v_cuentas = '0';
+            v_ordenes = '0';
+            v_tipo_cc = '0';
+            v_filtro_cuentas = '0=0';
+            v_filtro_ordenes = '0=0';
+            v_filtro_tipo_cc = '0=0';
+
+             IF  pxp.f_existe_parametro(p_tabla,'id_cuenta')  THEN
+
+                  IF v_parametros.id_cuenta is not NULL THEN
+
+                      WITH RECURSIVE cuenta_rec (id_cuenta, id_cuenta_padre) AS (
+                        SELECT cue.id_cuenta, cue.id_cuenta_padre
+                        FROM conta.tcuenta cue
+                        WHERE cue.id_cuenta = v_parametros.id_cuenta and cue.estado_reg = 'activo'
+                      UNION ALL
+                        SELECT cue2.id_cuenta, cue2.id_cuenta_padre
+                        FROM cuenta_rec lrec
+                        INNER JOIN conta.tcuenta cue2 ON lrec.id_cuenta = cue2.id_cuenta_padre
+                        where cue2.estado_reg = 'activo'
+                      )
+                    SELECT  pxp.list(id_cuenta::varchar)
+                      into
+                        v_cuentas
+                    FROM cuenta_rec;
+
+
+
+                    v_filtro_cuentas = ' transa.id_cuenta in ('||v_cuentas||') ';
+                END IF;
+
+            END IF;
+
+            IF  pxp.f_existe_parametro(p_tabla,'id_orden_trabajo')  THEN
+
+                  IF v_parametros.id_orden_trabajo is not NULL THEN
+
+
+                    IF v_parametros.id_orden_trabajo != 0 THEN
+                          WITH RECURSIVE orden_rec (id_orden_trabajo, id_orden_trabajo_fk) AS (
+                            SELECT cue.id_orden_trabajo, cue.id_orden_trabajo_fk
+                            FROM conta.torden_trabajo cue
+                            WHERE cue.id_orden_trabajo = v_parametros.id_orden_trabajo and cue.estado_reg = 'activo'
+                          UNION ALL
+                            SELECT cue2.id_orden_trabajo, cue2.id_orden_trabajo_fk
+                            FROM orden_rec lrec
+                            INNER JOIN conta.torden_trabajo cue2 ON lrec.id_orden_trabajo = cue2.id_orden_trabajo_fk
+                            where cue2.estado_reg = 'activo'
+                          )
+                        SELECT  pxp.list(id_orden_trabajo::varchar)
+                          into
+                            v_ordenes
+                        FROM orden_rec;
+
+                        v_filtro_ordenes = ' transa.id_orden_trabajo in ('||v_ordenes||') ';
+                    ELSE
+                        --cuando la orden de trabajo es cero, se requiere msotrar las ordenes de trabajo nulas
+                        v_filtro_ordenes = ' transa.id_orden_trabajo is null ';
+
+                    END IF;
+                END IF;
+            END IF;
+
+
+            IF  pxp.f_existe_parametro(p_tabla,'id_tipo_cc')  THEN
+
+                  IF v_parametros.id_tipo_cc is not NULL THEN
+
+                      WITH RECURSIVE tipo_cc_rec (id_tipo_cc, id_tipo_cc_fk) AS (
+                        SELECT tcc.id_tipo_cc, tcc.id_tipo_cc_fk
+                        FROM param.ttipo_cc tcc
+                        WHERE tcc.id_tipo_cc = v_parametros.id_tipo_cc and tcc.estado_reg = 'activo'
+                      UNION ALL
+                        SELECT tcc2.id_tipo_cc, tcc2.id_tipo_cc_fk
+                        FROM tipo_cc_rec lrec
+                        INNER JOIN param.ttipo_cc tcc2 ON lrec.id_tipo_cc = tcc2.id_tipo_cc_fk
+                        where tcc2.estado_reg = 'activo'
+                      )
+                    SELECT  pxp.list(id_tipo_cc::varchar)
+                      into
+                        v_tipo_cc
+                    FROM tipo_cc_rec;
+
+
+
+                    v_filtro_tipo_cc = ' cc.id_tipo_cc in ('||v_tipo_cc||') ';
+                END IF;
+             END IF;
+
+
+
+            --Sentencia de la consulta
+			v_consulta:='select
+						transa.id_int_transaccion,
+						transa.id_partida,
+						transa.id_centro_costo,
+						transa.id_partida_ejecucion,
+						transa.estado_reg,
+						transa.id_int_transaccion_fk,
+						transa.id_cuenta,
+						transa.glosa,
+						transa.id_int_comprobante,
+						transa.id_auxiliar,
+						transa.id_usuario_reg,
+						transa.fecha_reg,
+						transa.id_usuario_mod,
+						transa.fecha_mod,
+						usu1.cuenta as usr_reg,
+						usu2.cuenta as usr_mod,
+                        COALESCE(transa.importe_debe_mb,0) as importe_debe_mb,
+                        COALESCE(transa.importe_haber_mb,0) as importe_haber_mb,
+                       	COALESCE(transa.importe_gasto_mb,0) as importe_gasto_mb,
+						COALESCE(transa.importe_recurso_mb,0) as importe_recurso_mb,
+
+                        COALESCE(transa.importe_debe_mt,0) as importe_debe_mt,
+                        COALESCE(transa.importe_haber_mt,0) as importe_haber_mt,
+                       	COALESCE(transa.importe_gasto_mt,0) as importe_gasto_mt,
+						COALESCE(transa.importe_recurso_mt,0) as importe_recurso_mt,
+
+                        COALESCE(transa.importe_debe_ma,0) as importe_debe_ma,
+                        COALESCE(transa.importe_haber_ma,0) as importe_haber_ma,
+                       	COALESCE(transa.importe_gasto_ma,0) as importe_gasto_ma,
+						COALESCE(transa.importe_recurso_ma,0) as importe_recurso_ma,
+
+                        CASE par.sw_movimiento
+                        	WHEN ''flujo'' THEN
+								''(F) ''||par.codigo || '' - '' || par.nombre_partida
+                            ELSE
+                            	par.codigo || '' - '' || par.nombre_partida
+                        	END  as desc_partida,
+
+						cc.codigo_cc as desc_centro_costo,
+						cue.nro_cuenta || '' - '' || cue.nombre_cuenta as desc_cuenta,
+						aux.codigo_auxiliar || '' - '' || aux.nombre_auxiliar as desc_auxiliar,
+                        par.sw_movimiento as tipo_partida,
+                        ot.id_orden_trabajo,
+                        ot.desc_orden,
+                        icbte.nro_cbte,
+                        icbte.nro_tramite,
+                        dep.nombre_corto,
+                        icbte.fecha,
+                        icbte.glosa1,
+                        icbte.id_proceso_wf,
+                        icbte.id_estado_wf,
+                        (transa.importe_haber_mb - transa.importe_debe_mb)::numeric as saldo_mb,
+						(transa.importe_haber_mt - transa.importe_debe_mt)::numeric as saldo_mt
+
+
+						from conta.tint_transaccion transa
+                        inner join conta.tint_comprobante icbte on icbte.id_int_comprobante = transa.id_int_comprobante
+                        inner join param.tdepto dep on dep.id_depto = icbte.id_depto
+                        inner join param.tperiodo per on per.id_periodo = icbte.id_periodo
+						inner join segu.tusuario usu1 on usu1.id_usuario = transa.id_usuario_reg
+
+                        inner join conta.tcuenta cue on cue.id_cuenta = transa.id_cuenta
+                        inner join conta.tconfig_tipo_cuenta ctc on ctc.tipo_cuenta = cue.tipo_cuenta
+                        inner join conta.tconfig_subtipo_cuenta csc on csc.id_config_subtipo_cuenta = cue.id_config_subtipo_cuenta
+						left join segu.tusuario usu2 on usu2.id_usuario = transa.id_usuario_mod
+						left join pre.tpartida par on par.id_partida = transa.id_partida
+						left join param.vcentro_costo cc on cc.id_centro_costo = transa.id_centro_costo
+						left join conta.tauxiliar aux on aux.id_auxiliar = transa.id_auxiliar
+                        left join conta.torden_trabajo ot on ot.id_orden_trabajo =  transa.id_orden_trabajo
+				        where icbte.estado_reg = ''validado''
+                              and ' ||v_filtro_cuentas||'
+                              and '||v_filtro_ordenes||'
+                              and '||v_filtro_tipo_cc||'
+
+                               and';
+
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+            raise notice '%', v_consulta;
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+
+	/*********************************
+ 	#TRANSACCION:  'CONTA_MAYRE_CONT'
+ 	#DESCRIPCION:	Conteo de registros
+ 	#AUTOR:		admin
+ 	#FECHA:		30-05-2018 12:18:12
+	***********************************/
+
+	elsif(p_transaccion='CONTA_MAYRE_CONT')then
+
+		begin
+            v_cuentas = '0';
+            v_ordenes = '0';
+            v_tipo_cc = '0';
+            v_filtro_cuentas = '0=0';
+            v_filtro_ordenes = '0=0';
+            v_filtro_tipo_cc = '0=0';
+
+             IF  pxp.f_existe_parametro(p_tabla,'id_cuenta')  THEN
+
+                  IF v_parametros.id_cuenta is not NULL THEN
+
+                      WITH RECURSIVE cuenta_rec (id_cuenta, id_cuenta_padre) AS (
+                        SELECT cue.id_cuenta, cue.id_cuenta_padre
+                        FROM conta.tcuenta cue
+                        WHERE cue.id_cuenta = v_parametros.id_cuenta and cue.estado_reg = 'activo'
+                      UNION ALL
+                        SELECT cue2.id_cuenta, cue2.id_cuenta_padre
+                        FROM cuenta_rec lrec
+                        INNER JOIN conta.tcuenta cue2 ON lrec.id_cuenta = cue2.id_cuenta_padre
+                        where cue2.estado_reg = 'activo'
+                      )
+                    SELECT  pxp.list(id_cuenta::varchar)
+                      into
+                        v_cuentas
+                    FROM cuenta_rec;
+
+
+
+                    v_filtro_cuentas = ' transa.id_cuenta in ('||v_cuentas||') ';
+                END IF;
+
+            END IF;
+
+             IF  pxp.f_existe_parametro(p_tabla,'id_orden_trabajo')  THEN
+
+                  IF v_parametros.id_orden_trabajo is not NULL THEN
+
+
+                    IF v_parametros.id_orden_trabajo != 0 THEN
+                          WITH RECURSIVE orden_rec (id_orden_trabajo, id_orden_trabajo_fk) AS (
+                            SELECT cue.id_orden_trabajo, cue.id_orden_trabajo_fk
+                            FROM conta.torden_trabajo cue
+                            WHERE cue.id_orden_trabajo = v_parametros.id_orden_trabajo and cue.estado_reg = 'activo'
+                          UNION ALL
+                            SELECT cue2.id_orden_trabajo, cue2.id_orden_trabajo_fk
+                            FROM orden_rec lrec
+                            INNER JOIN conta.torden_trabajo cue2 ON lrec.id_orden_trabajo = cue2.id_orden_trabajo_fk
+                            where cue2.estado_reg = 'activo'
+                          )
+                        SELECT  pxp.list(id_orden_trabajo::varchar)
+                          into
+                            v_ordenes
+                        FROM orden_rec;
+
+                        v_filtro_ordenes = ' transa.id_orden_trabajo in ('||v_ordenes||') ';
+                    ELSE
+                        --cuando la orden de trabajo es cero, se requiere msotrar las ordenes de trabajo nulas
+                        v_filtro_ordenes = ' transa.id_orden_trabajo is null ';
+
+                    END IF;
+                END IF;
+            END IF;
+
+
+            IF  pxp.f_existe_parametro(p_tabla,'id_tipo_cc')  THEN
+
+                  IF v_parametros.id_tipo_cc is not NULL THEN
+
+                      WITH RECURSIVE tipo_cc_rec (id_tipo_cc, id_tipo_cc_fk) AS (
+                        SELECT tcc.id_tipo_cc, tcc.id_tipo_cc_fk
+                        FROM param.ttipo_cc tcc
+                        WHERE tcc.id_tipo_cc = v_parametros.id_tipo_cc and tcc.estado_reg = 'activo'
+                      UNION ALL
+                        SELECT tcc2.id_tipo_cc, tcc2.id_tipo_cc_fk
+                        FROM tipo_cc_rec lrec
+                        INNER JOIN param.ttipo_cc tcc2 ON lrec.id_tipo_cc = tcc2.id_tipo_cc_fk
+                        where tcc2.estado_reg = 'activo'
+                      )
+                    SELECT  pxp.list(id_tipo_cc::varchar)
+                      into
+                        v_tipo_cc
+                    FROM tipo_cc_rec;
+
+
+
+                    v_filtro_tipo_cc = ' cc.id_tipo_cc in ('||v_tipo_cc||') ';
+                END IF;
+             END IF;
+
+            --RAC 16´/05/2017 quite esta suma de la consulta me parece incorecta, pero no estoy 100% seguro
+
+            /*
+
+            sum(CASE cue.valor_incremento
+                        	WHEN ''negativo'' THEN
+								COALESCE(transa.importe_debe_mb*-1,0)
+                            ELSE
+                            	COALESCE(transa.importe_debe_mb,0)
+                        	END)  as total_debe,
+            */
+
+			--Sentencia de la consulta de conteo de registros
+			v_consulta:='select
+                        count(transa.id_int_transaccion) as total,
+
+
+                        sum(COALESCE(transa.importe_debe_mb,0)) as total_debe,
+                        sum(COALESCE(transa.importe_haber_mb,0)) as total_haber,
+                        sum(COALESCE(transa.importe_debe_mt,0)) as total_debe_mt,
+                        sum(COALESCE(transa.importe_haber_mt,0)) as total_haber_mt,
+                        sum(COALESCE(transa.importe_debe_ma,0)) as total_debe_ma,
+                        sum(COALESCE(transa.importe_haber_ma,0)) as total_haber_ma
+
+					    from conta.tint_transaccion transa
+                        inner join conta.tint_comprobante icbte on icbte.id_int_comprobante = transa.id_int_comprobante
+                        inner join param.tdepto dep on dep.id_depto = icbte.id_depto
+                        inner join param.tperiodo per on per.id_periodo = icbte.id_periodo
+						inner join segu.tusuario usu1 on usu1.id_usuario = transa.id_usuario_reg
+
+                        inner join conta.tcuenta cue on cue.id_cuenta = transa.id_cuenta
+                        inner join conta.tconfig_tipo_cuenta ctc on ctc.tipo_cuenta = cue.tipo_cuenta
+                        inner join conta.tconfig_subtipo_cuenta csc on csc.id_config_subtipo_cuenta = cue.id_config_subtipo_cuenta
+						left join segu.tusuario usu2 on usu2.id_usuario = transa.id_usuario_mod
+						left join pre.tpartida par on par.id_partida = transa.id_partida
+						left join param.vcentro_costo cc on cc.id_centro_costo = transa.id_centro_costo
+						left join conta.tauxiliar aux on aux.id_auxiliar = transa.id_auxiliar
+                        left join conta.torden_trabajo ot on ot.id_orden_trabajo =  transa.id_orden_trabajo
+				        where icbte.estado_reg = ''validado''
+                              and ' ||v_filtro_cuentas||'
+                              and '||v_filtro_ordenes||'
+                              and '||v_filtro_tipo_cc||' and';
+
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+            --raise notice '%',v_consulta;
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+--FIN para MayorResumido
+
+--INICIO para DetalleComprobante
+
+/*********************************
+ 	#TRANSACCION:  'CONTA_DECOM_SEL'
+ 	#DESCRIPCION:	listado de transacicones para el mayor
+ 	#AUTOR:
+ 	#FECHA:
+	***********************************/
+
+	elsif(p_transaccion='CONTA_DECOM_SEL')then
+
+    	begin
+
+            v_cuentas = '0';
+            v_ordenes = '0';
+            v_tipo_cc = '0';
+            v_filtro_cuentas = '0=0';
+            v_filtro_ordenes = '0=0';
+            v_filtro_tipo_cc = '0=0';
+
+             IF  pxp.f_existe_parametro(p_tabla,'id_cuenta')  THEN
+
+                  IF v_parametros.id_cuenta is not NULL THEN
+
+                      WITH RECURSIVE cuenta_rec (id_cuenta, id_cuenta_padre) AS (
+                        SELECT cue.id_cuenta, cue.id_cuenta_padre
+                        FROM conta.tcuenta cue
+                        WHERE cue.id_cuenta = v_parametros.id_cuenta and cue.estado_reg = 'activo'
+                      UNION ALL
+                        SELECT cue2.id_cuenta, cue2.id_cuenta_padre
+                        FROM cuenta_rec lrec
+                        INNER JOIN conta.tcuenta cue2 ON lrec.id_cuenta = cue2.id_cuenta_padre
+                        where cue2.estado_reg = 'activo'
+                      )
+                    SELECT  pxp.list(id_cuenta::varchar)
+                      into
+                        v_cuentas
+                    FROM cuenta_rec;
+
+
+
+                    v_filtro_cuentas = ' transa.id_cuenta in ('||v_cuentas||') ';
+                END IF;
+
+            END IF;
+
+            IF  pxp.f_existe_parametro(p_tabla,'id_orden_trabajo')  THEN
+
+                  IF v_parametros.id_orden_trabajo is not NULL THEN
+
+
+                    IF v_parametros.id_orden_trabajo != 0 THEN
+                          WITH RECURSIVE orden_rec (id_orden_trabajo, id_orden_trabajo_fk) AS (
+                            SELECT cue.id_orden_trabajo, cue.id_orden_trabajo_fk
+                            FROM conta.torden_trabajo cue
+                            WHERE cue.id_orden_trabajo = v_parametros.id_orden_trabajo and cue.estado_reg = 'activo'
+                          UNION ALL
+                            SELECT cue2.id_orden_trabajo, cue2.id_orden_trabajo_fk
+                            FROM orden_rec lrec
+                            INNER JOIN conta.torden_trabajo cue2 ON lrec.id_orden_trabajo = cue2.id_orden_trabajo_fk
+                            where cue2.estado_reg = 'activo'
+                          )
+                        SELECT  pxp.list(id_orden_trabajo::varchar)
+                          into
+                            v_ordenes
+                        FROM orden_rec;
+
+                        v_filtro_ordenes = ' transa.id_orden_trabajo in ('||v_ordenes||') ';
+                    ELSE
+                        --cuando la orden de trabajo es cero, se requiere msotrar las ordenes de trabajo nulas
+                        v_filtro_ordenes = ' transa.id_orden_trabajo is null ';
+
+                    END IF;
+                END IF;
+            END IF;
+
+
+            IF  pxp.f_existe_parametro(p_tabla,'id_tipo_cc')  THEN
+
+                  IF v_parametros.id_tipo_cc is not NULL THEN
+
+                      WITH RECURSIVE tipo_cc_rec (id_tipo_cc, id_tipo_cc_fk) AS (
+                        SELECT tcc.id_tipo_cc, tcc.id_tipo_cc_fk
+                        FROM param.ttipo_cc tcc
+                        WHERE tcc.id_tipo_cc = v_parametros.id_tipo_cc and tcc.estado_reg = 'activo'
+                      UNION ALL
+                        SELECT tcc2.id_tipo_cc, tcc2.id_tipo_cc_fk
+                        FROM tipo_cc_rec lrec
+                        INNER JOIN param.ttipo_cc tcc2 ON lrec.id_tipo_cc = tcc2.id_tipo_cc_fk
+                        where tcc2.estado_reg = 'activo'
+                      )
+                    SELECT  pxp.list(id_tipo_cc::varchar)
+                      into
+                        v_tipo_cc
+                    FROM tipo_cc_rec;
+
+
+
+                    v_filtro_tipo_cc = ' cc.id_tipo_cc in ('||v_tipo_cc||') ';
+                END IF;
+             END IF;
+
+
+
+            --Sentencia de la consulta
+			v_consulta:='select
+						transa.id_int_transaccion,
+						transa.id_partida,
+						transa.id_centro_costo,
+						transa.id_partida_ejecucion,
+						transa.estado_reg,
+						transa.id_int_transaccion_fk,
+						transa.id_cuenta,
+						transa.glosa,
+						transa.id_int_comprobante,
+						transa.id_auxiliar,
+						transa.id_usuario_reg,
+						transa.fecha_reg,
+						transa.id_usuario_mod,
+						transa.fecha_mod,
+						usu1.cuenta as usr_reg,
+						usu2.cuenta as usr_mod,
+                        COALESCE(transa.importe_debe_mb,0) as importe_debe_mb,
+                        COALESCE(transa.importe_haber_mb,0) as importe_haber_mb,
+                       	COALESCE(transa.importe_gasto_mb,0) as importe_gasto_mb,
+						COALESCE(transa.importe_recurso_mb,0) as importe_recurso_mb,
+
+                        COALESCE(transa.importe_debe_mt,0) as importe_debe_mt,
+                        COALESCE(transa.importe_haber_mt,0) as importe_haber_mt,
+                       	COALESCE(transa.importe_gasto_mt,0) as importe_gasto_mt,
+						COALESCE(transa.importe_recurso_mt,0) as importe_recurso_mt,
+
+                        COALESCE(transa.importe_debe_ma,0) as importe_debe_ma,
+                        COALESCE(transa.importe_haber_ma,0) as importe_haber_ma,
+                       	COALESCE(transa.importe_gasto_ma,0) as importe_gasto_ma,
+						COALESCE(transa.importe_recurso_ma,0) as importe_recurso_ma,
+
+                        CASE par.sw_movimiento
+                        	WHEN ''flujo'' THEN
+								''(F) ''||par.codigo || '' - '' || par.nombre_partida
+                            ELSE
+                            	par.codigo || '' - '' || par.nombre_partida
+                        	END  as desc_partida,
+
+						cc.codigo_cc as desc_centro_costo,
+						cue.nro_cuenta || '' - '' || cue.nombre_cuenta as desc_cuenta,
+						aux.codigo_auxiliar || '' - '' || aux.nombre_auxiliar as desc_auxiliar,
+                        par.sw_movimiento as tipo_partida,
+                        ot.id_orden_trabajo,
+                        ot.desc_orden,
+                        icbte.nro_cbte,
+                        icbte.nro_tramite,
+                        dep.nombre_corto,
+                        icbte.fecha,
+                        icbte.glosa1,
+                        icbte.id_proceso_wf,
+                        icbte.id_estado_wf,
+                        icbte.c31,
+                        ccom.descripcion,
+                        icbte.fecha_costo_ini,
+                        icbte.fecha_costo_fin,
+                        icbte.id_int_comprobante_fks::varchar as comprobante_fks,
+                        ot.codigo,
+
+                      	(select array_to_string( array_agg( cv.nro_documento), '','' )
+                         from conta.tdoc_compra_venta  cv
+                         where cv.id_int_comprobante=transa.id_int_comprobante)::VARCHAR as nro_documentos
+
+                        from conta.tint_transaccion transa
+                        inner join conta.tint_comprobante icbte on icbte.id_int_comprobante = transa.id_int_comprobante
+                        inner join conta.tclase_comprobante ccom on ccom.id_clase_comprobante = icbte.id_clase_comprobante
+
+                        inner join param.tdepto dep on dep.id_depto = icbte.id_depto
+                        inner join param.tperiodo per on per.id_periodo = icbte.id_periodo
+						inner join segu.tusuario usu1 on usu1.id_usuario = transa.id_usuario_reg
+						 inner join conta.tcuenta cue on cue.id_cuenta = transa.id_cuenta
+                        inner join conta.tconfig_tipo_cuenta ctc on ctc.tipo_cuenta = cue.tipo_cuenta
+                        inner join conta.tconfig_subtipo_cuenta csc on csc.id_config_subtipo_cuenta = cue.id_config_subtipo_cuenta
+						left join segu.tusuario usu2 on usu2.id_usuario = transa.id_usuario_mod
+						left join pre.tpartida par on par.id_partida = transa.id_partida
+						left join param.vcentro_costo cc on cc.id_centro_costo = transa.id_centro_costo
+						left join conta.tauxiliar aux on aux.id_auxiliar = transa.id_auxiliar
+                        left join conta.torden_trabajo ot on ot.id_orden_trabajo =  transa.id_orden_trabajo
+				        where icbte.estado_reg = ''validado''
+                              and ' ||v_filtro_cuentas||'
+                              and '||v_filtro_ordenes||'
+                              and '||v_filtro_tipo_cc||'
+
+                               and';
+
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+            raise notice '%', v_consulta;
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+
+	/*********************************
+ 	#TRANSACCION:  'CONTA_MAYRE_CONT'
+ 	#DESCRIPCION:	Conteo de registros
+ 	#AUTOR:		admin
+ 	#FECHA:		30-05-2018 12:18:12
+	***********************************/
+
+	elsif(p_transaccion='CONTA_DECOM_CONT')then
+
+		begin
+            v_cuentas = '0';
+            v_ordenes = '0';
+            v_tipo_cc = '0';
+            v_filtro_cuentas = '0=0';
+            v_filtro_ordenes = '0=0';
+            v_filtro_tipo_cc = '0=0';
+
+             IF  pxp.f_existe_parametro(p_tabla,'id_cuenta')  THEN
+
+                  IF v_parametros.id_cuenta is not NULL THEN
+
+                      WITH RECURSIVE cuenta_rec (id_cuenta, id_cuenta_padre) AS (
+                        SELECT cue.id_cuenta, cue.id_cuenta_padre
+                        FROM conta.tcuenta cue
+                        WHERE cue.id_cuenta = v_parametros.id_cuenta and cue.estado_reg = 'activo'
+                      UNION ALL
+                        SELECT cue2.id_cuenta, cue2.id_cuenta_padre
+                        FROM cuenta_rec lrec
+                        INNER JOIN conta.tcuenta cue2 ON lrec.id_cuenta = cue2.id_cuenta_padre
+                        where cue2.estado_reg = 'activo'
+                      )
+                    SELECT  pxp.list(id_cuenta::varchar)
+                      into
+                        v_cuentas
+                    FROM cuenta_rec;
+
+
+
+                    v_filtro_cuentas = ' transa.id_cuenta in ('||v_cuentas||') ';
+                END IF;
+
+            END IF;
+
+             IF  pxp.f_existe_parametro(p_tabla,'id_orden_trabajo')  THEN
+
+                  IF v_parametros.id_orden_trabajo is not NULL THEN
+
+
+                    IF v_parametros.id_orden_trabajo != 0 THEN
+                          WITH RECURSIVE orden_rec (id_orden_trabajo, id_orden_trabajo_fk) AS (
+                            SELECT cue.id_orden_trabajo, cue.id_orden_trabajo_fk
+                            FROM conta.torden_trabajo cue
+                            WHERE cue.id_orden_trabajo = v_parametros.id_orden_trabajo and cue.estado_reg = 'activo'
+                          UNION ALL
+                            SELECT cue2.id_orden_trabajo, cue2.id_orden_trabajo_fk
+                            FROM orden_rec lrec
+                            INNER JOIN conta.torden_trabajo cue2 ON lrec.id_orden_trabajo = cue2.id_orden_trabajo_fk
+                            where cue2.estado_reg = 'activo'
+                          )
+                        SELECT  pxp.list(id_orden_trabajo::varchar)
+                          into
+                            v_ordenes
+                        FROM orden_rec;
+
+                        v_filtro_ordenes = ' transa.id_orden_trabajo in ('||v_ordenes||') ';
+                    ELSE
+                        --cuando la orden de trabajo es cero, se requiere msotrar las ordenes de trabajo nulas
+                        v_filtro_ordenes = ' transa.id_orden_trabajo is null ';
+
+                    END IF;
+                END IF;
+            END IF;
+
+
+            IF  pxp.f_existe_parametro(p_tabla,'id_tipo_cc')  THEN
+
+                  IF v_parametros.id_tipo_cc is not NULL THEN
+
+                      WITH RECURSIVE tipo_cc_rec (id_tipo_cc, id_tipo_cc_fk) AS (
+                        SELECT tcc.id_tipo_cc, tcc.id_tipo_cc_fk
+                        FROM param.ttipo_cc tcc
+                        WHERE tcc.id_tipo_cc = v_parametros.id_tipo_cc and tcc.estado_reg = 'activo'
+                      UNION ALL
+                        SELECT tcc2.id_tipo_cc, tcc2.id_tipo_cc_fk
+                        FROM tipo_cc_rec lrec
+                        INNER JOIN param.ttipo_cc tcc2 ON lrec.id_tipo_cc = tcc2.id_tipo_cc_fk
+                        where tcc2.estado_reg = 'activo'
+                      )
+                    SELECT  pxp.list(id_tipo_cc::varchar)
+                      into
+                        v_tipo_cc
+                    FROM tipo_cc_rec;
+
+
+
+                    v_filtro_tipo_cc = ' cc.id_tipo_cc in ('||v_tipo_cc||') ';
+                END IF;
+             END IF;
+
+            --RAC 16´/05/2017 quite esta suma de la consulta me parece incorecta, pero no estoy 100% seguro
+
+            /*
+
+            sum(CASE cue.valor_incremento
+                        	WHEN ''negativo'' THEN
+								COALESCE(transa.importe_debe_mb*-1,0)
+                            ELSE
+                            	COALESCE(transa.importe_debe_mb,0)
+                        	END)  as total_debe,
+            */
+
+			--Sentencia de la consulta de conteo de registros
+			v_consulta:='select
+                        count(transa.id_int_transaccion) as total,
+
+
+                        sum(COALESCE(transa.importe_debe_mb,0)) as total_debe,
+                        sum(COALESCE(transa.importe_haber_mb,0)) as total_haber,
+                        sum(COALESCE(transa.importe_debe_mt,0)) as total_debe_mt,
+                        sum(COALESCE(transa.importe_haber_mt,0)) as total_haber_mt,
+                        sum(COALESCE(transa.importe_debe_ma,0)) as total_debe_ma,
+                        sum(COALESCE(transa.importe_haber_ma,0)) as total_haber_ma
+
+					    from conta.tint_transaccion transa
+                        inner join conta.tint_comprobante icbte on icbte.id_int_comprobante = transa.id_int_comprobante
+                        inner join conta.tclase_comprobante ccom on ccom.id_clase_comprobante = icbte.id_clase_comprobante
+
+                        inner join param.tdepto dep on dep.id_depto = icbte.id_depto
+                        inner join param.tperiodo per on per.id_periodo = icbte.id_periodo
+						inner join segu.tusuario usu1 on usu1.id_usuario = transa.id_usuario_reg
+
+                        inner join conta.tcuenta cue on cue.id_cuenta = transa.id_cuenta
+                        inner join conta.tconfig_tipo_cuenta ctc on ctc.tipo_cuenta = cue.tipo_cuenta
+                        inner join conta.tconfig_subtipo_cuenta csc on csc.id_config_subtipo_cuenta = cue.id_config_subtipo_cuenta
+						left join segu.tusuario usu2 on usu2.id_usuario = transa.id_usuario_mod
+						left join pre.tpartida par on par.id_partida = transa.id_partida
+						left join param.vcentro_costo cc on cc.id_centro_costo = transa.id_centro_costo
+						left join conta.tauxiliar aux on aux.id_auxiliar = transa.id_auxiliar
+                        left join conta.torden_trabajo ot on ot.id_orden_trabajo =  transa.id_orden_trabajo
+				        where icbte.estado_reg = ''validado''
+                              and ' ||v_filtro_cuentas||'
+                              and '||v_filtro_ordenes||'
+                              and '||v_filtro_tipo_cc||' and';
+
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+            --raise notice '%',v_consulta;
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+--FIN para DetalleComprobante
+
 
     /*********************************
  	#TRANSACCION:  'CONTA_INTANA_SEL'

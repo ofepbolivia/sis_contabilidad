@@ -173,8 +173,8 @@ class MODComisionistas extends MODbase{
         $mensaje_completo = '';
         //validar errores unicos del archivo: existencia, copia y extension
         if(isset($arregloFiles['archivo']) && is_uploaded_file($arregloFiles['archivo']['tmp_name'])){
-            if ($extension != 'txt' && $extension != 'txt') {
-                $mensaje_completo = "La extensión del archivo debe ser TXT";
+            if ($extension != 'txt' && $extension != 'txt' or $extension != 'csv' && $extension != 'CSV') {
+                $mensaje_completo = "La extensión del archivo debe ser TXT o CSV ";
                 $error = 'error_fatal';
             }
             //upload directory
@@ -216,12 +216,13 @@ class MODComisionistas extends MODbase{
                     "nit_comisionista" => $arr_temp[0],
                     "nro_contrato" => $arr_temp[1],
                     "codigo_producto" => $arr_temp[2],
-                    "descripcion_producto" => $arr_temp[3],
-                    "cantidad_total_entregado" => $arr_temp[4],
-                    "cantidad_total_vendido" => $arr_temp[5],
-                    "precio_unitario" => $arr_temp[6],
-                    "monto_total" => $arr_temp[7],
-                    "monto_total_comision" => $arr_temp[8]);
+                    "nro_boleto"=>$arr_temp[3],
+                    "descripcion_producto" => $arr_temp[4],
+                    "cantidad_total_entregado" => $arr_temp[5],
+                    "cantidad_total_vendido" => $arr_temp[6],
+                    "precio_unitario" => $arr_temp[7],
+                    "monto_total" => $arr_temp[8],
+                    "monto_total_comision" => $arr_temp[9]);
 
                 if (count($arr_temp) != 14) {
                     $error = 'error';
@@ -460,6 +461,22 @@ class MODComisionistas extends MODbase{
         $this->setParametro('id_periodo','id_periodo','int4');
         $this->setParametro('id_depto_conta','id_depto_conta','int4');
 
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    function insertarRevisarComisionistas(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_comisionistas_ime';
+        $this->transaccion='CONTA_REM_IST';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_agencia','id_agencia','int4');
+        $this->setParametro('id_periodo','id_periodo','int4');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();

@@ -141,7 +141,7 @@ BEGIN
                             from conta.tcomisionistas c
                             inner join param.tperiodo per on per.id_periodo = c.id_periodo
                             inner join param.tgestion ges on ges.id_gestion = per.id_gestion
-                            where c.id_periodo = '||v_parametros.id_periodo||'
+                            where c.revisado = ''si'' and c.id_periodo = '||v_parametros.id_periodo||'
                             union
                             select  cm.nombre_agencia,
                                     cm.nit_comisionista,
@@ -156,7 +156,7 @@ BEGIN
                                     from conta.tcomisionistas cm
                                     inner join param.tperiodo per on per.id_periodo = cm.id_periodo
                                     inner join param.tgestion ges on ges.id_gestion = per.id_gestion
-                                    where cm.id_periodo = '||v_parametros.id_periodo||'
+                                    where cm.revisado = ''si'' and cm.id_periodo = '||v_parametros.id_periodo||'
                                     group by cm.nombre_agencia ,cm.nit_comisionista ,cm.nro_contrato,per.periodo
                                     order by nombre_agencia,  nro_boleto desc';
 
@@ -266,7 +266,7 @@ BEGIN
 						from conta.trevisar_comisionistas rca
 						inner join segu.tusuario usu1 on usu1.id_usuario = rca.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = rca.id_usuario_mod
-				        where rca.id_periodo ='||v_parametros.id_periodo;
+				        where  rca.revisado = ''si''and rca.id_periodo ='||v_parametros.id_periodo;
 
 			--Devuelve la respuesta
 			return v_consulta;

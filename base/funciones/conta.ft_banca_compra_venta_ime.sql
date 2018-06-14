@@ -1,8 +1,12 @@
-CREATE OR REPLACE FUNCTION conta.ft_banca_compra_venta_ime(p_administrador int4, p_id_usuario int4, p_tabla varchar, p_transaccion varchar)
-  RETURNS varchar
-AS
-$BODY$
-  /**************************************************************************
+CREATE OR REPLACE FUNCTION conta.ft_banca_compra_venta_ime (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
+/**************************************************************************
 SISTEMA:		Sistema de Contabilidad
 FUNCION: 		conta.ft_banca_compra_venta_ime
 DESCRIPCION:   Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'conta.tbanca_compra_venta'
@@ -376,8 +380,7 @@ BEGIN
           saldo                 = v_saldo,
           tramite_cuota         = v_parametros.tramite_cuota,
           periodo_servicio      = v_parametros.periodo_servicio,
-          multa_cuota           = v_parametros.multa_cuota,
-          comentario           = v_parametros.comentario
+          multa_cuota           = v_parametros.multa_cuota
 
         WHERE id_banca_compra_venta = v_parametros.id_banca_compra_venta;
 
@@ -635,7 +638,7 @@ BEGIN
             NULL,
             'importado',
             4,
-            178,--id del proveedor
+            242,--id del proveedor 398 AIRBP - (178 LACTEOSBOL) (242 tab)
             61,
             '10-0017-15',
             'si',
@@ -841,7 +844,7 @@ and ( pg_pagado.forma_pago = ''transferencia'' or pg_pagado.forma_pago=''cheque'
 and (plantilla.tipo_informe = ''lcv'' or plantilla.id_plantilla = 28)
 
 and (
-        libro.estado in (''cobrado'',''entregado'',''anulado'')
+        libro.estado in (''cobrado'',''entregado'',''anulado'',''borrador'')
         or libro.estado is null
         or (pg_pagado.forma_pago = ''transferencia'' and libro.estado in(''cobrado'',''entregado'',''anulado'',''borrador'') )
       )
@@ -2023,5 +2026,9 @@ and (
       RAISE EXCEPTION '%', v_resp;
 
 END;
-$BODY$
-LANGUAGE plpgsql VOLATILE;
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;
