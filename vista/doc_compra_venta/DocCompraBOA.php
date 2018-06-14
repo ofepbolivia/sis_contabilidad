@@ -40,6 +40,15 @@ Phx.vista.DocCompraBOA = {
         this.store.baseParams.tipo = this.tipoDoc;
         Phx.vista.DocCompraBOA.superclass.capturaFiltros.call(this,combo, record, index);
     },
+
+    south:{
+            url: '../../../sis_contabilidad/vista/historial_reg_compras/HistorialRegCompras.php',
+            title: 'Historial Validación Compras',
+            width: 400,
+            height:'40%',
+            collapsed:true,
+            cls: 'HistorialRegCompras'
+    },
     
     
 	
