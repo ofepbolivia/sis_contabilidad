@@ -380,26 +380,9 @@ header("content-type: text/javascript; charset=UTF-8");
                     grid: false,
                     form: false
                 },
-                {
-                    config: {
-                        name: 'usr_reg',
-                        fieldLabel: 'Creado por',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 4
-                    },
-                    type: 'Field',
-                    filters: {pfiltro: 'usu1.cuenta', type: 'string'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: false,
-                    bottom_filter: true
-                },
-
                 // {
                 //     config: {
-                //         name: 'usr_reg_comprobante',
+                //         name: 'usr_reg',
                 //         fieldLabel: 'Creado por',
                 //         allowBlank: true,
                 //         anchor: '80%',
@@ -407,12 +390,29 @@ header("content-type: text/javascript; charset=UTF-8");
                 //         maxLength: 4
                 //     },
                 //     type: 'Field',
-                //     filters: {pfiltro: 'com.usr_reg', type: 'string'},
+                //     filters: {pfiltro: 'usu1.cuenta', type: 'string'},
                 //     id_grupo: 1,
                 //     grid: true,
                 //     form: false,
                 //     bottom_filter: true
                 // },
+
+                {
+                    config: {
+                        name: 'usr_reg_comprobante',
+                        fieldLabel: 'Creado por',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 4
+                    },
+                    type: 'Field',
+                    filters: {pfiltro: 'com.usr_reg', type: 'string'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false,
+                    bottom_filter: true
+                },
 
             ],
             tam_pag: 50,
