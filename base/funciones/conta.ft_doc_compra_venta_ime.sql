@@ -1120,6 +1120,36 @@ BEGIN
         revisado = v_revisado
       where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
 
+      --Historial de validaciones de una factura
+      SELECT tf.id_funcionario
+      INTO v_id_funcionario
+      FROM segu.tusuario tu
+      INNER JOIN orga.tfuncionario tf on tf.id_persona = tu.id_persona
+      WHERE tu.id_usuario = p_id_usuario ;
+
+      insert into conta.thistorial_reg_compras(
+      		id_doc_compra_venta,
+			id_funcionario,
+            fecha_cambio,
+			estado_reg,
+			id_usuario_ai,
+			usuario_ai,
+			fecha_reg,
+			id_usuario_reg,
+			fecha_mod,
+			id_usuario_mod
+          	) values(
+            v_parametros.id_doc_compra_venta,
+			v_id_funcionario,
+            now(),
+			'activo',
+			v_parametros._id_usuario_ai,
+			v_parametros._nombre_usuario_ai,
+			now(),
+			p_id_usuario,
+			null,
+			null
+			);
 
 
       --Definicion de la respuesta
