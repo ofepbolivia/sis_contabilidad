@@ -56,7 +56,7 @@ DECLARE
   v_dui_importe			numeric;
   v_id_planttilla integer;
   v_plantilla_des varchar;
-
+  v_id_funcionario			INTEGER;
 
 
 BEGIN
@@ -1120,7 +1120,7 @@ BEGIN
         revisado = v_revisado
       where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
 
-      --Historial de validaciones de una factura
+	  --Historial de validaciones de una factura
       SELECT tf.id_funcionario
       INTO v_id_funcionario
       FROM segu.tusuario tu
@@ -1149,8 +1149,7 @@ BEGIN
 			p_id_usuario,
 			null,
 			null
-			);
-
+		);
 
       --Definicion de la respuesta
       v_resp = pxp.f_agrega_clave(v_resp,'mensaje','cambio del documento a revisado '||v_revisado|| ' id: '||v_parametros.id_doc_compra_venta);
