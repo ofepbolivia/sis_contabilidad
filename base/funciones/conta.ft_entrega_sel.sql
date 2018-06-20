@@ -184,9 +184,12 @@ BEGIN
                             com.c31::varchar as c31comp,
                             com.fecha_c31 as fecha_c31comp,
                             com.id_int_comprobante,
+                            ccom.id_clase_comprobante,
+                            com.usr_reg as usr_reg_comprobante,
                             --tran.importe_haber
                             sum (tran.importe_haber) as total_importe
 						from conta.vint_comprobante com
+                        inner join conta.tclase_comprobante ccom on ccom.id_clase_comprobante = com.id_clase_comprobante
                         inner join conta.tint_transaccion tran on tran.id_int_comprobante = com.id_int_comprobante
                         left join conta.tentrega_det det on det.id_int_comprobante = com.id_int_comprobante
                         left join conta.tentrega ent on ent.id_entrega = det.id_entrega
@@ -212,13 +215,15 @@ BEGIN
                                             com.c31,
                                             com.fecha_c31,
                                             com.id_int_comprobante,
+                                            ccom.id_clase_comprobante,
+                                            com.usr_reg,
                                             com.id_estado_wf,
                                             com.id_proceso_wf
                                             '||' order by ' ||v_parametros.ordenacion|| ' ' ||
         v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad ||
         ' offset ' || v_parametros.puntero;
 
-        --RAISE EXCEPTION 'el valor es: %',v_consulta ;
+       -- RAISE EXCEPTION 'el valor es: %',v_consulta ;
 
         RAISE NOTICE '%',v_consulta;
         --Devuelve la respuesta
@@ -237,7 +242,9 @@ BEGIN
     begin
       --Sentencia de la consulta de conteo de registros
       v_consulta:='select count(com.id_int_comprobante)
-					    from conta.vint_comprobante com
+
+                        from conta.vint_comprobante com
+                      	inner join conta.tclase_comprobante ccom on ccom.id_clase_comprobante = com.id_clase_comprobante
                         --inner join conta.tint_transaccion tran on tran.id_int_comprobante = com.id_int_comprobante
                         left join conta.tentrega_det det on det.id_int_comprobante = com.id_int_comprobante
                         left join conta.tentrega ent on ent.id_entrega = det.id_entrega

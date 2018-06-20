@@ -127,7 +127,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     mode: 'remote',
                     pageSize: 20,
                     queryDelay: 1000,
-                    anchor: '80%',
+                    anchor: '90%',
 
 
                     // renderer: function (value, p, record) {
@@ -146,6 +146,54 @@ header("content-type: text/javascript; charset=UTF-8");
                 id_grupo: 0,
                 //bottom_filter: true,
                 filters: {pfiltro: 'deppto.nombre#deppto.codigo', type: 'string'}
+                //grid: true,
+                //form: true
+            },
+
+
+            {
+                config: {
+                    name: 'id_clase_comprobante',
+                    fieldLabel: 'Tipo Comprobante',
+                    allowBlank: true,
+                    emptyText: 'Tipo',
+                    store: new Ext.data.JsonStore({
+                       url : '../../sis_contabilidad/control/ClaseComprobante/listarClaseComprobante',
+                        id: 'id_clase_comprobante',
+                        root: 'datos',
+                        sortInfo: {
+                            //field: 'nombre',
+                            field: 'ccom.descripcion',
+                            direction: 'ASC'
+                        },
+                        totalProperty: 'total',
+                        fields: ['id_clase_comprobante', 'descripcion'],
+                        remoteSort: true,
+                        baseParams: {par_filtro: 'ccom.descripcion',
+                            estado : 'activo',
+                            //codigo_subsistema : 'CONTA'
+                        },
+
+                    }),
+                    valueField: 'id_clase_comprobante',
+                    displayField: 'descripcion',
+                    gdisplayField: 'id_clase_comprobante',
+                    hiddenName: 'id_clase_comprobante',
+                    //forceSelection: true,
+                    //typeAhead: false,
+                    triggerAction: 'all',
+                    lazyRender: true,
+                    mode: 'remote',
+                    pageSize: 20,
+                    queryDelay: 1000,
+                    anchor: '90%',
+
+
+                },
+                type: 'AwesomeCombo',
+                id_grupo: 0,
+                //bottom_filter: true,
+                filters: {pfiltro: 'ccom.descripcion', type: 'string'}
                 //grid: true,
                 //form: true
             },

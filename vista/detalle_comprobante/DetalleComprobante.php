@@ -397,6 +397,22 @@ header("content-type: text/javascript; charset=UTF-8");
                     bottom_filter: true
                 },
 
+                // {
+                //     config: {
+                //         name: 'usr_reg_comprobante',
+                //         fieldLabel: 'Creado por',
+                //         allowBlank: true,
+                //         anchor: '80%',
+                //         gwidth: 100,
+                //         maxLength: 4
+                //     },
+                //     type: 'Field',
+                //     filters: {pfiltro: 'com.usr_reg', type: 'string'},
+                //     id_grupo: 1,
+                //     grid: true,
+                //     form: false,
+                //     bottom_filter: true
+                // },
 
             ],
             tam_pag: 50,
@@ -429,6 +445,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name: 'c31comp', type: 'string'},
                 {name: 'fecha_c31comp', type: 'date', dateFormat: 'Y-m-d'},
                 {name: 'id_int_comprobante', type: 'numeric'},
+                {name: 'id_clase_comprobante', type: 'numeric'},
+                {name: 'usr_reg_comprobante', type: 'string'},
                 {name: 'total_importe', type: 'numeric'},
 
             ],

@@ -291,6 +291,8 @@ class MODEntrega extends MODbase{
         $this->captura('c31comp','varchar');
         $this->captura('fecha_c31comp','date');
         $this->captura('id_int_comprobante','int4');
+        $this->captura('id_clase_comprobante','int4');
+        $this->captura('usr_reg_comprobante','varchar');
         $this->captura('total_importe','numeric');
 
 
