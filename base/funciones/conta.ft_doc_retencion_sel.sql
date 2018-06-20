@@ -84,8 +84,13 @@ BEGIN
                 	IF v_parametros.tipo_ret = 'rcra' THEN
                     	v_tipo = '(ret.id_plantilla = 17)';
                     ELSE
-                    	IF v_parametros.tipo_ret = 'todo' THEN
-                    		v_tipo = '(ret.id_plantilla = 9 OR ret.id_plantilla =10 OR ret.id_plantilla =17)';
+                    	--RAISE EXCEPTION 'fggg';
+                    	IF v_parametros.tipo_ret = 'rrci' THEN
+                    	v_tipo = '(ret.id_plantilla = 13)';
+                    	ELSE
+                    		IF v_parametros.tipo_ret = 'todo' THEN
+                    		v_tipo = '(ret.id_plantilla = 9 OR ret.id_plantilla =10 OR ret.id_plantilla =17  OR ret.id_plantilla =13)';
+                        	END IF;
                         END IF;
                     END IF;
                 END IF;
@@ -121,6 +126,7 @@ BEGIN
                                     WHEN ret.desc_plantilla=''Recibo con Retenciones Servicios''  THEN ''Servicios''::VARCHAR
                                     WHEN ret.desc_plantilla=''Recibo con Retenciones Bienes''  THEN ''Bienes''::VARCHAR
                                     WHEN ret.desc_plantilla=''Recibo con Retenciones de Alquiler''  THEN ''Alquileres''::VARCHAR
+                                    WHEN ret.desc_plantilla=''Retenciones RC-IVA''  THEN ''RC-IVA''::VARCHAR
                                 END AS plantilla,
 								--
                                 MAX(CASE WHEN (c.descripcion LIKE '''||var_1||''' AND c.codigo_tipo_relacion LIKE '''||var_2||''') THEN c.importe_presupuesto::NUMERIC END) AS it,
@@ -178,6 +184,9 @@ BEGIN
                                 CASE
                                     WHEN ret.id_plantilla=17 THEN
                                         MAX(CASE WHEN (c.descripcion LIKE '''||var_6||''' AND c.codigo_tipo_relacion LIKE '''||var_6||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)
+                                    WHEN ret.id_plantilla=13 THEN
+										 MAX(CASE WHEN (c.descripcion LIKE '''||var_6||''' AND c.codigo_tipo_relacion LIKE '''||var_6||''') THEN (ret.importe_descuento_ley)::NUMERIC END)
+
                                     ELSE
                                         0::NUMERIC
                                 END AS rc_iva_alquileres,
@@ -204,6 +213,11 @@ BEGIN
                                     WHEN ret.id_plantilla=17 THEN
 										((ret.importe_doc)::NUMERIC-(MAX(CASE WHEN (c.descripcion LIKE '''||var_1||''' AND c.codigo_tipo_relacion LIKE '''||var_2||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)+
                                         MAX(CASE WHEN (c.descripcion LIKE '''||var_6||''' AND c.codigo_tipo_relacion LIKE '''||var_6||''') THEN(c.importe_presupuesto * ret.importe_doc)::NUMERIC END)))::NUMERIC
+                                --
+                               		WHEN ret.id_plantilla=13 THEN
+										((ret.importe_doc)::NUMERIC-(MAX(CASE WHEN (c.descripcion LIKE '''||var_1||''' AND c.codigo_tipo_relacion LIKE '''||var_2||''') THEN (c.importe_presupuesto * ret.importe_doc)::NUMERIC END)+
+                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_6||''' AND c.codigo_tipo_relacion LIKE '''||var_6||''') THEN(c.importe_presupuesto * ret.importe_doc)::NUMERIC END)))::NUMERIC
+
                                 END AS liquido,
                                 --
                                 CASE
@@ -223,7 +237,13 @@ BEGIN
                                         MAX(CASE WHEN (c.descripcion LIKE '''||var_6||''' AND c.codigo_tipo_relacion LIKE '''||var_6||''') THEN ret.desc_plantilla::VARCHAR END)
                                     ELSE
                                         0::VARCHAR
-                                END AS alquileres
+                                END AS alquileres,
+                                CASE
+                                    WHEN ret.id_plantilla=13 THEN
+                                        MAX(CASE WHEN (c.descripcion LIKE '''||var_6||''' AND c.codigo_tipo_relacion LIKE '''||var_6||''') THEN ret.desc_plantilla::VARCHAR END)
+                                    ELSE
+                                        0::VARCHAR
+                                END AS retenciones
 
                             FROM '||v_tabla_origen||' ret, param.tplantilla p
                             JOIN conta.tplantilla_calculo c ON p.id_plantilla = c.id_plantilla
@@ -254,7 +274,11 @@ BEGIN
 							ORDER BY ret.id_plantilla';
 			--Devuelve la respuesta
 		--	raise exception '-> %',v_consulta;
-			RETURN v_consulta;
+
+--raise notice 'errorrrrrr %', v_consulta;
+--raise exception 'errorrrrrr %', v_consulta;
+
+            RETURN v_consulta;
 		END;
     ELSE
 		RAISE EXCEPTION 'Transaccion inexistente';

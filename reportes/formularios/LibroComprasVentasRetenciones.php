@@ -135,8 +135,9 @@ Phx.vista.ReporteRetenciones = Ext.extend(Phx.frmInterfaz,{
 						['todo','Todos'],
 						['rcrb','Recibo con Retenciones Bienes'],
 						['rcrs','Recibo con Retenciones Servicios'],	
-						['rcra','Recibo con Retenciones de Alquiler']		
-					]				
+						['rcra','Recibo con Retenciones de Alquiler'],
+						['rrci','Retenciones RC-IVA']
+					]
 				}),
 				valueField:'ID',
 				displayField:'valor',
@@ -331,8 +332,8 @@ Phx.vista.ReporteRetenciones = Ext.extend(Phx.frmInterfaz,{
 				store:new Ext.data.ArrayStore({
 					fields: ['ID', 'valor'],
 					data :	[
-						['txt','TXT'],
-						['pdf','PDF'],	
+						//['txt','TXT'],
+						//['pdf','PDF'],
                         ['xls','XLS']
 					]
 				}),

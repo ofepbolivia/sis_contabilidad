@@ -69,9 +69,12 @@ class MODDocRetencion extends MODbase{
 		$this->captura('bienes','VARCHAR');	
 		$this->captura('servicios','VARCHAR');	
 		$this->captura('alquileres','VARCHAR');	
+		$this->captura('retenciones','VARCHAR');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
+		//echo $this->consulta;exit;
+
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
