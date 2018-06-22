@@ -120,7 +120,8 @@ BEGIN
                                 ret.id_usuario_reg::VARCHAR AS id_usuario_reg,
                                 ret.importe_doc::NUMERIC,
                                 ret.importe_descuento_ley::NUMERIC,
-                                ret.obs::VARCHAR,
+                                --ret.obs,
+                                (ret.razon_social||'' - ''|| ret.obs)::varchar as obs,
                                 ret.nro_tramite::VARCHAR,
                                 CASE
                                     WHEN ret.desc_plantilla=''Recibo con Retenciones Servicios''  THEN ''Servicios''::VARCHAR
