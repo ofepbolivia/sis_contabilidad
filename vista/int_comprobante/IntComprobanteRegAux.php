@@ -12,7 +12,7 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
 Phx.vista.IntComprobanteRegAux = {
-    bsave:false,
+    bsave:true,
    
 	require: '../../../sis_contabilidad/vista/int_comprobante/IntComprobante.php',
 	requireclase: 'Phx.vista.IntComprobante',

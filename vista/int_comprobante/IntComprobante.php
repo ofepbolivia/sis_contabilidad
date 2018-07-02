@@ -175,6 +175,17 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.Cmp.id_int_comprobante_fks.modificado = true;
             }, this);
 
+            //eventos de fechas de costo
+            this.Cmp.fecha_costo_ini.on('change',function( o, newValue, oldValue ){
+                this.Cmp.fecha_costo_fin.setMinValue(newValue);
+                this.Cmp.fecha_costo_fin.reset();
+
+            }, this);
+
+            //eventos de fechas de costo
+            this.Cmp.fecha_costo_fin.on('change',function(o, newValue, oldValue){
+                this.Cmp.fecha_costo_ini.setMaxValue(newValue);
+            }, this);
 
             this.Cmp.fecha.on('select', function(value, date){
                 this.getConfigCambiaria('si') ;
@@ -184,13 +195,16 @@ header("content-type: text/javascript; charset=UTF-8");
                 var fecha_inicio = new Date(anio+'/01/1');
                 var fecha_fin = new Date(anio+'/12/31');
                 //control de fechas de inicio y fin de costos
+
                 this.Cmp.fecha_costo_ini.setMinValue(fecha_inicio);
+                this.Cmp.fecha_costo_ini.setMaxValue(fecha_fin);
+                this.Cmp.fecha_costo_fin.setMinValue(fecha_inicio);
                 this.Cmp.fecha_costo_fin.setMaxValue(fecha_fin);
+
+
             }, this);
             this.Cmp.forma_cambio.on('select', function(){ this.getConfigCambiaria('si') }, this);
             this.Cmp.id_clase_comprobante.on('select', this.habilitaMomentos, this);
-
-
 
             this.Cmp.id_tipo_relacion_comprobante.on('valid', function() {
                 if (this.Cmp.id_tipo_relacion_comprobante.getValue()) {
