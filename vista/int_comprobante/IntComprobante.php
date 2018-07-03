@@ -933,7 +933,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 config : {
                     name : 'fecha_costo_ini',
                     fieldLabel : 'Fecha Inicial',
-                    allowBlank : false,
+                    allowBlank : true,
                     width : 100,
                     gwidth : 100,
                     format : 'd/m/Y',
@@ -954,7 +954,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 config : {
                     name : 'fecha_costo_fin',
                     fieldLabel : 'Fecha Final',
-                    allowBlank : false,
+                    allowBlank : true,
                     width : 100,
                     gwidth : 100,
                     format : 'd/m/Y',

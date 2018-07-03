@@ -60,7 +60,7 @@ Phx.vista.IntComprobanteRegAux = {
          this.swButton = 'EDIT';
          var rec = this.sm.getSelected().data;
 
-        this.cmpFecha.disable();
+        this.cmpFecha.enable();
 
          Phx.vista.IntComprobanteRegAux.superclass.onButtonEdit.call(this); 
          this.Cmp.id_moneda.setReadOnly(true);
