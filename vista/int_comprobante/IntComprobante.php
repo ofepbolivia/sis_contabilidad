@@ -742,7 +742,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     fieldLabel : 'Glosa',
                     allowBlank : false,
                     anchor : '100%',
-                    gwidth : 100,
+                    gwidth : 250,
                     maxLength : 1500
                 },
                 type : 'TextArea',
@@ -752,6 +752,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 id_grupo : 0,
                 bottom_filtro : true,
+                egrid : true,
                 grid : true,
                 form : true
             }, {

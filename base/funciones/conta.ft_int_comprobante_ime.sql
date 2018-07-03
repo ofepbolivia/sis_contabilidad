@@ -2000,17 +2000,22 @@ BEGIN
             END IF;
 
 
+
 			------------------------------
 			--Sentencia de la modificacion
 			------------------------------
 
 			update conta.tint_comprobante set
                 fecha_costo_ini = v_parametros.fecha_costo_ini,
-                fecha_costo_fin = v_parametros.fecha_costo_fin,
-                fecha = v_parametros.fecha
+                fecha_costo_fin = v_parametros.fecha_costo_fin
 
 			where id_int_comprobante = v_parametros.id_int_comprobante;
 
+        update tes.tplan_pago set
+                fecha_costo_ini = v_parametros.fecha_costo_ini,
+                fecha_costo_fin = v_parametros.fecha_costo_fin
+
+			where id_int_comprobante = v_parametros.id_int_comprobante;
 
 			--Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Fechas de costos  modificadas en cbte validado');
