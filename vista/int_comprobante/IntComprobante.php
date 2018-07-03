@@ -168,7 +168,7 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         iniciarEventos : function() {
 
-
+            this.cmpFecha=this.getComponente('fecha');
             this.Cmp.id_moneda.on('select', function(){
                 this.getConfigCambiaria('si');
                 this.Cmp.id_int_comprobante_fks.reset();
@@ -342,9 +342,10 @@ header("content-type: text/javascript; charset=UTF-8");
                     maxValue : new Date(),
                     gwidth : 100,
                     format : 'd/m/Y',
-                    renderer : function(value, p, record) {
-                        return value ? value.dateFormat('d/m/Y') : ''
-                    }
+                    // renderer : function(value, p, record) {
+                    //     return value ? value.dateFormat('d/m/Y') : ''
+                    // }
+                    renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
                 },
                 type : 'DateField',
                 filters : {
@@ -932,7 +933,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 config : {
                     name : 'fecha_costo_ini',
                     fieldLabel : 'Fecha Inicial',
-                    allowBlank : true,
+                    allowBlank : false,
                     width : 100,
                     gwidth : 100,
                     format : 'd/m/Y',
@@ -953,7 +954,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 config : {
                     name : 'fecha_costo_fin',
                     fieldLabel : 'Fecha Final',
-                    allowBlank : true,
+                    allowBlank : false,
                     width : 100,
                     gwidth : 100,
                     format : 'd/m/Y',

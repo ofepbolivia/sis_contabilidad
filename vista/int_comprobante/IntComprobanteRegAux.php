@@ -59,6 +59,9 @@ Phx.vista.IntComprobanteRegAux = {
 	onButtonEdit:function(){
          this.swButton = 'EDIT';
          var rec = this.sm.getSelected().data;
+
+        this.cmpFecha.disable();
+
          Phx.vista.IntComprobanteRegAux.superclass.onButtonEdit.call(this); 
          this.Cmp.id_moneda.setReadOnly(true);
          if(rec.localidad == 'internacional'){
@@ -90,7 +93,12 @@ Phx.vista.IntComprobanteRegAux = {
           this.swButton = 'NEW';
           Phx.vista.IntComprobanteRegAux.superclass.onButtonNew.call(this); 
           this.Cmp.id_moneda.setReadOnly(false);
-          this.Cmp.fecha.setReadOnly(false);
+          //this.Cmp.fecha.setReadOnly(false);
+           this.cmpFecha.enable();
+           //this.cmpFecha.disable();
+           this.cmpFecha.setValue(new Date());
+           this.cmpFecha.fireEvent('change');
+
           this.mostrarComponente(this.Cmp.tipo_cambio);
           this.mostrarComponente(this.Cmp.tipo_cambio_2);
           this.mostrarComponente(this.Cmp.tipo_cambio_3);
