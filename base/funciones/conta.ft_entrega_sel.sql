@@ -187,7 +187,11 @@ BEGIN
                             ccom.id_clase_comprobante,
                             com.usr_reg as usr_reg_comprobante,
                             --tran.importe_haber
-                            sum (tran.importe_haber) as total_importe
+                            sum (tran.importe_haber) as total_importe,
+                            com.id_tipo_relacion_comprobante,
+                            com.desc_tipo_relacion_comprobante
+
+
 						from conta.vint_comprobante com
                         inner join conta.tclase_comprobante ccom on ccom.id_clase_comprobante = com.id_clase_comprobante
                         inner join conta.tint_transaccion tran on tran.id_int_comprobante = com.id_int_comprobante
@@ -218,14 +222,17 @@ BEGIN
                                             ccom.id_clase_comprobante,
                                             com.usr_reg,
                                             com.id_estado_wf,
-                                            com.id_proceso_wf
+                                            com.id_proceso_wf,
+                                            com.id_tipo_relacion_comprobante,
+                            				com.desc_tipo_relacion_comprobante
                                             '||' order by ' ||v_parametros.ordenacion|| ' ' ||
         v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad ||
         ' offset ' || v_parametros.puntero;
 
-       -- RAISE EXCEPTION 'el valor es: %',v_consulta ;
+
 
         RAISE NOTICE '%',v_consulta;
+        --RAISE EXCEPTION 'el valor es: %',v_consulta ;
         --Devuelve la respuesta
         return v_consulta;
 

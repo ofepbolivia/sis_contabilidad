@@ -343,7 +343,40 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: false,
                     bottom_filter: true
                 },
+                {
+                    config: {
+                        name: 'id_tipo_relacion_comprobante',
+                        fieldLabel: 'ID Tipo Rel.',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 200,
+                        maxLength: 100
 
+                    },
+                    type: 'TextField',
+                    filters: {pfiltro: 'com.id_tipo_relacion_comprobante', type: 'string'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false,
+                    bottom_filter: true
+                },
+                {
+                    config: {
+                        name: 'desc_tipo_relacion_comprobante',
+                        fieldLabel: 'Tipo Rel.',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 200,
+                        maxLength: 100
+
+                    },
+                    type: 'TextField',
+                    filters: {pfiltro: 'com.desc_tipo_relacion_comprobante', type: 'string'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false,
+                    bottom_filter: true
+                },
 
                 {
                     config: {
@@ -448,10 +481,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name: 'id_clase_comprobante', type: 'numeric'},
                 {name: 'usr_reg_comprobante', type: 'string'},
                 {name: 'total_importe', type: 'numeric'},
+                {name: 'id_tipo_relacion_comprobante', type: 'numeric'},
+                {name: 'desc_tipo_relacion_comprobante', type: 'string'},
 
             ],
             sortInfo: {
-                field: 'fecha',
+                //field: 'fecha',
+                field: 'id_int_comprobante',
                 direction: 'DESC'
             },
 

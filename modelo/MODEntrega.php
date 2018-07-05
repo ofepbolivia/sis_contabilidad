@@ -294,9 +294,8 @@ class MODEntrega extends MODbase{
         $this->captura('id_clase_comprobante','int4');
         $this->captura('usr_reg_comprobante','varchar');
         $this->captura('total_importe','numeric');
-
-
-
+        $this->captura('id_tipo_relacion_comprobante','int4');
+        $this->captura('desc_tipo_relacion_comprobante','varchar');
 
 
         //Ejecuta la instruccion

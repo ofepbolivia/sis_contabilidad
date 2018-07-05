@@ -99,7 +99,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     emptyText: 'Depto Contable',
                     store: new Ext.data.JsonStore({
                         //url : '../../sis_parametros/control/Depto/listarDeptoFiltradoDeptoUsuario',
-                        url : '../../sis_parametros/control/Depto/listarDepto',
+                        url: '../../sis_parametros/control/Depto/listarDepto',
                         id: 'id_depto_conta',
                         root: 'datos',
                         sortInfo: {
@@ -110,9 +110,10 @@ header("content-type: text/javascript; charset=UTF-8");
                         totalProperty: 'total',
                         fields: ['id_depto', 'nombre', 'codigo'],
                         remoteSort: true,
-                        baseParams: {par_filtro: 'deppto.nombre#deppto.codigo',
-                            estado : 'activo',
-                            codigo_subsistema : 'CONTA'
+                        baseParams: {
+                            par_filtro: 'deppto.nombre#deppto.codigo',
+                            estado: 'activo',
+                            codigo_subsistema: 'CONTA'
                         },
 
                     }),
@@ -158,7 +159,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     allowBlank: true,
                     emptyText: 'Tipo',
                     store: new Ext.data.JsonStore({
-                       url : '../../sis_contabilidad/control/ClaseComprobante/listarClaseComprobante',
+                        url: '../../sis_contabilidad/control/ClaseComprobante/listarClaseComprobante',
                         id: 'id_clase_comprobante',
                         root: 'datos',
                         sortInfo: {
@@ -169,8 +170,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         totalProperty: 'total',
                         fields: ['id_clase_comprobante', 'descripcion'],
                         remoteSort: true,
-                        baseParams: {par_filtro: 'ccom.descripcion',
-                            estado : 'activo',
+                        baseParams: {
+                            par_filtro: 'ccom.descripcion',
+                            estado: 'activo',
                             //codigo_subsistema : 'CONTA'
                         },
 
@@ -198,6 +200,24 @@ header("content-type: text/javascript; charset=UTF-8");
                 //form: true
             },
 
+            {
+                config: {
+                    name: 'desc_tipo_relacion_comprobante',
+                    fieldLabel: ' Sin: Ajuste del comprobante, Reversión del comprobante y Aplicación del anticipo ',
+                    renderer: function (value, p, record) {
+                        //return record.data['desc_tipo_relacion_comprobante'] == 'true' ? 'si' : 'no';
+                        //return record.data['desc_tipo_relacion_comprobante'] == 'Ajuste del comprobante';
+                        return record.data['desc_tipo_relacion_comprobante'] == 'Pago del devengado';
+
+                    },
+                    gwidth: 50,
+
+                },
+                type: 'Checkbox',
+                id_grupo: 0,
+                grid: true,
+                form: true
+            },
 
         ],
         labelSubmit: '<i class="fa fa-check"></i> Aplicar Filtro',
@@ -230,7 +250,7 @@ header("content-type: text/javascript; charset=UTF-8");
         iniciarEventos: function () {
 
 
-               },
+        },
 
 
     })
