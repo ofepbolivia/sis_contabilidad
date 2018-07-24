@@ -65,6 +65,15 @@ Phx.vista.Entrega=Ext.extend(Phx.gridInterfaz,{
 				tooltip : '<b>Imprimir Reporte de Entrega</b><br/>Imprime un detalle de las factidas presupeustarias relacioandas a la entrega'
 		});
 
+        this.addButton('btnObs', {
+            text: 'Obs Wf',
+            grupo: [0, 1, 2, 3],
+            iconCls: 'bchecklist',
+            disabled: true,
+            handler: this.onOpenObs,
+            tooltip: '<b>Observaciones</b><br/><b>Observaciones del WF</b>'
+        });
+
         this.init();
 
         this.bloquearOrdenamientoGrid();
@@ -498,6 +507,26 @@ Phx.vista.Entrega=Ext.extend(Phx.gridInterfaz,{
         resp.argument.wizard.panel.destroy()
         this.reload();
     },
+    onOpenObs: function () {
+        var rec = this.sm.getSelected();
+
+        var data = {
+            id_proceso_wf: rec.data.id_proceso_wf,
+            id_estado_wf: rec.data.id_estado_wf,
+            num_tramite: rec.data.num_tramite
+        }
+
+        Phx.CP.loadWindows('../../../sis_workflow/vista/obs/Obs.php',
+            'Observaciones del WF',
+            {
+                width: '80%',
+                height: '70%'
+            },
+            data,
+            this.idContenedor,
+            'Obs'
+        )
+    },
     
     preparaMenu : function(n) {
 			var tb = Phx.vista.Entrega.superclass.preparaMenu.call(this,n);
@@ -515,6 +544,7 @@ Phx.vista.Entrega=Ext.extend(Phx.gridInterfaz,{
             this.getBoton('diagrama_gantt').enable();
             this.getBoton('btnChequeoDocumentosWf').enable();
             this.getBoton('fin_entrega').enable();
+            this.getBoton('btnObs').enable();
             return tb;
 	},
 	liberaMenu : function() {
@@ -525,6 +555,7 @@ Phx.vista.Entrega=Ext.extend(Phx.gridInterfaz,{
             this.getBoton('btnChequeoDocumentosWf').disable();
             this.getBoton('ant_estado').disable();
             this.getBoton('diagrama_gantt').disable();
+            this.getBoton('btnObs').disable();
 
 			
 	},  
