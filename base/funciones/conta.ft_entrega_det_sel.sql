@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.ft_entrega_det_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -14,13 +12,13 @@ $body$
  DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'conta.tentrega_det'
  AUTOR: 		 (admin)
  FECHA:	        17-11-2016 19:50:46
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION:
+ AUTOR:
+ FECHA:
 ***************************************************************************/
 
 DECLARE
@@ -29,22 +27,23 @@ DECLARE
 	v_parametros  		record;
 	v_nombre_funcion   	text;
 	v_resp				varchar;
-			    
+
 BEGIN
 
 	v_nombre_funcion = 'conta.ft_entrega_det_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'CONTA_END_SEL'
  	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		17-11-2016 19:50:46
 	***********************************/
 
 	if(p_transaccion='CONTA_END_SEL')then
-     				
+
     	begin
+
     		--Sentencia de la consulta
 			v_consulta:='select
                                   ende.id_entrega_det,
@@ -63,26 +62,31 @@ BEGIN
                                   cbte.nro_tramite::varchar,
                                   cbte.beneficiario::varchar,
                                   cbte.desc_clase_comprobante::varchar,
-                                  cbte.glosa1::varchar
+                                  cbte.glosa1::varchar,
+                                  cbte.desc_moneda::varchar,
+                                  (to_char(pp.monto,''999G999G999G999D99''))::varchar as monto
+
                               from conta.tentrega_det ende
                               inner join conta.vint_comprobante cbte on cbte.id_int_comprobante = ende.id_int_comprobante
                               inner join segu.tusuario usu1 on usu1.id_usuario = ende.id_usuario_reg
                               left join segu.tusuario usu2 on usu2.id_usuario = ende.id_usuario_mod
+                              inner join tes.tplan_pago pp on pp.id_int_comprobante = cbte.id_int_comprobante
+
 				        where  ';
-			
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
             RAISE NOTICE '%',v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'CONTA_END_CONT'
  	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		17-11-2016 19:50:46
 	***********************************/
 
@@ -96,23 +100,23 @@ BEGIN
                               inner join segu.tusuario usu1 on usu1.id_usuario = ende.id_usuario_reg
                               left join segu.tusuario usu2 on usu2.id_usuario = ende.id_usuario_mod
 				        where ';
-			
-			--Definicion de la respuesta		    
+
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
 			return v_consulta;
 
 		end;
-					
+
 	else
-					     
+
 		raise exception 'Transaccion inexistente';
-					         
+
 	end if;
-					
+
 EXCEPTION
-					
+
 	WHEN OTHERS THEN
 			v_resp='';
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);

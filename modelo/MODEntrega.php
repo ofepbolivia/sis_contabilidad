@@ -38,6 +38,8 @@ class MODEntrega extends MODbase{
 		$this->captura('id_estado_wf','int4');
         $this->captura('id_proceso_wf','int4');
         $this->captura('nro_tramite','varchar');
+        $this->captura('desc_moneda','varchar');
+        $this->captura('monto','varchar');
 
 
 
@@ -196,7 +198,9 @@ class MODEntrega extends MODbase{
         $this->captura('glosa1','varchar');
         $this->captura('id_int_comprobante','int4');
         $this->captura('id_int_comprobante_dev','int4');
-		
+        $this->captura('moneda','varchar');
+
+
 		
 		
 		  

@@ -214,6 +214,30 @@ Phx.vista.Entrega=Ext.extend(Phx.gridInterfaz,{
 				form:true,
                 bottom_filter:true
 		},
+        {
+            config:{
+                name: 'desc_moneda',
+                fieldLabel: 'Moneda',
+                gwidth: 70
+            },
+            type:'Field',
+            filters:{pfiltro:'com.desc_moneda',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+        {
+            config:{
+                name: 'monto',
+                fieldLabel: 'Monto',
+                gwidth: 70
+            },
+            type:'Field',
+            filters:{pfiltro:'ven.importe_gasto_mb',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
 		{
 			config:{
 				name: 'estado_reg',
@@ -345,7 +369,8 @@ Phx.vista.Entrega=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_mod', type: 'string'},'id_depto_conta',
         {name:'id_estado_wf', type: 'numeric'},
         {name:'id_proceso_wf', type: 'numeric'},
-        {name:'nro_tramite', type: 'string'}
+        {name:'nro_tramite', type: 'string'},
+        'desc_moneda', 'monto'
 
 
 		
