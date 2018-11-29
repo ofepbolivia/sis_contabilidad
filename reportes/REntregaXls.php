@@ -349,7 +349,7 @@ class REntregaXls
             $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(2,$fila,$value['codigo'].'-'.$value['nombre_partida']);
             $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$fila,$importe_neto);
             $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$fila,$importe);
-            $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5,$fila,$value['moneda']);
+            $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5,$fila,'Bolivianos');
             $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$fila,$value['id_int_comprobante_dev']);
             $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,$fila,$value['glosa1']);
             $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(8,$fila,$value['beneficiario']);

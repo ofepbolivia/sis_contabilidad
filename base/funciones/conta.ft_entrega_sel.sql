@@ -99,8 +99,8 @@ BEGIN
                             usu1.cuenta as usr_reg,
                             usu2.cuenta as usr_mod,
                             ent.id_depto_conta,
-                            ent.id_estado_wf,
                             ent.id_proceso_wf,
+                            ent.id_estado_wf,
 							com.nro_tramite::varchar,
                             com.desc_moneda::varchar,
                             (to_char((select sum(pp.monto)
@@ -320,12 +320,9 @@ BEGIN
                             e.beneficiario::varchar,
                             e.glosa1::varchar,
                             e.id_int_comprobante,
-                            e.id_int_comprobante_dev,
-                            mon.moneda::varchar
+                            e.id_int_comprobante_dev
                           FROM
                             conta.ventrega   e
-                            join conta.tint_comprobante incbte on incbte.id_int_comprobante = e.id_int_comprobante
-                            JOIN param.tmoneda mon ON mon.id_moneda = incbte.id_moneda
                           WHERE id_entrega = '||v_parametros.id_entrega||'
 						  ORDER by e.codigo_cg , e.codigo_categoria , e.codigo';
 
