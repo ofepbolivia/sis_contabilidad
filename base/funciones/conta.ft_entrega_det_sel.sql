@@ -70,7 +70,8 @@ BEGIN
                               inner join conta.vint_comprobante cbte on cbte.id_int_comprobante = ende.id_int_comprobante
                               inner join segu.tusuario usu1 on usu1.id_usuario = ende.id_usuario_reg
                               left join segu.tusuario usu2 on usu2.id_usuario = ende.id_usuario_mod
-                              inner join tes.tplan_pago pp on pp.id_int_comprobante = cbte.id_int_comprobante
+                              left join tes.tplan_pago pp on pp.id_int_comprobante = cbte.id_int_comprobante
+
 
 				        where  ';
 
