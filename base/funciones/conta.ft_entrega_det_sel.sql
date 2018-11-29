@@ -64,7 +64,7 @@ BEGIN
                                   cbte.desc_clase_comprobante::varchar,
                                   cbte.glosa1::varchar,
                                   cbte.desc_moneda::varchar,
-                                  (to_char(pp.monto,''999G999G999G999D99''))::varchar as monto
+                                  pp.monto
 
                               from conta.tentrega_det ende
                               inner join conta.vint_comprobante cbte on cbte.id_int_comprobante = ende.id_int_comprobante

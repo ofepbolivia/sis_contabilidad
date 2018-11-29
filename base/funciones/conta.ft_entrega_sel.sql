@@ -99,14 +99,14 @@ BEGIN
                             usu1.cuenta as usr_reg,
                             usu2.cuenta as usr_mod,
                             ent.id_depto_conta,
-                            ent.id_proceso_wf,
                             ent.id_estado_wf,
-							com.nro_tramite::varchar,
+                            ent.id_proceso_wf,
+                            com.nro_tramite::varchar,
                             com.desc_moneda::varchar,
-                            (to_char((select sum(pp.monto)
+                            (select sum(pp.monto)
                              from conta.tentrega_det ende
                              inner join tes.tplan_pago pp on pp.id_int_comprobante = ende.id_int_comprobante
-                             where ende.id_entrega = ent.id_entrega) ,''999G999G999G999D99''))::varchar as monto
+                             where ende.id_entrega = ent.id_entrega) as monto
 
 						from conta.tentrega ent
 						inner join segu.tusuario usu1 on usu1.id_usuario = ent.id_usuario_reg

@@ -230,10 +230,13 @@ Phx.vista.Entrega=Ext.extend(Phx.gridInterfaz,{
             config:{
                 name: 'monto',
                 fieldLabel: 'Monto',
-                gwidth: 70
+                gwidth: 70,
+                renderer:function (value,p,record){
+                    return  String.format(Ext.util.Format.number(value,'0.000,00/i'));
+                }
             },
             type:'Field',
-            filters:{pfiltro:'ven.importe_gasto_mb',type:'string'},
+            filters:{pfiltro:'pp.monto',type:'numeric'},
             id_grupo:1,
             grid:true,
             form:false

@@ -108,6 +108,8 @@ class REntregaXls
         $inicio_filas = 7;
         $this->docexcel->getActiveSheet()->getStyle('A7:I7')->applyFromArray($styleTitulos);
 
+        $this->docexcel->getActiveSheet()->getStyle('D:E')->getNumberFormat()->setFormatCode('#,##0.00');
+
         //*************************************Cabecera*****************************************
         $this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[0])->setWidth(20);
         $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0,$inicio_filas,'Clase de Gasto');
@@ -341,7 +343,6 @@ class REntregaXls
 
             $sumatoria_cg = $sumatoria_cg + $importe;
             $sumatoria_neto_cg = $sumatoria_neto_cg + $importe_neto;
-
 
 
             $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0,$fila,$value['codigo_cg'].'-'.$value['nombre_cg']);
