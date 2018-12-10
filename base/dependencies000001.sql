@@ -4353,3 +4353,44 @@ WHERE date_part('month'::text, cv.fecha) <> p.periodo::double precision;
 
 
 /**********************************F-DEP-FEA-CONTA-0-07/11/2018****************************************/
+
+/**********************************I-DEP-MAY-CONTA-0-07/12/2018****************************************/
+CREATE OR REPLACE VIEW conta.vconso_fondos_no_fin (
+    nro_tramite,
+    beneficiario,
+    nro_cheque,
+    codigo_categoria,
+    partida,
+    importe,
+    fecha)
+AS
+ SELECT cd.nro_tramite,
+    com.beneficiario,
+    intc.nro_cheque,
+    cp.codigo_categoria,
+    (( SELECT (par.codigo::text || ' - '::text) || par.nombre_partida::text
+           FROM conta.f_get_config_relacion_contable('CUECOMP'::character varying, cc.id_gestion, cig.id_concepto_ingas, cc.id_centro_costo, (('No se encontro relación
+                                   contable para el conceto de gasto: '::text || cig.desc_ingas::text) || ' . < br
+                                   > Mensaje: '::text)::character varying) rel(ps_id_cuenta, ps_id_auxiliar, ps_id_partida, ps_id_centro_costo, ps_nombre_tipo_relacion)
+             JOIN pre.tpartida par ON par.id_partida = rel.ps_id_partida))::character varying AS partida,
+    sum(dc.precio_total_final) AS importe,
+    intc.fecha
+   FROM conta.tentrega ent
+     JOIN conta.tentrega_det det ON det.id_entrega = ent.id_entrega
+     JOIN conta.vint_comprobante com ON com.id_int_comprobante = det.id_int_comprobante
+     JOIN conta.tint_comprobante intc ON intc.id_int_comprobante = det.id_int_comprobante
+     JOIN cd.tcuenta_doc cd ON cd.nro_tramite::text = com.nro_tramite::text AND cd.estado::text = 'finalizado'::text
+     JOIN cd.trendicion_det rd ON rd.id_cuenta_doc = cd.id_cuenta_doc
+     JOIN conta.tdoc_compra_venta dcv ON dcv.id_doc_compra_venta = rd.id_doc_compra_venta
+     JOIN conta.tdoc_concepto dc ON dc.id_doc_compra_venta = dcv.id_doc_compra_venta
+     JOIN pre.vpresupuesto_cc cc ON cc.id_centro_costo = dc.id_centro_costo
+     JOIN pre.vcategoria_programatica cp ON cp.id_categoria_programatica = cc.id_categoria_prog
+     JOIN param.tconcepto_ingas cig ON cig.id_concepto_ingas = dc.id_concepto_ingas
+  WHERE com.desc_subsistema::text = 'Fondos en Avance'::text AND ent.estado::text = 'borrador'::text
+  GROUP BY cd.nro_tramite, com.beneficiario, intc.nro_cheque, cp.codigo_categoria, ((( SELECT (par.codigo::text || ' - '::text) || par.nombre_partida::text
+           FROM conta.f_get_config_relacion_contable('CUECOMP'::character varying, cc.id_gestion, cig.id_concepto_ingas, cc.id_centro_costo, (('No se encontro relación
+                                   contable para el conceto de gasto: '::text || cig.desc_ingas::text) || ' . < br
+                                   > Mensaje: '::text)::character varying) rel(ps_id_cuenta, ps_id_auxiliar, ps_id_partida, ps_id_centro_costo, ps_nombre_tipo_relacion)
+             JOIN pre.tpartida par ON par.id_partida = rel.ps_id_partida))::character varying), intc.fecha
+  ORDER BY cd.nro_tramite, cp.codigo_categoria;
+/**********************************F-DEP-MAY-CONTA-0-07/12/2018****************************************/
