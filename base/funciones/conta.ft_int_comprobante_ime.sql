@@ -92,8 +92,7 @@ DECLARE
     v_id_gestion_cos				integer;
     v_id_gestion_cbte				integer;
     v_anio_gestion			 	    integer;
-     v_id_gestion_cosfin			integer;
-
+ 	v_id_gestion_cosfin				integer;
 
 
 
@@ -573,12 +572,13 @@ BEGIN
                raise exception 'LA FECHA FINAL NO PUEDE SER MENOR A LA FECHA INICIAL';
             END IF;
 
-		 /*--validador de gestion
+		/*	--validador de gestion
 			v_anio_gestion = ( select date_part('year',now()))::INTEGER;
-            IF NOT ((date_part('year',v_parametros.fecha_costo_ini) = v_anio_gestion) and (date_part('year',v_parametros.fecha_costo_fin)=v_anio_gestion)) THEN
-              raise exception 'LAS FECHAS NO CORRESPONDEN A LA GESTION ACTUAL DEL CBTE';
+
+			IF NOT ((date_part('year',v_parametros.fecha_costo_ini) = v_anio_gestion) and (date_part('year',v_parametros.fecha_costo_fin)=v_anio_gestion)) THEN
+               raise exception 'LAS FECHAS NO CORRESPONDEN A LA GESTION ACTUAL';
             END IF;
-          */
+           */
 
 
             -------------------------------------------------
@@ -602,7 +602,7 @@ BEGIN
             from param.tperiodo per
             where  v_parametros.fecha_costo_ini BETWEEN per.fecha_ini and per.fecha_fin;
 
-            select
+			select
               per.id_gestion
             into
               v_id_gestion_cosfin
@@ -610,17 +610,16 @@ BEGIN
             where  v_parametros.fecha_costo_fin BETWEEN per.fecha_ini and per.fecha_fin;
 
          /*   IF v_id_gestion_cos is not null THEN
-               IF v_id_gestion_cos  <  v_id_gestion_cbte THEN
-                 raise exception 'LAS FECHAS DEL COSTO MIN DEBE SER LA MISMA GESTION DEL CBTE';
+               IF v_id_gestion_cos  <  v_id_gestion_cbte  THEN
+                 raise exception 'La fecha del costo inicial debe ser de la misma gestión que el Cbte ';
                END IF;
             END IF;
-          */
-          IF v_id_gestion_cos is not null THEN
+        */
+        IF v_id_gestion_cos is not null THEN
                IF (v_id_gestion_cos  <  v_id_gestion_cbte) OR (v_id_gestion_cosfin  >  v_id_gestion_cbte) THEN
                  raise exception 'LAS FECHAS NO CORRESPONDEN A LA GESTION DEL CBTE';
                END IF;
             END IF;
-
 
 			------------------------------
 			--Sentencia de la modificacion
@@ -1993,13 +1992,11 @@ BEGIN
              IF v_parametros.fecha_costo_fin <  v_parametros.fecha_costo_ini THEN
                raise exception 'LA FECHA FINAL NO PUEDE SER MENOR A LA FECHA INICIAL';
              END IF;
-         --validador de gestion
+             --validador de gestion
 			v_anio_gestion = ( select date_part('year',now()))::INTEGER;
-            IF NOT ((date_part('year',v_parametros.fecha_costo_ini) = v_anio_gestion) and (date_part('year',v_parametros.fecha_costo_fin)=v_anio_gestion)) THEN
+		    IF NOT ((date_part('year',v_parametros.fecha_costo_ini) = v_anio_gestion) and (date_part('year',v_parametros.fecha_costo_fin)=v_anio_gestion)) THEN
                raise exception 'LAS FECHAS NO CORRESPONDEN A LA GESTION ACTUAL';
             END IF;
-
-
 
 			------------------------------
 			--Sentencia de la modificacion
@@ -2008,10 +2005,9 @@ BEGIN
 			update conta.tint_comprobante set
                 fecha_costo_ini = v_parametros.fecha_costo_ini,
                 fecha_costo_fin = v_parametros.fecha_costo_fin
-
 			where id_int_comprobante = v_parametros.id_int_comprobante;
 
-        update tes.tplan_pago set
+			update tes.tplan_pago set
                 fecha_costo_ini = v_parametros.fecha_costo_ini,
                 fecha_costo_fin = v_parametros.fecha_costo_fin
 

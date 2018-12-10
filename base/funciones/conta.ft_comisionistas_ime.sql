@@ -841,7 +841,7 @@ END IF;
      end if;
 
  ---   raise exception '%',v_parametros.id_agencia;
-     FOR v_reccord IN (select
+     FOR v_reccord IN (/*select
      a.id_agencia,
             a.nombre,
             a.nit,
@@ -861,10 +861,41 @@ END IF;
       inner join obingresos.tboleto_2018 bo on bo.id_agencia = a.id_agencia
       where a.boaagt = 'A' and a.tipo_agencia = 'noiata' and (-1* bo.comision) <> 0 and bo.estado_reg = 'activo'
       and  EXTRACT(MONTH FROM bo.fecha_emision) = v_periodo  and a.id_agencia = v_parametros.id_agencia
-      order by a.nombre )LOOP
+      order by a.nombre*/
 
-
-
+      select  a.id_agencia,
+            a.nombre,
+            a.nit,
+            (select  RIGHT(c.numero,19)
+            from leg.tcontrato c
+            where c.id_agencia = a.id_agencia and c.fecha_fin = (select max(d.fecha_fin)
+			from leg.tcontrato d
+			where d.id_agencia = a.id_agencia)) as nro_contrato,
+            '' as codigo,
+            'Venta de Servicio de Transporte Aereo' as descripcion,
+            1 cantidad,
+            (case when  bo.id_moneda_boleto = 1 then
+             bo.neto
+            else
+              param.f_convertir_moneda(2,1,bo.neto,now()::date,'O',2)
+           end) as neto,
+            (case when bo.id_moneda_boleto = 1 then
+             bo.total
+           else
+              param.f_convertir_moneda(2,1,bo.total,now()::date,'O',2)
+          end) as total,
+          (case when  bo.id_moneda_boleto = 1 then
+             (-1 * bo.comision)
+           else
+              param.f_convertir_moneda(2,1,(-1 * bo.comision),now()::date,'O',2)
+          end)as total_comision,
+			bo.nro_boleto
+      from obingresos.tagencia a
+      inner join obingresos.tboleto_2018 bo on bo.id_agencia = a.id_agencia
+      where a.boaagt = 'A' and a.tipo_agencia = 'noiata' and bo.estado_reg = 'activo'
+      and  EXTRACT(MONTH FROM bo.fecha_emision) = v_periodo and (-1 * bo.comision) <> 0
+      and a.id_agencia = v_parametros.id_agencia
+      order by nro_boleto )LOOP
 
 
 	insert into conta.tcomisionistas(
