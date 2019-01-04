@@ -304,7 +304,7 @@ BEGIN
             into v_anio_com
             from conta.tint_comprobante com
             where com.id_int_comprobante = v_id_int_comprobante;
-           raise exception '%, %, %',v_parametros.fecha, v_parametros.fecha_costo_ini, v_parametros.fecha_costo_fin;
+           --raise exception '%, %, %',v_parametros.fecha, v_parametros.fecha_costo_ini, v_parametros.fecha_costo_fin;
 
             IF NOT ((date_part('year',v_parametros.fecha_costo_ini) = v_anio_com) and (date_part('year',v_parametros.fecha_costo_fin)=v_anio_com)) THEN
                raise exception 'LAS FECHAS NO CORRESPONDEN A LA GESTIÓN, TIENE COMO FECHA %',v_parametros.fecha;
@@ -2015,7 +2015,7 @@ BEGIN
             into v_anio_com
             from conta.tint_comprobante com
             where com.id_int_comprobante = v_id_int_comprobante;
-           raise exception '%, %, %',v_parametros.fecha, v_parametros.fecha_costo_ini, v_parametros.fecha_costo_fin;
+           --raise exception '%, %, %',v_parametros.fecha, v_parametros.fecha_costo_ini, v_parametros.fecha_costo_fin;
 
             IF NOT ((date_part('year',v_parametros.fecha_costo_ini) = v_anio_com) and (date_part('year',v_parametros.fecha_costo_fin)=v_anio_com)) THEN
                raise exception 'LAS FECHAS NO CORRESPONDEN A LA GESTIÓN, TIENE COMO FECHA %',v_parametros.fecha;
