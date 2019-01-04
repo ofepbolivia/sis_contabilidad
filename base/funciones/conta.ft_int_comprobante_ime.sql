@@ -94,7 +94,7 @@ DECLARE
     v_anio_gestion			 	    integer;
  	v_id_gestion_cosfin				integer;
 
-
+    v_anio_com						integer;
 
 
 BEGIN
@@ -291,11 +291,23 @@ BEGIN
                raise exception 'LA FECHA FINAL NO PUEDE SER MENOR A LA FECHA INICIAL';
             END IF;
 
-           --validador de gestion
+           /*--validador de gestion
 			v_anio_gestion = ( select date_part('year',now()))::INTEGER;
 
 			IF NOT ((date_part('year',v_parametros.fecha_costo_ini) = v_anio_gestion) and (date_part('year',v_parametros.fecha_costo_fin)=v_anio_gestion)) THEN
                raise exception 'LAS FECHAS NO CORRESPONDEN A LA GESTION ACTUAL';
+            END IF;
+			*/
+
+             --control de fechas inicio y fin
+            select date_part('year',com.fecha)
+            into v_anio_com
+            from conta.tint_comprobante com
+            where com.id_int_comprobante = v_id_int_comprobante;
+           raise exception '%, %, %',v_parametros.fecha, v_parametros.fecha_costo_ini, v_parametros.fecha_costo_fin;
+
+            IF NOT ((date_part('year',v_parametros.fecha_costo_ini) = v_anio_com) and (date_part('year',v_parametros.fecha_costo_fin)=v_anio_com)) THEN
+               raise exception 'LAS FECHAS NO CORRESPONDEN A LA GESTIÓN, TIENE COMO FECHA %',v_parametros.fecha;
             END IF;
 
             select
@@ -1992,12 +2004,22 @@ BEGIN
              IF v_parametros.fecha_costo_fin <  v_parametros.fecha_costo_ini THEN
                raise exception 'LA FECHA FINAL NO PUEDE SER MENOR A LA FECHA INICIAL';
              END IF;
-             --validador de gestion
+            /* --validador de gestion
 			v_anio_gestion = ( select date_part('year',now()))::INTEGER;
 		    IF NOT ((date_part('year',v_parametros.fecha_costo_ini) = v_anio_gestion) and (date_part('year',v_parametros.fecha_costo_fin)=v_anio_gestion)) THEN
                raise exception 'LAS FECHAS NO CORRESPONDEN A LA GESTION ACTUAL';
             END IF;
+			*/
+              --control de fechas inicio y fin
+            select date_part('year',com.fecha)
+            into v_anio_com
+            from conta.tint_comprobante com
+            where com.id_int_comprobante = v_id_int_comprobante;
+           raise exception '%, %, %',v_parametros.fecha, v_parametros.fecha_costo_ini, v_parametros.fecha_costo_fin;
 
+            IF NOT ((date_part('year',v_parametros.fecha_costo_ini) = v_anio_com) and (date_part('year',v_parametros.fecha_costo_fin)=v_anio_com)) THEN
+               raise exception 'LAS FECHAS NO CORRESPONDEN A LA GESTIÓN, TIENE COMO FECHA %',v_parametros.fecha;
+            END IF;
 			------------------------------
 			--Sentencia de la modificacion
 			------------------------------
