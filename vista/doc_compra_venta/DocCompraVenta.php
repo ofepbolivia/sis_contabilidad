@@ -976,6 +976,23 @@ header("content-type: text/javascript; charset=UTF-8");
 					grid:false,
 					form:false
 				},
+                {
+                    config:{
+                        name: 'codigo_int',
+                        fieldLabel: 'OficceId',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength :16,
+                        minLength:16
+                    },
+                    type:'TextField',
+                    filters:{pfiltro:'age.codigo_int',type:'string'},
+                    id_grupo:0,
+                    bottom_filter: true,
+                    grid:true,
+                    form:false
+                },
 				{
 					config:{
 						name: 'estado_reg',
@@ -1084,6 +1101,7 @@ header("content-type: text/javascript; charset=UTF-8");
 					form:false
 				}
 			],
+
 
 				//Esta funcion se sobre carga para la version de BOA
 				this.modificarAtributos();
@@ -1365,12 +1383,13 @@ header("content-type: text/javascript; charset=UTF-8");
 			'importe_pago_liquido','nro_dui','id_moneda','desc_moneda',
 			'desc_tipo_doc_compra_venta','id_tipo_doc_compra_venta','nro_tramite',
 			'desc_comprobante','id_int_comprobante','id_auxiliar','codigo_auxiliar','nombre_auxiliar','tipo_reg',
-			'estacion', 'id_punto_venta', 'nombre', 'id_agencia', 'codigo_noiata','c31'
+			'estacion', 'id_punto_venta', 'nombre', 'id_agencia', 'codigo_noiata','codigo_int','c31'
 		],
 		sortInfo:{
 			field: 'id_doc_compra_venta',
 			direction: 'ASC'
 		},
+        arrayDefaultColumHidden:['codigo_noiata'],
 		bdel: true,
 		bsave: true,
 
