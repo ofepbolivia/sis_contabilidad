@@ -955,8 +955,10 @@ header("content-type: text/javascript; charset=UTF-8");
 						minLength:16
 					},
 					type:'TextField',
-					filters:{pfiltro:'pv.nombre',type:'string'},
+					// filters:{pfiltro:'pv.nombre',type:'string'},
+					filters:{pfiltro:'ob.nombre',type:'string'},
 					id_grupo:0,
+                    bottom_filter: true,
 					grid:false,
 					form:false
 				},
@@ -987,7 +989,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         minLength:16
                     },
                     type:'TextField',
-                    filters:{pfiltro:'age.codigo_int',type:'string'},
+                    filters:{pfiltro:'ob.codigo_int',type:'string'},
                     id_grupo:0,
                     bottom_filter: true,
                     grid:true,
