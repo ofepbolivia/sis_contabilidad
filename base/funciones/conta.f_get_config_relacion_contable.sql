@@ -135,7 +135,7 @@ BEGIN
 
 
      IF p_id_centro_costo is NULL  and v_registros.tiene_centro_costo != 'si-unico' and  v_registros.tiene_centro_costo != 'no'THEN
-         raise exception 'El tipooo de relacion relacion contable indica que necesita  centro de costo: % (%)',v_registros.nombre_tipo_relacion,p_codigo;
+         raise exception 'El tipo de relación contable indica que necesita Centro de Costo: % (%)',v_registros.nombre_tipo_relacion,p_codigo;
      END IF;
 
    --(f.e.a)Obtenemos el codigo del centro de costo.
@@ -156,7 +156,7 @@ BEGIN
        --  si no necesita, obtiene el valor para la gestion indica
 
                IF v_registros.tiene_aplicacion = 'si' THEN
-                  raise exception 'la relaciones contables generales no aceptan aplicacion (%)',p_codigo;
+                  raise exception 'Las relaciones contables generales no aceptan aplicacion (%)',p_codigo;
                END IF;
 
                IF   v_registros.tiene_centro_costo = 'no' THEN
@@ -433,7 +433,7 @@ BEGIN
 
          --si necesita tabla de configuracion el parametros p_tabla y p_id_tabla no pueden ser nulos
           IF p_id_tabla is NULL THEN
-            raise exception 'Para este tipo de relacion contable (%) se necesita indicar la tabla y el id para busquedas',p_codigo;
+            raise exception 'Para este tipo de relación contable (%) se necesita indicar la tabla y el id para búsquedas',p_codigo;
           END IF;
 
 
@@ -643,7 +643,7 @@ BEGIN
                               where id_gestion = p_id_gestion;
                               --raise exception '% (% - %) No se encuentra Cuenta para la Gestión % (tiene_centro_costo = %) - Centro de costo: %',COALESCE(p_mensaje_error,''), p_codigo,v_registros.nombre_tipo_relacion,v_gestion,v_registros.tiene_centro_costo,COALESCE(p_id_centro_costo,'0');
                         	  --(f.e.a)
-                              raise exception '% no se encuentra parametrizado para el Centro de Costo: <b>%</b>, para la Gestión (<b>%</b>). <br>Estimado Usuario: Favor de contactactarse con la Unidad de Costos.',COALESCE(p_mensaje_error,''), COALESCE(v_codigos.codigo,'0'), v_gestion;
+                              raise exception '% no se encuentra parametrizado para el Centro de Costo: <b>%</b>, para la Gestión (<b>%</b>). <br>Estimado Usuario: Favor de contactactarse con la Unidad de Presupuestos.',COALESCE(p_mensaje_error,''), COALESCE(v_codigos.codigo,'0'), v_gestion;
                         end if;
 
                  ELSE
@@ -656,7 +656,7 @@ BEGIN
 
                            --raise exception '% (% - %) No se encuentra Centro de costo para  la Gestión % (tiene_centro_costo = %) - Centro de costo: %',COALESCE(p_mensaje_error,''),p_codigo,v_registros.nombre_tipo_relacion,v_gestion,v_registros.tiene_centro_costo,COALESCE(p_id_centro_costo,'0');
                            ----(f.e.a)
-                           raise exception '% no se encuentra parametrizado para el Centro de Costo: <b>%</b>, para la Gestión (<b>%</b>). <br>Estimado Usuario: Favor de contactactarse con la Unidad de Costos.',COALESCE(p_mensaje_error,''), COALESCE(v_codigos.codigo,'0'), v_gestion;
+                           raise exception '% no se encuentra parametrizado para el Centro de Costo: <b>%</b>, para la Gestión (<b>%</b>). <br>Estimado Usuario: Favor de contactactarse con la Unidad de Presupuestos.',COALESCE(p_mensaje_error,''), COALESCE(v_codigos.codigo,'0'), v_gestion;
                         end if;
 
                  END IF;
@@ -691,7 +691,7 @@ BEGIN
                                                      where   tt.'||v_rec.tabla_id||' = '||p_id_tabla::varchar;
                           ELSE
 
-                              raise exception 'Falta parametros para la configuracion de auxiliar dinamico de la tabla %',v_rec.tabla;
+                              raise exception 'Falta parámetros para la configuración de auxiliar dinámico de la tabla %',v_rec.tabla;
 
                           END IF;
 
@@ -706,7 +706,7 @@ BEGIN
 
 
                        IF v_rec_rel.id_auxiliar is NULL THEN
-                           raise exception '%  La relacion (%) no tiene configurado un  auxiliar',COALESCE(p_mensaje_error,''),v_rec.tabla;
+                           raise exception '%  La relación (%) no tiene configurado un  auxiliar',COALESCE(p_mensaje_error,''),v_rec.tabla;
                        END IF;
 
 
