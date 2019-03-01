@@ -196,6 +196,7 @@ class MODDocCompraVenta extends MODbase{
 		$this->captura('nombre','varchar');
 		$this->captura('id_agencia','integer');
 		$this->captura('codigo_noiata','varchar');
+		$this->captura('codigo_int','varchar');
         $this->captura('c31','varchar');
 
 		//Ejecuta la instruccion

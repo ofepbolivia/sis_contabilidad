@@ -242,6 +242,7 @@ BEGIN
                             (ob.nombre ||'' - ''|| upper(ob.tipo_agencia))::Varchar as nombre,
                             dcv.id_agencia,
                             ob.codigo_noiata,
+                            ob.codigo_int,
                             ic.c31
 
 						from conta.tdoc_compra_venta dcv

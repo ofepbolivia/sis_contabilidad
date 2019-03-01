@@ -159,6 +159,33 @@ Phx.vista.EntregaDet=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:false
 		},
+        {
+            config:{
+                name: 'desc_moneda',
+                fieldLabel: 'Moneda',
+                gwidth: 70
+            },
+            type:'Field',
+            filters:{pfiltro:'cbte.desc_moneda',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
+        {
+            config:{
+                name: 'monto',
+                fieldLabel: 'Monto',
+                gwidth: 70,
+                renderer:function (value,p,record){
+                    return  String.format(Ext.util.Format.number(value,'0.000,00/i'));
+                }
+            },
+            type:'Field',
+            filters:{pfiltro:'pp.monto',type:'numeric'},
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
 		
 		
 		{
@@ -290,7 +317,7 @@ Phx.vista.EntregaDet=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
-		'nro_cbte','nro_tramite', 'beneficiario','desc_clase_comprobante','glosa1'
+		'nro_cbte','nro_tramite', 'beneficiario','desc_clase_comprobante','glosa1', 'desc_moneda', 'monto'
 		
 	],
 	sortInfo:{

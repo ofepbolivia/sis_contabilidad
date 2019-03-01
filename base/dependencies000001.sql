@@ -4189,3 +4189,208 @@ select pxp.f_insert_testructura_gui ('DETCOM', 'REPCON');
 /**********************************I-DEP-MAY-CONTA-0-05/06/2018****************************************/
 select pxp.f_insert_testructura_gui ('ESCUDE', 'CBTE.1.3');
 /**********************************F-DEP-MAY-CONTA-0-05/06/2018****************************************/
+
+
+/**********************************I-DEP-FEA-CONTA-0-07/11/2018****************************************/
+CREATE OR REPLACE VIEW conta.proveedores_correos (
+    rotulo_comercial,
+    email1,
+    email2)
+AS
+ SELECT prove.rotulo_comercial,
+    ins.email1,
+    ins.email2
+   FROM param.tproveedor prove
+     JOIN param.tinstitucion ins ON ins.id_institucion = prove.id_institucion
+  WHERE ins.email1 IS NOT NULL AND ins.email1::text <> ''::text OR ins.email2 IS NOT NULL AND ins.email2::text <> ''::text
+UNION ALL
+ SELECT prove.rotulo_comercial,
+    per.correo AS email1,
+    per.correo2 AS email2
+   FROM param.tproveedor prove
+     JOIN segu.tpersona per ON per.id_persona = prove.id_persona
+  WHERE per.correo IS NOT NULL AND per.correo::text <> ''::text OR per.correo2 IS NOT NULL AND per.correo2::text <> ''::text;
+
+
+CREATE OR REPLACE VIEW conta.vairbp_bancarizacion (
+    modalidad_de_transaccion,
+    fecha_documento,
+    tipo_de_transaccion,
+    nit,
+    razon_social,
+    nro_documento,
+    contrato,
+    monto_fac,
+    monto_factura,
+    nro_autorizacion,
+    numero_de_cuenta,
+    monto_pagado,
+    monto_acumulado,
+    usar,
+    nit_entidad,
+    tipo_de_documento,
+    monto_cuota,
+    nro_cuota)
+AS
+ WITH documento AS (
+         SELECT d.id_factura_detalle,
+            d.id_documento,
+            d.fecha_documento,
+            d.nro_autorizacion,
+            d.nro_documento,
+            d.nro_nit,
+            d.importe_total,
+            d.razon_social
+           FROM dblink('dbname=dbendesis host=192.168.100.30 user=ende_pxp password=ende_pxp'::text, 'select facdet.id_factura_detalle,
+								documento.id_documento,
+								documento.fecha_documento,
+								documento.nro_autorizacion,
+								documento.nro_documento,
+								documento.nro_nit,
+								docval.importe_total,
+								documento.razon_social
+				from sci.tct_factura_detalle facdet
+				INNER JOIN sci.tct_documento documento on documento.id_documento = facdet.id_documento
+					INNER JOIN sci.tct_documento_valor docval on docval.id_documento = documento.id_documento
+
+					and docval.id_moneda = 1
+
+
+           '::text) d(id_factura_detalle integer, id_documento integer, fecha_documento date, nro_autorizacion character varying(20), nro_documento bigint, nro_nit character varying(30), importe_total numeric(10,2), razon_social character varying(255))
+        )
+ SELECT 1 AS modalidad_de_transaccion,
+    doc.fecha_documento,
+    1 AS tipo_de_transaccion,
+    provee.nit,
+    doc.razon_social,
+    doc.nro_documento,
+    0 AS contrato,
+    airbp.monto_fac,
+    doc.importe_total AS monto_factura,
+    doc.nro_autorizacion,
+    '5780102002'::bigint AS numero_de_cuenta,
+    airbp.monto_usado AS monto_pagado,
+        CASE
+            WHEN airbp.usar::text = 'si'::text THEN airbp.monto_usado
+            ELSE airbp.monto_fac
+        END AS monto_acumulado,
+    airbp.usar,
+    1016739022 AS nit_entidad,
+    4 AS tipo_de_documento,
+    pg_pagado.monto AS monto_cuota,
+    pg_pagado.nro_cuota
+   FROM conta.tplan_pago_documento_airbp airbp
+     JOIN tes.tplan_pago pg_pagado ON pg_pagado.id_plan_pago = airbp.id_plan_pago
+     JOIN tes.tobligacion_pago obliga ON obliga.id_obligacion_pago = pg_pagado.id_obligacion_pago
+     JOIN leg.tcontrato contra ON contra.id_contrato = obliga.id_contrato
+     JOIN param.tproveedor provee ON provee.id_proveedor = obliga.id_proveedor
+     JOIN documento doc ON doc.id_documento = airbp.id_documento
+  WHERE airbp.monto_fac >= 50000::numeric
+  ORDER BY airbp.id_plan_pago_documento_airbp;
+
+
+CREATE OR REPLACE VIEW conta.vdiferencia_periodo (
+    id_doc_compra_venta,
+    desc_plantilla,
+    fecha,
+    periodo_doc,
+    periodo,
+    nro_autorizacion,
+    codigo_control,
+    nro_documento,
+    nombre,
+    nit,
+    razon_social,
+    obs,
+    importe_excento,
+    importe_ice,
+    importe_it,
+    importe_iva,
+    importe_doc,
+    tipo,
+    importe_descuento_ley,
+    importe_pago_liquido,
+    importe_neto,
+    desc_persona,
+    nro_tramite,
+    gestion)
+AS
+SELECT cv.id_doc_compra_venta,
+    pl.desc_plantilla,
+    cv.fecha,
+    date_part('month'::text, cv.fecha)::integer AS periodo_doc,
+    p.periodo,
+    cv.nro_autorizacion,
+    cv.codigo_control,
+    cv.nro_documento,
+    d.nombre,
+    cv.nit,
+    cv.razon_social,
+    cv.obs,
+    cv.importe_excento,
+    cv.importe_ice,
+    cv.importe_it,
+    cv.importe_iva,
+    cv.importe_doc,
+    cv.tipo,
+    cv.importe_descuento_ley,
+    cv.importe_pago_liquido,
+    cv.importe_neto,
+    u.desc_persona,
+    c.nro_tramite,
+    date_part('year'::text, cv.fecha)::integer AS gestion
+FROM conta.tdoc_compra_venta cv
+     JOIN param.tperiodo p ON p.id_periodo = cv.id_periodo
+     JOIN param.tplantilla pl ON pl.id_plantilla = cv.id_plantilla
+     JOIN param.tdepto d ON d.id_depto = cv.id_depto_conta
+     JOIN segu.vusuario u ON u.id_usuario = cv.id_usuario_reg
+     LEFT JOIN conta.tint_comprobante c ON c.id_int_comprobante = cv.id_int_comprobante
+WHERE date_part('month'::text, cv.fecha) <> p.periodo::double precision;
+
+
+
+
+
+
+/**********************************F-DEP-FEA-CONTA-0-07/11/2018****************************************/
+
+/**********************************I-DEP-MAY-CONTA-0-07/12/2018****************************************/
+CREATE OR REPLACE VIEW conta.vconso_fondos_no_fin (
+    nro_tramite,
+    beneficiario,
+    nro_cheque,
+    codigo_categoria,
+    partida,
+    importe,
+    fecha)
+AS
+ SELECT cd.nro_tramite,
+    com.beneficiario,
+    intc.nro_cheque,
+    cp.codigo_categoria,
+    (( SELECT (par.codigo::text || ' - '::text) || par.nombre_partida::text
+           FROM conta.f_get_config_relacion_contable('CUECOMP'::character varying, cc.id_gestion, cig.id_concepto_ingas, cc.id_centro_costo, (('No se encontro relación
+                                   contable para el conceto de gasto: '::text || cig.desc_ingas::text) || ' . < br
+                                   > Mensaje: '::text)::character varying) rel(ps_id_cuenta, ps_id_auxiliar, ps_id_partida, ps_id_centro_costo, ps_nombre_tipo_relacion)
+             JOIN pre.tpartida par ON par.id_partida = rel.ps_id_partida))::character varying AS partida,
+    sum(dc.precio_total_final) AS importe,
+    intc.fecha
+   FROM conta.tentrega ent
+     JOIN conta.tentrega_det det ON det.id_entrega = ent.id_entrega
+     JOIN conta.vint_comprobante com ON com.id_int_comprobante = det.id_int_comprobante
+     JOIN conta.tint_comprobante intc ON intc.id_int_comprobante = det.id_int_comprobante
+     JOIN cd.tcuenta_doc cd ON cd.nro_tramite::text = com.nro_tramite::text AND cd.estado::text = 'finalizado'::text
+     JOIN cd.trendicion_det rd ON rd.id_cuenta_doc = cd.id_cuenta_doc
+     JOIN conta.tdoc_compra_venta dcv ON dcv.id_doc_compra_venta = rd.id_doc_compra_venta
+     JOIN conta.tdoc_concepto dc ON dc.id_doc_compra_venta = dcv.id_doc_compra_venta
+     JOIN pre.vpresupuesto_cc cc ON cc.id_centro_costo = dc.id_centro_costo
+     JOIN pre.vcategoria_programatica cp ON cp.id_categoria_programatica = cc.id_categoria_prog
+     JOIN param.tconcepto_ingas cig ON cig.id_concepto_ingas = dc.id_concepto_ingas
+  WHERE com.desc_subsistema::text = 'Fondos en Avance'::text AND ent.estado::text = 'borrador'::text
+  GROUP BY cd.nro_tramite, com.beneficiario, intc.nro_cheque, cp.codigo_categoria, ((( SELECT (par.codigo::text || ' - '::text) || par.nombre_partida::text
+           FROM conta.f_get_config_relacion_contable('CUECOMP'::character varying, cc.id_gestion, cig.id_concepto_ingas, cc.id_centro_costo, (('No se encontro relación
+                                   contable para el conceto de gasto: '::text || cig.desc_ingas::text) || ' . < br
+                                   > Mensaje: '::text)::character varying) rel(ps_id_cuenta, ps_id_auxiliar, ps_id_partida, ps_id_centro_costo, ps_nombre_tipo_relacion)
+             JOIN pre.tpartida par ON par.id_partida = rel.ps_id_partida))::character varying), intc.fecha
+  ORDER BY cd.nro_tramite, cp.codigo_categoria;
+/**********************************F-DEP-MAY-CONTA-0-07/12/2018****************************************/

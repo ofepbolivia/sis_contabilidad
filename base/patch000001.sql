@@ -4480,17 +4480,323 @@ IS 'identifica el nro de tramite donde fue generada la factura';
 /***********************************F-SCP-RAC-CONTA-1-13/09/2017****************************************/
 
 
-/***********************************I-SCP-FFP-CONTA-1-20/11/2017****************************************/
 
 
-ALTER TABLE conta.tbanca_compra_venta ADD comentario TEXT NULL;
 
-/***********************************F-SCP-FFP-CONTA-1-11/20/2017****************************************/
+/***********************************I-SCP-FEA-CONTA-1-7/11/2018****************************************/
 
+CREATE TABLE conta.tagencias_comisionistas (
+  nit VARCHAR(50),
+  nombre VARCHAR(200),
+  nro_contrato VARCHAR(200),
+  fechin DATE,
+  fecfin DATE,
+  represetante VARCHAR(200),
+  estacion VARCHAR(20),
+  id INTEGER DEFAULT nextval('conta.agencias_comisionistas_id_seq'::regclass) NOT NULL,
+  CONSTRAINT agencias_comisionistas_pkey PRIMARY KEY(id)
+)
+WITH (oids = false);
 
-/***********************************I-SCP-IRVA-CONTA-1-01/03/2019****************************************/
+ALTER TABLE conta.tagencias_comisionistas
+  ALTER COLUMN nit SET STATISTICS 0;
+
+ALTER TABLE conta.tagencias_comisionistas
+  ALTER COLUMN nombre SET STATISTICS 0;
+
+ALTER TABLE conta.tagencias_comisionistas
+  ALTER COLUMN nro_contrato SET STATISTICS 0;
+
+ALTER TABLE conta.tagencias_comisionistas
+  ALTER COLUMN fechin SET STATISTICS 0;
+
+ALTER TABLE conta.tagencias_comisionistas
+  ALTER COLUMN fecfin SET STATISTICS 0;
+
+ALTER TABLE conta.tagencias_comisionistas
+  ALTER COLUMN represetante SET STATISTICS 0;
+
+ALTER TABLE conta.tagencias_comisionistas
+  ALTER COLUMN estacion SET STATISTICS 0;
+
+CREATE TABLE conta.tbanca_compra_venta__bk (
+  id_banca_compra_venta SERIAL,
+  tipo VARCHAR(255),
+  modalidad_transaccion INTEGER,
+  fecha_documento DATE,
+  tipo_transaccion INTEGER,
+  nit_ci VARCHAR(255),
+  razon VARCHAR(255),
+  num_documento VARCHAR(255),
+  num_contrato VARCHAR(255),
+  importe_documento NUMERIC(10,2),
+  autorizacion NUMERIC,
+  num_cuenta_pago VARCHAR(255),
+  monto_pagado NUMERIC(10,2),
+  monto_acumulado NUMERIC(12,2) NOT NULL,
+  nit_entidad NUMERIC,
+  num_documento_pago VARCHAR(255),
+  tipo_documento_pago NUMERIC,
+  fecha_de_pago DATE,
+  id_depto_conta INTEGER,
+  id_periodo INTEGER,
+  revisado VARCHAR(2) DEFAULT 'no'::character varying,
+  id_proveedor INTEGER,
+  id_contrato INTEGER,
+  id_cuenta_bancaria INTEGER,
+  id_documento INTEGER,
+  periodo_servicio VARCHAR(255),
+  numero_cuota INTEGER,
+  saldo NUMERIC(12,2),
+  resolucion VARCHAR(255),
+  tramite_cuota VARCHAR(255),
+  id_proceso_wf INTEGER,
+  retencion_cuota NUMERIC(10,2) DEFAULT 0 NOT NULL,
+  multa_cuota NUMERIC(10,2) DEFAULT 0 NOT NULL,
+  estado_libro VARCHAR(255),
+  lista_negra VARCHAR(2) DEFAULT 'no'::character varying,
+  registro VARCHAR(255),
+  tipo_bancarizacion VARCHAR(255),
+  CONSTRAINT tbanca_compra_venta__bk_pk_tbanca_compra_venta__id_cuenta PRIMARY KEY(id_banca_compra_venta)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+COMMENT ON COLUMN conta.tbanca_compra_venta__bk.tipo
+IS 'tipo puede ser compra o venta';
+
+COMMENT ON COLUMN conta.tbanca_compra_venta__bk.modalidad_transaccion
+IS 'Consignar cuando corresponda: 1 Compras al contado , 2 Compras al crédito';
+
+COMMENT ON COLUMN conta.tbanca_compra_venta__bk.fecha_documento
+IS 'Fecha del documento con el que se realizó la transacción por un importe mayor o igual a Bs50.000.-';
+
+COMMENT ON COLUMN conta.tbanca_compra_venta__bk.tipo_transaccion
+IS 'Consignar uno de los siguientes números de acuerdo a lo que corresponda: 1. Compra con factura  2. Compra con retenciones 3. Compra de inmuebles';
+
+COMMENT ON COLUMN conta.tbanca_compra_venta__bk.nit_ci
+IS 'Consignar el dato del NIT del proveedor de la factura,  o  N° de identificación del beneficiario del pago retenido.';
+
+COMMENT ON COLUMN conta.tbanca_compra_venta__bk.razon
+IS 'Consignar la razón social del proveedor o el nombre del beneficiario del pago realizado';
+
+COMMENT ON COLUMN conta.tbanca_compra_venta__bk.num_documento
+IS 'Consignar el N° de factura o el N° de documento  que corresponda  de acuerdo al tipo de  transacción';
+
+COMMENT ON COLUMN conta.tbanca_compra_venta__bk.num_contrato
+IS 'Consignar el número de contrato o cero en caso de no existir contrato.';
+
+COMMENT ON COLUMN conta.tbanca_compra_venta__bk.importe_documento
+IS 'Consignar el monto total de la factura o de la transacción retenida';
+
+COMMENT ON COLUMN conta.tbanca_compra_venta__bk.autorizacion
+IS 'Consignar el N° de autorización de la factura, o el   N° 4 para retenciones';
+
+COMMENT ON COLUMN conta.tbanca_compra_venta__bk.num_cuenta_pago
+IS 'N° de cuenta de la Entidad Financiera de desembolso del pago o Nº de documento de depósito en cuenta';
+
+COMMENT ON COLUMN conta.tbanca_compra_venta__bk.monto_pagado
+IS 'Monto Pagado';
+
+COMMENT ON COLUMN conta.tbanca_compra_venta__bk.monto_acumulado
+IS 'Monto acumulado de pagos parciales';
+
+COMMENT ON COLUMN conta.tbanca_compra_venta__bk.nit_entidad
+IS 'NIT Entidad Financiera emisora del documento de pago.';
+
+COMMENT ON COLUMN conta.tbanca_compra_venta__bk.num_documento_pago
+IS 'N° del documento utilizado para la realización del pago';
+
+COMMENT ON COLUMN conta.tbanca_compra_venta__bk.tipo_documento_pago
+IS 'Consignar uno de los siguientes números de acuerdo a lo que corresponda:
+1. Cheque de cualquier naturaleza 2. Orden de transferencia  3. Ordenes de transferencia electrónica de fondos 4. Transferencia de fondos
+5. Tarjeta de débito
+6. Tarjeta de crédito 7. Tarjeta prepagada 8. Depósito en cuenta. 9. Cartas de crédito 10. Otros';
+
+COMMENT ON COLUMN conta.tbanca_compra_venta__bk.fecha_de_pago
+IS 'Fecha de la emisión del documento de pago';
+
+CREATE TABLE conta.tcomisionistas_bk (
+  id_comisionista SERIAL,
+  nro_contrato VARCHAR(255),
+  codigo_producto VARCHAR(255),
+  descripcion_producto VARCHAR(1000),
+  cantidad_total_entregado NUMERIC(10,2),
+  cantidad_total_vendido NUMERIC(10,2) DEFAULT 0,
+  precio_unitario NUMERIC(10,2),
+  monto_total NUMERIC(10,2),
+  monto_total_comision NUMERIC(10,2),
+  revisado VARCHAR(20) DEFAULT 'no'::character varying,
+  id_periodo INTEGER,
+  id_depto_conta INTEGER,
+  registro VARCHAR(255),
+  tipo_comisionista VARCHAR(255),
+  lista_negra VARCHAR(20) DEFAULT 'no'::character varying,
+  nit_comisionista VARCHAR(255),
+  nombre_agencia VARCHAR(200),
+  nro_boleto VARCHAR(50),
+  id_agencia INTEGER,
+  CONSTRAINT tcomisionistas_bk_pkey PRIMARY KEY(id_comisionista)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+ALTER TABLE conta.tcomisionistas_bk
+  ALTER COLUMN nro_contrato SET STATISTICS 0;
+
+ALTER TABLE conta.tcomisionistas_bk
+  ALTER COLUMN codigo_producto SET STATISTICS 0;
+
+ALTER TABLE conta.tcomisionistas_bk
+  ALTER COLUMN descripcion_producto SET STATISTICS 0;
+
+ALTER TABLE conta.tcomisionistas_bk
+  ALTER COLUMN cantidad_total_entregado SET STATISTICS 0;
+
+ALTER TABLE conta.tcomisionistas_bk
+  ALTER COLUMN cantidad_total_vendido SET STATISTICS 0;
+
+ALTER TABLE conta.tcomisionistas_bk
+  ALTER COLUMN precio_unitario SET STATISTICS 0;
+
+ALTER TABLE conta.tcomisionistas_bk
+  ALTER COLUMN revisado SET STATISTICS 0;
+
+ALTER TABLE conta.tcomisionistas_bk
+  ALTER COLUMN registro SET STATISTICS 0;
+
+CREATE TABLE conta.tdoc_int_comprobante (
+  id_doc_int_comprobante SERIAL,
+  fecha DATE,
+  nit VARCHAR,
+  razon_social VARCHAR,
+  desc_plantilla VARCHAR,
+  nro_documento VARCHAR,
+  nro_dui VARCHAR,
+  nro_autorizacion VARCHAR,
+  codigo_control VARCHAR,
+  importe_doc NUMERIC,
+  importe_ice NUMERIC,
+  importe_descuento NUMERIC,
+  importe_excento NUMERIC,
+  liquido NUMERIC,
+  importe_sujeto NUMERIC,
+  importe_iva NUMERIC,
+  importe_gasto NUMERIC,
+  porc_gasto_prorrateado NUMERIC,
+  sujeto_prorrateado NUMERIC,
+  iva_prorrateado NUMERIC,
+  codigo VARCHAR,
+  nro_cuenta VARCHAR,
+  origen VARCHAR,
+  id_int_comprobante VARCHAR,
+  id_doc_compra_venta INTEGER,
+  usuario VARCHAR,
+  CONSTRAINT tdoc_int_comprobante_pkey PRIMARY KEY(id_doc_int_comprobante)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+CREATE TABLE conta.thistorial_reg_compras (
+  id_historial_reg_compras SERIAL,
+  id_funcionario INTEGER,
+  fecha_cambio TIMESTAMP WITHOUT TIME ZONE,
+  id_doc_compra_venta INTEGER,
+  CONSTRAINT thistorial_reg_compras_pkey PRIMARY KEY(id_historial_reg_compras)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+ALTER TABLE conta.thistorial_reg_compras
+  ALTER COLUMN id_historial_reg_compras SET STATISTICS 0;
+
+CREATE TABLE conta.trelacion_contable_bk (
+  id_usuario_reg INTEGER,
+  id_usuario_mod INTEGER,
+  fecha_reg TIMESTAMP WITHOUT TIME ZONE,
+  fecha_mod TIMESTAMP WITHOUT TIME ZONE,
+  estado_reg VARCHAR(10),
+  id_relacion_contable INTEGER,
+  id_tipo_relacion_contable INTEGER,
+  id_centro_costo INTEGER,
+  id_cuenta INTEGER,
+  id_auxiliar INTEGER,
+  id_partida INTEGER,
+  id_gestion INTEGER,
+  id_tabla INTEGER,
+  defecto VARCHAR(3),
+  id_usuario_ai INTEGER,
+  usuario_ai VARCHAR(300)
+)
+WITH (oids = false);
+
+CREATE TABLE conta.trevisar_comisionistas (
+  id_comisionista_rev SERIAL,
+  revisado VARCHAR(5) DEFAULT 'no'::character varying,
+  nombre_agencia VARCHAR(50),
+  nit_comisionista VARCHAR(50),
+  precio_unitario NUMERIC(10,2),
+  monto_total NUMERIC(10,2),
+  monto_total_comision NUMERIC(10,2),
+  id_periodo INTEGER,
+  id_depto_conta INTEGER,
+  nro_contrato VARCHAR(100),
+  id_agencia INTEGER,
+  CONSTRAINT trevisar_comisionistas_pkey PRIMARY KEY(id_comisionista_rev)
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
 
 ALTER TABLE conta.trevisar_comisionistas
-  ADD COLUMN id_contrato INTEGER;
+  ALTER COLUMN id_comisionista_rev SET STATISTICS 0;
 
-/***********************************F-SCP-FFP-CONTA-1-01/03/2019****************************************/
+ALTER TABLE conta.trevisar_comisionistas
+  ALTER COLUMN revisado SET STATISTICS 0;
+
+ALTER TABLE conta.trevisar_comisionistas
+  ALTER COLUMN nombre_agencia SET STATISTICS 0;
+
+ALTER TABLE conta.trevisar_comisionistas
+  ALTER COLUMN nit_comisionista SET STATISTICS 0;
+
+ALTER TABLE conta.trevisar_comisionistas
+  ALTER COLUMN id_periodo SET STATISTICS 0;
+
+ALTER TABLE conta.trevisar_comisionistas
+  ALTER COLUMN id_depto_conta SET STATISTICS 0;
+
+
+
+
+
+ALTER TABLE conta.tbanca_compra_venta
+  ADD COLUMN lista_negra VARCHAR(2) DEFAULT 'no'::character varying,
+  ADD COLUMN registro VARCHAR(255),
+  ADD COLUMN tipo_bancarizacion VARCHAR(255);
+
+ALTER TABLE conta.tcomisionistas
+  ADD COLUMN nombre_agencia VARCHAR(200),
+  ADD COLUMN nro_boleto VARCHAR(50),
+  ADD COLUMN id_agencia INTEGER;
+
+ALTER TABLE conta.tdoc_concepto
+  ADD COLUMN id_partida_ejecucion INTEGER;
+
+
+
+
+/***********************************F-SCP-FEA-CONTA-1-7/11/2018****************************************/
+
+/***********************************I-SCP-MAY-CONTA-0-11/02/2019****************************************/
+ALTER TABLE conta.tdoc_concepto
+  ALTER COLUMN id_orden_trabajo SET NOT NULL;
+
+
+ALTER TABLE conta.tint_transaccion
+  ALTER COLUMN id_orden_trabajo SET NOT NULL;
+/***********************************F-SCP-MAY-CONTA-0-11/02/2019****************************************/
+
+/***********************************I-SCP-IRVA-CONTA-0-01/03/2019****************************************/
+ALTER TABLE conta.trevisar_comisionistas
+  ADD COLUMN id_contrato INTEGER;
+/***********************************F-SCP-IRVA-CONTA-0-01/03/2019****************************************/

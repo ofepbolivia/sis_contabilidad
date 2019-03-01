@@ -231,7 +231,7 @@ BEGIN
 
          v_dui_importe = v_parametros.importe_doc;
         end if;*/
-
+--raise exception 'verificando';
       --Sentencia de la insercion
       insert into conta.tdoc_compra_venta(
         tipo,

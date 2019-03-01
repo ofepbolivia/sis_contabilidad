@@ -101,12 +101,19 @@ BEGIN
                             ent.id_depto_conta,
                             ent.id_estado_wf,
                             ent.id_proceso_wf,
-							com.nro_tramite::varchar
+                            com.nro_tramite::varchar,
+                            com.desc_moneda::varchar,
+                            (select sum(pp.monto)
+                             from conta.tentrega_det ende
+                             inner join tes.tplan_pago pp on pp.id_int_comprobante = ende.id_int_comprobante
+                             where ende.id_entrega = ent.id_entrega) as monto
+
 						from conta.tentrega ent
 						inner join segu.tusuario usu1 on usu1.id_usuario = ent.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = ent.id_usuario_mod
 				        inner join conta.tentrega_det det on det.id_entrega = ent.id_entrega
                         inner join conta.vint_comprobante com on com.id_int_comprobante = det.id_int_comprobante
+
                         where  '||v_filtro;
 
       --Definicion de la respuesta
@@ -292,28 +299,28 @@ BEGIN
     begin
       --Sentencia de la consulta
       v_consulta:='SELECT
-                            id_entrega,
-                            estado::varchar,
-                            c31::varchar,
-                            id_depto_conta,
-                            fecha_c31,
-                            codigo::varchar,
-                            nombre_partida::varchar,
-                            importe_debe_mb::numeric,
-                            importe_haber_mb::numeric,
-                            importe_debe_mb_completo::numeric,
-                            importe_haber_mb_completo::numeric,
-                            importe_gasto_mb::numeric,
-                            importe_recurso_mb::numeric,
-                            factor_reversion::numeric,
-                            codigo_cc::varchar,
-                            codigo_categoria::varchar,
-                            codigo_cg::varchar,
-                            nombre_cg::varchar,
-                            beneficiario::varchar,
-                            glosa1::varchar,
-                            id_int_comprobante,
-                            id_int_comprobante_dev
+                            e.id_entrega,
+                            e.estado::varchar,
+                            e.c31::varchar,
+                            e.id_depto_conta,
+                            e.fecha_c31,
+                            e.codigo::varchar,
+                            e.nombre_partida::varchar,
+                            e.importe_debe_mb::numeric,
+                            e.importe_haber_mb::numeric,
+                            e.importe_debe_mb_completo::numeric,
+                            e.importe_haber_mb_completo::numeric,
+                            e.importe_gasto_mb::numeric,
+                            e.importe_recurso_mb::numeric,
+                            e.factor_reversion::numeric,
+                            e.codigo_cc::varchar,
+                            e.codigo_categoria::varchar,
+                            e.codigo_cg::varchar,
+                            e.nombre_cg::varchar,
+                            e.beneficiario::varchar,
+                            e.glosa1::varchar,
+                            e.id_int_comprobante,
+                            e.id_int_comprobante_dev
                           FROM
                             conta.ventrega   e
                           WHERE id_entrega = '||v_parametros.id_entrega||'
