@@ -19,7 +19,7 @@ BEGIN
                             from conta.tcuenta c
                             inner  join conta.tcuenta_auxiliar a on a.id_cuenta = c.id_cuenta
                             inner join conta.tauxiliar au on au.id_auxiliar = a.id_auxiliar
-                            where c.id_gestion = 15 )loop
+                            where c.id_gestion = 16 )loop
             for  v_dato in ( select i.id_cuenta_dos
                                     from conta.tcuenta_ids i
                                     where i.id_cuenta_uno = v_record.id_cuenta)loop

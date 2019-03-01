@@ -590,7 +590,7 @@ BEGIN
 
                         --raise exception '% (% - %) No se encuentra Cuenta para la Gestión % (tiene_centro_costo = %) - Centro de costo: %',COALESCE(p_mensaje_error,''),p_codigo,v_registros.nombre_tipo_relacion,v_gestion,v_registros.tiene_centro_costo,COALESCE(p_id_centro_costo,'0');
                         ----(f.e.a)
-                        raise exception '% no se encuentra parametrizado para el Centro de Costo: <b>%</b>, para la Gestión (<b>%</b>). <br>Estimado Usuario: Favor de contactactarse con la Unidad de Costos.',COALESCE(p_mensaje_error,''), COALESCE(v_codigos.codigo,'0'), v_gestion;
+                        raise exception '% no se encuentra parametrizado para el Centro de Costo: <b>%</b>, para la Gestión (<b>%</b>). <br>Estimado Usuario: Favor de contactactarse con la Unidad de Presupuestos.',COALESCE(p_mensaje_error,''), COALESCE(v_codigos.codigo,'0'), v_gestion;
                     end if;
 
 
