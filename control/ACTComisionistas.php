@@ -8,8 +8,8 @@
 */
 require_once(dirname(__FILE__).'/../reportes/RComisionistasTotalesAgencia.php');
 require_once(dirname(__FILE__).'/../reportes/RValidarInformacion.php');
-class ACTComisionistas extends ACTbase{    
-			
+class ACTComisionistas extends ACTbase{
+
 	function listarComisionistas(){
 		$this->objParam->defecto('ordenacion','id_comisionista');
 		$this->objParam->defecto('dir_ordenacion','asc');
@@ -26,7 +26,7 @@ class ACTComisionistas extends ACTbase{
 			$this->res = $this->objReporte->generarReporteListado('MODComisionistas','listarComisionistas');
 		} else{
 			$this->objFunc=$this->create('MODComisionistas');
-			
+
 			$this->res=$this->objFunc->listarComisionistas($this->objParam);
 		}
         $temp = Array();
@@ -41,19 +41,19 @@ class ACTComisionistas extends ACTbase{
         $this->res->addLastRecDatos($temp);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
-				
+
 	function insertarComisionistas(){
-		$this->objFunc=$this->create('MODComisionistas');	
+		$this->objFunc=$this->create('MODComisionistas');
 		if($this->objParam->insertar('id_comisionista')){
-			$this->res=$this->objFunc->insertarComisionistas($this->objParam);			
-		} else{			
+			$this->res=$this->objFunc->insertarComisionistas($this->objParam);
+		} else{
 			$this->res=$this->objFunc->modificarComisionistas($this->objParam);
 		}
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
-						
+
 	function eliminarComisionistas(){
-			$this->objFunc=$this->create('MODComisionistas');	
+			$this->objFunc=$this->create('MODComisionistas');
 		$this->res=$this->objFunc->eliminarComisionistas($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
@@ -148,6 +148,11 @@ class ACTComisionistas extends ACTbase{
         $this->res=$this->objFunc->insertAuto($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+		function insertACM(){
+        $this->objFunc=$this->create('MODComisionistas');
+        $this->res=$this->objFunc->insertACM($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
     function reporteGeneral(){
         $this->objFunc=$this->create('MODComisionistas');
         $this->res=$this->objFunc->reporteGeneral($this->objParam);
@@ -225,7 +230,7 @@ class ACTComisionistas extends ACTbase{
         }
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
-			
+
 }
 
 ?>

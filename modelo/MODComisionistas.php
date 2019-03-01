@@ -8,13 +8,13 @@
 */
 
 class MODComisionistas extends MODbase{
-	
+
 	function __construct(CTParametro $pParam){
 		parent::__construct($pParam);
         $this->cone = new conexion();
         $this->link = $this->cone->conectarpdo(); //conexion a pxp(postgres)
 	}
-			
+
 	function listarComisionistas(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='conta.ft_comisionistas_sel';
@@ -53,21 +53,21 @@ class MODComisionistas extends MODbase{
 		$this->captura('nombre_agencia','varchar');
 		$this->captura('nro_boleto','varchar');
 
-		
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
-		
+
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function insertarComisionistas(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='conta.ft_comisionistas_ime';
 		$this->transaccion='CONTA_CMS_INS';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
         $this->setParametro('nit_comisionista','nit_comisionista','varchar');
         $this->setParametro('nro_contrato','nro_contrato','varchar');
@@ -119,13 +119,13 @@ class MODComisionistas extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function eliminarComisionistas(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='conta.ft_comisionistas_ime';
 		$this->transaccion='CONTA_CMS_ELI';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_comisionista','id_comisionista','int4');
         $this->setParametro('id_periodo','id_periodo','int4');
@@ -335,6 +335,23 @@ class MODComisionistas extends MODbase{
         return $this->respuesta;
 
     }
+		function insertACM(){
+
+				$this->procedimiento='conta.ft_comisionistas_ime';
+				$this->transaccion='CONTA_CMS_ACM';
+				$this->tipo_procedimiento='IME';
+				//Define los parametros para la funcion
+				$this->setParametro('id_periodo','id_periodo','int4');
+				$this->setParametro('id_depto_conta','id_depto_conta','int4');
+				$this->setParametro('id_gestion','id_gestion','int4');
+				//Ejecuta la instruccion
+				$this->armarConsulta();
+				$this->ejecutarConsulta();
+
+				//Devuelve la respuesta
+				return $this->respuesta;
+
+		}
     function reporteGeneral(){
         //Definicion de variables para ejecucion del procedimientp
         $this->procedimiento='conta.ft_comisionistas_sel';

@@ -3,69 +3,69 @@ CREATE TABLE conta.tconfig_tipo_cuenta(
     id_cofig_tipo_cuenta SERIAL NOT NULL,
     nro_base int4,
     tipo_cuenta varchar,
-    CONSTRAINT chk_tconfig_tipo_cuenta__tipo_cuenta CHECK ((tipo_cuenta)::text = ANY (ARRAY[('activo'::character varying)::text, ('pasivo'::character varying)::text, ('patrimonio'::character varying)::text, ('ingreso'::character varying)::text, ('gasto'::character varying)::text])), 
+    CONSTRAINT chk_tconfig_tipo_cuenta__tipo_cuenta CHECK ((tipo_cuenta)::text = ANY (ARRAY[('activo'::character varying)::text, ('pasivo'::character varying)::text, ('patrimonio'::character varying)::text, ('ingreso'::character varying)::text, ('gasto'::character varying)::text])),
     PRIMARY KEY (id_cofig_tipo_cuenta))
     INHERITS (pxp.tbase);
-  
+
 /***********************************F-SCP-RAC-CONTA-1-04/02/2013****************************************/
 
 /***********************************I-SCP-GSS-CONTA-48-20/02/2013****************************************/
 
 CREATE TABLE conta.tcuenta (
-  id_cuenta SERIAL, 
-  id_empresa INTEGER, 
-  id_parametro INTEGER, 
-  id_cuenta_padre INTEGER, 
-  nro_cuenta VARCHAR(20), 
-  id_gestion INTEGER, 
-  id_moneda INTEGER, 
-  nombre_cuenta VARCHAR(200), 
-  desc_cuenta VARCHAR(500), 
-  nivel_cuenta INTEGER, 
-  tipo_cuenta VARCHAR(30), 
-  sw_transaccional VARCHAR(10), 
-  sw_oec INTEGER, 
-  sw_auxiliar VARCHAR(2), 
-  tipo_cuenta_pat VARCHAR(20), 
-  cuenta_sigma VARCHAR(100), 
-  sw_sigma VARCHAR(2), 
-  id_cuenta_actualizacion INTEGER, 
-  id_auxliar_actualizacion INTEGER, 
-  sw_sistema_actualizacion VARCHAR(12), 
-  id_cuenta_dif INTEGER, 
-  id_auxiliar_dif INTEGER, 
-  id_cuenta_sigma INTEGER, 
-  cuenta_flujo_sigma VARCHAR(50), 
-  CONSTRAINT pk_tcuenta__id_cuenta PRIMARY KEY(id_cuenta), 
-  CONSTRAINT chk_tcuenta__tipo_cuenta CHECK ((tipo_cuenta)::text = ANY (ARRAY[('activo'::character varying)::text, ('pasivo'::character varying)::text, ('patrimonio'::character varying)::text, ('ingreso'::character varying)::text, ('gasto'::character varying)::text])), 
+  id_cuenta SERIAL,
+  id_empresa INTEGER,
+  id_parametro INTEGER,
+  id_cuenta_padre INTEGER,
+  nro_cuenta VARCHAR(20),
+  id_gestion INTEGER,
+  id_moneda INTEGER,
+  nombre_cuenta VARCHAR(200),
+  desc_cuenta VARCHAR(500),
+  nivel_cuenta INTEGER,
+  tipo_cuenta VARCHAR(30),
+  sw_transaccional VARCHAR(10),
+  sw_oec INTEGER,
+  sw_auxiliar VARCHAR(2),
+  tipo_cuenta_pat VARCHAR(20),
+  cuenta_sigma VARCHAR(100),
+  sw_sigma VARCHAR(2),
+  id_cuenta_actualizacion INTEGER,
+  id_auxliar_actualizacion INTEGER,
+  sw_sistema_actualizacion VARCHAR(12),
+  id_cuenta_dif INTEGER,
+  id_auxiliar_dif INTEGER,
+  id_cuenta_sigma INTEGER,
+  cuenta_flujo_sigma VARCHAR(50),
+  CONSTRAINT pk_tcuenta__id_cuenta PRIMARY KEY(id_cuenta),
+  CONSTRAINT chk_tcuenta__tipo_cuenta CHECK ((tipo_cuenta)::text = ANY (ARRAY[('activo'::character varying)::text, ('pasivo'::character varying)::text, ('patrimonio'::character varying)::text, ('ingreso'::character varying)::text, ('gasto'::character varying)::text])),
   CONSTRAINT chk_tcuenta__tipo_cuenta_pat CHECK ((tipo_cuenta_pat)::text = ANY (ARRAY[('capital'::character varying)::text, ('reserva'::character varying)::text]))
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
-    
-ALTER TABLE conta.tcuenta OWNER TO postgres;  
+
+ALTER TABLE conta.tcuenta OWNER TO postgres;
 
 --tabla conta.tauxiliar
 
 CREATE TABLE conta.tauxiliar (
-  id_auxiliar SERIAL NOT NULL, 
-  id_empresa INTEGER, 
-  codigo_auxiliar VARCHAR(15), 
-  nombre_auxiliar VARCHAR(300), 
+  id_auxiliar SERIAL NOT NULL,
+  id_empresa INTEGER,
+  codigo_auxiliar VARCHAR(15),
+  nombre_auxiliar VARCHAR(300),
   CONSTRAINT pk_tauxiliar__id_auxiliar PRIMARY KEY(id_auxiliar)
 ) INHERITS (pxp.tbase)
-WITHOUT OIDS; 
+WITHOUT OIDS;
 
 ALTER TABLE conta.tauxiliar OWNER TO postgres;
 
 --tabla conta.tauxiliar
 
 CREATE TABLE conta.torden_trabajo (
-  id_orden_trabajo SERIAL NOT NULL, 
-  desc_orden VARCHAR(100), 
-  motivo_orden VARCHAR(500), 
-  fecha_inicio DATE, 
-  fecha_final DATE, 
+  id_orden_trabajo SERIAL NOT NULL,
+  desc_orden VARCHAR(100),
+  motivo_orden VARCHAR(500),
+  fecha_inicio DATE,
+  fecha_final DATE,
   CONSTRAINT pk_torden_trabajo__id_orden_trabajo PRIMARY KEY(id_orden_trabajo)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
@@ -83,9 +83,9 @@ CREATE TABLE conta.tclase_comprobante(
     tipo_comprobante varchar(300),
     PRIMARY KEY (id_clase_comprobante))
     INHERITS (pxp.tbase);
-    
- 
-    
+
+
+
 /***********************************F-SCP-RAC-CONTA-05-29/05/2013****************************************/
 
 
@@ -93,8 +93,8 @@ CREATE TABLE conta.tclase_comprobante(
 /****************************************I-SCP-JRR-CONTA-0-15/05/2013************************************************/
 
 CREATE TABLE conta.ttabla_relacion_contable (
-  id_tabla_relacion_contable SERIAL, 
-  tabla VARCHAR(100), 
+  id_tabla_relacion_contable SERIAL,
+  tabla VARCHAR(100),
   esquema VARCHAR(15),
   tabla_id VARCHAR(100),
   CONSTRAINT ttabla_relacion_contable_pkey PRIMARY KEY(id_tabla_relacion_contable)
@@ -102,8 +102,8 @@ CREATE TABLE conta.ttabla_relacion_contable (
 WITHOUT OIDS;
 
 CREATE TABLE conta.ttipo_relacion_contable (
-  id_tipo_relacion_contable SERIAL, 
-  nombre_tipo_relacion VARCHAR(200) NOT NULL, 
+  id_tipo_relacion_contable SERIAL,
+  nombre_tipo_relacion VARCHAR(200) NOT NULL,
   codigo_tipo_relacion VARCHAR(15) NOT NULL,
   tiene_centro_costo VARCHAR(10) DEFAULT 'si'::character varying NOT NULL,
   tiene_partida VARCHAR(2) DEFAULT 'si'::character varying NOT NULL,
@@ -117,7 +117,7 @@ COMMENT ON COLUMN conta.ttipo_relacion_contable.tiene_centro_costo
 IS 'si|no|si-general (Esta opción permite registrar el centro de costo pero habilita para que pueda estar vacio en caso de configuraciones generales';
 
 CREATE TABLE conta.trelacion_contable (
-  id_relacion_contable SERIAL, 
+  id_relacion_contable SERIAL,
   id_tipo_relacion_contable INTEGER NOT NULL,
   id_centro_costo INTEGER,
   id_cuenta INTEGER NOT NULL,
@@ -128,26 +128,26 @@ CREATE TABLE conta.trelacion_contable (
   CONSTRAINT trelacion_contable_pkey PRIMARY KEY(id_relacion_contable)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
-  
+
 
 /****************************************F-SCP-JRR-CONTA-0-15/05/2013************************************************/
 
 /***********************************I-SCP-GSS-CONTA-9-07/06/2013****************************************/
 
 CREATE TABLE conta.tplantilla_comprobante (
-  id_plantilla_comprobante SERIAL,  
-  codigo VARCHAR(20),  
-  clase_comprobante VARCHAR(255), 
-  momento_presupuestario VARCHAR(255), 
-  tabla_origen VARCHAR(255), 
+  id_plantilla_comprobante SERIAL,
+  codigo VARCHAR(20),
+  clase_comprobante VARCHAR(255),
+  momento_presupuestario VARCHAR(255),
+  tabla_origen VARCHAR(255),
   id_tabla VARCHAR(255),
-  campo_descripcion TEXT, 
-  campo_subsistema TEXT, 
+  campo_descripcion TEXT,
+  campo_subsistema TEXT,
   campo_fecha TEXT,
-  campo_moneda TEXT, 
-  campo_acreedor TEXT, 
-  campo_fk_comprobante TEXT, 
-  funcion_comprobante_validado TEXT, 
+  campo_moneda TEXT,
+  campo_acreedor TEXT,
+  campo_fk_comprobante TEXT,
+  funcion_comprobante_validado TEXT,
   funcion_comprobante_eliminado TEXT,
   campo_depto TEXT,
   CONSTRAINT pk_tplantilla_comprobante__id_plantilla_comprobante PRIMARY KEY (id_plantilla_comprobante)
@@ -156,27 +156,27 @@ WITHOUT OIDS;
 
 
 CREATE TABLE conta.tdetalle_plantilla_comprobante (
-  id_detalle_plantilla_comprobante SERIAL, 
-  id_plantilla_comprobante INTEGER, 
-  tabla_detalle VARCHAR(255), 
-  debe_haber VARCHAR(255), 
-  campo_monto TEXT, 
-  agrupar VARCHAR(255), 
-  campo_cuenta TEXT, 
-  campo_auxiliar TEXT, 
-  campo_partida TEXT, 
-  campo_centro_costo TEXT, 
-  es_relacion_contable VARCHAR(255), 
-  tipo_relacion_contable VARCHAR(255), 
-  campo_relacion_contable TEXT, 
-  aplicar_documento INTEGER, 
-  campo_documento TEXT, 
-  campo_fecha TEXT, 
+  id_detalle_plantilla_comprobante SERIAL,
+  id_plantilla_comprobante INTEGER,
+  tabla_detalle VARCHAR(255),
+  debe_haber VARCHAR(255),
+  campo_monto TEXT,
+  agrupar VARCHAR(255),
+  campo_cuenta TEXT,
+  campo_auxiliar TEXT,
+  campo_partida TEXT,
+  campo_centro_costo TEXT,
+  es_relacion_contable VARCHAR(255),
+  tipo_relacion_contable VARCHAR(255),
+  campo_relacion_contable TEXT,
+  aplicar_documento INTEGER,
+  campo_documento TEXT,
+  campo_fecha TEXT,
   campo_concepto_transaccion TEXT,
-  CONSTRAINT pk_tdetalle_plantilla_comprobante__id_detalle_plantilla_comprob PRIMARY KEY(id_detalle_plantilla_comprobante), 
+  CONSTRAINT pk_tdetalle_plantilla_comprobante__id_detalle_plantilla_comprob PRIMARY KEY(id_detalle_plantilla_comprobante),
   CONSTRAINT chk_tdetalle_plantilla_comprobante__debe_haber CHECK ((debe_haber)::text = ANY (ARRAY['debe'::text, 'haber'::text])),
-  CONSTRAINT chk_tdetalle_plantilla_comprobante__agrupar CHECK ((agrupar)::text = ANY (ARRAY['si'::text, 'no'::text])), 
-  CONSTRAINT chk_tdetalle_plantilla_comprobante__es_relacion_contable CHECK ((es_relacion_contable)::text = ANY (ARRAY['si'::text, 'no'::text]))   
+  CONSTRAINT chk_tdetalle_plantilla_comprobante__agrupar CHECK ((agrupar)::text = ANY (ARRAY['si'::text, 'no'::text])),
+  CONSTRAINT chk_tdetalle_plantilla_comprobante__es_relacion_contable CHECK ((es_relacion_contable)::text = ANY (ARRAY['si'::text, 'no'::text]))
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
@@ -257,16 +257,16 @@ ALTER TABLE conta.tplantilla_comprobante
 
 ALTER TABLE conta.tint_comprobante
   ALTER COLUMN id_clase_comprobante DROP NOT NULL;
- 
+
  ALTER TABLE conta.tint_comprobante
   ALTER COLUMN id_int_comprobante_fk DROP NOT NULL;
- 
+
 ALTER TABLE conta.tdetalle_plantilla_comprobante
   ADD COLUMN primaria VARCHAR(4) DEFAULT 'si' NOT NULL;
- 
 
- 
-  
+
+
+
 /***********************************F-SCP-RAC-CONTA-0-15/07/2013****************************************/
 
 
@@ -274,27 +274,27 @@ ALTER TABLE conta.tdetalle_plantilla_comprobante
 /***********************************I-SCP-RAC-CONTA-0-02/08/2013****************************************/
 
 ALTER TABLE conta.tdetalle_plantilla_comprobante
-  ADD COLUMN otros_campos VARCHAR(250); 
-  
+  ADD COLUMN otros_campos VARCHAR(250);
+
 ALTER TABLE conta.tplantilla_comprobante
-  ADD COLUMN otros_campos VARCHAR(250); 
-  
+  ADD COLUMN otros_campos VARCHAR(250);
+
 ALTER TABLE conta.tplantilla_comprobante
   ADD COLUMN campo_gestion_relacion VARCHAR(255);
-  
+
 /***********************************F-SCP-RAC-CONTA-0-02/08/2013****************************************/
 
 
 /***********************************I-SCP-RCM-CONTA-18-29/08/2013*****************************************/
 CREATE TABLE conta.ttransaccion(
   id_transaccion  SERIAL NOT NULL,
-  id_comprobante int4 NOT NULL, 
+  id_comprobante int4 NOT NULL,
   id_cuenta int4 NOT NULL,
-  id_auxiliar int4 NOT NULL, 
-  id_centro_costo int4 NOT NULL, 
-  id_partida int4, 
-  id_partida_ejecucion int4, 
-  id_transaccion_fk int4 NOT NULL, 
+  id_auxiliar int4 NOT NULL,
+  id_centro_costo int4 NOT NULL,
+  id_partida int4,
+  id_partida_ejecucion int4,
+  id_transaccion_fk int4 NOT NULL,
   glosa varchar(1000),
   CONSTRAINT pk_ttransaccion__id_transaccion PRIMARY KEY (id_transaccion)
 ) INHERITS (pxp.tbase)
@@ -302,31 +302,31 @@ WITH OIDS;
 
 CREATE TABLE conta.ttrans_val(
   id_trans_val  SERIAL NOT NULL,
-  id_transaccion int4 NOT NULL, 
-  id_moneda int4, 
-  importe_debe numeric(19, 2), 
-  importe_haber numeric(19, 2), 
-  importe_recurso numeric(19, 2), 
-  importe_gasto numeric(19, 2), 
+  id_transaccion int4 NOT NULL,
+  id_moneda int4,
+  importe_debe numeric(19, 2),
+  importe_haber numeric(19, 2),
+  importe_recurso numeric(19, 2),
+  importe_gasto numeric(19, 2),
   CONSTRAINT pk_ttrans_val__id_trans_val PRIMARY KEY (id_trans_val)
 ) INHERITS(pxp.tbase)
 WITH OIDS;
 
 
 CREATE TABLE conta.tplantilla_calculo (
-  id_plantilla_calculo SERIAL, 
-  id_plantilla INTEGER NOT NULL, 
+  id_plantilla_calculo SERIAL,
+  id_plantilla INTEGER NOT NULL,
   codigo_tipo_relacion VARCHAR(10),
-  prioridad integer NOT NULL, 
-  debe_haber varchar(5) NOT NULL, 
-  importe NUMERIC(18,2) NOT NULL, 
-  descripcion VARCHAR(50), 
-  tipo_importe VARCHAR(15) NOT NULL, 
-  CONSTRAINT tplantilla_calculo__id_plantilla_calculo PRIMARY KEY(id_plantilla_calculo), 
-  CONSTRAINT chk_tplantilla_calculo__prioridad CHECK (prioridad between 1 and 3), 
+  prioridad integer NOT NULL,
+  debe_haber varchar(5) NOT NULL,
+  importe NUMERIC(18,2) NOT NULL,
+  descripcion VARCHAR(50),
+  tipo_importe VARCHAR(15) NOT NULL,
+  CONSTRAINT tplantilla_calculo__id_plantilla_calculo PRIMARY KEY(id_plantilla_calculo),
+  CONSTRAINT chk_tplantilla_calculo__prioridad CHECK (prioridad between 1 and 3),
   CONSTRAINT chk_tplantilla_calculo__debe_haber CHECK (debe_haber in ('debe','haber')),
   CONSTRAINT chk_tplantilla_calculo__tipo_importe CHECK (tipo_importe in ('porcentaje','importe'))
-) INHERITS(pxp.tbase) 
+) INHERITS(pxp.tbase)
 WITHOUT OIDS;
 
 
@@ -338,21 +338,21 @@ add column nro_tramite varchar(70);
 
 CREATE TABLE conta.tint_transaccion(
   id_int_transaccion  SERIAL NOT NULL,
-  id_int_comprobante int4 NOT NULL, 
+  id_int_comprobante int4 NOT NULL,
   id_cuenta int4 NOT NULL,
-  id_auxiliar int4 NOT NULL, 
-  id_centro_costo int4 NOT NULL, 
-  id_partida int4, 
-  id_partida_ejecucion int4, 
-  id_int_transaccion_fk int4, 
+  id_auxiliar int4 NOT NULL,
+  id_centro_costo int4 NOT NULL,
+  id_partida int4,
+  id_partida_ejecucion int4,
+  id_int_transaccion_fk int4,
   glosa varchar(1000),
-  importe_debe numeric(18, 2), 
-  importe_haber numeric(18, 2), 
-  importe_recurso numeric(18, 2), 
+  importe_debe numeric(18, 2),
+  importe_haber numeric(18, 2),
+  importe_recurso numeric(18, 2),
   importe_gasto numeric(18, 2),
-  importe_debe_mb numeric(18, 2), 
-  importe_haber_mb numeric(18, 2), 
-  importe_recurso_mb numeric(18, 2), 
+  importe_debe_mb numeric(18, 2),
+  importe_haber_mb numeric(18, 2),
+  importe_recurso_mb numeric(18, 2),
   importe_gasto_mb numeric(18, 2),
   CONSTRAINT pk_tint_transaccion__id_int_transaccion PRIMARY KEY (id_int_transaccion)
 ) INHERITS (pxp.tbase)
@@ -366,7 +366,7 @@ add column id_int_transaccion integer not null;
 
 ALTER TABLE conta.tcomprobante
   ALTER COLUMN id_comprobante_fk DROP NOT NULL;
-  
+
 ALTER TABLE conta.ttransaccion
   ALTER COLUMN id_transaccion_fk DROP NOT NULL;
 
@@ -378,7 +378,7 @@ ALTER TABLE conta.ttransaccion
 
 ALTER TABLE conta.trelacion_contable
   ALTER COLUMN id_cuenta DROP NOT NULL;
-  
+
 /***********************************F-SCP-RAC-CONTA-0-03/09/2013****************************************/
 
 
@@ -386,20 +386,20 @@ ALTER TABLE conta.trelacion_contable
 
 ALTER TABLE conta.tdetalle_plantilla_comprobante
   ALTER COLUMN aplicar_documento TYPE VARCHAR(3);
-  
+
 ALTER TABLE conta.tdetalle_plantilla_comprobante
   ALTER COLUMN aplicar_documento SET DEFAULT 'no';
-  
+
 ALTER TABLE conta.tdetalle_plantilla_comprobante
-  ADD COLUMN campo_partida_ejecucion TEXT; 
-  
+  ADD COLUMN campo_partida_ejecucion TEXT;
+
 --------------- SQL ---------------
 
 ALTER TABLE conta.tint_transaccion
   ADD COLUMN id_detalle_plantilla_comprobante INTEGER;
 
 COMMENT ON COLUMN conta.tint_transaccion.id_detalle_plantilla_comprobante
-IS 'Hace referencia a la a la plantilla que origino esta transaccion, tambien sirve para agrupar transacciones de la misma clase';  
+IS 'Hace referencia a la a la plantilla que origino esta transaccion, tambien sirve para agrupar transacciones de la misma clase';
 
 --------------- SQL ---------------
 
@@ -410,14 +410,14 @@ ALTER TABLE conta.tdetalle_plantilla_comprobante
   ADD COLUMN mensaje_error VARCHAR(250);
 
 ALTER TABLE conta.tdetalle_plantilla_comprobante
-  ADD COLUMN descripcion varchar(250) DEFAULT 'Transaccion de plantilla';   
-  
+  ADD COLUMN descripcion varchar(250) DEFAULT 'Transaccion de plantilla';
+
 ALTER TABLE conta.tdetalle_plantilla_comprobante
-  ALTER COLUMN descripcion SET NOT NULL;  
+  ALTER COLUMN descripcion SET NOT NULL;
 
 
-  
- 
+
+
 
 ALTER TABLE conta.tdetalle_plantilla_comprobante
   ADD COLUMN campo_monto_pres VARCHAR(255);
@@ -452,27 +452,27 @@ IS 'rsta columna sirve para identificar el registro como valor por defecto para 
 
 
 /***********************************F-SCP-RAC-CONTA-0-04/09/2013****************************************/
-  
+
 
 /***********************************I-SCP-RAC-CONTA-0-11/09/2013****************************************/
 
 ALTER TABLE conta.tclase_comprobante
   ADD COLUMN codigo VARCHAR(50);
- 
+
 ALTER TABLE conta.tclase_comprobante
   ALTER COLUMN codigo SET NOT NULL;
 
 ALTER TABLE conta.tclase_comprobante
-  ADD UNIQUE (codigo); 
-  
+  ADD UNIQUE (codigo);
+
 ALTER TABLE conta.tint_comprobante
-  ADD COLUMN funcion_comprobante_eliminado VARCHAR(200);  
-  
+  ADD COLUMN funcion_comprobante_eliminado VARCHAR(200);
+
 ALTER TABLE conta.tint_comprobante
-  ADD COLUMN funcion_comprobante_validado VARCHAR(200);  
-  
- 
-  
+  ADD COLUMN funcion_comprobante_validado VARCHAR(200);
+
+
+
 /***********************************F-SCP-RAC-CONTA-0-11/09/2013****************************************/
 
 
@@ -505,11 +505,11 @@ ALTER TABLE conta.tplantilla_calculo
 --------------- SQL ---------------
 
 CREATE TABLE conta.tint_rel_devengado (
-  id_int_rel_devengado SERIAL NOT NULL, 
-  id_int_transaccion_dev INTEGER, 
-  id_int_transaccion_pag INTEGER, 
-  monto_pago NUMERIC(18,2), 
-  id_partida_ejecucion_pag INTEGER, 
+  id_int_rel_devengado SERIAL NOT NULL,
+  id_int_transaccion_dev INTEGER,
+  id_int_transaccion_pag INTEGER,
+  monto_pago NUMERIC(18,2),
+  id_partida_ejecucion_pag INTEGER,
   PRIMARY KEY(id_int_rel_devengado)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
@@ -565,13 +565,13 @@ IS 'contable o presupuestario';
 
 ALTER TABLE conta.tint_comprobante
   ADD COLUMN momento_comprometido VARCHAR(4) DEFAULT 'no' NOT NULL;
-  
+
 ALTER TABLE conta.tint_comprobante
-  ADD COLUMN momento_ejecutado VARCHAR(4) DEFAULT 'no' NOT NULL;  
+  ADD COLUMN momento_ejecutado VARCHAR(4) DEFAULT 'no' NOT NULL;
 
 ALTER TABLE conta.tint_comprobante
   ADD COLUMN momento_pagado VARCHAR(4) DEFAULT 'no' NOT NULL;
-  
+
   --------------- SQL ---------------
 
 ALTER TABLE conta.tplantilla_comprobante
@@ -594,7 +594,7 @@ ALTER TABLE conta.tplantilla_comprobante
 
 ALTER TABLE conta.tplantilla_comprobante
   ALTER COLUMN momento_presupuestario SET NOT NULL;
- 
+
 
 --------------- SQL ---------------
 
@@ -607,7 +607,7 @@ IS 'este importe se revierte del comprometido si es mayor a 0, por ejm. util par
 --------------- SQL ---------------
 
 
-  
+
 ALTER TABLE conta.tint_transaccion
   ADD COLUMN factor_reversion NUMERIC DEFAULT 0 NOT NULL;
 
@@ -645,26 +645,26 @@ add column recorrido_arbol VARCHAR(20);
 /***********************************I-SCP-RAC-CONTA-0-30/10/2013****************************************/
 
 CREATE TABLE conta.tcuenta_ids (
-  id_cuenta_uno INTEGER NOT NULL, 
-  id_cuenta_dos INTEGER NOT NULL, 
-  sw_cambio_gestion VARCHAR(10) DEFAULT 'gestion'::character varying, 
+  id_cuenta_uno INTEGER NOT NULL,
+  id_cuenta_dos INTEGER NOT NULL,
+  sw_cambio_gestion VARCHAR(10) DEFAULT 'gestion'::character varying,
   CONSTRAINT tcuenta_ids_pkey PRIMARY KEY(id_cuenta_uno)
 ) WITHOUT OIDS;
 
 CREATE INDEX tcuenta_ids_idx ON conta.tcuenta_ids
   USING btree (id_cuenta_dos);
-  
+
 /***********************************F-SCP-RAC-CONTA-0-30/10/2013****************************************/
 
 
 /***********************************I-SCP-RAC-CONTA-0-14/11/2013****************************************/
 
 CREATE TABLE conta.tcuenta_partida (
-  id_cuenta_partida SERIAL, 
-  id_cuenta INTEGER, 
-  id_partida INTEGER, 
-  sw_deha VARCHAR(10) NOT NULL, 
-  se_rega VARCHAR(10) NOT NULL, 
+  id_cuenta_partida SERIAL,
+  id_cuenta INTEGER,
+  id_partida INTEGER,
+  sw_deha VARCHAR(10) NOT NULL,
+  se_rega VARCHAR(10) NOT NULL,
   CONSTRAINT tcuenta_partida_pkey PRIMARY KEY(id_cuenta_partida)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
@@ -699,7 +699,7 @@ ALTER TABLE conta.ttipo_relacion_contable
 /***********************************I-SCP-RCM-CONTA-0-12/12/2013****************************************/
 ALTER TABLE conta.tint_transaccion
   ADD COLUMN id_cuenta_bancaria INTEGER;
-  
+
 ALTER TABLE conta.tint_transaccion
   ADD COLUMN id_cuenta_bancaria_mov INTEGER;
 /***********************************F-SCP-RCM-CONTA-0-12/12/2013****************************************/
@@ -707,25 +707,25 @@ ALTER TABLE conta.tint_transaccion
 /***********************************I-SCP-RCM-CONTA-0-16/12/2013****************************************/
 ALTER TABLE conta.tdetalle_plantilla_comprobante
   ADD COLUMN campo_id_cuenta_bancaria varchar(100);
-  
+
 ALTER TABLE conta.tdetalle_plantilla_comprobante
   ADD COLUMN campo_id_cuenta_bancaria_mov varchar(100);
-  
+
 ALTER TABLE conta.tdetalle_plantilla_comprobante
   ADD COLUMN campo_nro_cheque VARCHAR(100);
-  
+
 ALTER TABLE conta.tplantilla_comprobante
   ADD COLUMN campo_id_cuenta_bancaria VARCHAR(100);
-  
+
 ALTER TABLE conta.tplantilla_comprobante
   ADD COLUMN campo_id_cuenta_bancaria_mov VARCHAR(100);
-  
+
 ALTER TABLE conta.tplantilla_comprobante
   ADD COLUMN campo_nro_cheque VARCHAR(100);
-  
+
 ALTER TABLE conta.tint_transaccion
   ADD COLUMN nro_cheque INTEGER;
-  
+
 /***********************************F-SCP-RCM-CONTA-0-16/12/2013****************************************/
 
 /***********************************I-SCP-RCM-CONTA-0-19/12/2013****************************************/
@@ -759,13 +759,13 @@ ALTER TABLE conta.tplantilla_comprobante
 
 ALTER TABLE conta.tplantilla_comprobante
   ADD COLUMN campo_nro_tramite VARCHAR(350);
-  
-  
+
+
 --------------- SQL ---------------
 
 ALTER TABLE conta.tplantilla_comprobante
   ADD COLUMN campo_nro_cuenta_bancaria_trans VARCHAR(350);
-   
+
 
 --------------- SQL ---------------
 
@@ -804,16 +804,16 @@ ALTER TABLE conta.tdetalle_plantilla_comprobante
 COMMENT ON COLUMN conta.tdetalle_plantilla_comprobante.campo_porc_monto_excento_var
 IS 'Aca definimos el porcenta para el monto excento que se aplican a las plantillas de calculo';
 
-  
+
 ALTER TABLE conta.tint_comprobante
   ADD COLUMN id_cuenta_bancaria INTEGER;
-  
+
 ALTER TABLE conta.tint_comprobante
   ADD COLUMN id_cuenta_bancaria_mov INTEGER;
-  
+
 ALTER TABLE conta.tint_comprobante
   ADD COLUMN nro_cheque INTEGER;
-  
+
 ALTER TABLE conta.tint_comprobante
   ADD COLUMN nro_cuenta_bancaria_trans VARCHAR(255);
 
@@ -839,7 +839,7 @@ IS 'Columna para obtener el nombre del cheque o transferencia con la que se har�
 /***********************************I-SCP-RAC-CONTA-0-11/02/2014****************************************/
 ALTER TABLE conta.tint_transaccion
   ALTER COLUMN factor_reversion TYPE NUMERIC;
-  
+
 /***********************************F-SCP-RAC-CONTA-0-11/02/2014****************************************/
 
 
@@ -926,12 +926,12 @@ IS 'este campo hace referencia al id_orden_trabajo';
 
 ALTER TABLE conta.tint_transaccion
   ADD COLUMN id_orden_trabajo INTEGER;
-  
-  
+
+
 --------------- SQL ---------------
 
 ALTER TABLE conta.ttransaccion
-  ADD COLUMN id_orden_trabajo INTEGER;  
+  ADD COLUMN id_orden_trabajo INTEGER;
 
 /***********************************F-SCP-RAC-CONTA-0-04/09/2014****************************************/
 
@@ -1000,7 +1000,7 @@ CREATE TABLE conta.tgrupo_ot (
 
 ALTER TABLE conta.tgrupo_ot
   OWNER TO postgres;
-  
+
 --------------- SQL ---------------
 
 CREATE TABLE conta.tgrupo_ot_det (
@@ -1012,7 +1012,7 @@ CREATE TABLE conta.tgrupo_ot_det (
 ;
 
 ALTER TABLE conta.tgrupo_ot_det
-  OWNER TO postgres; 
+  OWNER TO postgres;
 
 
 
@@ -1030,8 +1030,8 @@ ALTER TABLE conta.tint_comprobante
 
 ALTER TABLE conta.tcomprobante
   ALTER COLUMN beneficiario TYPE VARCHAR(500) COLLATE pg_catalog."default";
-  
-  
+
+
 /***********************************F-SCP-RAC-CONTA-0-05/11/2014****************************************/
 
 
@@ -1058,18 +1058,18 @@ WITH (oids = true);
 
   ALTER TABLE conta.ttransaccion
   ADD COLUMN importe_debe NUMERIC(18,2) DEFAULT 0 NOT NULL;
-  
+
   ALTER TABLE conta.ttransaccion
   ADD COLUMN importe_haber NUMERIC(18,2) DEFAULT 0 NOT NULL;
-  
+
   ALTER TABLE conta.ttransaccion
   ADD COLUMN importe_gasto NUMERIC(18,2) DEFAULT 0 NOT NULL;
-  
+
   ALTER TABLE conta.ttransaccion
   ADD COLUMN importe_recurso NUMERIC(18,2) DEFAULT 0 NOT NULL;
-  
-  
-  
+
+
+
 /***********************************F-SCP-RAC-CONTA-0-11/12/2014****************************************/
 
 
@@ -1161,9 +1161,9 @@ ALTER TABLE conta.tint_transaccion
 
 ALTER TABLE conta.tplantilla_comprobante
   ADD COLUMN campo_tipo_cambio VARCHAR(350);
-  
 
-  
+
+
 /***********************************F-SCP-RAC-CONTA-0-31/03/2015****************************************/
 
 
@@ -1172,7 +1172,7 @@ ALTER TABLE conta.tplantilla_comprobante
 
 ALTER TABLE conta.ttransaccion
   ALTER COLUMN glosa TYPE VARCHAR COLLATE pg_catalog."default";
-  
+
 --------------- SQL ---------------
 
 ALTER TABLE conta.tint_transaccion
@@ -1212,7 +1212,7 @@ IS 'este campo es para definir el depto de libro de bancos del comprobante';
 
 ALTER TABLE conta.ttransaccion
   ALTER COLUMN id_auxiliar DROP NOT NULL;
-  
+
 /***********************************F-SCP-RAC-CONTA-0-05/05/2015****************************************/
 
 /***********************************I-SCP-GSS-CONTA-0-07/05/2015****************************************/
@@ -1269,8 +1269,8 @@ IS 'positivo o negativo, caso depresiacion acumulado es negativo';
 
 ALTER TABLE conta.tconfig_tipo_cuenta
   DROP CONSTRAINT chk_tconfig_tipo_cuenta__tipo_cuenta RESTRICT;
-  
-  
+
+
 /***********************************F-SCP-RAC-CONTA-0-03/06/2015****************************************/
 
 
@@ -1290,10 +1290,10 @@ IS 'array que permite configurar el valor por defecto de la cuenta balance, resu
  --------------- SQL ---------------
 
 ALTER TABLE conta.tcuenta
-  ADD COLUMN eeff VARCHAR(20)[] DEFAULT '{balance}' NOT NULL; 
+  ADD COLUMN eeff VARCHAR(20)[] DEFAULT '{balance}' NOT NULL;
 
 COMMENT ON COLUMN conta.tcuenta.eeff
-IS 'defecto, (toma valor de config del tipo), resultado o balance'; 
+IS 'defecto, (toma valor de config del tipo), resultado o balance';
 
 /***********************************F-SCP-RAC-CONTA-0-15/06/2015****************************************/
 
@@ -1545,7 +1545,7 @@ IS 'cuando sea del tipo comprobante';
 
 ALTER TABLE conta.tresultado_plantilla
   ADD COLUMN cbte_apertura VARCHAR(20) DEFAULT 'no' NOT NULL;
-  
+
   --------------- SQL ---------------
 
 ALTER TABLE conta.tresultado_plantilla
@@ -1632,7 +1632,7 @@ IS 'orden en el que se ingresase inserta en el comprobante, (no se tuliza para e
 
 ALTER TABLE conta.tresultado_plantilla
   DROP COLUMN clase_cbte;
-  
+
 --------------- SQL ---------------
 
 ALTER TABLE conta.tresultado_plantilla
@@ -1676,7 +1676,7 @@ IS 'identifica donde se origina el comprobante,  util para el caso de comprobant
 
 --ALTER TABLE conta.tint_comprobante
 --  DROP CONSTRAINT chk_tconfig_tipo_cuenta__tipo_cuenta RESTRICT;
-  
+
 CREATE TABLE conta.tdoc_compra_venta (
   id_doc_compra_venta BIGSERIAL,
   id_plantilla INTEGER,
@@ -1844,7 +1844,7 @@ IS 'identifica los cbtes migrados desde la central hacia la regional';
 CREATE TABLE conta.tbanca_compra_venta (
   id_banca_compra_venta SERIAL,
   tipo VARCHAR(255),
-  modalidad_transaccion INTEGER, 
+  modalidad_transaccion INTEGER,
   fecha_documento date,
   tipo_transaccion INTEGER,
   nit_ci VARCHAR(255),
@@ -1860,19 +1860,19 @@ CREATE TABLE conta.tbanca_compra_venta (
   num_documento_pago varchar(255),
   tipo_documento_pago numeric,
   fecha_de_pago date,
-  CONSTRAINT pk_tbanca_compra_venta__id_cuenta PRIMARY KEY(id_banca_compra_venta) 
+  CONSTRAINT pk_tbanca_compra_venta__id_cuenta PRIMARY KEY(id_banca_compra_venta)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
 ALTER TABLE conta.tbanca_compra_venta
   ADD COLUMN id_depto_conta INTEGER;
-  
+
 ALTER TABLE conta.tbanca_compra_venta
   ADD COLUMN id_periodo INTEGER;
-  
 
-  
-  
+
+
+
 COMMENT ON COLUMN conta.tbanca_compra_venta.tipo
 IS 'tipo puede ser compra o venta';
 
@@ -1923,9 +1923,9 @@ COMMENT ON COLUMN conta.tbanca_compra_venta.num_documento_pago
 IS 'N° del documento utilizado para la realización del pago';
 
 COMMENT ON COLUMN conta.tbanca_compra_venta.tipo_documento_pago
-IS 'Consignar uno de los siguientes números de acuerdo a lo que corresponda:  
-1. Cheque de cualquier naturaleza 2. Orden de transferencia  3. Ordenes de transferencia electrónica de fondos 4. Transferencia de fondos 
-5. Tarjeta de débito 
+IS 'Consignar uno de los siguientes números de acuerdo a lo que corresponda:
+1. Cheque de cualquier naturaleza 2. Orden de transferencia  3. Ordenes de transferencia electrónica de fondos 4. Transferencia de fondos
+5. Tarjeta de débito
 6. Tarjeta de crédito 7. Tarjeta prepagada 8. Depósito en cuenta. 9. Cartas de crédito 10. Otros';
 
 COMMENT ON COLUMN conta.tbanca_compra_venta.fecha_de_pago
@@ -1940,9 +1940,9 @@ IS 'Fecha de la emisión del documento de pago';
 CREATE TABLE conta.tconfig_banca (
   id_config_banca SERIAL,
   tipo VARCHAR(255),
-  digito INTEGER, 
+  digito INTEGER,
   descripcion varchar(255),
-  CONSTRAINT pk_tconfig_banca__id_cuenta PRIMARY KEY(id_config_banca) 
+  CONSTRAINT pk_tconfig_banca__id_cuenta PRIMARY KEY(id_config_banca)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
@@ -1997,23 +1997,23 @@ ALTER TABLE conta.tbanca_compra_venta
 
 ALTER TABLE conta.tbanca_compra_venta
   ALTER COLUMN revisado SET DEFAULT 'no';
-  
-  
+
+
   ALTER TABLE conta.tbanca_compra_venta
   ADD COLUMN id_proveedor INTEGER;
-  
+
   ALTER TABLE conta.tbanca_compra_venta
   ADD COLUMN id_contrato INTEGER;
-  
+
   ALTER TABLE conta.tbanca_compra_venta
   ADD COLUMN id_cuenta_bancaria INTEGER;
-  
+
 --------------- SQL ---------------
 
 ALTER TABLE conta.tdoc_concepto
   RENAME COLUMN cantidad TO cantidad_sol;
-  
-   
+
+
 /***********************************F-SCP-FFP-CONTA-1-16/09/2015****************************************/
 
 
@@ -2068,14 +2068,14 @@ IS 'fecha fin para buscar en rango de documentos';
 
 ALTER TABLE conta.tagrupador
   ALTER COLUMN fecha_fin SET NOT NULL;
-  
+
 --------------- SQL ---------------
 
 ALTER TABLE conta.tagrupador
   ADD COLUMN fecha_cbte DATE NOT NULL;
 
 COMMENT ON COLUMN conta.tagrupador.fecha_cbte
-IS 'fecha para colocar al comprobante';  
+IS 'fecha para colocar al comprobante';
 
 
 --------------- SQL ---------------
@@ -2127,7 +2127,7 @@ ALTER TABLE conta.tagrupador_doc
 --------------- SQL ---------------
 
 ALTER TABLE conta.tagrupador
-  ADD COLUMN id_gestion INTEGER; 
+  ADD COLUMN id_gestion INTEGER;
 /***********************************F-SCP-RAC-CONTA-1-23/09/2015****************************************/
 
 
@@ -2262,7 +2262,7 @@ IS 'identifica la moneda de triangulacion';
 
 ALTER TABLE conta.tint_comprobante
   ALTER COLUMN tipo_cambio TYPE NUMERIC;
-  
+
 --------------- SQL ---------------
 
 ALTER TABLE conta.tint_comprobante
@@ -2271,7 +2271,7 @@ ALTER TABLE conta.tint_comprobante
 COMMENT ON COLUMN conta.tint_comprobante.tipo_cambio_2
 IS 'tipo de cambio para la segunda operacion, (la triangulacion requiere dos oepraciones)';
 
- 
+
 --------------- SQL ---------------
 
 ALTER TABLE conta.tint_transaccion
@@ -2362,8 +2362,8 @@ ALTER TABLE conta.tint_transaccion
 
 ALTER TABLE conta.tint_transaccion
   ADD COLUMN importe_recurso_mt NUMERIC(18,2);
-  
-  
+
+
  --------------- SQL ---------------
 
 ALTER TABLE conta.tint_comprobante
@@ -2480,7 +2480,7 @@ CREATE TABLE conta.tint_comprobante_bk (
   id_config_cambiaria INTEGER,
   localidad VARCHAR(20) DEFAULT 'nacional'::character varying NOT NULL,
   CONSTRAINT tint_comprobante_bk_pk_tcomprobante__id_int_comprobante_bk PRIMARY KEY(id_int_comprobante_bk)
- 
+
 ) INHERITS (pxp.tbase)
 
 WITH (oids = false);
@@ -2594,7 +2594,7 @@ CREATE TABLE conta.tint_transaccion_bk (
   importe_gasto_mt NUMERIC(18,2),
   importe_recurso_mt NUMERIC(18,2),
   CONSTRAINT tint_transaccion_bk_pk_tint_transaccion__id_int_transaccion_bk PRIMARY KEY(id_int_transaccion_bk)
-  
+
 ) INHERITS (pxp.tbase)
 
 WITH (oids = true);
@@ -2786,7 +2786,7 @@ CREATE TABLE conta.ttxt_importacion_bcv (
   id_periodo INTEGER,
   CONSTRAINT pk_ttxt_importacion_bcv__id_txt_importacion_bcv PRIMARY KEY(id_txt_importacion_bcv)
 ) INHERITS (pxp.tbase)
-WITHOUT OIDS; 
+WITHOUT OIDS;
 
 
 ALTER TABLE conta.ttxt_importacion_bcv
@@ -2982,7 +2982,7 @@ IS 'moenda sobre la que se realiza el ajuste, por defecto es la moneda de la cue
 /***********************************I-SCP-RAC-CONTA-0-12/01/2016****************************************/
 
 ALTER TABLE conta.tcuenta DROP CONSTRAINT chk_tcuenta__tipo_cuenta_pat RESTRICT;
-  
+
 /***********************************F-SCP-RAC-CONTA-12/01/2016****************************************/
 
 
@@ -3056,14 +3056,14 @@ IS 'codigo';
 
 ALTER TABLE conta.tdoc_compra_venta
   ADD COLUMN id_proveedor INTEGER;
-  
+
 --------------- SQL ---------------
 
 ALTER TABLE conta.tdoc_compra_venta
   ADD COLUMN id_cliente INTEGER;
 
 COMMENT ON COLUMN conta.tdoc_compra_venta.id_cliente
-IS 'identifica el cliente en ventas';  
+IS 'identifica el cliente en ventas';
 
 
 --------------- SQL ---------------
@@ -3133,15 +3133,15 @@ ALTER TABLE conta.tbanca_compra_venta
 
 ALTER TABLE conta.tbanca_compra_venta
   ADD COLUMN resolucion VARCHAR(255);
-  
+
   ALTER TABLE conta.tbanca_compra_venta
   ADD COLUMN tramite_cuota VARCHAR(255);
-  
-  
-  
+
+
+
   ALTER TABLE conta.tbanca_compra_venta
   ADD COLUMN id_proceso_wf INTEGER;
-  
+
 /***********************************F-SCP-RAC-CONTA-0-21/03/2016****************************************/
 
 
@@ -3211,13 +3211,13 @@ ALTER TABLE conta.tbanca_compra_venta
 
   ALTER TABLE conta.tbanca_compra_venta
   ADD COLUMN multa_cuota numeric(10,2) DEFAULT 0 NOT NULL;
-  
+
 ALTER TABLE conta.tbanca_compra_venta
   ADD COLUMN estado_libro VARCHAR(255) NULL ;
-  
+
   ALTER TABLE conta.tbanca_compra_venta
   ALTER COLUMN monto_acumulado TYPE NUMERIC(12,2);
-  
+
 
 /***********************************F-SCP-FFP-CONTA-1-20/05/2016****************************************/
 
@@ -3322,7 +3322,7 @@ CREATE TABLE conta.tcuenta_tmp (
   eeff VARCHAR(12) DEFAULT 'B'::character varying,
   saldo VARCHAR(12) DEFAULT 'D'::character varying NOT NULL,
   tipo_cuenta VARCHAR(30) DEFAULT 'activo'::character varying NOT NULL
-) 
+)
 WITH (oids = false);
 
 ALTER TABLE conta.tcuenta_tmp
@@ -3389,12 +3389,12 @@ WITH (oids = false);
 
 ALTER TABLE conta.tentrega
   ADD COLUMN obs VARCHAR;
-  
+
   --------------- SQL ---------------
 
 ALTER TABLE conta.tentrega
   ADD COLUMN id_tipo_relacion_comprobante INTEGER;
-  
+
 /***********************************F-SCP-RAC-CONTA-1-17/11/2016****************************************/
 
 
@@ -3559,13 +3559,13 @@ WITH (oids = false);
 
 ALTER TABLE conta.tentrega
   ADD COLUMN id_estado_wf INTEGER;
-  
+
   --------------- SQL ---------------
 
 ALTER TABLE conta.tentrega
   ADD COLUMN id_proceso_wf INTEGER;
-  
-  
+
+
 /***********************************F-SCP-RAC-CONTA-0-20/02/2017****************************************/
 
 
@@ -3687,16 +3687,16 @@ CREATE TABLE conta.torden_suborden (
 ) INHERITS (pxp.tbase)
 
 WITH (oids = false);
-  
-  
-  
+
+
+
 /***********************************F-SCP-RAC-CONTA-0-15/05/2017****************************************/
 
 
 
 /***********************************I-SCP-RAC-CONTA-1-15/05/2017****************************************/
-  
-  
+
+
   --------------- SQL ---------------
 
 ALTER TABLE conta.tint_transaccion
@@ -3706,7 +3706,7 @@ COMMENT ON COLUMN conta.tint_transaccion.id_suborden
 IS 'agruapdor de costos del tipo suborden';
 
 
-  
+
 /***********************************F-SCP-RAC-CONTA-1-15/05/2017****************************************/
 
 
@@ -3731,7 +3731,7 @@ COMMENT ON COLUMN conta.tdetalle_plantilla_comprobante.campo_suborden
 IS 'para la definicion de usbordenes';
 
 
-  
+
 /***********************************F-SCP-RAC-CONTA-1-16/05/2017****************************************/
 
 
@@ -3828,8 +3828,8 @@ ALTER TABLE conta.tcuenta
 
 ALTER TABLE conta.tconfig_tipo_cuenta
   RENAME COLUMN id_cofig_tipo_cuenta TO id_config_tipo_cuenta;
-  
-  
+
+
 /***********************************F-SCP-RAC-CONTA-0-07/06/2017****************************************/
 
 
@@ -3839,12 +3839,12 @@ ALTER TABLE conta.tconfig_tipo_cuenta
 
 ALTER TABLE conta.tplantilla_comprobante
   ADD COLUMN campo_cbte_relacionado VARCHAR(350);
-  
+
   --------------- SQL ---------------
 
 ALTER TABLE conta.tplantilla_comprobante
   ADD COLUMN codigo_tipo_relacion VARCHAR(350);
-  
+
 /***********************************F-SCP-RAC-CONTA-0-08/06/2017****************************************/
 
 
@@ -4150,7 +4150,7 @@ CREATE TYPE conta.json_regimen_simplificado AS (
 
 /***********************************I-SCP-RAC-CONTA-1-05/07/2017****************************************/
 ALTER TABLE conta.trango
-  ADD COLUMN memoria NUMERIC;  
+  ADD COLUMN memoria NUMERIC;
 --------------- SQL ---------------
 ALTER TABLE conta.trango
   ADD COLUMN formulado NUMERIC;
@@ -4159,11 +4159,11 @@ ALTER TABLE conta.trango
   ADD COLUMN comprometido NUMERIC;
 
 ALTER TABLE conta.trango
-  ADD COLUMN ejecutado NUMERIC; 
+  ADD COLUMN ejecutado NUMERIC;
 
 ALTER TABLE conta.trango
-  ADD COLUMN id_partida INTEGER;  
-  
+  ADD COLUMN id_partida INTEGER;
+
 /***********************************F-SCP-RAC-CONTA-1-05/07/2017****************************************/
 
 
@@ -4173,7 +4173,7 @@ ALTER TABLE conta.trango
 
 ALTER TABLE conta.tconfig_cambiaria
   ADD COLUMN ope_3 VARCHAR DEFAULT '{MB}->{MA}' NOT NULL;
-  
+
 --------------- SQL ---------------
 
 ALTER TABLE conta.tint_transaccion
@@ -4196,7 +4196,7 @@ ALTER TABLE conta.tint_comprobante
   ADD COLUMN tipo_cambio_3 NUMERIC;
 
 COMMENT ON COLUMN conta.tint_comprobante.tipo_cambio_3
-IS 'tipo de cambio para la tercera operacion'; 
+IS 'tipo de cambio para la tercera operacion';
 
 
 --------------- SQL ---------------
@@ -4205,23 +4205,23 @@ ALTER TABLE conta.tint_comprobante
   ADD COLUMN id_moneda_act INTEGER;
 
 COMMENT ON COLUMN conta.tint_comprobante.id_moneda_act
-IS 'identifica la moneda de actualizacion'; 
+IS 'identifica la moneda de actualizacion';
 
 --------------- SQL ---------------
 
 ALTER TABLE conta.tint_transaccion
   ADD COLUMN importe_debe_ma NUMERIC;
-  
+
 --------------- SQL ---------------
 
 ALTER TABLE conta.tint_transaccion
   ADD COLUMN importe_haber_ma NUMERIC;
-  
+
 --------------- SQL ---------------
 
 ALTER TABLE conta.tint_transaccion
   ADD COLUMN importe_gasto_ma NUMERIC;
-      
+
 
 --------------- SQL ---------------
 
@@ -4233,7 +4233,7 @@ ALTER TABLE conta.tint_transaccion
 
 ALTER TABLE conta.tint_rel_devengado
   ADD COLUMN monto_pago_ma NUMERIC;
-    
+
 --------------- SQL ---------------
 
 ALTER TABLE conta.tcuenta
@@ -4249,7 +4249,7 @@ ALTER TABLE conta.tresultado_plantilla
   ADD COLUMN nombre_func VARCHAR;
 
 COMMENT ON COLUMN conta.tresultado_plantilla.nombre_func
-IS 'si es null la logica de la plantilla sale de resutlado detalle,  si se define, esta función debe contener lalogica para generar el cbte'; 
+IS 'si es null la logica de la plantilla sale de resutlado detalle,  si se define, esta función debe contener lalogica para generar el cbte';
 
 
 /***********************************F-SCP-RAC-CONTA-1-11/07/2017****************************************/
@@ -4264,12 +4264,12 @@ ALTER TABLE conta.trango
 
 
 /***********************************F-SCP-RAC-CONTA-1-25/07/2017****************************************/
-  
-  
+
+
 
 
 /***********************************I-SCP-RAC-CONTA-1-26/07/2017****************************************/
-  
+
 --------------- SQL ---------------
 
 CREATE TABLE conta.ttipo_estado_cuenta (
@@ -4291,8 +4291,8 @@ COMMENT ON COLUMN conta.ttipo_estado_cuenta.columna_id_tabla
 IS 'nombre de la columnas primari key de la tabla especificada';
 
 COMMENT ON COLUMN conta.ttipo_estado_cuenta.columna_codigo_aux
-IS 'nombre de la columnas codigo auxuliar, (que nos permite unir los datos de tabla con auxiliares contables)'; 
-  
+IS 'nombre de la columnas codigo auxuliar, (que nos permite unir los datos de tabla con auxiliares contables)';
+
 
 --------------- SQL ---------------
 
@@ -4325,7 +4325,7 @@ IS 'ur de la interface que mostra el detalle de la composicion del calculo(para 
 --------------- SQL ---------------
 ALTER TABLE conta.ttipo_estado_columna
   ADD COLUMN id_tipo_estado_cuenta INTEGER NOT NULL;
-  
+
 -------------- SQL ---------------
 
 ALTER TABLE conta.ttipo_estado_columna
@@ -4335,11 +4335,11 @@ COMMENT ON COLUMN conta.ttipo_estado_columna.prioridad
 IS 'Prioridad con la que se muestra la columna en los resultados';
 
 /***********************************F-SCP-RAC-CONTA-1-26/07/2017****************************************/
-  
-  
-  
+
+
+
 /***********************************I-SCP-RAC-CONTA-1-29/07/2017****************************************/
- 
+
 ALTER TABLE conta.ttipo_estado_columna
   ADD COLUMN descripcion VARCHAR;
 
@@ -4359,13 +4359,13 @@ ALTER TABLE conta.ttipo_estado_columna
 COMMENT ON COLUMN conta.ttipo_estado_columna.parametros_det
 IS 'JSON con los parametros que se mandan al a la interface de datalle';
 
- 
+
 /***********************************F-SCP-RAC-CONTA-1-29/07/2017****************************************/
-  
-  
+
+
 /***********************************I-SCP-RAC-CONTA-1-08/09/2017****************************************/
-  
- 
+
+
 CREATE TABLE conta.ttipo_cc_cuenta (
   id_tipo_cc_cuenta SERIAL NOT NULL,
   id_tipo_cc INTEGER,
@@ -4459,16 +4459,16 @@ IS 'se llena con el catalogo configurado en el tipo de relacion contable,  es el
 --------------- SQL ---------------
 
 COMMENT ON TABLE conta.trelacion_contable
-IS 'esta tabla permite configurar cuenta partida y  auxioar para diferentes conceptos, 
+IS 'esta tabla permite configurar cuenta partida y  auxioar para diferentes conceptos,
 centralizando la parametrizacion en un unico lugar y facilitar la generacion de comprobantes';
 
 /***********************************F-SCP-RAC-CONTA-1-01/09/2017****************************************/
 
 
- 
- 
+
+
 /***********************************I-SCP-RAC-CONTA-1-13/09/2017****************************************/
- 
+
 
 ALTER TABLE conta.tdoc_compra_venta
   ADD COLUMN nro_tramite VARCHAR;
@@ -4478,7 +4478,7 @@ IS 'identifica el nro de tramite donde fue generada la factura';
 
 
 /***********************************F-SCP-RAC-CONTA-1-13/09/2017****************************************/
- 
+
 
 /***********************************I-SCP-FFP-CONTA-1-20/11/2017****************************************/
 
@@ -4488,3 +4488,9 @@ ALTER TABLE conta.tbanca_compra_venta ADD comentario TEXT NULL;
 /***********************************F-SCP-FFP-CONTA-1-11/20/2017****************************************/
 
 
+/***********************************I-SCP-IRVA-CONTA-1-01/03/2019****************************************/
+
+ALTER TABLE conta.trevisar_comisionistas
+  ADD COLUMN id_contrato INTEGER;
+
+/***********************************F-SCP-FFP-CONTA-1-01/03/2019****************************************/

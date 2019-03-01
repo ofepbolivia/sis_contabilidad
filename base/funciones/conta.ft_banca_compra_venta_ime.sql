@@ -380,7 +380,8 @@ BEGIN
           saldo                 = v_saldo,
           tramite_cuota         = v_parametros.tramite_cuota,
           periodo_servicio      = v_parametros.periodo_servicio,
-          multa_cuota           = v_parametros.multa_cuota
+          multa_cuota           = v_parametros.multa_cuota,
+          comentario            = v_parametros.comentario
 
         WHERE id_banca_compra_venta = v_parametros.id_banca_compra_venta;
 
@@ -638,7 +639,7 @@ BEGIN
             NULL,
             'importado',
             4,
-            242,--id del proveedor 398 AIRBP - (178 LACTEOSBOL) (242 tab)
+            3397,--id del proveedor 398 AIRBP - (178 LACTEOSBOL) (242 tab) , (3397 SEDEM)
             61,
             '10-0017-15',
             'si',
@@ -846,7 +847,7 @@ and (plantilla.tipo_informe = ''lcv'' or plantilla.id_plantilla = 28)
 and (
         libro.estado in (''cobrado'',''entregado'',''anulado'',''borrador'')
         or libro.estado is null
-        or (pg_pagado.forma_pago = ''transferencia'' and libro.estado in(''cobrado'',''entregado'',''anulado'',''borrador'') )
+        or (pg_pagado.forma_pago = ''transferencia'' and libro.estado in(''cobrado'',''entregado'',''anulado'',''borrador'',''depositado'') )
       )
 
 and ((doc.fecha_documento >= ''' || v_periodo.fecha_ini || '''::date and doc.fecha_documento <=''' ||

@@ -87,6 +87,15 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
             handler : this.addListaNegra,
             tooltip : '<b>Lista Negra</b><br/><b>Agrega a la lista negra</b>'
         });
+        this.addButton('insertACM',{
+
+            argument: {imprimir: 'insertACM'},
+            text :'Insertar ACM',
+            iconCls : 'bstatistics',
+            disabled: true,
+            handler : this.insertACM,
+            tooltip : '<b>Insertar ACM</b><br/><b>Gestiones Anteriores</b>'
+        });
         this.addButton('insertAuto',{argument: {imprimir: 'insertAuto'},text:'<i class="fa fa-file-text-o fa-2x"></i> insertAuto',/*iconCls:'' ,*/disabled:true,handler:this.insertAuto});
         this.addButton('exportar',{argument: {imprimir: 'exportar'},text:'<i class="fa fa-file-text-o fa-2x"></i> Generar Periodo TXT - SIN',/*iconCls:'' ,*/disabled:true,handler:this.generar_txt});
         this.addButton('Importar',{argument: {imprimir: 'Importar'},text:'<i class="fa fa-file-text-o fa-2x"></i> Importar TXT',/*iconCls:'' ,*/disabled:true,handler:this.importar_txt});
@@ -95,7 +104,7 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
         this.addButton('exportarGestionCompleta',{argument: {imprimir: 'exportarGestionCompleta'},text:'<i class="fa fa-file-text-o fa-2x"></i> Generar Gestion TXT - SIN',/*iconCls:'' ,*/disabled:false,handler:this.exportarGestionCompleta});
 
     },
-			
+
 	Atributos:[
 		{
 			//configuracion del componente
@@ -105,7 +114,7 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_comisionista'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
         {
             config:{
@@ -431,7 +440,7 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 				type:'DateField',
@@ -456,7 +465,7 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
 				form:false
 		}
 	],
-	tam_pag:50,	
+	tam_pag:50,
 	title:'Comisionistas ',
 	ActSave:'../../sis_contabilidad/control/Comisionistas/insertarComisionistas',
 	ActDel:'../../sis_contabilidad/control/Comisionistas/eliminarComisionistas',
@@ -590,9 +599,10 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
     validarFiltros:function(){
         if(this.cmbDepto.getValue() && this.cmbGestion.validate() && this.cmbPeriodo.validate()){
             this.getBoton('insertAuto').enable();
-           this.getBoton('exportar').enable();
+            this.getBoton('exportar').enable();
             this.getBoton('Importar').enable();
             this.getBoton('BorrarTodo').enable();
+            this.getBoton('insertACM').enable();
             return true;
         }
         else{
@@ -828,6 +838,24 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
             scope:this
         });
     },
+    insertACM:function(){
+
+        Phx.CP.loadingShow();
+
+        var rec = this.cmbPeriodo.getValue();
+        var id_depto_conta = this.cmbDepto.getValue();
+        var id_gestion = this.cmbGestion.getValue();
+
+        Ext.Ajax.request({
+            url:'../../sis_contabilidad/control/Comisionistas/insertACM',
+            params:{'id_periodo':rec,'start':0,'limit':100000,id_depto_conta:id_depto_conta,id_gestion:id_gestion},
+            success: this.successAutor,
+
+            failure: this.conexionFailure,
+            timeout:this.timeout,
+            scope:this
+        });
+    },
     successAutor:function(resp){
         Phx.CP.loadingHide();
         this.reload();
@@ -865,5 +893,3 @@ Phx.vista.Comisionistas=Ext.extend(Phx.gridInterfaz,{
 	}
 )
 </script>
-		
-		

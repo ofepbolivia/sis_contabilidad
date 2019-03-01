@@ -49,6 +49,16 @@ DECLARE
     v_numero			varchar;
     v_nit				varchar;
     v_id_agt			integer;
+    v_gestion			integer;
+    v_acm				record;
+    v_acm_insertado		integer;
+    v_fecha_max			date;
+    v_fechas_periodo	record;
+    v_contrato			record;
+    v_numero_contrato	varchar;
+    v_id_contrato		integer;
+    v_nombre_tabla		varchar;
+    v_contrato2			record;
 BEGIN
 
     v_nombre_funcion = 'conta.ft_comisionistas_ime';
@@ -540,10 +550,11 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
 
       BEGIN
 
+
       IF  (SELECT max(x.id_periodo)
           from conta.tcomisionistas x) = v_parametros.id_periodo THEN
 
-           raise exception 'Ya exite datos generados para este mes.';
+           raise exception 'Ya existe datos generados para este mes.';
       ELSE
 
       select p.periodo
@@ -551,31 +562,52 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
                v_periodo
       from param.tperiodo p
       where p.id_periodo = v_parametros.id_periodo and p.id_gestion = v_parametros.id_gestion;
-     --raise exception '%',v_periodo;
+
+      SELECT ge.gestion
+      INTO v_gestion
+      FROM param.tgestion ge
+      WHERE ge.id_gestion = v_parametros.id_gestion;
+
+      select
+      pe.fecha_ini,
+      pe.fecha_fin
+      into v_fechas_periodo
+      from param.tperiodo pe
+      where pe.id_periodo = v_parametros.id_periodo;
+
+
      FOR v_reccord IN (select 	a.id_agencia,
             a.nombre,
             a.nit,
-            (select  RIGHT(c.numero,19)
-            from leg.tcontrato c
-            where c.id_agencia = a.id_agencia and c.fecha_fin = (select max(d.fecha_fin)
-			from leg.tcontrato d
-			where d.id_agencia = a.id_agencia)) as nro_contrato,
             '' as codigo,
             'Venta de Servicio de Transporte Aereo' as descripcion,
             1 cantidad,
             bo.neto,
             bo.total,
           (-1* bo.comision) as total_comision,
-			bo.nro_boleto
+			bo.nro_boleto,
+            bo.fecha_emision
       from obingresos.tagencia a
-      inner join obingresos.tboleto_2018 bo on bo.id_agencia = a.id_agencia
-      where a.boaagt = 'A' and a.tipo_agencia = 'noiata' and (-1* bo.comision) <> 0 and bo.estado_reg = 'activo'
-      and  EXTRACT(MONTH FROM bo.fecha_emision) = v_periodo
+      inner join obingresos.tboleto bo on bo.id_agencia = a.id_agencia
+      where bo.fecha_emision between v_fechas_periodo.fecha_ini and v_fechas_periodo.fecha_fin
+      and a.boaagt = 'A' and a.tipo_agencia = 'noiata' and (-1* bo.comision) <> 0 and bo.estado_reg = 'activo'
+      --and  EXTRACT(MONTH FROM bo.fecha_emision) = v_periodo
       order by a.nombre
 
 
 )LOOP
 
+select
+co.id_agencia,
+co.id_contrato,
+co.fecha_inicio,
+co.fecha_fin,
+co.numero
+into v_contrato
+from leg.tcontrato co
+where co.id_agencia = v_reccord.id_agencia
+and (co.fecha_inicio <= v_fechas_periodo.fecha_fin AND co.fecha_fin >= v_fechas_periodo.fecha_ini)
+and v_reccord.fecha_emision between co.fecha_inicio and co.fecha_fin;
 
 
 
@@ -605,7 +637,7 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
             id_agencia
           	) values(
 			v_reccord.nit,
-           v_reccord.nro_contrato,
+           	v_contrato.numero,
 			v_reccord.codigo,
 			'activo',
 			v_reccord.descripcion,
@@ -633,7 +665,326 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
 
 END LOOP;
 
-FOR v_recorer IN( select	c.nombre_agencia,
+/************************************************************************************************/
+/********************************RECUPERACION DE ACM PARA INSERSION******************************/
+FOR v_acm IN (select
+                  a.id_agencia,
+                  a.nombre,
+                  a.nit,
+                  (select  RIGHT(c.numero,19)
+                  from leg.tcontrato c
+                  where c.id_agencia = a.id_agencia and c.fecha_fin = (select max(d.fecha_fin)
+                  from leg.tcontrato d
+                  where d.id_agencia = a.id_agencia)) as nro_contrato,
+                  '' as codigo,
+                  'Venta de Servicio de Transporte Aereo' as descripcion,
+                  1 cantidad,
+                  sum(det.neto) as neto,
+                  sum(det.neto) as total,
+                  mov.monto_total as total_comision,
+                  mov.autorizacion__nro_deposito as nro_acm,
+                  mov.fecha
+                  --bo.nro_boleto
+            from obingresos.tagencia a
+            inner join obingresos.tmovimiento_entidad mov on mov.id_agencia=a.id_agencia
+            inner join obingresos.tacm acm on acm.id_movimiento_entidad = mov.id_movimiento_entidad
+            inner join obingresos.tacm_det det on det.id_acm = acm.id_acm
+            where mov.fecha between v_fechas_periodo.fecha_ini and v_fechas_periodo.fecha_fin
+            /*a.boaagt = 'A' and*/
+            and a.tipo_agencia = 'noiata'
+            /*and (-1* bo.comision) <> 0 and bo.estado_reg = 'activo'*/
+            group by a.id_agencia, mov.autorizacion__nro_deposito, mov.monto_total,mov.fecha--,bo.nro_boleto
+            order by a.nombre
+)LOOP
+
+select
+co.id_agencia,
+co.id_contrato,
+co.fecha_inicio,
+co.fecha_fin,
+co.numero
+into v_contrato
+from leg.tcontrato co
+where co.id_agencia = v_acm.id_agencia
+and (co.fecha_inicio <= v_fechas_periodo.fecha_fin AND co.fecha_fin >= v_fechas_periodo.fecha_ini)
+and v_acm.fecha between co.fecha_inicio and co.fecha_fin;
+
+	insert into conta.tcomisionistas(
+			nit_comisionista,
+			nro_contrato,
+			codigo_producto,
+			estado_reg,
+			descripcion_producto,
+			cantidad_total_entregado,
+			cantidad_total_vendido,
+			precio_unitario,
+			monto_total,
+			monto_total_comision,
+			id_usuario_reg,
+			usuario_ai,
+			fecha_reg,
+			id_usuario_ai,
+			fecha_mod,
+			id_usuario_mod,
+            id_periodo,
+            id_depto_conta,
+            registro,
+            nombre_agencia,
+            revisado,
+            nro_boleto,
+            id_agencia
+          	) values(
+			v_acm.nit,
+            v_contrato.numero,
+			v_acm.codigo,
+			'activo',
+			v_acm.descripcion,
+			v_acm.cantidad,
+			v_acm.cantidad,
+			v_acm.neto,
+			v_acm.total,
+			v_acm.total_comision,
+			p_id_usuario,
+			v_parametros._nombre_usuario_ai,
+			now(),
+			v_parametros._id_usuario_ai,
+			null,
+			null,
+            v_parametros.id_periodo,
+            v_parametros.id_depto_conta,
+            'automatico',
+            v_acm.nombre,
+            'no',
+            v_acm.nro_acm,
+            v_acm.id_agencia
+			);
+END LOOP;
+
+
+
+FOR v_recorer IN( select								c.nombre_agencia,
+                                                        c.nit_comisionista,
+                                                        c.nro_contrato,
+                                                        sum(c.precio_unitario) as precio_unitario,
+                                                        sum(c.monto_total) as monto_total,
+                                                        sum(c.monto_total_comision) as monto_total_comision,
+                                                        c.id_agencia
+                                                        from conta.tcomisionistas c
+                                                        where c.id_periodo = v_parametros.id_periodo -- and c.id_depto_conta = v_parametros.id_depto_conta
+                                                        group by c.nombre_agencia,c.nit_comisionista,c.nro_contrato,c.id_agencia)LOOP
+
+
+
+IF EXISTS (select 1
+           from conta.trevisar_comisionistas d
+           where d.id_agencia = v_recorer.id_agencia and
+           d.id_periodo = v_parametros.id_periodo - 1) THEN
+           v_revisado = 'si';
+             update conta.tcomisionistas set
+            revisado = 'si'
+            where id_agencia = v_recorer.id_agencia and id_periodo = v_parametros.id_periodo;
+           ELSE
+           v_revisado = 'no';
+           END IF;
+
+
+insert  into conta.trevisar_comisionistas (	  nombre_agencia,
+                                              nit_comisionista,
+                                              nro_contrato,
+                                              precio_unitario ,
+                                              monto_total,
+                                              monto_total_comision,
+                                              id_periodo ,
+                                              id_depto_conta ,
+                                              id_usuario_reg,
+                                              id_agencia,
+                                              revisado,
+                                              id_contrato
+                                              )VALUES(
+                                              v_recorer.nombre_agencia,
+                                              v_recorer.nit_comisionista,
+                                              v_recorer.nro_contrato,
+                                              v_recorer.precio_unitario,
+                                              v_recorer.monto_total,
+                                              v_recorer.monto_total_comision,
+                                              v_parametros.id_periodo,
+                                              v_parametros.id_depto_conta,
+                                              p_id_usuario,
+                                              v_recorer.id_agencia,
+                                              v_revisado,
+                                              v_contrato.id_contrato
+                                              );
+
+		/*select  rc.id_agencia,
+        		rc.nro_contrato,
+        		rc.nit_comisionista
+                into
+                v_id_agt,
+                v_numero,
+                v_nit
+        from conta.trevisar_comisionistas rc
+        where rc.id_agencia = v_recorer.id_agencia and rc.id_periodo = v_parametros.id_periodo -1 ;
+
+        update conta.trevisar_comisionistas set
+        nit_comisionista = v_nit,
+        nro_contrato = v_numero
+        where id_agencia = v_id_agt and id_periodo = v_parametros.id_periodo;
+
+         update conta.tcomisionistas set
+        nit_comisionista = v_nit,
+        nro_contrato = RIGHT( v_numero,19)
+        where id_agencia = v_id_agt and id_periodo = v_parametros.id_periodo;
+*/
+
+
+
+
+	END LOOP;
+END IF;
+
+
+        v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'anexos actualizaciones automatic(a)');
+        v_resp = pxp.f_agrega_clave(v_resp, 'id_depto_conta', v_parametros.id_depto_conta :: VARCHAR);
+
+        --Devuelve la respuesta
+        RETURN v_resp;
+     END;
+
+
+/*********************************
+ 	#TRANSACCION:  'CONTA_CMS_ACM'
+ 	#DESCRIPCION:	Insercion de registros automatico
+ 	#AUTOR:		MMV
+ 	#FECHA:		31-05-2017 20:17:02
+	***********************************/
+     ELSIF (p_transaccion='CONTA_CMS_ACM') THEN
+
+      BEGIN
+
+      select p.periodo
+               into
+               v_periodo
+      from param.tperiodo p
+      where p.id_periodo = v_parametros.id_periodo and p.id_gestion = v_parametros.id_gestion;
+
+      SELECT ge.gestion
+      INTO v_gestion
+      FROM param.tgestion ge
+      WHERE ge.id_gestion = v_parametros.id_gestion;
+
+      select
+      pe.fecha_ini,
+      pe.fecha_fin
+      into v_fechas_periodo
+      from param.tperiodo pe
+      where pe.id_periodo = v_parametros.id_periodo;
+
+/************************************************************************************************/
+/********************************RECUPERACION DE ACM PARA INSERSION******************************/
+FOR v_acm IN (select
+                  a.id_agencia,
+                  a.nombre,
+                  a.nit,
+                  (select  RIGHT(c.numero,19)
+                  from leg.tcontrato c
+                  where c.id_agencia = a.id_agencia and c.fecha_fin = (select max(d.fecha_fin)
+                  from leg.tcontrato d
+                  where d.id_agencia = a.id_agencia)) as nro_contrato,
+                  '' as codigo,
+                  'Venta de Servicio de Transporte Aereo' as descripcion,
+                  1 cantidad,
+                  sum(det.neto) as neto,
+                  sum(det.neto) as total,
+                  mov.monto_total as total_comision,
+                  mov.autorizacion__nro_deposito as nro_acm,
+                  mov.fecha
+                  --bo.nro_boleto
+            from obingresos.tagencia a
+            inner join obingresos.tmovimiento_entidad mov on mov.id_agencia=a.id_agencia
+            inner join obingresos.tacm acm on acm.id_movimiento_entidad = mov.id_movimiento_entidad
+            inner join obingresos.tacm_det det on det.id_acm = acm.id_acm
+            where mov.fecha between v_fechas_periodo.fecha_ini and v_fechas_periodo.fecha_fin
+            and a.tipo_agencia = 'noiata'
+            group by a.id_agencia, mov.autorizacion__nro_deposito, mov.monto_total,mov.fecha--,bo.nro_boleto
+            order by a.nombre
+)LOOP
+
+select 1
+into v_acm_insertado
+from conta.tcomisionistas comi
+where comi.nro_boleto = v_acm.nro_acm;
+
+select
+co.id_agencia,
+co.id_contrato,
+co.fecha_inicio,
+co.fecha_fin,
+co.numero
+into v_contrato
+from leg.tcontrato co
+where co.id_agencia = v_acm.id_agencia
+and (co.fecha_inicio <= v_fechas_periodo.fecha_fin AND co.fecha_fin >= v_fechas_periodo.fecha_ini)
+and v_acm.fecha between co.fecha_inicio and co.fecha_fin;
+
+--raise exception 'NUMERO ES %',v_acm_insertado;
+IF (v_acm_insertado <> 1 or v_acm_insertado is null) then
+	insert into conta.tcomisionistas(
+			nit_comisionista,
+			nro_contrato,
+			codigo_producto,
+			estado_reg,
+			descripcion_producto,
+			cantidad_total_entregado,
+			cantidad_total_vendido,
+			precio_unitario,
+			monto_total,
+			monto_total_comision,
+			id_usuario_reg,
+			usuario_ai,
+			fecha_reg,
+			id_usuario_ai,
+			fecha_mod,
+			id_usuario_mod,
+            id_periodo,
+            id_depto_conta,
+            registro,
+            nombre_agencia,
+            revisado,
+            nro_boleto,
+            id_agencia
+          	) values(
+			v_acm.nit,
+            v_contrato.numero,
+			v_acm.codigo,
+			'activo',
+			v_acm.descripcion,
+			v_acm.cantidad,
+			v_acm.cantidad,
+			v_acm.neto,
+			v_acm.total,
+			v_acm.total_comision,
+			p_id_usuario,
+			v_parametros._nombre_usuario_ai,
+			now(),
+			v_parametros._id_usuario_ai,
+			null,
+			null,
+            v_parametros.id_periodo,
+            v_parametros.id_depto_conta,
+            'automatico',
+            v_acm.nombre,
+            'no',
+            v_acm.nro_acm,
+            v_acm.id_agencia
+			);
+    ELSE
+    raise exception 'Los ACMS ya fueron generados para este periodo';
+    end if;
+END LOOP;
+
+
+
+FOR v_recorer IN( select								c.nombre_agencia,
                                                         c.nit_comisionista,
                                                         c.nro_contrato,
                                                         sum(c.precio_unitario) as precio_unitario,
@@ -668,15 +1019,12 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
                                               id_depto_conta ,
                                               id_usuario_reg,
                                               id_agencia,
-                                              revisado
+                                              revisado,
+                                              id_contrato
                                               )VALUES(
                                               v_recorer.nombre_agencia,
                                               v_recorer.nit_comisionista,
-                                              (select  c.numero
-                                                      from leg.tcontrato c
-                                                      where c.id_agencia = v_recorer.id_agencia and c.fecha_fin = (select max(d.fecha_fin)
-                                                      from leg.tcontrato d
-                                                      where d.id_agencia = v_recorer.id_agencia)),
+                                              v_contrato.numero,
                                               v_recorer.precio_unitario,
                                               v_recorer.monto_total,
                                               v_recorer.monto_total_comision,
@@ -684,10 +1032,11 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
                                               v_parametros.id_depto_conta,
                                               p_id_usuario,
                                               v_recorer.id_agencia,
-                                              v_revisado
+                                              v_revisado,
+                                              v_contrato.id_contrato
                                               );
 
-		select  rc.id_agencia,
+		/*select  rc.id_agencia,
         		rc.nro_contrato,
         		rc.nit_comisionista
                 into
@@ -705,14 +1054,14 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
          update conta.tcomisionistas set
         nit_comisionista = v_nit,
         nro_contrato = RIGHT( v_numero,19)
-        where id_agencia = v_id_agt and id_periodo = v_parametros.id_periodo;
+        where id_agencia = v_id_agt and id_periodo = v_parametros.id_periodo;*/
 
 
 
 
 
 	END LOOP;
-END IF;
+
 
 
         v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'anexos actualizaciones automatic(a)');
@@ -778,9 +1127,7 @@ END IF;
 	elsif (p_transaccion='CONTA_REM_IME')then
 
         begin
-
-        --
-            UPDATE  conta.trevisar_comisionistas SET
+		    UPDATE  conta.trevisar_comisionistas SET
             id_usuario_mod = p_id_usuario,
             fecha_mod = now(),
             id_usuario_ai = v_parametros._id_usuario_ai,
@@ -804,6 +1151,31 @@ END IF;
             nit_comisionista = v_parametros.nit_comisionista
             where id_agencia = v_id_agencia and id_periodo = v_id_periodos;
 
+
+            UPDATE  obingresos.tagencia  set
+            nit = v_parametros.nit_comisionista
+            where id_agencia = v_id_agencia;
+
+            /*select comi.id_contrato
+            into v_contrato
+            from conta.trevisar_comisionistas comi
+            where comi.id_comisionista_rev = v_parametros.id_comisionista_rev; */
+
+            select
+            con.id_contrato,
+            con.nro_contrato,
+        	con.id_agencia
+            into v_contrato
+            from conta.trevisar_comisionistas con
+            where con.id_comisionista_rev = v_parametros.id_comisionista_rev;
+
+            if(v_contrato.id_contrato is not null) THEN
+
+            UPDATE  leg.tcontrato  set
+            numero = v_parametros.nro_contrato
+            where id_contrato = v_contrato.id_contrato;
+
+            end if;
 
 
 			--Definicion de la respuesta
@@ -830,18 +1202,27 @@ END IF;
       from param.tperiodo p
       where p.id_periodo = v_parametros.id_periodo ;
 
+      select
+      pe.fecha_ini,
+      pe.fecha_fin
+      into v_fechas_periodo
+      from param.tperiodo pe
+      where pe.id_periodo = v_parametros.id_periodo;
+
+
       select count(b.id_boleto)
       into
       v_cont
-      from obingresos.tboleto_2018 b
-      where b.id_agencia = v_parametros.id_agencia and  EXTRACT(MONTH FROM b.fecha_emision) = v_periodo;
+      from obingresos.tboleto b
+      where b.fecha_emision between v_fechas_periodo.fecha_ini and v_fechas_periodo.fecha_fin
+      and b.id_agencia = v_parametros.id_agencia /*and  EXTRACT(MONTH FROM b.fecha_emision) = v_periodo*/;
 
      if v_cont = 0 then
      raise exception 'La agencia no cuenta con comisones';
      end if;
 
  ---   raise exception '%',v_parametros.id_agencia;
-     FOR v_reccord IN (select
+     FOR v_reccord IN (/*select
      a.id_agencia,
             a.nombre,
             a.nit,
@@ -861,10 +1242,42 @@ END IF;
       inner join obingresos.tboleto_2018 bo on bo.id_agencia = a.id_agencia
       where a.boaagt = 'A' and a.tipo_agencia = 'noiata' and (-1* bo.comision) <> 0 and bo.estado_reg = 'activo'
       and  EXTRACT(MONTH FROM bo.fecha_emision) = v_periodo  and a.id_agencia = v_parametros.id_agencia
-      order by a.nombre )LOOP
+      order by a.nombre*/
 
-
-
+      select  a.id_agencia,
+            a.nombre,
+            a.nit,
+            (select  RIGHT(c.numero,19)
+            from leg.tcontrato c
+            where c.id_agencia = a.id_agencia and c.fecha_fin = (select max(d.fecha_fin)
+			from leg.tcontrato d
+			where d.id_agencia = a.id_agencia)) as nro_contrato,
+            '' as codigo,
+            'Venta de Servicio de Transporte Aereo' as descripcion,
+            1 cantidad,
+            (case when  bo.id_moneda_boleto = 1 then
+             bo.neto
+            else
+              param.f_convertir_moneda(2,1,bo.neto,now()::date,'O',2)
+           end) as neto,
+            (case when bo.id_moneda_boleto = 1 then
+             bo.total
+           else
+              param.f_convertir_moneda(2,1,bo.total,now()::date,'O',2)
+          end) as total,
+          (case when  bo.id_moneda_boleto = 1 then
+             (-1 * bo.comision)
+           else
+              param.f_convertir_moneda(2,1,(-1 * bo.comision),now()::date,'O',2)
+          end)as total_comision,
+			bo.nro_boleto
+      from obingresos.tagencia a
+      inner join obingresos.tboleto bo on bo.id_agencia = a.id_agencia
+      where bo.fecha_emision between v_fechas_periodo.fecha_ini and v_fechas_periodo.fecha_fin
+      and a.boaagt = 'A' and a.tipo_agencia = 'noiata' and bo.estado_reg = 'activo'
+      and  EXTRACT(MONTH FROM bo.fecha_emision) = v_periodo and (-1 * bo.comision) <> 0
+      and a.id_agencia = v_parametros.id_agencia
+      order by nro_boleto )LOOP
 
 
 	insert into conta.tcomisionistas(

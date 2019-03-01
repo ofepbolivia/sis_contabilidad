@@ -192,9 +192,11 @@ BEGIN
 																and provee.id_proveedor = 398
 																AND obliga.fecha >= v_gestion.fecha_ini::DATE
 																AND obliga.fecha <= v_gestion.fecha_fin::DATE
-				and plan.nro_cuota != 1.00
-													ORDER BY plan.nro_cuota asc)LOOP
+				and plan.nro_cuota != 129.00
+													ORDER BY plan.nro_cuota asc
 
+
+			)LOOP
 
 
 
@@ -269,7 +271,7 @@ BEGIN
 
                       from conta.tdoc_compra_venta doc
                   left join conta.tplan_pago_documento_airbp relacionado on relacionado.id_documento = doc.id_doc_compra_venta
-                  where doc.nit =''1015497027'' and doc.fecha > ''2016-12-31''
+                  where doc.nit =''1015497027'' and doc.fecha > ''2017-12-31'' and doc.fecha < ''2019-01-01''
 
         ';
 
@@ -337,6 +339,9 @@ BEGIN
 
 						END IF;
 
+
+
+
 						insert into conta.tplan_pago_documento_airbp(
 							monto_fac,
 							monto_usado,
@@ -374,6 +379,7 @@ BEGIN
 
 
 
+						RAISE NOTICE '%','inserto';
 
 
 						ELSE
