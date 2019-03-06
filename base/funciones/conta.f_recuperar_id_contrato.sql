@@ -19,11 +19,11 @@ for v_datos in (select
 				select con.id_contrato
                 into v_id_contrato
                 from leg.tcontrato con
-                where con.numero = v_datos.nro_contrato;
+                where con.numero = v_datos.nro_contrato and con.id_agencia = v_datos.id_agencia;
 
                 update conta.trevisar_comisionistas set
                 id_contrato = v_id_contrato
-                where nro_contrato = v_datos.nro_contrato;
+                where nro_contrato = v_datos.nro_contrato and id_agencia = v_datos.id_agencia;
 
 
 end loop;
