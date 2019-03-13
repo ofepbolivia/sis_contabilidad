@@ -616,12 +616,13 @@ header("content-type: text/javascript; charset=UTF-8");
                     minChars: 2,
                     resizable: true,
                     renderer: function (value, p, record) {
-                        return String.format('{0}', record.data['desc_tipo_relacion_comprobante']);
+                        // return String.format('{0}', record.data['desc_tipo_relacion_comprobante']);
+                        return String.format('{0}', record.data['id_int_comprobante_fks']);
                     }
                 },
                 type: 'AwesomeCombo',
                 id_grupo: 1,
-                grid: false,
+                grid: true,
                 form: true
             }, {
                 config: {
