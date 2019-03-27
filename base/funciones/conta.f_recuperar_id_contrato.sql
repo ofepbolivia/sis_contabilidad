@@ -15,17 +15,19 @@ BEGIN
 for v_datos in (select
 				rev.id_agencia,
 				rev.nro_contrato
-				from conta.trevisar_comisionistas rev
-				where rev.id_agencia is not null)loop
+				from conta.tcomisionistas rev
+				where rev.id_agencia is not null and rev.nro_contrato is not null
+                group by rev.id_agencia,
+				rev.nro_contrato)loop
 
 				select con.id_contrato, con.numero, con.id_agencia
                 into v_contrato
                 from leg.tcontrato con
-                where RIGHT (con.numero,19) = v_datos.nro_contrato and con.id_agencia = v_datos.id_agencia;
+                where RIGHT (con.numero,19) = RIGHT (v_datos.nro_contrato::varchar,19) and con.id_agencia = v_datos.id_agencia;
 
                 update conta.trevisar_comisionistas set
                 id_contrato = v_contrato.id_contrato
-                where nro_contrato = RIGHT (v_contrato.numero,19) and id_agencia = v_contrato.id_agencia;
+                where nro_contrato = v_contrato.numero::varchar and id_agencia = v_contrato.id_agencia;
 
 
 end loop;

@@ -807,7 +807,7 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
                                               )VALUES(
                                               v_recorer.nombre_agencia,
                                               v_recorer.nit_comisionista,
-                                              RIGHT(v_recorer.nro_contrato,19),
+                                              v_recorer.nro_contrato,
                                               v_recorer.precio_unitario,
                                               v_recorer.monto_total,
                                               v_recorer.monto_total_comision,
