@@ -59,6 +59,7 @@ DECLARE
     v_id_contrato		integer;
     v_nombre_tabla		varchar;
     v_contrato2			record;
+    v_datos record;
 BEGIN
 
     v_nombre_funcion = 'conta.ft_comisionistas_ime';
@@ -634,10 +635,11 @@ and v_reccord.fecha_emision between co.fecha_inicio and co.fecha_fin;
             nombre_agencia,
             revisado,
             nro_boleto,
-            id_agencia
+            id_agencia,
+            id_contrato
           	) values(
 			v_reccord.nit,
-           	v_contrato.numero,
+           	RIGHT(v_contrato.numero,19),
 			v_reccord.codigo,
 			'activo',
 			v_reccord.descripcion,
@@ -658,7 +660,8 @@ and v_reccord.fecha_emision between co.fecha_inicio and co.fecha_fin;
             v_reccord.nombre,
             'no',
             v_reccord.nro_boleto,
-            v_reccord.id_agencia
+            v_reccord.id_agencia,
+            v_contrato.id_contrato
 			);
 
 
@@ -732,10 +735,11 @@ and v_acm.fecha between co.fecha_inicio and co.fecha_fin;
             nombre_agencia,
             revisado,
             nro_boleto,
-            id_agencia
+            id_agencia,
+            id_contrato
           	) values(
 			v_acm.nit,
-            v_contrato.numero,
+            RIGHT(v_contrato.numero,19),
 			v_acm.codigo,
 			'activo',
 			v_acm.descripcion,
@@ -756,7 +760,8 @@ and v_acm.fecha between co.fecha_inicio and co.fecha_fin;
             v_acm.nombre,
             'no',
             v_acm.nro_acm,
-            v_acm.id_agencia
+            v_acm.id_agencia,
+            v_acm.id_contrato
 			);
 END LOOP;
 
@@ -768,12 +773,11 @@ FOR v_recorer IN( select								c.nombre_agencia,
                                                         sum(c.precio_unitario) as precio_unitario,
                                                         sum(c.monto_total) as monto_total,
                                                         sum(c.monto_total_comision) as monto_total_comision,
-                                                        c.id_agencia
+                                                        c.id_agencia,
+                                                        c.id_contrato
                                                         from conta.tcomisionistas c
                                                         where c.id_periodo = v_parametros.id_periodo -- and c.id_depto_conta = v_parametros.id_depto_conta
-                                                        group by c.nombre_agencia,c.nit_comisionista,c.nro_contrato,c.id_agencia)LOOP
-
-
+                                                        group by c.nombre_agencia,c.nit_comisionista,c.nro_contrato,c.id_agencia,c.id_contrato)LOOP
 
 IF EXISTS (select 1
            from conta.trevisar_comisionistas d
@@ -803,7 +807,7 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
                                               )VALUES(
                                               v_recorer.nombre_agencia,
                                               v_recorer.nit_comisionista,
-                                              v_recorer.nro_contrato,
+                                              RIGHT(v_recorer.nro_contrato,19),
                                               v_recorer.precio_unitario,
                                               v_recorer.monto_total,
                                               v_recorer.monto_total_comision,
@@ -812,7 +816,8 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
                                               p_id_usuario,
                                               v_recorer.id_agencia,
                                               v_revisado,
-                                              v_contrato.id_contrato
+                                              v_recorer.id_contrato
+                                              --v_contrato.id_contrato
                                               );
 
 		/*select  rc.id_agencia,
@@ -837,11 +842,8 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
 */
 
 
-
-
 	END LOOP;
 END IF;
-
 
         v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'anexos actualizaciones automatic(a)');
         v_resp = pxp.f_agrega_clave(v_resp, 'id_depto_conta', v_parametros.id_depto_conta :: VARCHAR);
@@ -954,7 +956,7 @@ IF (v_acm_insertado <> 1 or v_acm_insertado is null) then
             id_agencia
           	) values(
 			v_acm.nit,
-            v_contrato.numero,
+            RIGHT(v_contrato.numero,19),
 			v_acm.codigo,
 			'activo',
 			v_acm.descripcion,
@@ -975,7 +977,8 @@ IF (v_acm_insertado <> 1 or v_acm_insertado is null) then
             v_acm.nombre,
             'no',
             v_acm.nro_acm,
-            v_acm.id_agencia
+            v_acm.id_agencia,
+            v_acm.id_contrato
 			);
     ELSE
     raise exception 'Los ACMS ya fueron generados para este periodo';
@@ -990,10 +993,11 @@ FOR v_recorer IN( select								c.nombre_agencia,
                                                         sum(c.precio_unitario) as precio_unitario,
                                                         sum(c.monto_total) as monto_total,
                                                         sum(c.monto_total_comision) as monto_total_comision,
-                                                        c.id_agencia
+                                                        c.id_agencia,
+                                                        c.id_contrato
                                                         from conta.tcomisionistas c
                                                         where c.id_periodo = v_parametros.id_periodo -- and c.id_depto_conta = v_parametros.id_depto_conta
-                                                        group by c.nombre_agencia,c.nit_comisionista,c.nro_contrato,c.id_agencia)LOOP
+                                                        group by c.nombre_agencia,c.nit_comisionista,c.nro_contrato,c.id_agencia,c.id_contrato)LOOP
 
 
 IF EXISTS (select 1
@@ -1033,7 +1037,7 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
                                               p_id_usuario,
                                               v_recorer.id_agencia,
                                               v_revisado,
-                                              v_contrato.id_contrato
+                                              v_recorer.id_contrato
                                               );
 
 		/*select  rc.id_agencia,

@@ -3,9 +3,11 @@ CREATE OR REPLACE FUNCTION conta.f_recuperar_id_contrato (
 RETURNS varchar AS
 $body$
 DECLARE
-  v_nombre_funcion varchar;
+  v_nombre_funcion   	text;
+	v_resp				varchar;
   v_datos record;
   v_id_contrato integer;
+  v_contrato	record;
 BEGIN
   v_nombre_funcion = 'conta.f_recuperar_id_contrato';
 
@@ -16,27 +18,23 @@ for v_datos in (select
 				from conta.trevisar_comisionistas rev
 				where rev.id_agencia is not null)loop
 
-				select con.id_contrato
-                into v_id_contrato
+				select con.id_contrato, con.numero, con.id_agencia
+                into v_contrato
                 from leg.tcontrato con
-                where con.numero = v_datos.nro_contrato and con.id_agencia = v_datos.id_agencia;
+                where RIGHT (con.numero,19) = v_datos.nro_contrato and con.id_agencia = v_datos.id_agencia;
 
                 update conta.trevisar_comisionistas set
-                id_contrato = v_id_contrato
-                where nro_contrato = v_datos.nro_contrato and id_agencia = v_datos.id_agencia;
+                id_contrato = v_contrato.id_contrato
+                where nro_contrato = RIGHT (v_contrato.numero,19) and id_agencia = v_contrato.id_agencia;
 
 
 end loop;
 
-RETURN v_id_contrato;
+v_resp = pxp.f_agrega_clave(v_resp, 'mensaje', 'anexos actualizaciones automatic(a)');
+v_resp = pxp.f_agrega_clave(v_resp, 'id_contrato', v_id_contrato :: VARCHAR);
 
-/*EXCEPTION
-WHEN OTHERS THEN
-			v_resp='';
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
-			v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
-			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
-			raise exception '%',v_resp;*/
+--Devuelve la respuesta
+RETURN v_resp;
 END;
 $body$
 LANGUAGE 'plpgsql'
