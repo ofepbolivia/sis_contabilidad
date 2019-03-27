@@ -4800,3 +4800,7 @@ ALTER TABLE conta.tint_transaccion
 ALTER TABLE conta.trevisar_comisionistas
   ADD COLUMN id_contrato INTEGER;
 /***********************************F-SCP-IRVA-CONTA-0-01/03/2019****************************************/
+/***********************************F-SCP-IRVA-CONTA-1-27/03/2019****************************************/
+ALTER TABLE conta.tcomisionistas
+  ADD COLUMN id_contrato INTEGER;
+  /***********************************F-SCP-IRVA-CONTA-1-27/03/2019****************************************/
