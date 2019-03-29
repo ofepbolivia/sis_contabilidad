@@ -639,7 +639,7 @@ and v_reccord.fecha_emision between co.fecha_inicio and co.fecha_fin;
             id_contrato
           	) values(
 			v_reccord.nit,
-           	RIGHT(v_contrato.numero,19),
+           	v_contrato.numero,
 			v_reccord.codigo,
 			'activo',
 			v_reccord.descripcion,
@@ -674,7 +674,7 @@ FOR v_acm IN (select
                   a.id_agencia,
                   a.nombre,
                   a.nit,
-                  (select  RIGHT(c.numero,19)
+                  (select  ltrim(RIGHT(c.numero,20),'.')
                   from leg.tcontrato c
                   where c.id_agencia = a.id_agencia and c.fecha_fin = (select max(d.fecha_fin)
                   from leg.tcontrato d
@@ -739,7 +739,7 @@ and v_acm.fecha between co.fecha_inicio and co.fecha_fin;
             id_contrato
           	) values(
 			v_acm.nit,
-            RIGHT(v_contrato.numero,19),
+            v_contrato.numero,
 			v_acm.codigo,
 			'activo',
 			v_acm.descripcion,
@@ -820,6 +820,12 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
                                               --v_contrato.id_contrato
                                               );
 
+	    update conta.tcomisionistas set
+        nro_contrato = ltrim(RIGHT(v_recorer.nro_contrato,20),'.')
+        where id_agencia = v_recorer.id_agencia and id_periodo = v_parametros.id_periodo;
+
+
+
 		/*select  rc.id_agencia,
         		rc.nro_contrato,
         		rc.nit_comisionista
@@ -887,7 +893,7 @@ FOR v_acm IN (select
                   a.id_agencia,
                   a.nombre,
                   a.nit,
-                  (select  RIGHT(c.numero,19)
+                  (select ltrim(RIGHT(c.numero,20),'.')
                   from leg.tcontrato c
                   where c.id_agencia = a.id_agencia and c.fecha_fin = (select max(d.fecha_fin)
                   from leg.tcontrato d
@@ -956,7 +962,7 @@ IF (v_acm_insertado <> 1 or v_acm_insertado is null) then
             id_agencia
           	) values(
 			v_acm.nit,
-            RIGHT(v_contrato.numero,19),
+            v_contrato.numero,
 			v_acm.codigo,
 			'activo',
 			v_acm.descripcion,
@@ -1040,6 +1046,9 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
                                               v_recorer.id_contrato
                                               );
 
+		update conta.tcomisionistas set
+        nro_contrato = ltrim(RIGHT(v_recorer.nro_contrato,20),'.')
+        where id_agencia = v_recorer.id_agencia and id_periodo = v_parametros.id_periodo;
 		/*select  rc.id_agencia,
         		rc.nro_contrato,
         		rc.nit_comisionista
@@ -1151,7 +1160,7 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
 
 
             UPDATE  conta.tcomisionistas  set
-            nro_contrato = RIGHT(v_parametros.nro_contrato,19),
+            nro_contrato = ltrim(RIGHT(v_parametros.nro_contrato,20),'.'),
             nit_comisionista = v_parametros.nit_comisionista
             where id_agencia = v_id_agencia and id_periodo = v_id_periodos;
 
@@ -1251,7 +1260,7 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
       select  a.id_agencia,
             a.nombre,
             a.nit,
-            (select  RIGHT(c.numero,19)
+            (select ltrim(RIGHT(c.numero,20),'.')
             from leg.tcontrato c
             where c.id_agencia = a.id_agencia and c.fecha_fin = (select max(d.fecha_fin)
 			from leg.tcontrato d
