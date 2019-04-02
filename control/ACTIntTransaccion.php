@@ -137,7 +137,7 @@ class ACTIntTransaccion extends ACTbase
         }
 
         if ($this->objParam->getParametro('id_suborden') != '') {
-            $this->objParam->addFiltro("transa.id_subordeno = " . $this->objParam->getParametro('id_suborden'));
+            $this->objParam->addFiltro("transa.id_suborden = " . $this->objParam->getParametro('id_suborden'));
         }
 
 
@@ -225,7 +225,7 @@ class ACTIntTransaccion extends ACTbase
         }
 
         if ($this->objParam->getParametro('id_suborden') != '') {
-            $this->objParam->addFiltro("transa.id_subordeno = " . $this->objParam->getParametro('id_suborden'));
+            $this->objParam->addFiltro("transa.id_suborden = " . $this->objParam->getParametro('id_suborden'));
         }
 
 
@@ -313,7 +313,7 @@ class ACTIntTransaccion extends ACTbase
         }
 
         if ($this->objParam->getParametro('id_suborden') != '') {
-            $this->objParam->addFiltro("transa.id_subordeno = " . $this->objParam->getParametro('id_suborden'));
+            $this->objParam->addFiltro("transa.id_suborden = " . $this->objParam->getParametro('id_suborden'));
         }
 
 
@@ -495,7 +495,7 @@ class ACTIntTransaccion extends ACTbase
             $this->objParam->addFiltro("transa.id_partida = " . $this->objParam->getParametro('id_partida'));
         }
         if ($this->objParam->getParametro('id_suborden') != '') {
-            $this->objParam->addFiltro("transa.id_subordeno = " . $this->objParam->getParametro('id_suborden'));
+            $this->objParam->addFiltro("transa.id_suborden = " . $this->objParam->getParametro('id_suborden'));
         }
         if ($this->objParam->getParametro('id_auxiliar') != '') {
             $this->objParam->addFiltro("transa.id_auxiliar = " . $this->objParam->getParametro('id_auxiliar'));
