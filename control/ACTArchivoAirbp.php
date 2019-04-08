@@ -94,8 +94,8 @@ class ACTArchivoAirbp extends ACTbase{
 					//$id_comprobante;
 
 					$idFacturaAirbp;
-					if($tokenFactura != $fila['nro_documento']){
-								$tokenFactura = $fila['nro_documento'];
+					if($tokenFactura != $fila['nro_documento'].$fila['nro_autorizacion']){
+								$tokenFactura = $fila['nro_documento'].$fila['nro_autorizacion'];
 
 								//actualiza el total de una factura
 								if($idDocumento!=0){
