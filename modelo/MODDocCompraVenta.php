@@ -250,6 +250,7 @@ class MODDocCompraVenta extends MODbase{
 		$this->setParametro('importe_neto','importe_neto','numeric');
 		$this->setParametro('id_auxiliar','id_auxiliar','integer');
         $this->setParametro('id_agencia','id_agencia','integer');
+		$this->setParametro('id_int_comprobante','id_int_comprobante','integer');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
