@@ -383,9 +383,9 @@ Phx.vista.RevisarComisionistas=Ext.extend(Phx.gridInterfaz, {
             direction: 'ASC'
         },
         bdel: false,
-        bsave: true,
-        bedit: true,
-        bnew: true,
+        bsave: false,
+        bedit: false,
+        bnew: false,
 
         oncellclick : function(grid, rowIndex, columnIndex, e) {
             var record = this.store.getAt(rowIndex),
@@ -449,5 +449,3 @@ Phx.vista.RevisarComisionistas=Ext.extend(Phx.gridInterfaz, {
     }
 )
 </script>
-		
-		
