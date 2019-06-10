@@ -603,7 +603,7 @@ co.id_agencia,
 co.id_contrato,
 co.fecha_inicio,
 co.fecha_fin,
-co.numero
+ltrim(RIGHT(co.numero,20),'.') as numero
 into v_contrato
 from leg.tcontrato co
 where co.id_agencia = v_reccord.id_agencia
@@ -705,7 +705,7 @@ co.id_agencia,
 co.id_contrato,
 co.fecha_inicio,
 co.fecha_fin,
-co.numero
+ltrim(RIGHT(co.numero,20),'.') as numero
 into v_contrato
 from leg.tcontrato co
 where co.id_agencia = v_acm.id_agencia
@@ -820,9 +820,9 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
                                               --v_contrato.id_contrato
                                               );
 
-	    update conta.tcomisionistas set
+	    /*update conta.tcomisionistas set
         nro_contrato = ltrim(RIGHT(v_recorer.nro_contrato,20),'.')
-        where id_agencia = v_recorer.id_agencia and id_periodo = v_parametros.id_periodo;
+        where id_agencia = v_recorer.id_agencia and id_periodo = v_parametros.id_periodo;*/
 
 
 
@@ -927,7 +927,7 @@ co.id_agencia,
 co.id_contrato,
 co.fecha_inicio,
 co.fecha_fin,
-co.numero
+ltrim(RIGHT(co.numero,20),'.') as numero
 into v_contrato
 from leg.tcontrato co
 where co.id_agencia = v_acm.id_agencia
@@ -1046,9 +1046,9 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
                                               v_recorer.id_contrato
                                               );
 
-		update conta.tcomisionistas set
+		/*update conta.tcomisionistas set
         nro_contrato = ltrim(RIGHT(v_recorer.nro_contrato,20),'.')
-        where id_agencia = v_recorer.id_agencia and id_periodo = v_parametros.id_periodo;
+        where id_agencia = v_recorer.id_agencia and id_periodo = v_parametros.id_periodo;*/
 		/*select  rc.id_agencia,
         		rc.nro_contrato,
         		rc.nit_comisionista
@@ -1184,9 +1184,9 @@ insert  into conta.trevisar_comisionistas (	  nombre_agencia,
 
             if(v_contrato.id_contrato is not null) THEN
 
-            UPDATE  leg.tcontrato  set
+            /*UPDATE  leg.tcontrato  set
             numero = v_parametros.nro_contrato
-            where id_contrato = v_contrato.id_contrato;
+            where id_contrato = v_contrato.id_contrato;*/
 
             end if;
 
@@ -1402,3 +1402,6 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
+
+ALTER FUNCTION conta.ft_comisionistas_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;
