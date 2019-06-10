@@ -240,7 +240,7 @@ Phx.vista.IntTransaccionMayor=Ext.extend(Phx.gridInterfaz,{
 	            type:'ComboRec',
 	            id_grupo:0,
 	            filters:{pfiltro:'ot.motivo_orden#ot.desc_orden',type:'string'},
-	            grid:false,
+	            grid:true,
 	            form:true
 	        },
 	        {
@@ -410,9 +410,7 @@ Phx.vista.IntTransaccionMayor=Ext.extend(Phx.gridInterfaz,{
 				grid: true,
 				form: true
 			},
-			
-			
-			
+    			
 			{
 				config:{
 					name: 'estado_reg',
