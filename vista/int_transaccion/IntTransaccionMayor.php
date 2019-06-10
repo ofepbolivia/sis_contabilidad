@@ -234,6 +234,7 @@ Phx.vista.IntTransaccionMayor=Ext.extend(Phx.gridInterfaz,{
 	                    gwidth:200,
 	                    width: 350,
 	   				    listWidth: 350,
+                        gdisplayField: 'desc_orden',
 	                    renderer:function(value, p, record){return String.format('{0}', record.data['desc_orden']);}
 	            
 	            },
