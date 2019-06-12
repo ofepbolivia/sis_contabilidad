@@ -748,6 +748,16 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true 
 		},
+		 {
+			//configuracion del componente
+			config:{
+					labelSeparator:'',
+					inputType:'hidden',
+					name: 'id_contrato_fk'
+			},
+			type:'Field',
+			form:true
+		},
 		
 		{
 			//configuracion del componente
@@ -2155,7 +2165,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		acumulado : function (){
 			
 			 var data = this.getSelectedData();
-			
+
 			
 			Phx.CP.loadWindows('../../../sis_contabilidad/vista/banca_compra_venta/Acumulado.php',
 				'Acumulado',
