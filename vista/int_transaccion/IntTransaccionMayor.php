@@ -234,13 +234,14 @@ Phx.vista.IntTransaccionMayor=Ext.extend(Phx.gridInterfaz,{
 	                    gwidth:200,
 	                    width: 350,
 	   				    listWidth: 350,
+                        gdisplayField: 'desc_orden',
 	                    renderer:function(value, p, record){return String.format('{0}', record.data['desc_orden']);}
 	            
 	            },
 	            type:'ComboRec',
 	            id_grupo:0,
 	            filters:{pfiltro:'ot.motivo_orden#ot.desc_orden',type:'string'},
-	            grid:false,
+	            grid:true,
 	            form:true
 	        },
 	        {
@@ -410,9 +411,7 @@ Phx.vista.IntTransaccionMayor=Ext.extend(Phx.gridInterfaz,{
 				grid: true,
 				form: true
 			},
-			
-			
-			
+    			
 			{
 				config:{
 					name: 'estado_reg',
