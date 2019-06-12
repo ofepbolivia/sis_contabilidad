@@ -1871,7 +1871,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		  'numero_cuota',
             			'tramite_cuota','id_proceso_wf'	,'resolucion',
             			'tipo_monto','rotulo_comercial','estado_libro',
-            			'periodo_servicio','lista_negra','tipo_bancarizacion','multa_cuota','comentario','revisado2','id_contrado_fk'
+            			'periodo_servicio','lista_negra','tipo_bancarizacion','multa_cuota','comentario','revisado2','id_contrato_fk'
 	],
 	sortInfo:{
 		field: 'id_banca_compra_venta',

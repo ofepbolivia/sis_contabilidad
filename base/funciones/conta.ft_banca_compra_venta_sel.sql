@@ -231,11 +231,6 @@ BEGIN
       --Definicion de la respuesta
       v_consulta:=v_consulta||v_parametros.filtro;
 
-      --si es para sacar datos para mostrar los acumulados debemos tener la siguiente condicion
-      IF v_parametros.acumulado = 'si' AND v_parametro.id_contrato_fk is not null
-      THEN
-
-      END IF;
 
 
       v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' ||
