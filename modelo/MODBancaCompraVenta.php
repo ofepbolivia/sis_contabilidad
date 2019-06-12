@@ -106,19 +106,16 @@ class MODBancaCompraVenta extends MODbase{
 	$this->captura('comentario','text');
         $this->captura('id_contrato_fk','int4');
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
+        $this->captura('revisado2','varchar');
 
-	
-		
-		//Ejecuta la instruccion
+
+
+
+
+
+
+
+        //Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 		

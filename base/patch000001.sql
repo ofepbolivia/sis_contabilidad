@@ -4811,4 +4811,8 @@ ALTER TABLE conta.tcomisionistas
 ALTER TABLE conta.tbanca_compra_venta
   ADD COLUMN revisado2 VARCHAR(2);
 
+ALTER TABLE conta.tbanca_compra_venta
+  ALTER COLUMN revisado2 SET DEFAULT 'no';
+
+
 /***********************************F-SCP-FFP-CONTA-1-10/05/2019****************************************/

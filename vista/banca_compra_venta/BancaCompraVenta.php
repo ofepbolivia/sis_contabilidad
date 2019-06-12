@@ -784,7 +784,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'revisado',
-				fieldLabel: 'Revisado',
+				fieldLabel: 'Finalizado',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -810,7 +810,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
         {
             config:{
                 name: 'revisado2',
-                fieldLabel: 'Revisado2',
+                fieldLabel: 'Revisado',
                 allowBlank: true,
                 anchor: '80%',
                 gwidth: 100,
@@ -1902,6 +1902,11 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 	       	   this.cambiarRevision(record);
 	       //	}
 	    }
+     	if(fieldName == 'revisado2') {
+	       	//if(record.data['revisado'] == 'si'){
+	       	   this.cambiarRevision2(record);
+	       //	}
+	    }
      },
      cambiarRevision: function(record){
 		Phx.CP.loadingShow();
@@ -1918,11 +1923,12 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 	},
 
     cambiarRevision2: function(record){
+         console.log('record',record)
         Phx.CP.loadingShow();
         var d = record.data
         Ext.Ajax.request({
-            url:'../../sis_contabilidad/control/BancaCompraVenta/cambiarRevision2s',
-            params:{ id_banca_compra_venta: d.id_banca_compra_venta,revisado:d.revisado2,id_periodo: this.cmbPeriodo.getValue()},
+            url:'../../sis_contabilidad/control/BancaCompraVenta/cambiarRevision2',
+            params:{ id_banca_compra_venta: d.id_banca_compra_venta,revisado2:d.revisado2,id_periodo: this.cmbPeriodo.getValue()},
             success: this.successRevision,
             failure: this.conexionFailure,
             timeout: this.timeout,

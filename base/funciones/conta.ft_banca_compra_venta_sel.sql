@@ -209,7 +209,8 @@ BEGIN
                         banca.lista_negra,
                         banca.tipo_bancarizacion,
                         banca.comentario,
-                        contra.id_contrato_fk --2019
+                        contra.id_contrato_fk, --2019
+                        banca.revisado2 --2019
 						from conta.tbanca_compra_venta banca
 						inner join segu.tusuario usu1 on usu1.id_usuario = banca.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = banca.id_usuario_mod
