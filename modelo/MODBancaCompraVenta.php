@@ -104,6 +104,7 @@ class MODBancaCompraVenta extends MODbase{
 	
 	$this->captura('tipo_bancarizacion','varchar');
 	$this->captura('comentario','text');
+        $this->captura('id_contrato_fk','int4');
 
 	
 	
@@ -287,6 +288,29 @@ class MODBancaCompraVenta extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 		
+
+	}
+	function cambiarRevision2(){
+
+
+		$id_banca_compra_venta = $this->objParam->getParametro('id_banca_compra_venta');
+		$revisado2 = $this->objParam->getParametro('revisado2');
+
+		$this->procedimiento='conta.ft_verificar_banca_compra_venta';
+		$this->transaccion='CONTA_REVISAR2_BANCA';
+		$this->tipo_procedimiento='IME';
+
+		//Define los parametros para la funcion
+		$this->setParametro('id_banca_compra_venta','id_banca_compra_venta','int4');
+		$this->setParametro('id_periodo','id_periodo','int4');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+
 
 	}
 	

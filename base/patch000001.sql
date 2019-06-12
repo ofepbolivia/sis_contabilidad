@@ -4804,3 +4804,11 @@ ALTER TABLE conta.trevisar_comisionistas
 ALTER TABLE conta.tcomisionistas
   ADD COLUMN id_contrato INTEGER;
   /***********************************F-SCP-IRVA-CONTA-1-27/03/2019****************************************/
+
+/***********************************F-SCP-FFP-CONTA-1-10/05/2019****************************************/
+
+/*es un segundo check que tendra bancarizacion*/
+ALTER TABLE conta.tbanca_compra_venta
+  ADD COLUMN revisado2 VARCHAR(2);
+
+/***********************************F-SCP-FFP-CONTA-1-10/05/2019****************************************/

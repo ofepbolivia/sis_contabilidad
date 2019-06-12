@@ -208,7 +208,8 @@ BEGIN
                         banca.periodo_servicio,
                         banca.lista_negra,
                         banca.tipo_bancarizacion,
-                        banca.comentario
+                        banca.comentario,
+                        contra.id_contrato_fk --2019
 						from conta.tbanca_compra_venta banca
 						inner join segu.tusuario usu1 on usu1.id_usuario = banca.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = banca.id_usuario_mod
@@ -229,9 +230,14 @@ BEGIN
      
       --Definicion de la respuesta
       v_consulta:=v_consulta||v_parametros.filtro;
-      
-      
-       
+
+      --si es para sacar datos para mostrar los acumulados debemos tener la siguiente condicion
+      IF v_parametros.acumulado = 'si' AND v_parametro.id_contrato_fk is not null
+      THEN
+
+      END IF;
+
+
       v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' ||
         v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad ||
         ' offset ' || v_parametros.puntero;

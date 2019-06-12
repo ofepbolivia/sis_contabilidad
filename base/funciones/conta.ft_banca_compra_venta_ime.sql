@@ -88,6 +88,7 @@ DECLARE
 
   v_banca RECORD;
   v_estado_gestion VARCHAR;
+  v_numero_de_contrato_original               VARCHAR;
 
 
 BEGIN
@@ -795,6 +796,7 @@ BEGIN
       provee.id_proveedor,
       contra.numero as numero_contrato,
       contra.id_contrato,
+      contra.id_contrato_fk, /*agregamos esto para ver si tiene un contrato anterior y este es el modificado*/
       contra.monto as monto_contrato,
       contra.bancarizacion,
       obliga.num_tramite,
@@ -1131,6 +1133,25 @@ and (
                 IF (v_monto_acumulado IS NULL)
                 THEN
                   v_monto_acumulado = 0;
+
+
+                  -- 2019 - si es nulo puede que haya la posibilidad que este sea una adenda y tenga otro contrato que dse deberia acumular
+                  IF v_record_plan_pago_pxp.id_contrato_fk IS NOT NULL THEN
+
+                    SELECT monto_acumulado
+                    INTO v_monto_acumulado
+                    FROM conta.tbanca_compra_venta
+                    WHERE id_contrato = v_record_plan_pago_pxp.id_contrato_fk AND lista_negra = 'no'
+                    ORDER BY id_banca_compra_venta DESC
+                    LIMIT 1;
+
+                    IF (v_monto_acumulado IS NULL) THEN
+                      v_monto_acumulado = 0;
+                    END IF;
+
+                  END IF;
+                  --fin 2019 si esque tiene adenda otro contrato relacionado
+
                 END IF;
 
 
@@ -1171,6 +1192,19 @@ and (
 
                 IF v_record_plan_pago_pxp.nro_nit is null or v_record_plan_pago_pxp.nro_nit = '' THEN
                   v_record_plan_pago_pxp.nro_nit = 0;
+                END IF;
+
+
+                /*concatenamos al numero de contrato el numero padre en caso de que sea un contrato modifica asi para mostrar uno anterior*/
+                IF v_record_plan_pago_pxp.id_contrato_fk IS NOT NULL THEN
+
+                  SELECT numero
+                  INTO v_numero_de_contrato_original
+                  FROM leg.tcontrato
+                  WHERE id_contrato = v_record_plan_pago_pxp.id_contrato_fk;
+
+                  --reasignamos el numero aclarar que este numero solo se usa en bancarizacion es algo para ver solamente
+                  v_record_plan_pago_pxp.numero_contrato := v_record_plan_pago_pxp.numero_contrato || ' / ' || v_numero_de_contrato_original;
                 END IF;
 
 

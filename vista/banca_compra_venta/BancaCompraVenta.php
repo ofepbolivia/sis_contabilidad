@@ -797,6 +797,32 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 			grid: true,
 			form: false
 		},
+        {
+            config:{
+                name: 'revisado2',
+                fieldLabel: 'Revisado2',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:3,
+                renderer: function (value, p, record, rowIndex, colIndex){
+
+                    //check or un check row
+                    var checked = '',
+                        momento = 'no';
+                    if(value == 'si'){
+                        checked = 'checked';;
+                    }
+                    return  String.format('<div style="vertical-align:middle;text-align:center;"><input style="height:37px;width:37px;" type="checkbox"  {0}></div>',checked);
+
+                }
+            },
+            type: 'TextField',
+            filters: { pfiltro:'banca.revisado2',type:'string'},
+            id_grupo: 0,
+            grid: true,
+            form: false
+        },
 		
 		{
 			config:{
@@ -1845,7 +1871,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		  'numero_cuota',
             			'tramite_cuota','id_proceso_wf'	,'resolucion',
             			'tipo_monto','rotulo_comercial','estado_libro',
-            			'periodo_servicio','lista_negra','tipo_bancarizacion','multa_cuota','comentario'
+            			'periodo_servicio','lista_negra','tipo_bancarizacion','multa_cuota','comentario','revisado2','id_contrado_fk'
 	],
 	sortInfo:{
 		field: 'id_banca_compra_venta',
@@ -1880,6 +1906,20 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
         }); 
         this.reload();
 	},
+
+    cambiarRevision2: function(record){
+        Phx.CP.loadingShow();
+        var d = record.data
+        Ext.Ajax.request({
+            url:'../../sis_contabilidad/control/BancaCompraVenta/cambiarRevision2s',
+            params:{ id_banca_compra_venta: d.id_banca_compra_venta,revisado:d.revisado2,id_periodo: this.cmbPeriodo.getValue()},
+            success: this.successRevision,
+            failure: this.conexionFailure,
+            timeout: this.timeout,
+            scope: this
+        });
+        this.reload();
+    },
 	successRevision: function(resp){
        Phx.CP.loadingHide();
        var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));

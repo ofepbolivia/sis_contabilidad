@@ -43,8 +43,14 @@ class ACTBancaCompraVenta extends ACTbase{
 		
 		
 		if($this->objParam->getParametro('acumulado') == 'si'){
-			$this->objParam->addFiltro("banca.id_contrato = ".$this->objParam->getParametro('id_contrato'));  
-			
+
+            if($this->objParam->getParametro('id_contrato_fk') != ''){
+                $this->objParam->addFiltro("banca.id_contrato in ( ".$this->objParam->getParametro('id_contrato').", ".$this->objParam->getParametro('id_contrato_fk')." ) ");
+            }else{
+                $this->objParam->addFiltro("banca.id_contrato = ".$this->objParam->getParametro('id_contrato'));
+            }
+
+
 			if($this->objParam->getParametro('autorizacion') != ''){
 			$this->objParam->addFiltro("banca.autorizacion = ".$this->objParam->getParametro('autorizacion'));  
 			}
@@ -104,6 +110,12 @@ class ACTBancaCompraVenta extends ACTbase{
 		$this->res=$this->objFunc->cambiarRevision($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 		
+	}
+	function cambiarRevision2(){
+		$this->objFunc=$this->create('MODBancaCompraVenta');
+		$this->res=$this->objFunc->cambiarRevision2($this->objParam);
+		$this->res->imprimirRespuesta($this->res->generarJson());
+
 	}
 
 	function importar_txt(){
