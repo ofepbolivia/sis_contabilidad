@@ -459,10 +459,13 @@ BEGIN
                             incbte.codigo_depto,
                             conta.f_recuperar_nro_documento_facturas_comprobante(incbte.id_int_comprobante) as documentos,
                             COALESCE(en.c31,'''') as c31,
-                            incbte.sw_tipo_cambio
+                            incbte.sw_tipo_cambio,
+                            pp.nro_cuenta_bancaria::varchar
+
                           from conta.vint_comprobante incbte
                           left join conta.tentrega_det ed on ed.id_int_comprobante = incbte.id_int_comprobante
                           left join conta.tentrega en on en.id_entrega = ed.id_entrega
+                          left join tes.tplan_pago pp on pp.id_int_comprobante = incbte.id_int_comprobante
 
                           where incbte.id_proceso_wf = '||v_parametros.id_proceso_wf;
 
@@ -841,4 +844,8 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
+
+ALTER FUNCTION conta.ft_int_comprobante_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;
