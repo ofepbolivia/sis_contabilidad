@@ -944,7 +944,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         emptyText:'Elija una plantilla...',
                         store:new Ext.data.JsonStore(
                             {
-                                url: '../../sis_parametros/control/Plantilla/listarPlantilla',
+                                //url: '../../sis_parametros/control/Plantilla/listarPlantilla',
+                                url: '../../sis_parametros/control/Plantilla/listarPlantillaFil',
                                 id: 'id_plantilla',
                                 root:'datos',
                                 sortInfo:{
@@ -978,6 +979,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 0,
                     form: true
                 },
+
+
 
                 {
                     config:{
@@ -1133,16 +1136,17 @@ header("content-type: text/javascript; charset=UTF-8");
                         name: 'razon_social',
                         fieldLabel: 'Razón Social',
                         allowBlank: false,
-                        maskRe: /[A-Za-z0-9 &-. ñ Ñ]/,
-                        fieldStyle: 'text-transform:uppercase',
-                        listeners:{
-                            'change': function(field, newValue, oldValue){
-
-                                field.suspendEvents(true);
-                                field.setValue(newValue.toUpperCase());
-                                field.resumeEvents(true);
-                            }
-                        },
+                        // maskRe: /[A-Za-z0-9 &-. ñ Ñ]/,
+                        // fieldStyle: 'text-transform:uppercase',
+                        style:'text-transform:uppercase;',
+                        // listeners:{
+                        //     'change': function(field, newValue, oldValue){
+                        //
+                        //         field.suspendEvents(true);
+                        //         field.setValue(newValue.toUpperCase());
+                        //         field.resumeEvents(true);
+                        //     }
+                        // },
                         anchor: '80%',
                         maxLength:180
                     },
@@ -1157,13 +1161,14 @@ header("content-type: text/javascript; charset=UTF-8");
                         allowBlank: false,
                         anchor: '80%',
                         allowDecimals: false,
-                        maxLength:100,
-                        maskRe: /[0-9/-]+/i,
-                        regex: /[0-9/-]+/i
+                        maxLength:100
+                        // maskRe: /[0-9/-]+/i,
+                        // regex: /[0-9/-]+/i
 
 
                     },
-                    type:'NumberField',
+                    // type:'NumberField',
+                    type:'TextField',
                     id_grupo:1,
                     form:true
                 },
