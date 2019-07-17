@@ -18,8 +18,6 @@ header("content-type: text/javascript; charset=UTF-8");
         constructor:function(config){
             this.initButtons=[this.cmbDepto, this.cmbGestion, this.cmbPeriodo];
             var me = this;
-
-
             this.Atributos = [
                 {
                     //configuracion del componente
@@ -101,7 +99,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     type:'NumberField',
                     form:true
                 },
-
                 {
                     //configuracion del componente
                     config:{
@@ -121,7 +118,6 @@ header("content-type: text/javascript; charset=UTF-8");
                         gwidth: 80,
                         maxLength:3,
                         renderer: function (value, p, record, rowIndex, colIndex){
-
                             //check or un check row
                             var checked = '',
                                 state = '',
@@ -329,13 +325,11 @@ header("content-type: text/javascript; charset=UTF-8");
                                 Ext.util.Format.usMoney
                                 return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
                             }
-
                         }
                     },
                     type:'NumberField',
                     filters:{pfiltro:'dcv.importe_doc',type:'numeric'},
                     id_grupo:1,
-
                     grid:true,
                     form:false
                 },
@@ -354,13 +348,11 @@ header("content-type: text/javascript; charset=UTF-8");
                             else{
                                 return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
                             }
-
                         }
                     },
                     type: 'NumberField',
                     filters: {pfiltro:'dcv.importe_excento',type:'numeric'},
                     id_grupo:1,
-
                     grid: true,
                     form: false
                 },
@@ -379,13 +371,11 @@ header("content-type: text/javascript; charset=UTF-8");
                             else{
                                 return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
                             }
-
                         }
                     },
                     type:'NumberField',
                     filters:{pfiltro:'dcv.importe_descuento',type:'numeric'},
                     id_grupo:1,
-
                     grid:true,
                     form:false
                 },
@@ -405,7 +395,6 @@ header("content-type: text/javascript; charset=UTF-8");
                             else{
                                 return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
                             }
-
                         }
                     },
                     type:'NumberField',
@@ -430,12 +419,10 @@ header("content-type: text/javascript; charset=UTF-8");
                             else{
                                 return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
                             }
-
                         }
                     },
                     type:'NumberField',
                     id_grupo:1,
-
                     grid:true,
                     form:false
                 },
@@ -455,13 +442,11 @@ header("content-type: text/javascript; charset=UTF-8");
                             else{
                                 return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
                             }
-
                         }
                     },
                     type: 'NumberField',
                     filters: { pfiltro:'dcv.importe_iva',type:'numeric'},
                     id_grupo: 1,
-
                     grid: true,
                     form: false
                 },
@@ -481,13 +466,11 @@ header("content-type: text/javascript; charset=UTF-8");
                             else{
                                 return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
                             }
-
                         }
                     },
                     type:'NumberField',
                     filters:{pfiltro:'dcv.importe_pago_liquido',type:'numeric'},
                     id_grupo:1,
-
                     grid:true,
                     form: false
                 },
@@ -526,7 +509,6 @@ header("content-type: text/javascript; charset=UTF-8");
                         mode:'remote',
                         pageSize:20,
                         queryDelay:500,
-
                         gwidth: 250,
                         minChars:2,
                         renderer:function (value, p, record){
@@ -577,12 +559,10 @@ header("content-type: text/javascript; charset=UTF-8");
                         mode: 'remote',
                         pageSize: 20,
                         queryDelay: 500,
-
                         gwidth: (me.tipoDoc == 'compra')?250:100,
                         minChars:2,
                         renderer: function (value, p, record){
                             return String.format('{0}', record.data['desc_tipo_doc_compra_venta']);
-
                         }
                     },
                     type:'ComboBox',
@@ -593,7 +573,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     bottom_filter: true,
                     form: false
                 },
-
                 {
                     config:{
                         name: 'desc_comprobante',
@@ -682,7 +661,6 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxValue: 31,
                         minValue: 1,
                         width: 40,
-
                         gwidth: 100
                     },
                     type:'NumberField',
@@ -738,13 +716,11 @@ header("content-type: text/javascript; charset=UTF-8");
                             else{
                                 return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
                             }
-
                         }
                     },
                     type:'NumberField',
                     filters:{pfiltro:'dcv.importe_pendiente',type:'numeric'},
                     id_grupo:1,
-
                     grid:true,
                     form:false
                 },
@@ -764,7 +740,6 @@ header("content-type: text/javascript; charset=UTF-8");
                             else{
                                 return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
                             }
-
                         }
                     },
                     type:'NumberField',
@@ -789,13 +764,11 @@ header("content-type: text/javascript; charset=UTF-8");
                             else{
                                 return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
                             }
-
                         }
                     },
                     type:'NumberField',
                     filters:{pfiltro:'dcv.importe_retgar',type:'numeric'},
                     id_grupo:1,
-
                     grid:true,
                     form:false
                 },
@@ -815,13 +788,11 @@ header("content-type: text/javascript; charset=UTF-8");
                             else{
                                 return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
                             }
-
                         }
                     },
                     type:'NumberField',
                     filters:{pfiltro:'dcv.importe_descuento_ley',type:'numeric'},
                     id_grupo:1,
-
                     grid:true,
                     form:false
                 },
@@ -840,13 +811,11 @@ header("content-type: text/javascript; charset=UTF-8");
                             else{
                                 return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
                             }
-
                         }
                     },
                     type:'NumberField',
                     filters:{pfiltro:'dcv.importe_ice',type:'numeric'},
                     id_grupo:1,
-
                     grid:true,
                     form:false
                 },
@@ -866,13 +835,11 @@ header("content-type: text/javascript; charset=UTF-8");
                             else{
                                 return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
                             }
-
                         }
                     },
                     type:'NumberField',
                     filters:{pfiltro:'dcv.importe_it',type:'numeric'},
                     id_grupo:1,
-
                     grid:true,
                     form: false
                 },
@@ -919,7 +886,6 @@ header("content-type: text/javascript; charset=UTF-8");
                                 return  String.format('({0}) - {1}',record.data.codigo_auxiliar, record.data.nombre_auxiliar);
                             }
                         }
-
                     },
                     type:'TextField',
                     filters:{pfiltro:'aux.codigo_auxiliar#aux.nombre_auxiliar',type:'string'},
@@ -1104,17 +1070,11 @@ header("content-type: text/javascript; charset=UTF-8");
                     form:false
                 }
             ],
-
-
                 //Esta funcion se sobre carga para la version de BOA
                 this.modificarAtributos();
-
-
             //llama al constructor de la clase padre
             Phx.vista.DocCompraVenta.superclass.constructor.call(this,config);
-
             this.bloquearOrdenamientoGrid();
-
             this.cmbGestion.on('select', function(combo, record, index){
                 this.tmpGestion = record.data.gestion;
                 this.cmbPeriodo.enable();
@@ -1123,19 +1083,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.cmbPeriodo.store.baseParams = Ext.apply(this.cmbPeriodo.store.baseParams, {id_gestion: this.cmbGestion.getValue()});
                 this.cmbPeriodo.modificado = true;
             },this);
-
             this.cmbPeriodo.on('select', function( combo, record, index){
                 this.tmpPeriodo = record.data.periodo;
                 this.capturaFiltros();
-
             },this);
-
             this.cmbDepto.on('select', function( combo, record, index){
                 this.capturaFiltros();
-
             },this);
-
-
             this.addButton('btnWizard',
                 {
                     text: 'Generar Cbte',
@@ -1145,7 +1099,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     tooltip: '<b>Generar Comprobante</b><br/>Genera cbte de  para el deto selecionado'
                 }
             );
-
             //Botón para Imprimir el Comprobante
             this.addButton('btnImprimir', {
                 text : 'Imprimir',
@@ -1154,7 +1107,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 handler : this.imprimirLCV,
                 tooltip : '<b>Imprimir LCV en PDF</b><br/>Imprime el LCV en formato PDF para archivo'
             });
-
             this.addButton('btnExpTxt',
                 {
                     text: 'Exportar TXT',
@@ -1164,20 +1116,13 @@ header("content-type: text/javascript; charset=UTF-8");
                     tooltip: '<b>Exportar</b><br/>Exporta a archivo TXT para LCV'
                 }
             );
-
-
-
-
             //this.iniciarEventos();
             this.init();
             this.grid.addListener('cellclick', this.oncellclick,this);
             this.obtenerVariableGlobal();
         },
-
         modificarAtributos: function(){
-
         },
-
         obtenerVariableGlobal: function(){
             //Verifica que la fecha y la moneda hayan sido elegidos
             Phx.CP.loadingShow();
@@ -1189,7 +1134,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 success: function(resp){
                     Phx.CP.loadingHide();
                     var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-
                     if (reg.ROOT.error) {
                         Ext.Msg.alert('Error','Error a recuperar la variable global')
                     } else {
@@ -1202,11 +1146,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 timeout: this.timeout,
                 scope:this
             });
-
         },
-
-
-
         capturaFiltros:function(combo, record, index){
             this.desbloquearOrdenamientoGrid();
             if(this.validarFiltros()){
@@ -1215,9 +1155,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.store.baseParams.id_depto = this.cmbDepto.getValue();
                 this.load();
             }
-
         },
-
         validarFiltros:function(){
             if(this.cmbDepto.getValue() && this.cmbGestion.validate() && this.cmbPeriodo.validate()){
                 this.desbloquearOrdenamientoGrid();
@@ -1233,7 +1171,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 alert('Especifique los filtros antes')
             }
         },
-
         cmbDepto: new Ext.form.ComboBox({
             name: 'id_depto',
             fieldLabel: 'Depto',
@@ -1271,7 +1208,6 @@ header("content-type: text/javascript; charset=UTF-8");
             resizable:true,
             minChars: 2
         }),
-
         cmbGestion: new Ext.form.ComboBox({
             fieldLabel: 'Gestion',
             allowBlank: false,
@@ -1302,8 +1238,6 @@ header("content-type: text/javascript; charset=UTF-8");
             listWidth:'280',
             width:80
         }),
-
-
         cmbPeriodo: new Ext.form.ComboBox({
             fieldLabel: 'Periodo',
             allowBlank: false,
@@ -1335,9 +1269,6 @@ header("content-type: text/javascript; charset=UTF-8");
             listWidth:'280',
             width:80
         }),
-
-
-
         tam_pag:50,
         title:'Documentos Compra/Venta',
         ActSave:'../../sis_contabilidad/control/DocCompraVenta/modificarBasico',
@@ -1395,8 +1326,6 @@ header("content-type: text/javascript; charset=UTF-8");
         arrayDefaultColumHidden:['codigo_noiata'],
         bdel: true,
         bsave: true,
-
-
         onButtonAct:function(){
             if(!this.validarFiltros()){
                 alert('Especifique el año y el mes antes')
@@ -1405,11 +1334,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.store.baseParams.id_gestion=this.cmbGestion.getValue();
                 this.store.baseParams.id_periodo = this.cmbPeriodo.getValue();
                 this.store.baseParams.id_depto = this.cmbDepto.getValue();
-
                 Phx.vista.DocCompraVenta.superclass.onButtonAct.call(this);
             }
         },
-
         formTitulo: 'Registro de Documento Compra',
         abrirFormulario: function(tipo, record){
             var me = this;
@@ -1420,9 +1347,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     modal:true,
                     width:'90%',
                     height:(me.regitrarDetalle == 'si')? '100%':'60%',
-
-
-
                 }, { data: {
                         objPadre: me ,
                         tipoDoc: me.tipoDoc,
@@ -1442,23 +1366,17 @@ header("content-type: text/javascript; charset=UTF-8");
                     config:[{
                         event:'successsave',
                         delegate: this.onSaveForm,
-
                     }],
-
                     scope:this
                 });
         },
-
         onButtonNew:function(){
             //abrir formulario de solicitud
             if(!this.validarFiltros()){
                 alert('Especifique el año y el mes antes')
             }
             else{
-
                 this.abrirFormulario('new')
-
-
             }
         },
         onButtonEdit:function(){
@@ -1467,14 +1385,11 @@ header("content-type: text/javascript; charset=UTF-8");
             }
             else{
                 this.abrirFormulario('edit', this.sm.getSelected())
-
             }
         },
-
         oncellclick : function(grid, rowIndex, columnIndex, e) {
             var record = this.store.getAt(rowIndex),
                 fieldName = grid.getColumnModel().getDataIndex(columnIndex); // Get field name
-
             if(fieldName == 'revisado') {
                 if(!record.data['id_int_comprobante'] || record.data['id_int_comprobante']){
                     if(record.data.tipo_reg != 'summary' || record.data.tipo_reg == 'summary'){
@@ -1502,7 +1417,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.reload();
             }
         },
-
         preparaMenu:function(tb){
             Phx.vista.DocCompraVenta.superclass.preparaMenu.call(this,tb)
             var data = this.getSelectedData();
@@ -1510,22 +1424,18 @@ header("content-type: text/javascript; charset=UTF-8");
             if(data['revisado'] ==  'si' || data.tipo_reg == 'summary'){
                 this.getBoton('edit').disable();
                 this.getBoton('del').disable();
-
             }
             else{
                 this.getBoton('edit').enable();
                 this.getBoton('del').enable();
             }
-
             if(this.regitrarDetalle == 'si'){
                 this.getBoton('btnWizard').enable();
             }
             else{
                 this.getBoton('btnWizard').disable();
             }
-
         },
-
         liberaMenu:function(tb){
             Phx.vista.DocCompraVenta.superclass.liberaMenu.call(this,tb);
             if(this.regitrarDetalle == 'si'){
@@ -1534,9 +1444,7 @@ header("content-type: text/javascript; charset=UTF-8");
             else{
                 this.getBoton('btnWizard').disable();
             }
-
         },
-
         loadWizard:function() {
             if(!this.validarFiltros()){
                 alert('Especifique el año y el mes antes')
@@ -1556,12 +1464,9 @@ header("content-type: text/javascript; charset=UTF-8");
                     },
                     this.idContenedor,
                     'WizardAgrupador')
-
             }
-
         },
         imprimirLCV : function() {
-
             if(this.validarFiltros){
                 var me = this;
                 Phx.CP.loadingShow();
@@ -1578,13 +1483,9 @@ header("content-type: text/javascript; charset=UTF-8");
                     timeout : me.timeout,
                     scope : me
                 });
-
             }
-
-
         },
         expTxt : function(resp){
-
             if(this.validarFiltros){
                 var me = this;
                 Phx.CP.loadingShow();
@@ -1600,10 +1501,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     timeout : me.timeout,
                     scope : me
                 });
-
             }
-
-
         },
         successExport:function(resp){
             Phx.CP.loadingHide();
@@ -1614,9 +1512,5 @@ header("content-type: text/javascript; charset=UTF-8");
             }
             window.open('../../../reportes_generados/'+nomRep+'?t='+new Date().toLocaleTimeString())
         }
-
-
-
-
     })
 </script>
