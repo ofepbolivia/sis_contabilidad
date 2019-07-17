@@ -472,6 +472,4 @@ class ACTDocCompraVenta extends ACTbase{
 
 
 }
-
->>>>>>> dda1857f83e45574cca3fa4ec865d282de7a2abe
 ?>
