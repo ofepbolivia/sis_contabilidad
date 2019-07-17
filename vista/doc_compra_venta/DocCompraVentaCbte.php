@@ -39,6 +39,15 @@ header("content-type: text/javascript; charset=UTF-8");
                     tooltip: 'Permite relacionar un documento existente al Cbte'
                 }
             );
+            this.addButton('btnDelRegAirbp',
+                {
+                    text: 'Eliminar Regis. AIRBP.',
+                    iconCls: 'bdel',
+                    disabled: false,
+                    handler: this.delRegAirbp,
+                    tooltip: 'Permite relacionar un documento existente al Cbte'
+                }
+            );            
 
             this.store.baseParams = { id_int_comprobante: this.id_int_comprobante };
             this.load({params:{start:0, limit:this.tam_pag}});
@@ -780,10 +789,21 @@ header("content-type: text/javascript; charset=UTF-8");
             Phx.vista.DocCompraVentaCbte.superclass.liberaMenu.call(this,tb);
             this.getBoton('btnShowDoc').disable();
         },
-
-
-
-
-
+        delRegAirbp:function(){ 
+            var id_comprobante = this.id_int_comprobante;                               
+            var seguro = confirm('Esta seguro? La accion eliminara todos los registros');
+            if(seguro){
+                Ext.Ajax.request({                
+                url: '../../sis_contabilidad/control/DocCompraVenta/eliminarRegistrosAirbp',                
+                success : function(resp){
+                        Phx.CP.loadingHide();
+                        this.reload()},
+                failure : this.conexionFailure,
+                params:{id_int_comprobante: id_comprobante},                
+                timeout : this.timeout,
+                scope : this
+                });
+            }
+        }
     })
 </script>

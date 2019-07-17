@@ -463,7 +463,11 @@ class ACTDocCompraVenta extends ACTbase{
         $this->res=$this->objFunc->listarDiferenciaPeriodo($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
-
+    function eliminarRegistrosAirbp(){
+        $this->objFunc=$this->create('MODDocCompraVenta');	
+		$this->res=$this->objFunc->eliminarRegistrosAirbp($this->objParam);
+		$this->res->imprimirRespuesta($this->res->generarJson());        
+    }
 
 
 

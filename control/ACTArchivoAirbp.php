@@ -44,7 +44,8 @@ class ACTArchivoAirbp extends ACTbase{
 
 	function subirArchivoAIRBP(){
 		$id_int_comprobante = $this->objParam->getParametro('id_int_comprobante');
-		$codigoArchivo = $this->objParam->getParametro('codigo');
+        $codigoArchivo = $this->objParam->getParametro('codigo');
+        
 
 		$arregloFiles = $this->objParam->getArregloFiles();
 		$ext = pathinfo($arregloFiles['archivo']['name']);
@@ -63,10 +64,11 @@ class ACTArchivoAirbp extends ACTbase{
 				$archivoExcel->recuperarColumnasExcel();
 
 				$arrayArchivo = $archivoExcel->leerColumnasArchivoExcel();
-				//var_dump($arrayArchivo); exit;
+                //var_dump($arrayArchivo); exit;
 				$idDocumento=0;
 				$importeExcento = 0;		//solo para cobija
-				$totalFactura=0;
+                $totalFactura=0;                
+                if($codigoArchivo == 'AIRBP'){
 				foreach ($arrayArchivo as $fila) {
 
 					//$resultLibroCompras;
@@ -107,8 +109,7 @@ class ACTArchivoAirbp extends ACTbase{
 									$this->objParam->addParametro('importe_doc', $totalFactura);
 									$this->objParam->addParametro('importe_neto', $totalFactura);
 									$this->objFunc = $this->create('MODDocCompraVenta');
-									$this->res = $this->objFunc->modificarDocCompraVenta($this->objParam);
-									//$resultLibroComprasAnt=$Custom->ModificarValorDocumento($idLibroCompras,$id_transaccion,$tipo_documento,$nro_documento,$fecha_documento,$razon_social,$nro_nit,$nro_autorizacion,$codigo_control,$poliza_dui,$formulario,$tipo_retencion,$id_moneda,$importe_credito,$importe_debito,$importe_ice,$importe_it,$importe_iue,$importe_sujeto,$totalFactura,$importeExcento,$estado_documento,$id_comprobante);
+									$this->res = $this->objFunc->modificarDocCompraVenta($this->objParam);									
 									if ($this->res->getTipo() == 'ERROR') {
 										$error = 'error';
 										$mensaje_completo = "Error al guardar el fila en tabla " . $this->res->getMensajeTec();
@@ -117,7 +118,7 @@ class ACTArchivoAirbp extends ACTbase{
 									$totalFactura=0;
 									$importeExcento=0;
 								}
-
+                                
 								$this->objParam->addParametro('fecha', $fila['fecha']);
 								$this->objParam->addParametro('nit', $nit);
 								$this->objParam->addParametro('nro_autorizacion', $fila['nro_autorizacion']);
@@ -226,7 +227,7 @@ class ACTArchivoAirbp extends ACTbase{
 				$this->objParam->addParametro('importe_pago_liquido', $totalFactura);
 				$this->objParam->addParametro('importe_doc', $totalFactura);
 				$this->objParam->addParametro('importe_neto', $totalFactura);
-				$this->objFunc = $this->create('MODDocCompraVenta');
+                $this->objFunc = $this->create('MODDocCompraVenta');                
 				$this->res = $this->objFunc->modificarDocCompraVenta($this->objParam);
 				/*
 				$this->objParam->addParametro('id_doc_compra_venta', $idDocumento);
@@ -237,9 +238,162 @@ class ACTArchivoAirbp extends ACTbase{
 				if ($this->res->getTipo() == 'ERROR') {
 					$error = 'error';
 					$mensaje_completo = "Error al guardar el fila en tabla " . $this->res->getMensajeTec();
-					var_dump($mensaje_completo); exit;
-					break;
-				}
+                }
+            }else if($codigoArchivo = 'AIRBPNFORM'){                
+            /** start*/
+            foreach ($arrayArchivo as $fila) {
+
+                //$resultLibroCompras;
+                $idMoneda=1;
+                $nit = 1015497027;
+                $razonSocial = 'AIR BP BOLIVIA S.A.';
+                $obs = 'Preregistro para AIR BP BOLIVIA';
+                $tipo = 'compra';
+                $idPlantilla = 1;
+                $idDeptoConta = 4;
+                $importePendiente = 0;
+                $importeAnticipo = 0;
+                $importeRetgar = 0;
+                $importeIva = 0;
+                $importeDescuento = 0;
+                $importeDescuentoLey = 0;
+                $importePagoLiquido = 0;
+                $importeDoc = 0;
+                $importeIt = 0;
+                $importeNeto = 0;
+                $idAuxiliar='';
+                $nroDui = '';
+
+                $tokenFactura;
+                //$id_comprobante;
+
+                $idFacturaAirbp;
+                if($tokenFactura != $fila['nro_documento'].$fila['nro_autorizacion']){                    
+                            $tokenFactura = $fila['nro_documento'].$fila['nro_autorizacion'];                            
+                            //actualiza el total de una factura
+                            if($idDocumento!=0){                                
+                                //calcular iva
+                                $this->objParam->addParametro('id_doc_compra_venta', $idDocumento);
+                                $this->objParam->addParametro('importe_excento', $importeExcento);
+                                $this->objParam->addParametro('importe_iva', ($totalFactura-$importeExcento) * 0.13);
+                                $this->objParam->addParametro('importe_pago_liquido', $totalFactura);
+                                $this->objParam->addParametro('importe_doc', $totalFactura);
+                                $this->objParam->addParametro('importe_neto', $totalFactura);
+                                $this->objFunc = $this->create('MODDocCompraVenta');
+                                $this->res = $this->objFunc->modificarDocCompraVenta($this->objParam);                                
+                                if ($this->res->getTipo() == 'ERROR') {
+                                    $error = 'error';
+                                    $mensaje_completo = "Error al guardar el fila en tabla  " . $this->res->getMensajeTec();
+                                    break;
+                                }
+                                $totalFactura=0;
+                                $importeExcento=0;
+                            }                            
+                            $this->objParam->addParametro('fecha', $fila['fecha']);
+                            $this->objParam->addParametro('nit', $nit);
+                            $this->objParam->addParametro('nro_autorizacion', $fila['nro_autorizacion']);
+                            $this->objParam->addParametro('nro_documento', $fila['nro_documento']);
+                            $this->objParam->addParametro('obs', $obs);
+                            $this->objParam->addParametro('codigo_control', $fila['codigo_control']);
+                            $this->objParam->addParametro('razon_social', $razonSocial);
+                            $this->objParam->addParametro('id_moneda', $idMoneda);
+                            $this->objParam->addParametro('tipo', $tipo);
+                            $this->objParam->addParametro('id_plantilla', $idPlantilla);
+                            $this->objParam->addParametro('id_depto_conta', $idDeptoConta);
+                            $this->objParam->addParametro('importe_pendiente', $importePendiente);
+                            $this->objParam->addParametro('importe_anticipo', $importeAnticipo);
+                            $this->objParam->addParametro('importe_retgar', $importeRetgar);
+                            $this->objParam->addParametro('nro_dui', $nroDui);
+                            $this->objParam->addParametro('importe_excento', $importeExcento);
+                            $this->objParam->addParametro('importe_iva', $importeIva);
+                            $this->objParam->addParametro('importe_descuento', $importeDescuento);
+                            $this->objParam->addParametro('importe_descuento_ley', $importeDescuentoLey);
+                            $this->objParam->addParametro('importe_pago_liquido', $importePagoLiquido);
+                            $this->objParam->addParametro('importe_doc', $importeDoc);
+                            $this->objParam->addParametro('importe_it', $importeIt);
+                            $this->objParam->addParametro('importe_neto', $importeNeto);
+                            $this->objParam->addParametro('id_auxiliar', $idAuxiliar);
+
+                            $this->objFunc = $this->create('MODDocCompraVenta');
+                            $this->res = $this->objFunc->insertarDocCompraVenta($this->objParam);                            
+                            if ($this->res->getTipo() == 'ERROR') {
+                                $error = 'error';
+                                $mensaje_completo = "Error al guardar el fila en tabla  " . $this->res->getMensajeTec();                                
+                                break;
+                            }
+                            $datos = $this->res->getDatos();
+                            $idDocumento = $datos['id_doc_compra_venta'];
+
+                            $this->objParam->addParametro('id_doc_compra_venta', $idDocumento);
+                            $this->objParam->addParametro('id_int_comprobante', $id_int_comprobante);
+                            $this->res = $this->objFunc->agregarCbteDoc($this->objParam);
+                            //var_dump($idDocumento); exit;
+
+                            $this->objParam->addParametro('id_doc_compra_venta', $idDocumento);
+                            $this->objParam->addParametro('tipo_cambio', 0); //no presente
+                            $this->objParam->addParametro('punto_venta', $fila['punto_venta']);
+                            $this->objParam->addParametro('id_cliente', $fila['id_cliente']);
+                            $this->objParam->addParametro('estado', $fila['estado']);
+                            $this->objFunc = $this->create('MODFacturaAirbp');
+                            $this->res = $this->objFunc->insertarFacturaAirbp($this->objParam);
+
+                            if ($this->res->getTipo() == 'ERROR') {
+                                $error = 'error';
+                                $mensaje_completo = "Error al guardar el fila en tabla  " . $this->res->getMensajeTec();
+                                break;
+                            }
+                            $datos = $this->res->getDatos();
+                            $idFacturaAirbp = $datos['id_factura_airbp'];
+                        }
+
+                        $this->objParam->addParametro('id_factura_airbp', $idFacturaAirbp);
+                        $this->objParam->addParametro('cantidad', 0); //no presente
+                        $this->objParam->addParametro('total_bs', $fila['total_bs']);
+                        $this->objParam->addParametro('precio_unitario', 0);  //no preseente
+                        $this->objParam->addParametro('ne', ''); //no presente
+                        $this->objParam->addParametro('destino', ''); //no presente
+                        $this->objParam->addParametro('matricula', ''); //no presente
+                        $this->objParam->addParametro('articulo', ''); //no presente
+                        $this->objFunc = $this->create('MODFacturaAirbpConcepto');
+                        $this->res = $this->objFunc->insertarFacturaAirbpConcepto($this->objParam);                        
+                        if ($this->res->getTipo() == 'ERROR') {
+                            $error = 'error';
+                            $mensaje_completo = "Error al guardar el fila en tabla  " . $this->res->getMensajeTec();
+                            break;
+                        }
+
+                        //calcula el total de una factura
+                        if($fila['punto_venta']=='CIJ'){
+                            $importeExcento = $totalFactura + $fila['total_bs'];				//totalExcento para cobija
+                            $totalFactura =  $totalFactura + $fila['total_bs'];
+                        }
+                        else {
+                            $importeExcento = 0;
+                            $totalFactura = $totalFactura + $fila['total_bs'];                    //totalFacturas para el resto
+                        }
+            }            
+            if($mensaje_completo != ''){                
+                $this->mensajeRes=new Mensaje();
+                $this->mensajeRes->setMensaje('ERROR','ACTConsumo.php','Ocurrieron los siguientes errores : ' . $mensaje_completo,
+                        $mensaje_completo,'control');                        
+            }else{ 
+            $this->objParam->addParametro('id_doc_compra_venta', $idDocumento);
+            $this->objParam->addParametro('importe_excento', $importeExcento);
+            $this->objParam->addParametro('importe_iva', ($totalFactura-$importeExcento) * 0.13);
+            $this->objParam->addParametro('importe_pago_liquido', $totalFactura);
+            $this->objParam->addParametro('importe_doc', $totalFactura);
+            $this->objParam->addParametro('importe_neto', $totalFactura);
+            $this->objFunc = $this->create('MODDocCompraVenta');                
+            $this->res = $this->objFunc->modificarDocCompraVenta($this->objParam);
+
+            if ($this->res->getTipo() == 'ERROR') {
+                $error = 'error';
+                $mensaje_completo = "Error al guardar el fila en tabla " . $this->res->getMensajeTec();                
+                
+                }
+             }           
+            /** end*/
+             }
 			}
 			//upload directory
 			$upload_dir = "/tmp/";
