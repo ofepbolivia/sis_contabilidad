@@ -355,6 +355,31 @@ header("content-type: text/javascript; charset=UTF-8");
 
                 {
                     config: {
+                        name: 'importe_saldo_mb',
+                        fieldLabel: 'Saldo MB',
+                        allowBlank: true,
+                        width: '100%',
+                        gwidth: 110,
+                        galign: 'right',
+                        maxLength: 100,
+                        renderer:function (value,p,record){
+                            if(record.data.tipo_reg != 'summary'){
+                                return  String.format('{0}', Ext.util.Format.number(value,'0,000.00'));
+                            }
+                            else{
+                                return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+                            }
+                        }
+                    },
+                    type: 'NumberField',
+                    //filters: {pfiltro: 'transa.importe_saldo_mb',type: 'numeric'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: true
+                },
+
+                {
+                    config: {
                         name: 'importe_debe_mt',
                         fieldLabel: 'Debe MT',
                         allowBlank: true,
@@ -798,6 +823,7 @@ header("content-type: text/javascript; charset=UTF-8");
             { name:'comprobante_fks', type: 'string'},
             { name:'codigo', type: 'string'},
             { name:'nro_documentos', type: 'string'},
+            { name:'importe_saldo_mb', type: 'string'},
 
         ],
 

@@ -123,12 +123,12 @@ BEGIN
 
         select
           comp.id_int_comprobante,
-          comp.c31 as comprobante_c31,
+          comp.nro_comprobante as comprobante_c31,
           0 as importe_haber,
           0 as importe_recurso,
-          comp.fecha_c31 as fecha_entrega
+          comp.fecha_pago as fecha_entrega
 
-        FROM conta.tint_comprobante comp
+        FROM tes.tts_libro_bancos comp
     )';
 
 
