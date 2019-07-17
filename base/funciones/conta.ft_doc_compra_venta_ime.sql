@@ -1319,7 +1319,28 @@ BEGIN
 
     end;
 
+  /*********************************
+   #TRANSACCION:  'CONTA_ELIRAIRBP_ELI'
+   #DESCRIPCION:	quita el registro airbp
+   #AUTOR:		
+   #FECHA:		
+  ***********************************/
 
+  elsif(p_transaccion='CONTA_ELIRAIRBP_ELI')then
+
+    begin
+    
+	  delete from conta.tdoc_compra_venta 
+	  where id_int_comprobante = v_parametros.id_int_comprobante;
+
+      --Definicion de la respuesta
+      v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se retiro el cbte del documento '||v_parametros.id_int_comprobante);
+      v_resp = pxp.f_agrega_clave(v_resp,'id_doc_compra_venta',v_parametros.id_int_comprobante::varchar);
+
+      --Devuelve la respuesta
+      return v_resp;
+
+    end;
 
 
   else

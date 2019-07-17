@@ -1503,6 +1503,21 @@ class MODDocCompraVenta extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+    function eliminarRegistrosAirbp () {
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='conta.ft_doc_compra_venta_ime';
+		$this->transaccion='CONTA_ELIRAIRBP_ELI';
+		$this->tipo_procedimiento='IME';
+								
+		$this->setParametro('id_int_comprobante','id_int_comprobante','int8');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;        
+    }
 			
 }
 ?>
