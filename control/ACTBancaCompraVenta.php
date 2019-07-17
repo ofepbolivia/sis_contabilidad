@@ -6,7 +6,7 @@
  *@date 11-09-2015 14:36:46
  *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
  */
-class ACTBancaCompraVenta extends ACTbase{
+class ACTBancaCompraVenta extends ACTbase{ 
 
     function listarBancaCompraVenta(){
         $this->objParam->defecto('ordenacion','id_periodo');
