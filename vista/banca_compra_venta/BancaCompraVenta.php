@@ -780,33 +780,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true 
 		},
-		
-		{
-			config:{
-				name: 'revisado',
-				fieldLabel: 'Finalizado',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:3,
-                renderer: function (value, p, record, rowIndex, colIndex){  
-                	     
-            	       //check or un check row
-            	       var checked = '',
-            	       	    momento = 'no';
-                	   if(value == 'si'){
-                	        	checked = 'checked';;
-                	   }
-            	       return  String.format('<div style="vertical-align:middle;text-align:center;"><input style="height:37px;width:37px;" type="checkbox"  {0}></div>',checked);
-            	        
-                 }
-			},
-			type: 'TextField',
-			filters: { pfiltro:'banca.revisado',type:'string'},
-			id_grupo: 0,
-			grid: true,
-			form: false
-		},
+
         {
             config:{
                 name: 'revisado2',
@@ -829,6 +803,33 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
             },
             type: 'TextField',
             filters: { pfiltro:'banca.revisado2',type:'string'},
+            id_grupo: 0,
+            grid: true,
+            form: false
+        },
+
+        {
+            config:{
+                name: 'revisado',
+                fieldLabel: 'Finalizado',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:3,
+                renderer: function (value, p, record, rowIndex, colIndex){
+
+                    //check or un check row
+                    var checked = '',
+                        momento = 'no';
+                    if(value == 'si'){
+                        checked = 'checked';;
+                    }
+                    return  String.format('<div style="vertical-align:middle;text-align:center;"><input style="height:37px;width:37px;" type="checkbox"  {0}></div>',checked);
+
+                }
+            },
+            type: 'TextField',
+            filters: { pfiltro:'banca.revisado',type:'string'},
             id_grupo: 0,
             grid: true,
             form: false

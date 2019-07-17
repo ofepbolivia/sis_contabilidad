@@ -452,6 +452,7 @@ class MODIntTransaccion extends MODbase
 
         $this->captura('importe_debe_mb', 'numeric');
         $this->captura('importe_haber_mb', 'numeric');
+        $this->captura('importe_saldo_mb', 'numeric');
         $this->captura('importe_gasto_mb', 'numeric');
         $this->captura('importe_recurso_mb', 'numeric');
 

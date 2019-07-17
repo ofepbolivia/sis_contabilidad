@@ -826,6 +826,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     gwidth: 120,
                     anchor: '100%',
                     allowBlank: true,
+                    baseParams: {estado_func:'todos'},
                     renderer: function (value, p, record) {
                         return String.format('{0}', record.data['desc_firma1']);
                     }
@@ -848,6 +849,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     gwidth: 120,
                     anchor: '100%',
                     allowBlank: true,
+                    baseParams: {estado_func:'todos'},
                     renderer: function (value, p, record) {
                         return String.format('{0}', record.data['desc_firma2']);
                     }
@@ -870,6 +872,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     gwidth: 120,
                     anchor: '100%',
                     allowBlank: true,
+                    baseParams: {estado_func:'todos'},
                     renderer: function (value, p, record) {
                         return String.format('{0}', record.data['desc_firma3']);
                     }

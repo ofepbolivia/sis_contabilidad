@@ -842,7 +842,7 @@ inner join tabla_temporal_documentos doc on doc.id_int_comprobante = pg_devengad
 
 
 where pg_pagado.estado=''pagado'' and pg_devengado.estado = ''devengado''
-and (libro.tipo=''cheque'' or  pg_pagado.forma_pago = ''transferencia'' or pg_pagado.forma_pago = ''cheque'')
+and ( (libro.tipo=''cheque'' or libro.tipo=''transferencia_carta''  or libro.tipo=''transferencia_fondos'') or  pg_pagado.forma_pago = ''transferencia'' or pg_pagado.forma_pago = ''cheque'')
 and ( pg_pagado.forma_pago = ''transferencia'' or pg_pagado.forma_pago=''cheque'')
 and (plantilla.tipo_informe = ''lcv'' or plantilla.id_plantilla = 28)
 
