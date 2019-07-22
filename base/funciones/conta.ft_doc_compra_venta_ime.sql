@@ -58,6 +58,13 @@ DECLARE
   v_plantilla_des varchar;
   v_id_funcionario			INTEGER;
 
+  v_tipo_obligacion			varchar;
+
+  v_id_depto_conta			INTEGER;
+  v_id_depto_destino		INTEGER;
+  v_id_plan_pago			INTEGER;
+  v_id_plan_pago_dcv		INTEGER;
+
 
 BEGIN
 
@@ -122,10 +129,39 @@ BEGIN
       from param.tplantilla
       where id_plantilla = v_parametros.id_plantilla;
 
-      IF v_tipo_informe = 'lcv' THEN
-      	  -- valida que periodO de libro de compras y ventas este abierto
-      	  v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
-	  END IF;
+	  --para facturas del SP
+     if (pxp.f_existe_parametro(p_tabla,'id_plan_pago')) then
+        SELECT op.tipo_obligacion
+        INTO v_tipo_obligacion
+        FROM tes.tobligacion_pago op
+        inner join tes.tplan_pago pp on pp.id_obligacion_pago = op.id_obligacion_pago
+        WHERE pp.id_plan_pago = v_parametros.id_plan_pago ;
+
+        SELECT dd.id_depto_destino
+        INTO v_id_depto_destino
+        FROM  param.tdepto_depto dd
+        inner join tes.tobligacion_pago op on op.id_depto = dd.id_depto_origen
+        inner join tes.tplan_pago pp on pp.id_obligacion_pago = op.id_obligacion_pago
+        WHERE pp.id_plan_pago = v_parametros.id_plan_pago;
+
+
+        IF v_tipo_informe = 'lcv' THEN
+            IF (v_tipo_obligacion= 'sp' or v_tipo_obligacion= 'spd')THEN
+              v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_id_depto_destino, v_rec.po_id_periodo);
+            ELSE IF (v_tipo_obligacion= 'sp'or v_tipo_obligacion= 'spd')THEN
+              -- valida que periodO de libro de compras y ventas este abierto
+              v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+                 END IF;
+            END IF;
+        END IF;
+
+     ELSE
+     	IF v_tipo_informe = 'lcv' THEN
+               -- valida que periodO de libro de compras y ventas este abierto
+               v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+        END IF;
+     END IF;
+     --
 
       --TODO
       --validar que no exsita un documento con el mismo nro y misma razon social  ...?
@@ -232,7 +268,30 @@ BEGIN
          v_dui_importe = v_parametros.importe_doc;
         end if;*/
 --raise exception 'verificando';
-      --Sentencia de la insercion
+
+	--para actualizar el plan de pago
+	  if (pxp.f_existe_parametro(p_tabla,'id_plan_pago')) then
+          v_id_plan_pago = v_parametros.id_plan_pago;
+          --#15,  se recupera el nro_tramite del comprobante si es que existe
+          select
+             c.nro_tramite
+          into
+             v_nro_tramite
+          from conta.tint_comprobante c
+          where c.id_int_comprobante = v_id_int_comprobante;
+
+      end if;
+
+            select pp.id_plan_pago
+            into v_id_plan_pago_dcv
+            from tes.tplan_pago pp
+            inner join conta.tdoc_compra_venta dcv on dcv.id_plan_pago = pp.id_plan_pago
+            where dcv.id_int_comprobante = v_id_int_comprobante;
+
+--IF (v_parametros.id_int_comprobante is Null) THEN
+IF (v_id_int_comprobante is Null) THEN
+
+		--Sentencia de la insercion
       insert into conta.tdoc_compra_venta(
         tipo,
         importe_excento,
@@ -272,7 +331,9 @@ BEGIN
         id_auxiliar,
         id_tipo_doc_compra_venta,
         id_int_comprobante,
-        nro_tramite
+        nro_tramite,
+        id_plan_pago,
+        fecha_vencimiento
 
       ) values(
         v_parametros.tipo,
@@ -313,8 +374,105 @@ BEGIN
         v_parametros.id_auxiliar,
         v_id_tipo_doc_compra_venta,
         v_id_int_comprobante,
-        v_nro_tramite
+        v_nro_tramite,
+        v_id_plan_pago,
+        v_parametros.fecha_vencimiento
+
       )RETURNING id_doc_compra_venta into v_id_doc_compra_venta;
+
+
+ELSE  --raise exception 'llega2 %',v_i;
+
+      --Sentencia de la insercion
+      insert into conta.tdoc_compra_venta(
+        tipo,
+        importe_excento,
+        id_plantilla,
+        fecha,
+        nro_documento,
+        nit,
+        importe_ice,
+        nro_autorizacion,
+        importe_iva,
+        importe_descuento,
+        importe_descuento_ley,
+        importe_pago_liquido,
+        importe_doc,
+        sw_contabilizar,
+        estado,
+        id_depto_conta,
+        obs,
+        estado_reg,
+        codigo_control,
+        importe_it,
+        razon_social,
+        id_usuario_ai,
+        id_usuario_reg,
+        fecha_reg,
+        usuario_ai,
+        manual,
+        id_periodo,
+        nro_dui,
+        id_moneda,
+        importe_pendiente,
+        importe_anticipo,
+        importe_retgar,
+        importe_neto,
+        id_proveedor,
+        id_cliente,
+        id_auxiliar,
+        id_tipo_doc_compra_venta,
+        id_int_comprobante,
+        nro_tramite,
+        id_plan_pago,
+        fecha_vencimiento
+
+      ) values(
+        v_parametros.tipo,
+        v_parametros.importe_excento,
+        v_parametros.id_plantilla,
+        v_parametros.fecha,
+        v_parametros.nro_documento,
+        v_parametros.nit,
+        v_importe_ice,
+        v_parametros.nro_autorizacion,
+        v_parametros.importe_iva,
+        v_parametros.importe_descuento,
+        v_parametros.importe_descuento_ley,
+        v_parametros.importe_pago_liquido,
+      	v_parametros.importe_doc, --Dui
+        'si', --sw_contabilizar,
+        'registrado', --estado
+        v_parametros.id_depto_conta,
+        v_parametros.obs,
+        'activo',
+        upper(COALESCE(v_parametros.codigo_control,'0')),
+        v_parametros.importe_it,
+        upper(trim(v_parametros.razon_social)),
+        v_parametros._id_usuario_ai,
+        p_id_usuario,
+        now(),
+        v_parametros._nombre_usuario_ai,
+        'si',
+        v_rec.po_id_periodo,
+        v_parametros.nro_dui,
+        v_parametros.id_moneda,
+        COALESCE(v_parametros.importe_pendiente,0),
+        COALESCE(v_parametros.importe_anticipo,0),
+        COALESCE(v_parametros.importe_retgar,0),
+        v_parametros.importe_neto,
+        v_id_proveedor,
+        v_id_cliente,
+        v_parametros.id_auxiliar,
+        v_id_tipo_doc_compra_venta,
+        v_id_int_comprobante,
+        v_nro_tramite,
+        v_id_plan_pago_dcv,
+        v_parametros.fecha_vencimiento
+      )RETURNING id_doc_compra_venta into v_id_doc_compra_venta;
+END IF;
+
+
 
       if (pxp.f_existe_parametro(p_tabla,'id_origen')) then
         update conta.tdoc_compra_venta
@@ -349,6 +507,7 @@ BEGIN
           where id_doc_compra_venta = v_id_doc_compra_venta;
         end if;
       end if;
+
 
       --Definicion de la respuesta
       v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Documentos Compra/Venta almacenado(a) con exito (id_doc_compra_venta'||v_id_doc_compra_venta||')');
@@ -642,6 +801,34 @@ BEGIN
       -- 13/01/2017
       --TODO RAC, me parece buena idea  que al cerrar el periodo revise que no existan documentos pendientes  antes de cerrar
       -- valida que period de libro de compras y ventas este abierto para la nueva fecha
+
+       /* --para facturas del SP
+
+     SELECT op.tipo_obligacion
+      INTO v_tipo_obligacion
+      FROM tes.tobligacion_pago op
+      inner join tes.tplan_pago pp on pp.id_obligacion_pago = op.id_obligacion_pago
+      WHERE pp.id_plan_pago = v_parametros.id_plan_pago ;
+
+      SELECT dd.id_depto_destino
+      INTO v_id_depto_destino
+      FROM  param.tdepto_depto dd
+      inner join tes.tobligacion_pago op on op.id_depto = dd.id_depto_origen
+      inner join tes.tplan_pago pp on pp.id_obligacion_pago = op.id_obligacion_pago
+      WHERE pp.id_plan_pago = v_parametros.id_plan_pago;
+
+
+	IF v_tipo_informe = 'lcv' THEN
+    	IF (v_tipo_obligacion= 'sp')THEN
+          v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_id_depto_destino, v_rec.po_id_periodo);
+        ELSE IF (v_tipo_obligacion= 'sp')THEN
+          -- valida que periodO de libro de compras y ventas este abierto
+          v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+        	 END IF;
+        END IF;
+	END IF;*/
+     --
+
       IF v_tipo_informe = 'lcv' THEN
 	      v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
 	  END IF;
@@ -728,6 +915,7 @@ BEGIN
       END IF;
 
 
+
       --Sentencia de la modificacion
       update conta.tdoc_compra_venta set
         tipo = v_parametros.tipo,
@@ -758,7 +946,8 @@ BEGIN
         id_proveedor = v_id_proveedor,
         id_cliente = v_id_cliente,
         id_auxiliar = v_parametros.id_auxiliar,
-        id_int_comprobante = v_id_int_comprobante
+        id_int_comprobante = v_id_int_comprobante,
+        fecha_vencimiento = v_parametros.fecha_vencimiento
       where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
 
       if (pxp.f_existe_parametro(p_tabla,'id_tipo_compra_venta')) then
@@ -1227,7 +1416,8 @@ BEGIN
 
 
       update conta.tdoc_compra_venta  set
-        id_int_comprobante = NULL
+        id_int_comprobante = NULL,
+        id_plan_pago =NULL
       where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
 
 
@@ -1319,18 +1509,18 @@ BEGIN
 
     end;
 
-  /*********************************
+ /*********************************
    #TRANSACCION:  'CONTA_ELIRAIRBP_ELI'
-   #DESCRIPCION:	quita el registro airbp
-   #AUTOR:		
-   #FECHA:		
+   #DESCRIPCION:	quita el comprobante del documento
+   #AUTOR:		admin
+   #FECHA:		25-09-2015 15:57:09
   ***********************************/
 
   elsif(p_transaccion='CONTA_ELIRAIRBP_ELI')then
 
     begin
-    
-	  delete from conta.tdoc_compra_venta 
+
+	  delete from conta.tdoc_compra_venta
 	  where id_int_comprobante = v_parametros.id_int_comprobante;
 
       --Definicion de la respuesta

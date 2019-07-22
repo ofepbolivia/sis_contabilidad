@@ -1,15 +1,15 @@
 <?php
 /**
  * @package pXP
- * @file    FormCompraVenta.php
- * @author  Rensi Arteaga Copari
- * @date    30-01-2014
+ * @file    SolFormCompraVenta.php
+ * @author  Maylee Perez
+ * @date    26-03-2019
  * @description permites subir archivos a la tabla de documento_sol
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-    Phx.vista.FormCompraVenta = Ext.extend(Phx.frmInterfaz, {
+    Phx.vista.SolFormCompraVenta = Ext.extend(Phx.frmInterfaz, {
         ActSave: '../../sis_contabilidad/control/DocCompraVenta/insertarDocCompleto',
         tam_pag: 10,
         tabEnter: true,
@@ -37,6 +37,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }
             Ext.apply(this, config);
             this.obtenerVariableGlobal(config);
+            console.log('config', config);
             this.generarAtributos();
 
         },
@@ -50,7 +51,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.buildGrupos();
 
 
-            Phx.vista.FormCompraVenta.superclass.constructor.call(this, config);
+            Phx.vista.SolFormCompraVenta.superclass.constructor.call(this, config);
 
             this.init();
 
@@ -781,7 +782,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         loadValoresIniciales: function () {
 
-            Phx.vista.FormCompraVenta.superclass.loadValoresIniciales.call(this);
+            Phx.vista.SolFormCompraVenta.superclass.loadValoresIniciales.call(this);
 
 
         },
@@ -995,7 +996,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: true
                 },
 
-
                 {
                     config: {
                         name: 'codigo_qr',
@@ -1019,8 +1019,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         baseParams: {id_moneda_defecto: me.id_moneda_defecto},
                         fieldLabel: 'Moneda',
                         gdisplayField: 'desc_moneda',
-                        gwidth: 100,
                         anchor: '85%',
+                        gwidth: 100,
                         width: 180
                     },
                     type: 'ComboRec',
@@ -1206,17 +1206,18 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     config: {
                         name: 'nro_documento',
-                        fieldLabel: 'Nro Factura / Doc',
+                        fieldLabel: 'Nro Factura / Doc.',
                         allowBlank: false,
                         anchor: '85%',
-                        allowDecimals: false,
-                        maxLength: 100
+                        //allowDecimals: false,
+                        maxLength: 100,
+                        maskRe: /[A-Za-z0-9 &-. ñ Ñ]/
                         // maskRe: /[0-9/-]+/i,
                         // regex: /[0-9/-]+/i
 
 
                     },
-                    // type:'NumberField',
+                    // type: 'NumberField',
                     type: 'TextField',
                     id_grupo: 1,
                     form: true
@@ -1331,8 +1332,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     config: {
                         name: 'id_agencia',
                         fieldLabel: 'Agencia IATA/Agencia No IATA',
-                        anchor: '85%',
                         allowBlank: true,
+                        anchor: '85%',
                         emptyText: 'Elija una agencia...',
                         store: new Ext.data.JsonStore(
                             {
@@ -1614,7 +1615,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.nit.on('select', function (cmb, rec, i) {
                 this.Cmp.razon_social.setValue(rec.data.razon_social);
             }, this);
-            //aparece en razon social segun el proveedor del combo elegido
+            //
             this.Cmp.id_proveedor.on('select', function (cmb, rec, i) {
                 this.Cmp.razon_social.setValue(rec.data.desc_proveedor);
             }, this);
@@ -2102,6 +2103,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.nit.modificado = true;
             this.Cmp.nro_autorizacion.modificado = true;
             this.Cmp.fecha.setReadOnly(false);
+            this.Cmp.fecha_vencimiento.setReadOnly(false);
+
             this.accionFormulario = 'EDIT';
             if (this.data.datosOriginales) {
                 this.loadForm(this.data.datosOriginales);
@@ -2173,7 +2176,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     if (this.aux != 'Póliza de Importación - DUI') {
                         // importe_pago_liquido
                         if ((total_det.toFixed(2) * 1) == this.Cmp.importe_doc.getValue()) {
-                            Phx.vista.FormCompraVenta.superclass.onSubmit.call(this, o, undefined, true);
+                            Phx.vista.SolFormCompraVenta.superclass.onSubmit.call(this, o, undefined, true);
                         }
                         else {
                             alert('El total del detalle no cuadra con el total del documento');
@@ -2183,7 +2186,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
 
                         if ((total_det.toFixed(2) * 1) == this.Cmp.importe_pago_liquido.getValue()) {
-                            Phx.vista.FormCompraVenta.superclass.onSubmit.call(this, o, undefined, true);
+                            Phx.vista.SolFormCompraVenta.superclass.onSubmit.call(this, o, undefined, true);
                         }
                         else {
                             alert('El total del detalle no cuadra con el Liquido Pagado');
@@ -2197,7 +2200,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }
             else {
                 me.argumentExtraSubmit = {'regitrarDetalle': me.regitrarDetalle};
-                Phx.vista.FormCompraVenta.superclass.onSubmit.call(this, o, undefined, true);
+                Phx.vista.SolFormCompraVenta.superclass.onSubmit.call(this, o, undefined, true);
             }
         },
 
@@ -2308,7 +2311,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         var objRes = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
                         var razonSocial = objRes.ROOT.datos.razon_social;
                         this.getComponente('razon_social').setValue(razonSocial);
-                        this.getComponente('id_moneda').setValue(1);
+                        this.getComponente('id_moneda').setValue(0);
                         this.getComponente('id_moneda').setRawValue('Bolivianos');
 
                     },

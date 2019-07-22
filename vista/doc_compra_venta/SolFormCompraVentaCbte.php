@@ -2,8 +2,8 @@
 /**
  * @package pXP
  * @file FormRendicionCD.php
- * @author  Rensi Arteaga
- * @date 16-02-2016
+ * @author  Maylee Perez
+ * @date 26-03-2019
  * @description Archivo con la interfaz de usuario que permite
  *ingresar el documento a rendir
  *
@@ -11,13 +11,15 @@
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-    Phx.vista.FormCompraVentaCbte = {
-        require: '../../../sis_contabilidad/vista/doc_compra_venta/FormCompraVenta.php',
-        requireclase: 'Phx.vista.FormCompraVenta',
+    Phx.vista.SolFormCompraVentaCbte = {
+        // require: '../../../sis_contabilidad/vista/doc_compra_venta/FormCompraVenta.php',
+        require: '../../../sis_contabilidad/vista/doc_compra_venta/SolFormCompraVenta.php',
+        requireclase: 'Phx.vista.SolFormCompraVenta',
         mostrarFormaPago: false,
         heightHeader: 245,
         constructor: function (config) {
-            Phx.vista.FormCompraVentaCbte.superclass.constructor.call(this, config);
+            Phx.vista.SolFormCompraVentaCbte.superclass.constructor.call(this, config);
+            console.log('config', config);
         },
 
         extraAtributos: [
@@ -40,25 +42,42 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 type: 'Field',
                 form: true
+            },
+            {
+                //configuracion del componente
+                config: {
+                    labelSeparator: '',
+                    inputType: 'hidden',
+                    name: 'id_plan_pago'
+                },
+                type: 'Field',
+                form: true
             }
         ],
 
         onNew: function () {
-            Phx.vista.FormCompraVentaCbte.superclass.onNew.call(this);
+            Phx.vista.SolFormCompraVentaCbte.superclass.onNew.call(this);
+
+            this.Cmp.id_plan_pago.setValue(this.data.objPadre.id_plan_pago);
             this.Cmp.id_int_comprobante.setValue(this.data.id_int_comprobante);
+
+
+            // this.Cmp.id_plan_pago.setValue(this.data.id_plan_pago);
+            // this.Cmp.id_int_comprobante.setValue(this.data.id_int_comprobante);
             this.Cmp.desc_clase_comprobante.setValue(this.data.objPadre.desc_clase_comprobante);
             console.log('datos.....', this.data);
         },
 
         onEdit: function () {
-            Phx.vista.FormCompraVentaCbte.superclass.onEdit.call(this);
+            Phx.vista.SolFormCompraVentaCbte.superclass.onEdit.call(this);
             this.Cmp.id_int_comprobante.setValue(this.data.id_int_comprobante);
+            this.Cmp.id_plan_pago.setValue(this.objPadre.getSelected());
             this.cargarPeriodo();
         },
 
         iniciarEventos: function (config) {
 
-            Phx.vista.FormCompraVentaCbte.superclass.iniciarEventos.call(this, config);
+            Phx.vista.SolFormCompraVentaCbte.superclass.iniciarEventos.call(this, config);
 
             this.Cmp.dia.hide();
             this.Cmp.fecha.setReadOnly(false);

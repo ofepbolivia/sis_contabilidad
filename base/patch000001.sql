@@ -4816,3 +4816,11 @@ ALTER TABLE conta.tbanca_compra_venta
 
 
 /***********************************F-SCP-FFP-CONTA-1-10/05/2019****************************************/
+
+/***********************************I-SCP-MAY-CONTA-0-22/07/2019****************************************/
+ALTER TABLE conta.tdoc_compra_venta
+  ADD COLUMN id_plan_pago INTEGER;
+
+ALTER TABLE conta.tdoc_compra_venta
+  ADD COLUMN fecha_vencimiento DATE;
+/***********************************F-SCP-MAY-CONTA-0-22/07/2019****************************************/
