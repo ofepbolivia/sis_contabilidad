@@ -528,7 +528,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 config: {
                     name: 'id_tipo_relacion_comprobante',
                     fieldLabel: 'Tipo Rel.',
-                    qtip: 'Tipo de relacion entre comprobantes',
+                    qtip: 'Tipo de relación entre comprobantes',
                     allowBlank: true,
                     emptyText: 'Elija una opción...',
                     store: new Ext.data.JsonStore({
@@ -577,7 +577,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 config: {
                     name: 'id_int_comprobante_fks',
                     enableMultiSelect: true,
-                    fieldLabel: 'Cbte rels.',
+                    fieldLabel: 'Cbte Rels.',
                     qtip: 'Comprobantes relacionados',
                     allowBlank: true,
                     emptyText: 'Elija una opción...',
@@ -784,7 +784,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 config: {
                     name: 'glosa2',
                     fieldLabel: 'Conformidad',
-                    allowBlank: false,
+                    allowBlank: true,
                     anchor: '100%',
                     gwidth: 100,
                     maxLength: 400
@@ -888,7 +888,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }, {
                 config: {
                     name: 'cbte_cierre',
-                    qtip: 'Es un comprobante de cierre?,  en la mayoria de lso casos es No,<br>  solo utilice si es un comprobante de cierre de balance o de resultados',
+                    qtip: 'Es un comprobante de cierre?,  en la mayoria de los casos es No,<br>  solo utilice si es un comprobante de cierre de balance o de resultados',
                     fieldLabel: 'Cierre',
                     allowBlank: false,
                     gwidth: 80,
@@ -937,7 +937,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }, {
                 config: {
                     name: 'cbte_aitb',
-                    qtip: 'es un comprobante para AITB',
+                    qtip: 'Es un comprobante para AITB',
                     fieldLabel: 'AITBs',
                     allowBlank: false,
                     gwidth: 80,
