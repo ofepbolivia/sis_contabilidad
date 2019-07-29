@@ -1,7 +1,7 @@
 CREATE OR REPLACE FUNCTION conta.f_obtener_string_documento_bancarizacion (
-p_gestion INTEGER
+  p_gestion integer
 )
-  RETURNS varchar AS
+RETURNS varchar AS
 $body$
 /**************************************************************************
  FUNCION: 		conta.f_obtener_string_documento_bancarizacion
@@ -130,7 +130,15 @@ BEGIN
 
         FROM tes.tts_libro_bancos comp
     )';
-
+	/*
+    	select
+        comp.id_int_comprobante,
+        comp.c31 as comprobante_c31,
+        0 as importe_haber,
+        0 as importe_recurso,
+        comp.fecha_c31 as fecha_entrega
+        FROM conta.tint_comprobante comp
+    */
 
 
 
