@@ -255,6 +255,7 @@ class MODDocCompraVenta extends MODbase
         $this->setParametro('id_int_comprobante', 'id_int_comprobante', 'integer');
 
         $this->setParametro('id_plan_pago', 'id_plan_pago', 'integer');
+        $this->setParametro('fecha_vencimiento', 'fecha_vencimiento', 'date');
 
 
         //Ejecuta la instruccion

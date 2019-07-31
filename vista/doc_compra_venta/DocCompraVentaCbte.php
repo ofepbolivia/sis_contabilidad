@@ -699,7 +699,8 @@ header("content-type: text/javascript; charset=UTF-8");
             {name:'importe_neto', type: 'numeric'},
             'desc_depto','desc_plantilla',
             'importe_descuento_ley',
-            'importe_pago_liquido','nro_dui','id_moneda','desc_moneda','id_auxiliar','codigo_auxiliar','nombre_auxiliar'
+            'importe_pago_liquido','nro_dui','id_moneda','desc_moneda','id_auxiliar','codigo_auxiliar','nombre_auxiliar',
+            'fecha_vencimiento'
 
         ],
         sortInfo:{

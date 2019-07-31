@@ -1616,7 +1616,8 @@ header("content-type: text/javascript; charset=UTF-8");
             }, this);
             //aparece en razon social segun el proveedor del combo elegido
             this.Cmp.id_proveedor.on('select', function (cmb, rec, i) {
-                this.Cmp.razon_social.setValue(rec.data.desc_proveedor);
+                // this.Cmp.razon_social.setValue(rec.data.desc_proveedor);
+                this.Cmp.razon_social.setValue(rec.data.rotulo_comercial);
             }, this);
             //
             this.Cmp.nit.on('change', function (cmb, newval, oldval) {
