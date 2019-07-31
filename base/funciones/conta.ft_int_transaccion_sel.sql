@@ -1006,6 +1006,9 @@ BEGIN
 						usu2.cuenta as usr_mod,
                         COALESCE(transa.importe_debe_mb,0) as importe_debe_mb,
                         COALESCE(transa.importe_haber_mb,0) as importe_haber_mb,
+                        conta.f_next_int_transaccion_monto(transa.id_int_transaccion,icbte.id_int_comprobante,icbte.nro_tramite,
+                        case when COALESCE(transa.importe_debe_mb,0) != 0 then ''debe'' else ''haber'' end,
+                        case when COALESCE(transa.importe_debe_mb,0) != 0 then transa.importe_debe_mb else transa.importe_haber_mb end)::numeric as importe_saldo_mb,
                        	COALESCE(transa.importe_gasto_mb,0) as importe_gasto_mb,
 						COALESCE(transa.importe_recurso_mb,0) as importe_recurso_mb,
 
@@ -1074,7 +1077,7 @@ BEGIN
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+			v_consulta:=v_consulta||' order by icbte.nro_tramite asc, ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ', id_int_comprobante asc limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
             raise notice '%', v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;

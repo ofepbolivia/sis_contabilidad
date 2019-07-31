@@ -93,16 +93,24 @@ BEGIN
 
                                --ver si tiene libro de bancos ....
                                v_conta_integrar_libro_bancos = pxp.f_get_variable_global('conta_integrar_libro_bancos');
+                               /*(franklin.espinoza) En caso de que sea estacion BUE no se verifica depto para entregas*/
+                               if pxp.f_get_variable_global('ESTACION_inicio') = 'BOL' then
+                                 v_valor = param.f_get_depto_param( v_registros_cbte.id_depto, 'ENTREGA');
 
-                               v_valor = param.f_get_depto_param( v_registros_cbte.id_depto, 'ENTREGA');
-
-                               IF (v_conta_integrar_libro_bancos = 'si' AND v_valor='NO') OR (v_conta_integrar_libro_bancos='si' AND v_registros_cbte.codigo_plantilla in ('SOLFONDAV', 'REPOCAJA')) THEN
-                                    -- si alguna transaccion tiene banco habilitado para pago
+                                 IF (v_conta_integrar_libro_bancos = 'si' AND v_valor='NO') OR (v_conta_integrar_libro_bancos='si' AND v_registros_cbte.codigo_plantilla in ('SOLFONDAV', 'REPOCAJA')) THEN
+                                      -- si alguna transaccion tiene banco habilitado para pago
+                                      IF  not tes.f_integracion_libro_bancos(p_id_usuario,p_id_int_comprobante) THEN
+                                          --raise exception 'error al registrar transacción en libro de bancos, comprobante %', p_id_int_comprobante;
+                                      END IF;
+                                 END IF;
+                               else
+                                IF (v_conta_integrar_libro_bancos = 'si') OR (v_conta_integrar_libro_bancos='si' AND v_registros_cbte.codigo_plantilla in ('SOLFONDAV', 'REPOCAJA')) THEN
+                                      -- si alguna transaccion tiene banco habilitado para pago
                                     IF  not tes.f_integracion_libro_bancos(p_id_usuario,p_id_int_comprobante) THEN
-									  --raise exception 'error al registrar transacción en libro de bancos, comprobante %', p_id_int_comprobante;
+                                    	--raise exception 'error al registrar transacción en libro de bancos, comprobante %', p_id_int_comprobante;
                                     END IF;
-
-                               END IF;
+                                 END IF;
+                               end if;
                             
                                
                         

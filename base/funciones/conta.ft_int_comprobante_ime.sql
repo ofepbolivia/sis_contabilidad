@@ -1,3 +1,11 @@
+CREATE OR REPLACE FUNCTION conta.ft_int_comprobante_ime (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Contabilidad
  FUNCION: 		conta.ft_int_comprobante_ime
@@ -104,10 +112,11 @@ BEGIN
 	if(p_transaccion='CONTA_INCBTE_INS')then
 
         begin
+
         	------------------
         	-- VALIDACIONES
         	------------------
-         	select
+        	select
               id_subsistema
               into
              v_id_subsistema_conta
@@ -325,8 +334,7 @@ BEGIN
         	-----------------------------
         	--REGISTRO DEL COMPROBANTE
         	-----------------------------
-
-			 if ((v_parametros.cbte_cierre <> 'no' and v_parametros.cbte_cierre <> 'si')) then
+			if (v_parametros.cbte_cierre <> 'no' and v_parametros.cbte_cierre <> 'si') then
             	raise exception 'Error de datos en el campo Cierre, los datos ingresados deben ser si o no';
             elseif (v_parametros.cbte_apertura <> 'no' and v_parametros.cbte_apertura <> 'si' ) then
             	raise exception 'Error de datos en el campo Apertura, los datos ingresados deben ser si o no';
@@ -424,8 +432,8 @@ BEGIN
                 v_parametros.tipo_cambio_3
 
 			)RETURNING id_int_comprobante into v_id_int_comprobante;
-		end if;
 
+		end if;
             update wf.tproceso_wf p set
               descripcion = descripcion||' ('||v_clcbt_desc||'id:'||v_id_int_comprobante::varchar||')'
             where p.id_proceso_wf = v_id_proceso_wf;
@@ -448,8 +456,9 @@ BEGIN
 	***********************************/
 
 	elsif(p_transaccion='CONTA_INCBTE_MOD')then
-		RAISE EXCEPTION 'LLEGA AQUI';
+
 		begin
+
 			------------------
         	-- VALIDACIONES
         	------------------
@@ -1429,7 +1438,6 @@ BEGIN
 
            ELSE
 
-
                 --Lamada a la función de validación
 				v_result = conta.f_validar_cbte( p_id_usuario,
                                              v_parametros._id_usuario_ai,
@@ -2060,3 +2068,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 
 END;
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;

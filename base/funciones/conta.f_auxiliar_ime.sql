@@ -14,13 +14,13 @@ $body$
  DESCRIPCION:   Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'conta.tauxiliar'
  AUTOR: 		Gonzalo Sarmiento Sejas
  FECHA:	        21-02-2013 20:44:52
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION:
+ AUTOR:
+ FECHA:
 ***************************************************************************/
 
 DECLARE
@@ -36,13 +36,18 @@ DECLARE
     v_contador				integer;
 	v_valid					varchar;
     v_registros				record;
-			    
+
+    --variables replicacion auxiliar endesis (franklin.espinoza)
+    v_cadena_conn			varchar;
+    v_cadena_execute		varchar;
+    v_usuario_reg			varchar;
+    v_res_conn				varchar;
 BEGIN
 
     v_nombre_funcion = 'conta.f_auxiliar_ime';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'CONTA_AUXCTA_INS'
  	#DESCRIPCION:	Insercion de registros
  	#AUTOR:		Gonzalo Sarmiento Sejas
@@ -50,7 +55,7 @@ BEGIN
 	***********************************/
 
 	if(p_transaccion='CONTA_AUXCTA_INS')then
-					
+
         begin
         	--Sentencia de la insercion
         	insert into conta.tauxiliar(
@@ -73,11 +78,31 @@ BEGIN
 			null,
 			null,
             v_parametros.corriente
-							
+
 			)RETURNING id_auxiliar into v_id_auxiliar;
-			
+
+            select tu.cuenta
+            into v_usuario_reg
+            from segu.tusuario tu
+            where tu.id_usuario = p_id_usuario;
+
+            v_cadena_conn =  migra.f_obtener_cadena_conexion();
+
+            v_cadena_execute = 'select sci.f_insertar_replica_aux('''||v_parametros.codigo_auxiliar::varchar||''','''||v_parametros.nombre_auxiliar::varchar||''',
+            '''||v_usuario_reg::varchar||''','''||v_parametros.corriente::varchar||''',''INS'')';
+
+            v_resp =  (SELECT dblink_connect(v_cadena_conn));
+
+            if v_resp != 'OK' THEN
+            	raise exception 'FALLA CONEXION A LA BASE DE DATOS ENDESIS CON DBLINK';
+            else
+                PERFORM * FROM dblink(v_cadena_execute,true) AS ( xx varchar);
+            end if;
+
+            v_res_conn=(select dblink_disconnect());
+
 			--Definicion de la respuesta
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Auxiliares de Cuenta almacenado(a) con exito (id_auxiliar'||v_id_auxiliar||')'); 
+			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Auxiliares de Cuenta almacenado(a) con exito (id_auxiliar'||v_id_auxiliar||')');
             v_resp = pxp.f_agrega_clave(v_resp,'id_auxiliar',v_id_auxiliar::varchar);
 
             --Devuelve la respuesta
@@ -85,7 +110,7 @@ BEGIN
 
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'CONTA_AUXCTA_MOD'
  	#DESCRIPCION:	Modificacion de registros
  	#AUTOR:		Gonzalo Sarmiento Sejas
@@ -104,20 +129,40 @@ BEGIN
 			fecha_mod = now(),
             corriente = v_parametros.corriente
 			where id_auxiliar=v_parametros.id_auxiliar;
-               
+
+            select tu.cuenta
+            into v_usuario_reg
+            from segu.tusuario tu
+            where tu.id_usuario = p_id_usuario;
+
+            v_cadena_conn =  migra.f_obtener_cadena_conexion();
+
+            v_cadena_execute = 'select sci.f_insertar_replica_aux('''||v_parametros.codigo_auxiliar::varchar||''','''||v_parametros.nombre_auxiliar::varchar||''',
+            '''||v_usuario_reg::varchar||''','''||v_parametros.corriente::varchar||''',''UPD'')';
+
+            v_resp =  (SELECT dblink_connect(v_cadena_conn));
+
+            if v_resp != 'OK' THEN
+            	raise exception 'FALLA CONEXION A LA BASE DE DATOS ENDESIS CON DBLINK';
+            else
+                PERFORM * FROM dblink(v_cadena_execute,true) AS ( xx varchar);
+            end if;
+
+            v_res_conn=(select dblink_disconnect());
+
 			--Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Auxiliares de Cuenta modificado(a)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Auxiliares de Cuenta modificado(a)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_auxiliar',v_parametros.id_auxiliar::varchar);
-               
+
             --Devuelve la respuesta
             return v_resp;
-            
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'CONTA_AUXCTA_ELI'
  	#DESCRIPCION:	Eliminacion de registros
- 	#AUTOR:		Gonzalo Sarmiento Sejas	
+ 	#AUTOR:		Gonzalo Sarmiento Sejas
  	#FECHA:		21-02-2013 20:44:52
 	***********************************/
 
@@ -127,11 +172,26 @@ BEGIN
 			--Sentencia de la eliminacion
 			delete from conta.tauxiliar
             where id_auxiliar=v_parametros.id_auxiliar;
-               
+
+        	v_cadena_conn =  migra.f_obtener_cadena_conexion();
+
+            v_cadena_execute = 'select sci.f_insertar_replica_aux('''||v_parametros.codigo_auxiliar::varchar||''','''||v_parametros.nombre_auxiliar::varchar||''',
+            ''''::varchar,''''::varchar,''DEL'')';
+
+            v_resp =  (SELECT dblink_connect(v_cadena_conn));
+
+            if v_resp != 'OK' THEN
+            	raise exception 'FALLA CONEXION A LA BASE DE DATOS ENDESIS CON DBLINK';
+            else
+                PERFORM * FROM dblink(v_cadena_execute,true) AS ( xx varchar);
+            end if;
+
+            v_res_conn=(select dblink_disconnect());
+
             --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Auxiliares de Cuenta eliminado(a)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Auxiliares de Cuenta eliminado(a)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_auxiliar',v_parametros.id_auxiliar::varchar);
-              
+
             --Devuelve la respuesta
             return v_resp;
 
@@ -149,8 +209,8 @@ BEGIN
 			select count(taux.id_auxiliar)
             INTO v_contador
             from conta.tauxiliar taux
-            where    taux.codigo_auxiliar = trim(both ' ' from v_parametros.codigo_auxiliar) 
-            
+            where    taux.codigo_auxiliar = trim(both ' ' from v_parametros.codigo_auxiliar)
+
                  AND taux.nombre_auxiliar = trim(both ' ' from v_parametros.nombre_auxiliar) ;
 
             IF(v_contador>=1)THEN
@@ -164,49 +224,49 @@ BEGIN
             --Devuelve la respuesta
             return v_resp;
 		end;
-        
-        
-     /*********************************    
+
+
+     /*********************************
     #TRANSACCION:  'CONTA_COD_AUX_GET'
-    #DESCRIPCION:   Recupera los datos de la auxiliar 
-    #AUTOR:     manu    
+    #DESCRIPCION:   Recupera los datos de la auxiliar
+    #AUTOR:     manu
     #FECHA:     10-10-2017 16:03:19
     ***********************************/
 
     elsif(p_transaccion='CONTA_COD_AUX_GET')then
         begin
-            --Sentencia de la eliminacion           
-            select a.id_auxiliar,a.id_empresa,a.nombre_auxiliar,a.codigo_auxiliar,a.corriente 
-            into v_registros                 
-            from conta.tauxiliar a                  
+            --Sentencia de la eliminacion
+            select a.id_auxiliar,a.id_empresa,a.nombre_auxiliar,a.codigo_auxiliar,a.corriente
+            into v_registros
+            from conta.tauxiliar a
             where a.estado_reg='activo' and a.id_auxiliar= v_parametros.id_auxiliar;
             --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Empresa recuperada(a)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Empresa recuperada(a)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_auxiliar',v_registros.id_auxiliar::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'id_empresa',v_registros.id_empresa::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'nombre_auxiliar',v_registros.nombre_auxiliar::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'codigo_auxiliar',v_registros.codigo_auxiliar::varchar);
-            v_resp = pxp.f_agrega_clave(v_resp,'corriente',v_registros.corriente::varchar);                        
+            v_resp = pxp.f_agrega_clave(v_resp,'corriente',v_registros.corriente::varchar);
             --Devuelve la respuesta
             return v_resp;
-        end;      
- 
-         
+        end;
+
+
 	else
-     
+
     	raise exception 'Transaccion inexistente: %',p_transaccion;
 
 	end if;
 
 EXCEPTION
-				
+
 	WHEN OTHERS THEN
 		v_resp='';
 		v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
 		v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
 		v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 		raise exception '%',v_resp;
-				        
+
 END;
 $body$
 LANGUAGE 'plpgsql'
