@@ -902,9 +902,10 @@ BEGIN
                raise exception 'El comprobante ya se encuentra volcado';
             END IF;
 
-            IF  v_reg_cbte.cbte_reversion = 'si'  THEN
+			--01-08-2019  se comenta aviso
+            /*IF  v_reg_cbte.cbte_reversion = 'si'  THEN
                raise exception 'No puede volcar un cbte de reversión';
-            END IF;
+            END IF;*/
 
             -- RAC 2/12/2016
             -- solo revisa dependnecia en cbte de reversion total
