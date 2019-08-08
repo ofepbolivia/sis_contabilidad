@@ -33,24 +33,24 @@ Phx.vista.ProveedorCuenta = {
 	},
 	{
 	  url:'../../../sis_parametros/vista/proveedor_cta_bancaria/ProveedorCtaBancaria.php',
-	  title:'Cta Bancaria', 
+	  title:'Cta Bancaria',
 	  width:'50%',
-	  cls:'ProveedorCtaBancaria',
-	  params:{nombre_tabla:'param.tproveedor',tabla_id : 'id_proveedor'}
+	  cls:'ProveedorCtaBancaria'//,
+	  // params:{nombre_tabla:'param.tproveedor',tabla_id : 'id_proveedor'}
 	}],
 	
    bedit:true,
    bnew:false,
    bdel:false,
-   bsave:false,
-   EnableSelect : function (n, extra) {
-   		var miExtra = {codigos_tipo_relacion:''};
-   		if (extra != null && typeof extra === 'object') {
-   			miExtra = Ext.apply(extra, miExtra) 
-   		}
-   		
-   		Phx.vista.ProveedorCuenta.superclass.EnableSelect.call(this,n,miExtra);  
-   		
-   }
+   bsave:false
+   // EnableSelect : function (n, extra) {
+   // 		var miExtra = {codigos_tipo_relacion:''};
+   // 		if (extra != null && typeof extra === 'object') {
+   // 			miExtra = Ext.apply(extra, miExtra)
+   // 		}
+   //
+   // 		Phx.vista.ProveedorCuenta.superclass.EnableSelect.call(this,n,miExtra);
+   //
+   // }
 };
 </script>

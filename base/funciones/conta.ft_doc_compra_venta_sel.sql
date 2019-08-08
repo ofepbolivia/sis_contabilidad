@@ -245,7 +245,8 @@ BEGIN
                             dcv.id_agencia,
                             ob.codigo_noiata,
                             ob.codigo_int,
-                            ic.c31
+                            ic.c31,
+                            dcv.fecha_vencimiento
 
 						from conta.tdoc_compra_venta dcv
                           inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg

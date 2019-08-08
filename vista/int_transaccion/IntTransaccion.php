@@ -75,7 +75,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     iconCls: 'bchecklist',
                     disabled: false,
                     handler: this.loadBanco,
-                    tooltip: '<b>Detalle del Pago</b><br/>Si la transaccion afecta bancos esta opción permite regitrar datos relacioandos (forma de pago, etc) '
+                    tooltip: '<b>Detalle del Pago</b><br/>Si la transaccion afecta bancos esta opción permite regitrar datos relacionados (Forma de Pago, etc.) '
                 }
             );
 
@@ -231,7 +231,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     fieldLabel: 'Orden',
                     sysorigen:'sis_contabilidad',
                     origen:'OT',
-                    allowBlank:true,
+                    allowBlank:false,
                     gwidth:200,
                     width: 380,
                     listWidth: 380

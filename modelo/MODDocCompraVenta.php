@@ -200,6 +200,7 @@ class MODDocCompraVenta extends MODbase
         $this->captura('codigo_noiata', 'varchar');
         $this->captura('codigo_int', 'varchar');
         $this->captura('c31', 'varchar');
+        $this->captura('fecha_vencimiento', 'date');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -255,6 +256,7 @@ class MODDocCompraVenta extends MODbase
         $this->setParametro('id_int_comprobante', 'id_int_comprobante', 'integer');
 
         $this->setParametro('id_plan_pago', 'id_plan_pago', 'integer');
+        $this->setParametro('fecha_vencimiento', 'fecha_vencimiento', 'date');
 
 
         //Ejecuta la instruccion
@@ -1283,11 +1285,12 @@ class MODDocCompraVenta extends MODbase
         //Define los parametros para la funcion
         $this->setParametro('id_doc_compra_venta', 'id_doc_compra_venta', 'int8');
         $this->setParametro('id_int_comprobante', 'id_int_comprobante', 'int8');
+        $this->setParametro('id_plan_pago', 'id_plan_pago', 'integer');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-
+        
         //Devuelve la respuesta
         return $this->respuesta;
     }
