@@ -21,15 +21,16 @@ header("content-type: text/javascript; charset=UTF-8");
             // this.disparador= this.maestro.disparador == undefined ?'contabilidad':this.maestro.disparador;
             this.disparador = this.maestro.disparador == undefined ? 'contabilidad' : this.maestro.disparador;
             this.init();
-            this.addButton('btnShowDoc',
-                {
-                    text: 'Ver Detalle',
-                    iconCls: 'brenew',
-                    disabled: true,
-                    handler: this.showDoc,
-                    tooltip: 'Muestra el detalle del documento'
-                }
-            );
+
+            // this.addButton('btnShowDoc',
+            //     {
+            //         text: 'Ver Detalle',
+            //         iconCls: 'brenew',
+            //         disabled: true,
+            //         handler: this.showDoc,
+            //         tooltip: 'Muestra el detalle del documento'
+            //     }
+            // );
 
             this.addButton('btnNewDoc',
                 {
@@ -40,15 +41,15 @@ header("content-type: text/javascript; charset=UTF-8");
                     tooltip: 'Permite relacionar un documento existente al Cbte'
                 }
             );
-            this.addButton('btnDelRegAirbp',
-                {
-                    text: 'Eliminar Regis. AIRBP.',
-                    iconCls: 'bdel',
-                    disabled: false,
-                    handler: this.delRegAirbp,
-                    tooltip: 'Permite relacionar un documento existente al Cbte'
-                }
-            );
+            // this.addButton('btnDelRegAirbp',
+            //     {
+            //         text: 'Eliminar Registro . AIRBP.',
+            //         iconCls: 'bdel',
+            //         disabled: false,
+            //         handler: this.delRegAirbp,
+            //         tooltip: 'Permite relacionar un documento existente al Cbte'
+            //     }
+            // );
 
             console.log('maestrom', this.maestro, this.disparador);
             if (this.maestro.disparador == 'obligacion') {
@@ -817,9 +818,9 @@ header("content-type: text/javascript; charset=UTF-8");
             this.abrirFormulario('edit', this.sm.getSelected())
         },
 
-        showDoc: function () {
-            this.abrirFormulario('noedit', this.sm.getSelected());
-        },
+        // showDoc: function () {
+        //     this.abrirFormulario('noedit', this.sm.getSelected());
+        // },
 
         newDoc: function () {
 
@@ -839,12 +840,12 @@ header("content-type: text/javascript; charset=UTF-8");
 
         preparaMenu: function (tb) {
             Phx.vista.SolDocCompraVentaCbte.superclass.preparaMenu.call(this, tb)
-            this.getBoton('btnShowDoc').enable();
+            // this.getBoton('btnShowDoc').enable();
         },
 
         liberaMenu: function (tb) {
             Phx.vista.SolDocCompraVentaCbte.superclass.liberaMenu.call(this, tb);
-            this.getBoton('btnShowDoc').disable();
+            // this.getBoton('btnShowDoc').disable();
         },
 
 

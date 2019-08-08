@@ -66,6 +66,7 @@ DECLARE
   v_id_plan_pago_dcv		INTEGER;
   v_id_depto_contatipo		INTEGER;
   v_num_tramite				varchar;
+  v_cuenta					varchar;
 
 
 BEGIN
@@ -148,9 +149,9 @@ BEGIN
 
 
         IF v_tipo_informe = 'lcv' THEN
-            IF (v_tipo_obligacion= 'sp' or v_tipo_obligacion= 'spd' or v_tipo_obligacion= 'spi')THEN
+            IF (v_tipo_obligacion= 'sp' or v_tipo_obligacion= 'spd' or v_tipo_obligacion= 'spi' or v_tipo_obligacion= 'pago_especial_spi')THEN
               v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_id_depto_destino, v_rec.po_id_periodo);
-            ELSE IF (v_tipo_obligacion= 'sp'or v_tipo_obligacion= 'spd'  or v_tipo_obligacion= 'spi')THEN
+            ELSE IF (v_tipo_obligacion= 'sp'or v_tipo_obligacion= 'spd'  or v_tipo_obligacion= 'spi' or v_tipo_obligacion= 'pago_especial_spi')THEN
               -- valida que periodO de libro de compras y ventas este abierto
               v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
                  END IF;
@@ -164,9 +165,12 @@ BEGIN
         END IF;
      END IF;
 
-     v_id_depto_contatipo = v_parametros.id_depto_conta;
-     v_id_depto_contatipo = v_id_depto_destino;
-
+    IF (v_tipo_obligacion in ('sp','spd','spi','pago_especial_spi'))THEN
+        v_id_depto_contatipo = v_id_depto_destino;
+    ELSE
+        v_id_depto_contatipo = v_parametros.id_depto_conta;
+    END IF;
+--raise exception 'llega  f %=%',v_parametros.id_depto_conta, v_id_depto_contatipo;
      --
 
       --TODO
@@ -207,6 +211,14 @@ BEGIN
       --PARA COMPRAS
       IF v_parametros.tipo = 'compra' THEN
 
+        	select per.nombre_completo1
+            into v_cuenta
+            from conta.tdoc_compra_venta dcv
+            inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
+            inner join segu.vpersona per on per.id_persona = usu1.id_persona
+            where dcv.nro_documento = v_parametros.nro_documento
+            limit 1;
+
         IF EXISTS(select
                     1
                   from conta.tdoc_compra_venta dcv
@@ -217,9 +229,21 @@ BEGIN
                            and dcv.nro_dui = v_parametros.nro_dui
                            and pla.tipo_informe='lcv') then
 
-          raise exception 'Ya existe un documento registrado con el mismo nro,  nit y nro de autorizacion';
+          raise exception 'Ya existe un documento registrado con el mismo Número de Nit % y Número de Autorización % , por el usuario %',v_parametros.nit,  v_parametros.nro_autorizacion, v_cuenta;
 
         END IF;
+
+        --controles para que no se repita el documento
+        		  --control numero de documento
+             	  IF EXISTS(select 1
+                            from conta.tdoc_compra_venta dcv
+                            inner join param.tplantilla pla on pla.id_plantilla=dcv.id_plantilla
+                            where    dcv.estado_reg = 'activo' and  dcv.nro_documento = v_parametros.nro_documento)THEN
+
+                       raise exception 'Ya existe un Documento/Factura registrado con el mismo Número %, por el usuario %.',v_parametros.nro_documento,v_cuenta;
+
+                  END IF;
+
 
         -- chequear si el proveedor esta registrado
         v_id_proveedor = param.f_check_proveedor(p_id_usuario, v_parametros.nit, upper(trim(v_parametros.razon_social)));
@@ -1449,25 +1473,7 @@ END IF;
 
     begin
 
-      -- validamos que el documento no tenga otro comprobante
-
-      IF not EXISTS(select
-                      1
-                    from conta.tdoc_compra_venta dcv
-                    where dcv.id_doc_compra_venta = v_parametros.id_doc_compra_venta and dcv.id_int_comprobante is null) THEN
-
-        raise exception 'El documento no existe o ya tiene un cbte relacionado';
-      END IF;
-
-       IF not EXISTS(select
-                      1
-                    from conta.tdoc_compra_venta dcv
-                    where dcv.id_doc_compra_venta = v_parametros.id_doc_compra_venta and dcv.id_plan_pago is null) THEN
-
-        raise exception 'El documento no existe o ya tiene un plan de pago relacionado';
-      END IF;
-
-  --para tipo de obligaciones internacionales sp, spd y spi, porque se añede desde un estado en borrador
+     --para tipo de obligaciones internacionales sp, spd y spi, porque se añade desde un estado en borrador
         SELECT op.tipo_obligacion
         INTO v_tipo_obligacion
         FROM tes.tobligacion_pago op
@@ -1475,7 +1481,18 @@ END IF;
         WHERE pp.id_plan_pago = v_parametros.id_plan_pago ;
 
 
-	  IF(v_tipo_obligacion in ('sp','spd', 'spi'))THEN
+	  IF(v_tipo_obligacion in ('sp','spd','pago_especial_spi', 'spi'))THEN
+
+         -- validamos que el documento no tenga otro comprobante
+
+          IF not EXISTS(select
+                          1
+                        from conta.tdoc_compra_venta dcv
+                        where dcv.id_doc_compra_venta = v_parametros.id_doc_compra_venta and dcv.id_plan_pago is null) THEN
+
+            raise exception 'El documento no existe o ya tiene un plan de pago relacionado';
+          END IF;
+
           --recupera nro de tramite del cbte
           select op.num_tramite
           into v_num_tramite
@@ -1488,6 +1505,16 @@ END IF;
             nro_tramite =   v_nro_tramite
           where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
       ELSE
+         -- validamos que el documento no tenga otro comprobante
+
+          IF not EXISTS(select
+                          1
+                        from conta.tdoc_compra_venta dcv
+                        where dcv.id_doc_compra_venta = v_parametros.id_doc_compra_venta and dcv.id_int_comprobante is null) THEN
+
+            raise exception 'El documento no existe o ya tiene un cbte relacionado';
+          END IF;
+
           --#14, recupera nro de tramite del cbte
           select cbte.nro_tramite
           into v_nro_tramite

@@ -744,12 +744,20 @@ BEGIN
 	elsif(p_transaccion='CONTA_INCBTE_ELI')then
 
 		begin
+            IF EXISTS(select 1
+                        from conta.tdoc_compra_venta dcv
+                        where dcv.estado_reg = 'activo' and  dcv.id_int_comprobante =  v_parametros.id_int_comprobante) then
+
+                        raise exception 'No puede Eliminar el Comprobante  %, primero Elimine sus Documentos/Facturas registrados.',v_parametros.id_int_comprobante;
+             END IF;
 
             v_result = conta.f_eliminar_int_comprobante(p_id_usuario,
                                                         v_parametros._id_usuario_ai,
                                                         v_parametros._nombre_usuario_ai,
                                                         v_parametros.id_int_comprobante,
                                                         'si');  --si indica borrado manualmente
+
+
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje',v_result);
