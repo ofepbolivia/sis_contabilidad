@@ -64,6 +64,8 @@ DECLARE
   v_id_depto_destino		INTEGER;
   v_id_plan_pago			INTEGER;
   v_id_plan_pago_dcv		INTEGER;
+  v_id_depto_contatipo		INTEGER;
+  v_num_tramite				varchar;
 
 
 BEGIN
@@ -129,7 +131,7 @@ BEGIN
       from param.tplantilla
       where id_plantilla = v_parametros.id_plantilla;
 
-	  --para facturas del SP
+	  --para facturas del SP , tipo de obligaciones internacionales
      if (pxp.f_existe_parametro(p_tabla,'id_plan_pago')) then
         SELECT op.tipo_obligacion
         INTO v_tipo_obligacion
@@ -146,9 +148,9 @@ BEGIN
 
 
         IF v_tipo_informe = 'lcv' THEN
-            IF (v_tipo_obligacion= 'sp' or v_tipo_obligacion= 'spd')THEN
+            IF (v_tipo_obligacion= 'sp' or v_tipo_obligacion= 'spd' or v_tipo_obligacion= 'spi')THEN
               v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_id_depto_destino, v_rec.po_id_periodo);
-            ELSE IF (v_tipo_obligacion= 'sp'or v_tipo_obligacion= 'spd')THEN
+            ELSE IF (v_tipo_obligacion= 'sp'or v_tipo_obligacion= 'spd'  or v_tipo_obligacion= 'spi')THEN
               -- valida que periodO de libro de compras y ventas este abierto
               v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
                  END IF;
@@ -161,6 +163,10 @@ BEGIN
                v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
         END IF;
      END IF;
+
+     v_id_depto_contatipo = v_parametros.id_depto_conta;
+     v_id_depto_contatipo = v_id_depto_destino;
+
      --
 
       --TODO
@@ -351,7 +357,8 @@ IF (v_id_int_comprobante is Null) THEN
       	v_parametros.importe_doc, --Dui
         'si', --sw_contabilizar,
         'registrado', --estado
-        v_parametros.id_depto_conta,
+        --v_parametros.id_depto_conta,
+        v_id_depto_contatipo,
         v_parametros.obs,
         'activo',
         upper(COALESCE(v_parametros.codigo_control,'0')),
@@ -443,7 +450,8 @@ ELSE  --raise exception 'llega2 %',v_i;
       	v_parametros.importe_doc, --Dui
         'si', --sw_contabilizar,
         'registrado', --estado
-        v_parametros.id_depto_conta,
+        --v_parametros.id_depto_conta,
+        v_id_depto_contatipo,
         v_parametros.obs,
         'activo',
         upper(COALESCE(v_parametros.codigo_control,'0')),
@@ -1451,24 +1459,52 @@ END IF;
         raise exception 'El documento no existe o ya tiene un cbte relacionado';
       END IF;
 
-      --#14, recupera nro de tramite del cbte
+       IF not EXISTS(select
+                      1
+                    from conta.tdoc_compra_venta dcv
+                    where dcv.id_doc_compra_venta = v_parametros.id_doc_compra_venta and dcv.id_plan_pago is null) THEN
 
-      select
-         cbte.nro_tramite
-      into
-        v_nro_tramite
-      from conta.tint_comprobante cbte
-      where cbte.id_int_comprobante = v_parametros.id_int_comprobante;
+        raise exception 'El documento no existe o ya tiene un plan de pago relacionado';
+      END IF;
 
-      update conta.tdoc_compra_venta d  set
-        id_int_comprobante =  v_parametros.id_int_comprobante,
-        nro_tramite =   v_nro_tramite
-      where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+  --para tipo de obligaciones internacionales sp, spd y spi, porque se añede desde un estado en borrador
+        SELECT op.tipo_obligacion
+        INTO v_tipo_obligacion
+        FROM tes.tobligacion_pago op
+        inner join tes.tplan_pago pp on pp.id_obligacion_pago = op.id_obligacion_pago
+        WHERE pp.id_plan_pago = v_parametros.id_plan_pago ;
+
+
+	  IF(v_tipo_obligacion in ('sp','spd', 'spi'))THEN
+          --recupera nro de tramite del cbte
+          select op.num_tramite
+          into v_num_tramite
+          from tes.tplan_pago pp
+          inner join tes.tobligacion_pago op on op.id_obligacion_pago = pp.id_obligacion_pago
+       	  where pp.id_plan_pago = v_parametros.id_plan_pago ;
+
+          update conta.tdoc_compra_venta d  set
+            id_plan_pago =  v_parametros.id_plan_pago,
+            nro_tramite =   v_nro_tramite
+          where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+      ELSE
+          --#14, recupera nro de tramite del cbte
+          select cbte.nro_tramite
+          into v_nro_tramite
+          from conta.tint_comprobante cbte
+          where cbte.id_int_comprobante = v_parametros.id_int_comprobante;
+
+          update conta.tdoc_compra_venta d  set
+            id_int_comprobante =  v_parametros.id_int_comprobante,
+            nro_tramite =   v_nro_tramite
+          where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+      END IF;
 
 
 
       --Definicion de la respuesta
-      v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se adiciono el cbte del documento '||v_parametros.id_doc_compra_venta ||' cbte '||v_parametros.id_int_comprobante);
+      --v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se adiciono el cbte del documento '||v_parametros.id_doc_compra_venta ||' cbte '||v_parametros.id_int_comprobante);
+      v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se adiciono el cbte del documento '||v_parametros.id_doc_compra_venta );
       v_resp = pxp.f_agrega_clave(v_resp,'id_doc_compra_venta',v_parametros.id_doc_compra_venta::varchar);
 
       --Devuelve la respuesta

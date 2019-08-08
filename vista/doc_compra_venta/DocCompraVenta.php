@@ -270,6 +270,25 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 {
                     config: {
+                        name: 'fecha_vencimiento',
+                        fieldLabel: 'Fecha Vencimiento',
+                        allowBlank: false,
+                        anchor: '80%',
+                        gwidth: 100,
+                        format: 'd/m/Y',
+                        readOnly: true,
+                        renderer: function (value, p, record) {
+                            return value ? value.dateFormat('d/m/Y') : ''
+                        }
+                    },
+                    type: 'DateField',
+                    filters: {pfiltro: 'dcv.fecha_vencimiento', type: 'date'},
+                    id_grupo: 0,
+                    grid: true,
+                    form: true
+                },
+                {
+                    config: {
                         name: 'razon_social',
                         fieldLabel: 'Razón Social',
                         allowBlank: false,
@@ -1330,7 +1349,8 @@ header("content-type: text/javascript; charset=UTF-8");
             'importe_pago_liquido', 'nro_dui', 'id_moneda', 'desc_moneda',
             'desc_tipo_doc_compra_venta', 'id_tipo_doc_compra_venta', 'nro_tramite',
             'desc_comprobante', 'id_int_comprobante', 'id_auxiliar', 'codigo_auxiliar', 'nombre_auxiliar', 'tipo_reg',
-            'estacion', 'id_punto_venta', 'nombre', 'id_agencia', 'codigo_noiata', 'codigo_int', 'c31'
+            'estacion', 'id_punto_venta', 'nombre', 'id_agencia', 'codigo_noiata', 'codigo_int', 'c31',
+            {name: 'fecha_vencimiento', type: 'date', dateFormat: 'Y-m-d'}
         ],
         sortInfo: {
             field: 'id_doc_compra_venta',

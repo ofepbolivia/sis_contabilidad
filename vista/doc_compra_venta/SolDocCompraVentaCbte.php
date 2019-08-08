@@ -50,7 +50,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 }
             );
 
-            console.log('maestro', this.maestro, this.disparador);
+            console.log('maestrom', this.maestro, this.disparador);
             if (this.maestro.disparador == 'obligacion') {
                 console.log('maestro1', this.maestro.disparador);
                 this.store.baseParams = {id_plan_pago: this.id_plan_pago};
@@ -135,7 +135,16 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'Field',
                 form: true
             },
-
+            {
+                //configuracion del componente
+                config: {
+                    labelSeparator: '',
+                    inputType: 'hidden',
+                    name: 'id_plan_pago'
+                },
+                type: 'Field',
+                form: true
+            },
 
             {
                 config: {
@@ -791,11 +800,16 @@ header("content-type: text/javascript; charset=UTF-8");
 
         agregarArgsExtraSubmit: function () {
 
-            this.argumentExtraSubmit = {id_int_comprobante: this.id_int_comprobante};
-
+            if (this.maestro.disparador == 'obligacion') {
+                this.argumentExtraSubmit = {id_plan_pago: this.id_plan_pago};
+            }else{
+                this.argumentExtraSubmit = {id_int_comprobante: this.id_int_comprobante};
+            }
+            // console.log('m',this.argumentExtraSubmit);
         },
 
         onButtonNew: function () {
+
             this.abrirFormulario('new', undefined, this.maestro)
         },
 
@@ -810,6 +824,7 @@ header("content-type: text/javascript; charset=UTF-8");
         newDoc: function () {
 
             Phx.vista.SolDocCompraVentaCbte.superclass.onButtonNew.call(this);
+
             this.Cmp.id_doc_compra_venta.store.baseParams = Ext.apply(this.Cmp.id_doc_compra_venta.store.baseParams,
                 {
                     fecha_cbte: this.fecha,
