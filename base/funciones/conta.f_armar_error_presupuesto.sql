@@ -22,6 +22,10 @@ DECLARE
   v_mensaje_error varchar;
   v_tmp varchar;
 
+  --variables para mostrar el codigo de moneda
+  v_codigo_base 	varchar;
+  v_codigo_tri		varchar;
+
 BEGIN
   v_nombre_funcion = 'conta.f_armar_error_presupuesto';
 
@@ -34,7 +38,15 @@ BEGIN
              from pre.vpresupuesto_cc pre
              where pre.id_centro_costo = p_id_presupuesto;
 
+             select tm.codigo
+             into v_codigo_tri
+             from param.tmoneda tm
+             where tm.id_moneda = p_id_moneda;
 
+             select tm.codigo
+             into v_codigo_base
+             from param.tmoneda tm
+             where tm.id_moneda = p_id_moneda_base;
 
              IF p_resp_ges[4] is not null and  p_resp_ges[4] = 1  THEN
                   v_tmp = format('el presupuesto no alcanza por diferencia cambiaria, en moneda base tenemos:   %s y se requiere %s ', p_resp_ges[3]::varchar, p_monto_cmp_mb::varchar);
@@ -44,10 +56,12 @@ BEGIN
 
                   IF p_id_moneda_base = p_id_moneda THEN
                   	--IF p_resp_ges[3] < p_monto_cmp_mb THEN
-                      v_tmp = format('Solo se tiene disponible un monto en moneda base de:  %s y se requiere; %s', p_resp_ges[3]::varchar, p_monto_cmp_mb::varchar);
+                      --v_tmp = format('Solo se tiene disponible un monto en moneda base de:  %s y se requiere; %s', p_resp_ges[3]::varchar, p_monto_cmp_mb::varchar);
+                      v_tmp = format('Solo se tiene saldo disponible a comprometer de:  %s %s. y se requiere; %s %s.', p_resp_ges[3]::varchar,v_codigo_base, p_monto_cmp_mb::varchar, v_codigo_tri);
                   	--END IF;
                   ELSE
-                      v_tmp =  format('Solo se tiene disponible un monto de:  %s y se requiere  %s', p_resp_ges[3]::varchar, p_monto_cmp_mb::varchar);
+                      --v_tmp =  format('Solo se tiene disponible un monto de:  %s y se requiere  %s', p_resp_ges[3]::varchar, p_monto_cmp_mb::varchar);
+                      v_tmp =  format('Solo se tiene saldo disponible a comprometer de:  %s %s. y se requiere  %s %s.', p_resp_ges[3]::varchar, v_codigo_base, p_monto_cmp_mb::varchar, v_codigo_base);
                   END IF;
 
              END IF;

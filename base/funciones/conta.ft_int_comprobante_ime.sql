@@ -903,7 +903,8 @@ BEGIN
             END IF;
 
             IF  v_reg_cbte.cbte_reversion = 'si'  THEN
-               raise exception 'No puede volcar un cbte de reversión';
+               --comentado a solicitud de lobito el 01/08/2019
+               	--raise exception 'No puede volcar un cbte de reversión';
             END IF;
 
             -- RAC 2/12/2016
