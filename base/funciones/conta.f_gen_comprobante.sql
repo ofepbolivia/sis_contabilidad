@@ -394,20 +394,13 @@ BEGIN
 
 
 
-	--if pxp.f_get_variable_global('ESTACION_inicio') = 'BOL' then
+
       	--calcular el tipo de cambio segun fecha y moneda del comprobante
       	IF v_this.columna_tipo_cambio is NULL THEN
           v_tipo_cambio =   param.f_get_tipo_cambio( v_this.columna_moneda::integer, v_this.columna_fecha::date, 'O');
       	ELSE
           v_tipo_cambio = v_this.columna_tipo_cambio;
-     	END IF;
-    /*else --(franklin.espinoza)
-    	IF v_this.columna_tipo_cambio is NULL THEN
-          v_tipo_cambio =   param.f_get_tipo_cambio( v_this.columna_moneda::integer, current_date, 'O');
-      	ELSE
-          v_tipo_cambio = v_this.columna_tipo_cambio;
-      	END IF;
-    end if;*/
+     	  END IF;
 
     --deterinar si es temporal
     v_temporal = 'no';
@@ -557,7 +550,6 @@ BEGIN
 
         if v_moneda_record.id_moneda_op != v_moneda_record.id_moneda_cb then
         	v_id_moneda = v_moneda_record.id_moneda_cb;
-            v_this.columna_tipo_cambio = v_moneda_record.tipo_cambio;
         else
         	v_id_moneda = v_this.columna_moneda::integer;
         end if;

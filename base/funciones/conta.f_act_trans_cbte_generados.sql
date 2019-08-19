@@ -106,7 +106,10 @@ BEGIN
          raise exception 'no tenemos tipo de cambio % para la fecha % en la estación %',v_registros_config.po_tc3 , v_registros_cbte.fecha, p_estacion;
        END IF;
        
-       
+       if pxp.f_get_variable_global('ESTACION_inicio') = 'BUE' and v_id_moneda_base = v_registros_cbte.id_moneda then
+       	  v_registros_config.po_valor_tc2 = v_tipo_cambio;
+          v_registros_config.po_valor_tc3 = v_tipo_cambio;
+       end if;
        update conta.tint_comprobante cbt set
          tipo_cambio = v_tipo_cambio,
          tipo_cambio_2 = v_registros_config.po_valor_tc2,
