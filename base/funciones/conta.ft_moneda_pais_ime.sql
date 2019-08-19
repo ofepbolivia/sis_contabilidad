@@ -173,7 +173,7 @@ BEGIN
 	elsif(p_transaccion='CONTA_MONPA_ELI')then
 
     	 --VERIFICACIÓN DE EXISTENCIA DEL REGISTRO
-            IF NOT EXISTS(SELECT 1 FROM conta.tmoneda_pais
+            IF NOT EXISTS(SELECT 1 FROM conta.tmoneda_pais mo
                           WHERE mo.id_moneda_pais=v_parametros.id_moneda_pais) THEN
                 raise exception 'Eliminación no realizada: registro % en conta.tmoneda_pais inexistente',v_parametros.id_moneda_pais;
             END IF;

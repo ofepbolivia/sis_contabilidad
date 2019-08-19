@@ -126,6 +126,7 @@ class MODMonedaPais extends MODbase{
 		}catch (Exception $e) {
 				throw new Exception("La conexion a la bd POSTGRESQL ha fallado.");
 		}
+		$conexion->closeSQL();
 	}
 
 	function modificarMonedaPaisSQLServer() {
@@ -146,6 +147,7 @@ class MODMonedaPais extends MODbase{
 		}catch (Exception $e) {
 				throw new Exception("La conexion a la bd POSTGRESQL ha fallado.");
 		}
+		$conexion->closeSQL();
 	}
 
 	function eliminarMonedaPaisSQLServer($respuesta) {
@@ -160,6 +162,7 @@ class MODMonedaPais extends MODbase{
 		}catch (Exception $e) {
 				throw new Exception("La conexion a la bd POSTGRESQL ha fallado.");
 		}
+		$conexion->closeSQL();
 	}
 
 	function modificarMonedaPais(){
