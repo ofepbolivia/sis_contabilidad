@@ -239,7 +239,7 @@ class ACTArchivoAirbp extends ACTbase{
 					$error = 'error';
 					$mensaje_completo = "Error al guardar el fila en tabla " . $this->res->getMensajeTec();
                 }
-            }else if($codigoArchivo = 'AIRBPNFORM'){                
+            }else if($codigoArchivo == 'AIRBPNFORM'){                
             /** start*/
             foreach ($arrayArchivo as $fila) {
 
