@@ -1016,7 +1016,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         name: 'id_moneda',
                         origen: 'MONEDA',
                         allowBlank: false,
-                        baseParams: {id_moneda_defecto: me.id_moneda_defecto},
+                        //08-08-2019, se comenta poque se tiene que ver las demas monedas para los pagos
+                        //baseParams: {id_moneda_defecto: me.id_moneda_defecto},
                         fieldLabel: 'Moneda',
                         gdisplayField: 'desc_moneda',
                         anchor: '85%',
@@ -1617,7 +1618,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }, this);
             //
             this.Cmp.id_proveedor.on('select', function (cmb, rec, i) {
-                this.Cmp.razon_social.setValue(rec.data.desc_proveedor);
+                this.Cmp.razon_social.setValue(rec.data.rotulo_comercial);
             }, this);
             //
             this.Cmp.nit.on('change', function (cmb, newval, oldval) {

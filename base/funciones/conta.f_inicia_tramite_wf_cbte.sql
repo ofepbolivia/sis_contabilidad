@@ -81,8 +81,8 @@ BEGIN
                         
       FROM wf.f_inicia_tramite(
          p_id_usuario,
-         v_parametros._id_usuario_ai,
-         v_parametros._nombre_usuario_ai,
+         p_id_usuario_ai,
+         p_usuario_ai,
          p_id_gestion, 
          v_codigo_tipo_proceso, 
          null,--v_parametros.id_funcionario,
@@ -96,11 +96,11 @@ BEGIN
       END IF;
       
       
-      update  conta.tint_comprobante c set
-        c.id_estado_wf = v_id_estado_wf,
-        c.id_proceso_wf = v_id_proceso_wf,
-        c.nro_tramite = v_num_tramite
-      where c.id_int_comprobante = p_id_int_comprobante;
+      update  conta.tint_comprobante set
+        id_estado_wf = v_id_estado_wf,
+        id_proceso_wf = v_id_proceso_wf,
+        nro_tramite = v_num_tramite
+      where id_int_comprobante = p_id_int_comprobante;
           
    
    --retorna resultado

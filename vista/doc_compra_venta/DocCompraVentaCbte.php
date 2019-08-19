@@ -19,6 +19,8 @@ header("content-type: text/javascript; charset=UTF-8");
             //llama al constructor de la clase padre
             Phx.vista.DocCompraVentaCbte.superclass.constructor.call(this,config);
 
+            this.disparador = this.maestro.disparador == undefined ? 'contabilidad' : this.maestro.disparador;
+
             this.init();
             this.addButton('btnShowDoc',
                 {
@@ -47,9 +49,18 @@ header("content-type: text/javascript; charset=UTF-8");
                     handler: this.delRegAirbp,
                     tooltip: 'Permite relacionar un documento existente al Cbte'
                 }
-            );            
+            );
+            console.log('maestrom', this.maestro, this.disparador);
+            if (this.maestro.disparador == 'obligacion') {
+                console.log('maestro1', this.maestro.disparador);
+                this.store.baseParams = {id_plan_pago: this.id_plan_pago};
+                // this.store.baseParams = { id_int_comprobante: this.id_int_comprobante };
+            } else {
+                console.log('maestro2', this.maestro.disparador);
+                this.store.baseParams = {id_int_comprobante: this.id_int_comprobante};
+            }
+            console.log('maestro22222', this.maestro, this.disparador);
 
-            this.store.baseParams = { id_int_comprobante: this.id_int_comprobante };
             this.load({params:{start:0, limit:this.tam_pag}});
         },
 

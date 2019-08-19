@@ -21,15 +21,16 @@ header("content-type: text/javascript; charset=UTF-8");
             // this.disparador= this.maestro.disparador == undefined ?'contabilidad':this.maestro.disparador;
             this.disparador = this.maestro.disparador == undefined ? 'contabilidad' : this.maestro.disparador;
             this.init();
-            this.addButton('btnShowDoc',
-                {
-                    text: 'Ver Detalle',
-                    iconCls: 'brenew',
-                    disabled: true,
-                    handler: this.showDoc,
-                    tooltip: 'Muestra el detalle del documento'
-                }
-            );
+
+            // this.addButton('btnShowDoc',
+            //     {
+            //         text: 'Ver Detalle',
+            //         iconCls: 'brenew',
+            //         disabled: true,
+            //         handler: this.showDoc,
+            //         tooltip: 'Muestra el detalle del documento'
+            //     }
+            // );
 
             this.addButton('btnNewDoc',
                 {
@@ -40,17 +41,17 @@ header("content-type: text/javascript; charset=UTF-8");
                     tooltip: 'Permite relacionar un documento existente al Cbte'
                 }
             );
-            this.addButton('btnDelRegAirbp',
-                {
-                    text: 'Eliminar Regis. AIRBP.',
-                    iconCls: 'bdel',
-                    disabled: false,
-                    handler: this.delRegAirbp,
-                    tooltip: 'Permite relacionar un documento existente al Cbte'
-                }
-            );
+            // this.addButton('btnDelRegAirbp',
+            //     {
+            //         text: 'Eliminar Registro . AIRBP.',
+            //         iconCls: 'bdel',
+            //         disabled: false,
+            //         handler: this.delRegAirbp,
+            //         tooltip: 'Permite relacionar un documento existente al Cbte'
+            //     }
+            // );
 
-            console.log('maestro', this.maestro, this.disparador);
+            console.log('maestrom', this.maestro, this.disparador);
             if (this.maestro.disparador == 'obligacion') {
                 console.log('maestro1', this.maestro.disparador);
                 this.store.baseParams = {id_plan_pago: this.id_plan_pago};
@@ -135,7 +136,16 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'Field',
                 form: true
             },
-
+            {
+                //configuracion del componente
+                config: {
+                    labelSeparator: '',
+                    inputType: 'hidden',
+                    name: 'id_plan_pago'
+                },
+                type: 'Field',
+                form: true
+            },
 
             {
                 config: {
@@ -791,11 +801,16 @@ header("content-type: text/javascript; charset=UTF-8");
 
         agregarArgsExtraSubmit: function () {
 
-            this.argumentExtraSubmit = {id_int_comprobante: this.id_int_comprobante};
-
+            if (this.maestro.disparador == 'obligacion') {
+                this.argumentExtraSubmit = {id_plan_pago: this.id_plan_pago};
+            }else{
+                this.argumentExtraSubmit = {id_int_comprobante: this.id_int_comprobante};
+            }
+            // console.log('m',this.argumentExtraSubmit);
         },
 
         onButtonNew: function () {
+
             this.abrirFormulario('new', undefined, this.maestro)
         },
 
@@ -803,13 +818,14 @@ header("content-type: text/javascript; charset=UTF-8");
             this.abrirFormulario('edit', this.sm.getSelected())
         },
 
-        showDoc: function () {
-            this.abrirFormulario('noedit', this.sm.getSelected());
-        },
+        // showDoc: function () {
+        //     this.abrirFormulario('noedit', this.sm.getSelected());
+        // },
 
         newDoc: function () {
 
             Phx.vista.SolDocCompraVentaCbte.superclass.onButtonNew.call(this);
+
             this.Cmp.id_doc_compra_venta.store.baseParams = Ext.apply(this.Cmp.id_doc_compra_venta.store.baseParams,
                 {
                     fecha_cbte: this.fecha,
@@ -824,12 +840,12 @@ header("content-type: text/javascript; charset=UTF-8");
 
         preparaMenu: function (tb) {
             Phx.vista.SolDocCompraVentaCbte.superclass.preparaMenu.call(this, tb)
-            this.getBoton('btnShowDoc').enable();
+            // this.getBoton('btnShowDoc').enable();
         },
 
         liberaMenu: function (tb) {
             Phx.vista.SolDocCompraVentaCbte.superclass.liberaMenu.call(this, tb);
-            this.getBoton('btnShowDoc').disable();
+            // this.getBoton('btnShowDoc').disable();
         },
 
 
