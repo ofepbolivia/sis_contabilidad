@@ -4824,3 +4824,53 @@ ALTER TABLE conta.tdoc_compra_venta
 ALTER TABLE conta.tdoc_compra_venta
   ADD COLUMN fecha_vencimiento DATE;
 /***********************************F-SCP-MAY-CONTA-0-22/07/2019****************************************/
+
+/***********************************I-SCP-IRVA-CONTA-0-19/08/2019****************************************/
+CREATE TABLE conta.tmoneda_pais (
+  id_moneda INTEGER NOT NULL,
+  origen VARCHAR(10) NOT NULL,
+  prioridad INTEGER NOT NULL,
+  tipo_actualizacion VARCHAR,
+  id_lugar INTEGER NOT NULL,
+  id_moneda_pais SERIAL,
+  CONSTRAINT tmoneda_pais_pkey PRIMARY KEY(id_moneda_pais),
+  CONSTRAINT tmoneda_pais_id_lugar_fk FOREIGN KEY (id_lugar)
+    REFERENCES param.tlugar(id_lugar)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT tmoneda_pais_id_moneda_fk FOREIGN KEY (id_moneda)
+    REFERENCES param.tmoneda(id_moneda)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE conta.tmoneda_pais
+  OWNER TO postgres;
+/***********************************F-SCP-IRVA-CONTA-0-19/08/2019****************************************/
+
+/***********************************I-SCP-IRVA-CONTA-1-19/08/2019****************************************/
+
+CREATE TABLE conta.ttipo_cambio_pais (
+id_tipo_cambio_pais SERIAL,
+fecha DATE DEFAULT now() NOT NULL,
+oficial NUMERIC(18,7) NOT NULL,
+compra NUMERIC(18,7) NOT NULL,
+venta NUMERIC(18,7) NOT NULL,
+observaciones VARCHAR(300),
+estado VARCHAR(10) DEFAULT 'Activo'::character varying NOT NULL,
+id_moneda_pais INTEGER NOT NULL,
+CONSTRAINT ttipo_cambio_pais_pkey PRIMARY KEY(id_tipo_cambio_pais),
+CONSTRAINT ttipo_cambio_pais_id_moneda_pais_fk FOREIGN KEY (id_moneda_pais)
+  REFERENCES conta.tmoneda_pais(id_moneda_pais)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION
+  NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE conta.ttipo_cambio_pais
+OWNER TO postgres;
+/***********************************F-SCP-IRVA-CONTA-1-19/08/2019****************************************/
