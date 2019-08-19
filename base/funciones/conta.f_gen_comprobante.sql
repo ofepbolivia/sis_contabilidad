@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.f_gen_comprobante (
   p_id_tabla_valor integer,
   p_codigo varchar,
@@ -94,6 +92,8 @@ DECLARE
     --variables para definir la moneda de acuerdo a la cuenta bancaria de pago
     v_moneda_record				record;
     v_id_moneda					integer;
+
+    v_estacion						varchar;
 BEGIN
 
     v_nombre_funcion:='conta.f_gen_comprobante';
@@ -393,14 +393,12 @@ BEGIN
           END IF;
 
 
-
-
       	--calcular el tipo de cambio segun fecha y moneda del comprobante
       	IF v_this.columna_tipo_cambio is NULL THEN
           v_tipo_cambio =   param.f_get_tipo_cambio( v_this.columna_moneda::integer, v_this.columna_fecha::date, 'O');
       	ELSE
           v_tipo_cambio = v_this.columna_tipo_cambio;
-     	  END IF;
+     	END IF;
 
     --deterinar si es temporal
     v_temporal = 'no';
@@ -555,8 +553,105 @@ BEGIN
         end if;
       end if;
 
-   INSERT INTO
-      conta.tint_comprobante
+   /*-------------------------------------------------------------------
+     funcionarios que por defecto se llene el formulario del comprobante
+     para BUE
+    ---------------------------------------------------------------------*/
+            v_estacion = pxp.f_get_variable_global('ESTACION_inicio');
+
+
+   IF (v_estacion = 'BUE')THEN
+
+     INSERT INTO conta.tint_comprobante
+    (
+      id_usuario_reg,
+      fecha_reg,
+      estado_reg,
+      id_clase_comprobante,
+      id_subsistema,
+      id_depto,
+      id_depto_libro,
+      id_moneda,
+      id_periodo,
+      momento,
+      momento_comprometido,
+      momento_ejecutado,
+      momento_pagado,
+      id_plantilla_comprobante,
+      glosa1,
+      beneficiario,
+      tipo_cambio,
+      fecha,
+      funcion_comprobante_validado,
+      funcion_comprobante_eliminado,
+      id_cuenta_bancaria,
+      id_cuenta_bancaria_mov,
+      nro_cheque,
+      nro_cuenta_bancaria_trans,
+      nro_tramite,
+      id_usuario_ai,
+      usuario_ai,
+      temporal,
+      fecha_costo_ini,
+      fecha_costo_fin,
+      localidad,
+      sw_editable,
+      id_proceso_wf,
+      id_estado_wf,
+      id_int_comprobante_fks,
+      id_tipo_relacion_comprobante,
+      id_funcionario_firma1,
+      id_funcionario_firma2,
+      id_funcionario_firma3
+
+    )
+    VALUES (
+      p_id_usuario,
+      now(),
+     'borrador',
+      v_id_clase_comprobante, --TODO agregar a la interface de plantilla
+      v_id_subsistema, --TODO agregar a la interface de plantilla,
+      v_this.columna_depto::integer,
+      v_this.columna_libro_banco::integer,
+      v_this.columna_moneda::integer,
+      v_rec_periodo.po_id_periodo,
+      v_plantilla.momento_presupuestario, -- contable, o presupuestario
+      v_plantilla.momento_comprometido,
+      v_plantilla.momento_ejecutado,
+      v_plantilla.momento_pagado,
+      v_plantilla.id_plantilla_comprobante,
+      v_this.columna_descripcion,
+      v_this.columna_acreedor,
+      v_tipo_cambio,
+      v_this.columna_fecha,
+      v_plantilla.funcion_comprobante_validado,
+      v_plantilla.funcion_comprobante_eliminado,
+      v_this.columna_id_cuenta_bancaria,
+      v_this.columna_id_cuenta_bancaria_mov,
+      v_this.columna_nro_cheque,
+      v_this.columna_nro_cuenta_bancaria_trans,
+      v_num_tramite, --v_this.columna_nro_tramite,  ya no se considera el nro de tramite de generador
+      p_id_usuario_ai,
+      p_usuario_ai,
+      v_temporal,
+      v_this.columna_fecha_costo_ini,
+      v_this.columna_fecha_costo_fin,
+      v_localidad,
+      'no',
+      v_id_proceso_wf,
+      v_id_estado_wf,
+      (string_to_array(v_this.columna_cbte_relacionado,','))::integer[],
+      v_id_tipo_relacion_comprobante,
+      1182, --id de ANALIA MARCELA FERNANDEZ DIONESALVI -BUE
+      587, --id de GABRIELA STRAZZANTI ARAUZ -BUE
+      1174 --id de MENDIA QUINTEROS JORGE FERNANDO -BUE
+
+    )RETURNING id_int_comprobante into v_id_int_comprobante;
+
+
+   ELSE
+
+     INSERT INTO  conta.tint_comprobante
     (
       id_usuario_reg,
       fecha_reg,
@@ -604,7 +699,7 @@ BEGIN
       v_id_subsistema, --TODO agregar a la interface de plantilla,
       v_this.columna_depto::integer,
       v_this.columna_libro_banco::integer,
-      v_id_moneda,--(franklin.espinoza)v_this.columna_moneda::integer,
+      v_this.columna_moneda::integer,
       v_rec_periodo.po_id_periodo,
       v_plantilla.momento_presupuestario, -- contable, o presupuestario
       v_plantilla.momento_comprometido,
@@ -635,6 +730,12 @@ BEGIN
       v_id_tipo_relacion_comprobante
 
     )RETURNING id_int_comprobante into v_id_int_comprobante;
+
+
+   END IF;
+
+
+     ---
 
 
 

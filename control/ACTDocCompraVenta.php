@@ -74,6 +74,7 @@ class ACTDocCompraVenta extends ACTbase
         }
 
         $temp = Array();
+        $temp['desc_plantilla'] ='TOTAL';
         $temp['importe_ice'] = $this->res->extraData['total_importe_ice'];
         $temp['importe_excento'] = $this->res->extraData['total_importe_excento'];
         $temp['importe_it'] = $this->res->extraData['total_importe_it'];
