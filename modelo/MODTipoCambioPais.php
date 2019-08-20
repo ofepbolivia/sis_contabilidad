@@ -150,7 +150,6 @@ class MODTipoCambioPais extends MODbase{
 					$fecha = ($arreglo_fecha[2].'-'.$arreglo_fecha[1].'-'.$arreglo_fecha[0]);
 					$oficial = $this->aParam->getParametro('oficial');
 					$codigo_pais = $this->pais();
-					var_dump("fecha",$fecha);exit;
 					$this->informix->beginTransaction();
 					$sql_in = "UPDATE ingresos:cambio
 										 SET
@@ -216,6 +215,7 @@ class MODTipoCambioPais extends MODbase{
 		catch (Exception $e) {
 				throw new Exception("La conexion a la bd POSTGRESQL ha fallado.");
 		}
+		$this->link->closeSQL();
 	}
 
 	function modificarTipoCambioPaisSQLServer() {
@@ -240,6 +240,7 @@ class MODTipoCambioPais extends MODbase{
 		catch (Exception $e) {
 				throw new Exception("La conexion a la bd POSTGRESQL ha fallado.");
 		}
+		$this->link->closeSQL();
 	}
 
 	function eliminarTipoCambioPaisSQLServer($respuesta) {
@@ -254,6 +255,7 @@ class MODTipoCambioPais extends MODbase{
 		}catch (Exception $e) {
 				throw new Exception("La conexion a la bd POSTGRESQL ha fallado.");
 		}
+		$this->link->closeSQL();
 	}
 /*******************************************************************************/
 
