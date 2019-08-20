@@ -302,10 +302,11 @@ Phx.vista.TipoCambioPais=Ext.extend(Phx.gridInterfaz,{
 		field: 'id_tipo_cambio_pais',
 		direction: 'ASC'
 	},
-  bdel:true,
+  bdel:false,
 	bsave:false,
   bexcel:false,
 	btest:false,
+	bedit:false,
   fwidth : 420,
   fheight : 350,
 
