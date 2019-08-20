@@ -163,7 +163,7 @@ BEGIN
                     '||v_parametros.compra||',
                     '||v_parametros.venta||',
                     '''||v_parametros.observaciones||''',
-                    ''Activo''
+                    ''activo''
                     );';
 
 

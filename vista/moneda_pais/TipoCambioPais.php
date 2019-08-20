@@ -19,7 +19,7 @@ Phx.vista.TipoCambioPais=Ext.extend(Phx.gridInterfaz,{
 		this.init();
 
     this.tbar.items.items[0].disable();
-    this.tbar.items.items[3].disable();
+    // this.tbar.items.items[3].disable();
 
 		this.bbar.el.dom.style.background='#A6C2ED';
 		this.tbar.el.dom.style.background='#A6C2ED';
@@ -302,10 +302,11 @@ Phx.vista.TipoCambioPais=Ext.extend(Phx.gridInterfaz,{
 		field: 'id_tipo_cambio_pais',
 		direction: 'ASC'
 	},
-  bdel:true,
+  bdel:false,
 	bsave:false,
   bexcel:false,
 	btest:false,
+	bedit:false,
   fwidth : 420,
   fheight : 350,
 
@@ -328,17 +329,17 @@ Phx.vista.TipoCambioPais=Ext.extend(Phx.gridInterfaz,{
 					/*******************************************************************/
 
       },
-			onButtonEdit : function () {
-	  	    Phx.vista.TipoCambioPais.superclass.onButtonEdit.call(this);
-	          this.Cmp.id_moneda_pais.setValue(this.maestro.id_moneda_pais);
-						/*Recuperamos el id lugar y id_moenda para obtener el codigo pais para informix*/
-						this.Cmp.id_lugar.setValue(this.maestro.id_lugar);
-						this.Cmp.id_moneda.setValue(this.maestro.id_moneda);
-						this.ocultarComponente(this.Cmp.fecha);
-						this.form.el.dom.firstChild.childNodes[0].style.background = '#A6C2ED';
-						/*******************************************************************/
-
-	      },
+			// onButtonEdit : function () {
+	  	//     Phx.vista.TipoCambioPais.superclass.onButtonEdit.call(this);
+	    //       this.Cmp.id_moneda_pais.setValue(this.maestro.id_moneda_pais);
+			// 			/*Recuperamos el id lugar y id_moenda para obtener el codigo pais para informix*/
+			// 			this.Cmp.id_lugar.setValue(this.maestro.id_lugar);
+			// 			this.Cmp.id_moneda.setValue(this.maestro.id_moneda);
+			// 			this.ocultarComponente(this.Cmp.fecha);
+			// 			this.form.el.dom.firstChild.childNodes[0].style.background = '#A6C2ED';
+			// 			/*******************************************************************/
+			//
+	    //   },
 
 
 	}
