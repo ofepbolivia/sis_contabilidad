@@ -4874,3 +4874,11 @@ WITH (oids = false);
 ALTER TABLE conta.ttipo_cambio_pais
 OWNER TO postgres;
 /***********************************F-SCP-IRVA-CONTA-1-19/08/2019****************************************/
+
+/***********************************I-SCP-MAY-CONTA-0-20/08/2019****************************************/
+ALTER TABLE conta.tdoc_compra_venta
+  ALTER COLUMN codigo_control SET DEFAULT '0';
+
+ALTER TABLE conta.tdoc_compra_venta
+  ALTER COLUMN codigo_control SET NOT NULL;
+/***********************************F-SCP-MAY-CONTA-0-20/08/2019****************************************/
