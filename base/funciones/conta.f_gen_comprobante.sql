@@ -93,7 +93,11 @@ DECLARE
     v_moneda_record				record;
     v_id_moneda					integer;
 
-    v_estacion						varchar;
+    v_estacion					varchar;
+    v_prioridad1_firm			integer;
+    v_prioridad2_firm			integer;
+    v_prioridad3_firm    		integer;
+
 BEGIN
 
     v_nombre_funcion:='conta.f_gen_comprobante';
@@ -557,184 +561,198 @@ BEGIN
      funcionarios que por defecto se llene el formulario del comprobante
      para BUE
     ---------------------------------------------------------------------*/
-            v_estacion = pxp.f_get_variable_global('ESTACION_inicio');
+    --funcionario que registra el comprobante para firmas de un comprobante
+    SELECT fu.id_funcionario
+    INTO v_prioridad3_firm
+    FROM orga.vfuncionario fu
+    inner join segu.tusuario usu on usu.id_persona = fu.id_persona
+    WHERE usu.id_usuario =  p_id_usuario;
 
+    --funcionario con prioridad 1 para firmas de un comprobante
+    SELECT fir.id_funcionario
+    INTO v_prioridad1_firm
+    FROM param.tfirma fir
+    WHERE fir.prioridad = 1
+    and fir.id_depto = v_this.columna_depto;
 
-   IF (v_estacion = 'BUE')THEN
+    --funcionario con prioridad 2 para firmas de un comprobante
+    SELECT fir.id_funcionario
+    INTO v_prioridad2_firm
+    FROM param.tfirma fir
+    WHERE fir.prioridad = 2
+    and fir.id_depto = v_this.columna_depto;
 
-     INSERT INTO conta.tint_comprobante
-    (
-      id_usuario_reg,
-      fecha_reg,
-      estado_reg,
-      id_clase_comprobante,
-      id_subsistema,
-      id_depto,
-      id_depto_libro,
-      id_moneda,
-      id_periodo,
-      momento,
-      momento_comprometido,
-      momento_ejecutado,
-      momento_pagado,
-      id_plantilla_comprobante,
-      glosa1,
-      beneficiario,
-      tipo_cambio,
-      fecha,
-      funcion_comprobante_validado,
-      funcion_comprobante_eliminado,
-      id_cuenta_bancaria,
-      id_cuenta_bancaria_mov,
-      nro_cheque,
-      nro_cuenta_bancaria_trans,
-      nro_tramite,
-      id_usuario_ai,
-      usuario_ai,
-      temporal,
-      fecha_costo_ini,
-      fecha_costo_fin,
-      localidad,
-      sw_editable,
-      id_proceso_wf,
-      id_estado_wf,
-      id_int_comprobante_fks,
-      id_tipo_relacion_comprobante,
-      id_funcionario_firma1,
-      id_funcionario_firma2,
-      id_funcionario_firma3
+    --para comprobantes que no tengan firmas de funcionario parametrizados
+    IF (v_prioridad1_firm is Null and v_prioridad2_firm is Null)THEN
+    		INSERT INTO  conta.tint_comprobante
+              (
+                id_usuario_reg,
+                fecha_reg,
+                estado_reg,
+                id_clase_comprobante,
+                id_subsistema,
+                id_depto,
+                id_depto_libro,
+                id_moneda,
+                id_periodo,
+                momento,
+                momento_comprometido,
+                momento_ejecutado,
+                momento_pagado,
+                id_plantilla_comprobante,
+                glosa1,
+                beneficiario,
+                tipo_cambio,
+                fecha,
+                funcion_comprobante_validado,
+                funcion_comprobante_eliminado,
+                id_cuenta_bancaria,
+                id_cuenta_bancaria_mov,
+                nro_cheque,
+                nro_cuenta_bancaria_trans,
+                nro_tramite,
+                id_usuario_ai,
+                usuario_ai,
+                temporal,
+                fecha_costo_ini,
+                fecha_costo_fin,
+                localidad,
+                sw_editable,
+                id_proceso_wf,
+                id_estado_wf,
+                id_int_comprobante_fks,
+                id_tipo_relacion_comprobante
 
-    )
-    VALUES (
-      p_id_usuario,
-      now(),
-     'borrador',
-      v_id_clase_comprobante, --TODO agregar a la interface de plantilla
-      v_id_subsistema, --TODO agregar a la interface de plantilla,
-      v_this.columna_depto::integer,
-      v_this.columna_libro_banco::integer,
-      v_this.columna_moneda::integer,
-      v_rec_periodo.po_id_periodo,
-      v_plantilla.momento_presupuestario, -- contable, o presupuestario
-      v_plantilla.momento_comprometido,
-      v_plantilla.momento_ejecutado,
-      v_plantilla.momento_pagado,
-      v_plantilla.id_plantilla_comprobante,
-      v_this.columna_descripcion,
-      v_this.columna_acreedor,
-      v_tipo_cambio,
-      v_this.columna_fecha,
-      v_plantilla.funcion_comprobante_validado,
-      v_plantilla.funcion_comprobante_eliminado,
-      v_this.columna_id_cuenta_bancaria,
-      v_this.columna_id_cuenta_bancaria_mov,
-      v_this.columna_nro_cheque,
-      v_this.columna_nro_cuenta_bancaria_trans,
-      v_num_tramite, --v_this.columna_nro_tramite,  ya no se considera el nro de tramite de generador
-      p_id_usuario_ai,
-      p_usuario_ai,
-      v_temporal,
-      v_this.columna_fecha_costo_ini,
-      v_this.columna_fecha_costo_fin,
-      v_localidad,
-      'no',
-      v_id_proceso_wf,
-      v_id_estado_wf,
-      (string_to_array(v_this.columna_cbte_relacionado,','))::integer[],
-      v_id_tipo_relacion_comprobante,
-      1182, --id de ANALIA MARCELA FERNANDEZ DIONESALVI -BUE
-      587, --id de GABRIELA STRAZZANTI ARAUZ -BUE
-      1174 --id de MENDIA QUINTEROS JORGE FERNANDO -BUE
+              )
+              VALUES (
+                p_id_usuario,
+                now(),
+               'borrador',
+                v_id_clase_comprobante, --TODO agregar a la interface de plantilla
+                v_id_subsistema, --TODO agregar a la interface de plantilla,
+                v_this.columna_depto::integer,
+                v_this.columna_libro_banco::integer,
+                v_this.columna_moneda::integer,
+                v_rec_periodo.po_id_periodo,
+                v_plantilla.momento_presupuestario, -- contable, o presupuestario
+                v_plantilla.momento_comprometido,
+                v_plantilla.momento_ejecutado,
+                v_plantilla.momento_pagado,
+                v_plantilla.id_plantilla_comprobante,
+                v_this.columna_descripcion,
+                v_this.columna_acreedor,
+                v_tipo_cambio,
+                v_this.columna_fecha,
+                v_plantilla.funcion_comprobante_validado,
+                v_plantilla.funcion_comprobante_eliminado,
+                v_this.columna_id_cuenta_bancaria,
+                v_this.columna_id_cuenta_bancaria_mov,
+                v_this.columna_nro_cheque,
+                v_this.columna_nro_cuenta_bancaria_trans,
+                v_num_tramite, --v_this.columna_nro_tramite,  ya no se considera el nro de tramite de generador
+                p_id_usuario_ai,
+                p_usuario_ai,
+                v_temporal,
+                v_this.columna_fecha_costo_ini,
+                v_this.columna_fecha_costo_fin,
+                v_localidad,
+                'no',
+                v_id_proceso_wf,
+                v_id_estado_wf,
+                (string_to_array(v_this.columna_cbte_relacionado,','))::integer[],
+                v_id_tipo_relacion_comprobante
 
-    )RETURNING id_int_comprobante into v_id_int_comprobante;
+              )RETURNING id_int_comprobante into v_id_int_comprobante;
 
+    ELSE
+    --para comprobantes que tengan firmas de funcionarios parametrizados por departamento
+    		  INSERT INTO conta.tint_comprobante
+                (
+                  id_usuario_reg,
+                  fecha_reg,
+                  estado_reg,
+                  id_clase_comprobante,
+                  id_subsistema,
+                  id_depto,
+                  id_depto_libro,
+                  id_moneda,
+                  id_periodo,
+                  momento,
+                  momento_comprometido,
+                  momento_ejecutado,
+                  momento_pagado,
+                  id_plantilla_comprobante,
+                  glosa1,
+                  beneficiario,
+                  tipo_cambio,
+                  fecha,
+                  funcion_comprobante_validado,
+                  funcion_comprobante_eliminado,
+                  id_cuenta_bancaria,
+                  id_cuenta_bancaria_mov,
+                  nro_cheque,
+                  nro_cuenta_bancaria_trans,
+                  nro_tramite,
+                  id_usuario_ai,
+                  usuario_ai,
+                  temporal,
+                  fecha_costo_ini,
+                  fecha_costo_fin,
+                  localidad,
+                  sw_editable,
+                  id_proceso_wf,
+                  id_estado_wf,
+                  id_int_comprobante_fks,
+                  id_tipo_relacion_comprobante,
+                  id_funcionario_firma1,
+                  id_funcionario_firma2,
+                  id_funcionario_firma3
 
-   ELSE
+                )
+                VALUES (
+                  p_id_usuario,
+                  now(),
+                 'borrador',
+                  v_id_clase_comprobante, --TODO agregar a la interface de plantilla
+                  v_id_subsistema, --TODO agregar a la interface de plantilla,
+                  v_this.columna_depto::integer,
+                  v_this.columna_libro_banco::integer,
+                  v_this.columna_moneda::integer,
+                  v_rec_periodo.po_id_periodo,
+                  v_plantilla.momento_presupuestario, -- contable, o presupuestario
+                  v_plantilla.momento_comprometido,
+                  v_plantilla.momento_ejecutado,
+                  v_plantilla.momento_pagado,
+                  v_plantilla.id_plantilla_comprobante,
+                  v_this.columna_descripcion,
+                  v_this.columna_acreedor,
+                  v_tipo_cambio,
+                  v_this.columna_fecha,
+                  v_plantilla.funcion_comprobante_validado,
+                  v_plantilla.funcion_comprobante_eliminado,
+                  v_this.columna_id_cuenta_bancaria,
+                  v_this.columna_id_cuenta_bancaria_mov,
+                  v_this.columna_nro_cheque,
+                  v_this.columna_nro_cuenta_bancaria_trans,
+                  v_num_tramite, --v_this.columna_nro_tramite,  ya no se considera el nro de tramite de generador
+                  p_id_usuario_ai,
+                  p_usuario_ai,
+                  v_temporal,
+                  v_this.columna_fecha_costo_ini,
+                  v_this.columna_fecha_costo_fin,
+                  v_localidad,
+                  'no',
+                  v_id_proceso_wf,
+                  v_id_estado_wf,
+                  (string_to_array(v_this.columna_cbte_relacionado,','))::integer[],
+                  v_id_tipo_relacion_comprobante,
+                  v_prioridad3_firm,
+                  v_prioridad1_firm,
+                  v_prioridad2_firm
 
-     INSERT INTO  conta.tint_comprobante
-    (
-      id_usuario_reg,
-      fecha_reg,
-      estado_reg,
-      id_clase_comprobante,
-      id_subsistema,
-      id_depto,
-      id_depto_libro,
-      id_moneda,
-      id_periodo,
-      momento,
-      momento_comprometido,
-      momento_ejecutado,
-      momento_pagado,
-      id_plantilla_comprobante,
-      glosa1,
-      beneficiario,
-      tipo_cambio,
-      fecha,
-      funcion_comprobante_validado,
-      funcion_comprobante_eliminado,
-      id_cuenta_bancaria,
-      id_cuenta_bancaria_mov,
-      nro_cheque,
-      nro_cuenta_bancaria_trans,
-      nro_tramite,
-      id_usuario_ai,
-      usuario_ai,
-      temporal,
-      fecha_costo_ini,
-      fecha_costo_fin,
-      localidad,
-      sw_editable,
-      id_proceso_wf,
-      id_estado_wf,
-      id_int_comprobante_fks,
-      id_tipo_relacion_comprobante
+                )RETURNING id_int_comprobante into v_id_int_comprobante;
 
-    )
-    VALUES (
-      p_id_usuario,
-      now(),
-     'borrador',
-      v_id_clase_comprobante, --TODO agregar a la interface de plantilla
-      v_id_subsistema, --TODO agregar a la interface de plantilla,
-      v_this.columna_depto::integer,
-      v_this.columna_libro_banco::integer,
-      v_this.columna_moneda::integer,
-      v_rec_periodo.po_id_periodo,
-      v_plantilla.momento_presupuestario, -- contable, o presupuestario
-      v_plantilla.momento_comprometido,
-      v_plantilla.momento_ejecutado,
-      v_plantilla.momento_pagado,
-      v_plantilla.id_plantilla_comprobante,
-      v_this.columna_descripcion,
-      v_this.columna_acreedor,
-      v_tipo_cambio,
-      v_this.columna_fecha,
-      v_plantilla.funcion_comprobante_validado,
-      v_plantilla.funcion_comprobante_eliminado,
-      v_this.columna_id_cuenta_bancaria,
-      v_this.columna_id_cuenta_bancaria_mov,
-      v_this.columna_nro_cheque,
-      v_this.columna_nro_cuenta_bancaria_trans,
-      v_num_tramite, --v_this.columna_nro_tramite,  ya no se considera el nro de tramite de generador
-      p_id_usuario_ai,
-      p_usuario_ai,
-      v_temporal,
-      v_this.columna_fecha_costo_ini,
-      v_this.columna_fecha_costo_fin,
-      v_localidad,
-      'no',
-      v_id_proceso_wf,
-      v_id_estado_wf,
-      (string_to_array(v_this.columna_cbte_relacionado,','))::integer[],
-      v_id_tipo_relacion_comprobante
-
-    )RETURNING id_int_comprobante into v_id_int_comprobante;
-
-
-   END IF;
-
-
+    END IF;
      ---
 
 
@@ -786,7 +804,7 @@ BEGIN
                           v_rec_periodo.po_id_gestion,
                           v_this.columna_gestion::integer) THEN
 
-                 raise exception 'error al actulizar gestion';
+                 raise exception 'error al actualizar gestion';
           END IF;
 
 
