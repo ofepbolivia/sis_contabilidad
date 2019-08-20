@@ -69,6 +69,7 @@ class MODMonedaPais extends MODbase{
 		$this->setParametro('prioridad','prioridad','int4');
 		$this->setParametro('tipo_actualizacion','tipo_actualizacion','varchar');
 		$this->setParametro('id_lugar','id_lugar','int4');
+		$this->setParametro('id_sql_server','id_sql_server','int4');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -116,7 +117,7 @@ class MODMonedaPais extends MODbase{
 		$origen = $this->aParam->getParametro('origen');
 		$prioridad = $this->aParam->getParametro('prioridad');
 		$tipo_actualizacion = $this->aParam->getParametro('tipo_actualizacion');
-		$id_sql = $this->aParam->getParametro('id_lugar');
+		$id_sql = $this->aParam->getParametro('id_sql_server');
 		/***************Realizamos la conexion y el registro de datos********************/
 		$sql = "EXEC [ParametrosGenerales].[dbo].[MonedaPaisCRUD] N'INS',$id,$id_moneda,$id_sql,'$estado','$origen', $prioridad, '$tipo_actualizacion'";
 
@@ -126,7 +127,7 @@ class MODMonedaPais extends MODbase{
 		}catch (Exception $e) {
 				throw new Exception("La conexion a la bd POSTGRESQL ha fallado.");
 		}
-		$conexion->closeSQL();
+		$this->link->closeSQL();
 	}
 
 	function modificarMonedaPaisSQLServer() {
@@ -139,7 +140,7 @@ class MODMonedaPais extends MODbase{
 		$origen = $this->aParam->getParametro('origen');
 		$prioridad = $this->aParam->getParametro('prioridad');
 		$tipo_actualizacion = $this->aParam->getParametro('tipo_actualizacion');
-		$id_sql = $this->aParam->getParametro('id_lugar');
+		$id_sql = $this->aParam->getParametro('id_sql_server');
 		/***************Realizamos la conexion y el registro de datos********************/
 		$sql = "EXEC [ParametrosGenerales].[dbo].[MonedaPaisCRUD] N'UPD',$id,$id_moneda,$id_sql,'$estado','$origen', $prioridad, '$tipo_actualizacion'";
 		$consulta = @mssql_query(utf8_decode($sql), $this->conexion);
@@ -147,7 +148,7 @@ class MODMonedaPais extends MODbase{
 		}catch (Exception $e) {
 				throw new Exception("La conexion a la bd POSTGRESQL ha fallado.");
 		}
-		$conexion->closeSQL();
+		$this->link->closeSQL();
 	}
 
 	function eliminarMonedaPaisSQLServer($respuesta) {
@@ -162,7 +163,7 @@ class MODMonedaPais extends MODbase{
 		}catch (Exception $e) {
 				throw new Exception("La conexion a la bd POSTGRESQL ha fallado.");
 		}
-		$conexion->closeSQL();
+		$this->link->closeSQL();
 	}
 
 	function modificarMonedaPais(){
@@ -179,6 +180,7 @@ class MODMonedaPais extends MODbase{
 		$this->setParametro('prioridad','prioridad','int4');
 		$this->setParametro('tipo_actualizacion','tipo_actualizacion','varchar');
 		$this->setParametro('id_lugar','id_lugar','int4');
+		$this->setParametro('id_sql_server','id_sql_server','int4');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

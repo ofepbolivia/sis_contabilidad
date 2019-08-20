@@ -21,7 +21,8 @@ Phx.vista.MonedaPais=Ext.extend(Phx.gridInterfaz,{
 
     this.lugar.on('select', function( combo, record, index){
                 this.capturaFiltros();
-                this.id_lugar=this.lugar.getValue();
+								this.id_lugar=this.lugar.getValue();
+                this.id_sql=record.data['id_sql_server'];
             },this);
 
     this.tbar.items.items[0].disable();
@@ -47,7 +48,8 @@ Phx.vista.MonedaPais=Ext.extend(Phx.gridInterfaz,{
 
   onButtonNew : function () {
 	    Phx.vista.MonedaPais.superclass.onButtonNew.call(this);
-      this.Cmp.id_lugar.setValue(this.id_lugar);
+			this.Cmp.id_lugar.setValue(this.id_lugar);
+      this.Cmp.id_sql_server.setValue(this.id_sql);		
 			this.form.el.dom.firstChild.childNodes[0].style.background = '#A6C2ED';
     },
 
@@ -59,6 +61,16 @@ Phx.vista.MonedaPais=Ext.extend(Phx.gridInterfaz,{
 					labelSeparator:'',
 					inputType:'hidden',
 					name: 'id_moneda_pais'
+			},
+			type:'Field',
+			form:true
+		},
+		{
+			//configuracion del componente
+			config:{
+					labelSeparator:'',
+					inputType:'hidden',
+					name: 'id_sql_server'
 			},
 			type:'Field',
 			form:true
@@ -366,7 +378,7 @@ Phx.vista.MonedaPais=Ext.extend(Phx.gridInterfaz,{
                         direction: 'ASC'
                     },
                     totalProperty: 'total',
-                    fields: ['id_lugar','id_lugar_fk','codigo','nombre','tipo','sw_municipio','sw_impuesto','codigo_largo'],
+                    fields: ['id_lugar','id_lugar_fk','codigo','nombre','tipo','sw_municipio','sw_impuesto','codigo_largo','id_sql_server'],
                     // turn on remote sorting
                     remoteSort: true,
                     baseParams:{par_filtro:'lug.nombre',pais:'pais'}

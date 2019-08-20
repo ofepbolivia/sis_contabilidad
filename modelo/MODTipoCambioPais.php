@@ -215,7 +215,7 @@ class MODTipoCambioPais extends MODbase{
 		catch (Exception $e) {
 				throw new Exception("La conexion a la bd POSTGRESQL ha fallado.");
 		}
-		$conexion->closeSQL();
+		$this->link->closeSQL();
 	}
 
 	function modificarTipoCambioPaisSQLServer() {
@@ -240,7 +240,7 @@ class MODTipoCambioPais extends MODbase{
 		catch (Exception $e) {
 				throw new Exception("La conexion a la bd POSTGRESQL ha fallado.");
 		}
-		$conexion->closeSQL();
+		$this->link->closeSQL();
 	}
 
 	function eliminarTipoCambioPaisSQLServer($respuesta) {
@@ -255,7 +255,7 @@ class MODTipoCambioPais extends MODbase{
 		}catch (Exception $e) {
 				throw new Exception("La conexion a la bd POSTGRESQL ha fallado.");
 		}
-		$conexion->closeSQL();
+		$this->link->closeSQL();
 	}
 /*******************************************************************************/
 
