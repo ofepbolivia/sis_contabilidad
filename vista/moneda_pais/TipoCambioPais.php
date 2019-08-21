@@ -300,7 +300,7 @@ Phx.vista.TipoCambioPais=Ext.extend(Phx.gridInterfaz,{
 	],
 	sortInfo:{
 		field: 'id_tipo_cambio_pais',
-		direction: 'ASC'
+		direction: 'DESC'
 	},
   bdel:false,
 	bsave:false,

@@ -49,7 +49,7 @@ Phx.vista.MonedaPais=Ext.extend(Phx.gridInterfaz,{
   onButtonNew : function () {
 	    Phx.vista.MonedaPais.superclass.onButtonNew.call(this);
 			this.Cmp.id_lugar.setValue(this.id_lugar);
-      this.Cmp.id_sql_server.setValue(this.id_sql);		
+      this.Cmp.id_sql_server.setValue(this.id_sql);
 			this.form.el.dom.firstChild.childNodes[0].style.background = '#A6C2ED';
     },
 
