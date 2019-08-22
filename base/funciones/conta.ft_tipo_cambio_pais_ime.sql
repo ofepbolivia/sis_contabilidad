@@ -41,6 +41,7 @@ v_res_cone	varchar;
 
 v_codigo_pais	varchar;
 v_fecha	date;
+v_id_lugar		integer;
 BEGIN
 
 v_nombre_funcion = 'conta.ft_tipo_cambio_pais_ime';
@@ -125,7 +126,7 @@ if(p_transaccion='CONTA_TCPA_INS')then
     /*Recuperamos el codigo pais para informix*/
         select lu.codigo into v_codigo_pais
         from param.tlugar lu
-        where lu.id_lugar = v_parametros.id_lugar;
+        where lu.id_lugar = v_parametros.id_lugar and lu.tipo = 'pais';
 
         SELECT to_char(v_parametros.fecha,'YYYY/MM/DD') into v_fecha;
 
@@ -251,6 +252,10 @@ if(p_transaccion='CONTA_TCPA_INS')then
 
     begin
 
+    if(v_parametros.fecha_reg <> now()::date) then
+    	raise exception 'Solo se puede modificar el tipo de cambio en la misma fecha que se registró. La fecha de registro para este tipo de cambio es del: %',v_parametros.fecha_reg;
+    end if;
+
     /************************VERIFICA EXISTENCIA DEL REGISTRO*************************************/
     IF NOT EXISTS(SELECT 1
     FROM conta.ttipo_cambio_pais camb
@@ -268,37 +273,91 @@ if(p_transaccion='CONTA_TCPA_INS')then
     raise exception 'Inserciòn no realizada: Ya existe un tipo de cambio para esta fecha.';
     END IF;
 
-    /*Actualizamos tambien en ENDESIS*/
+    /**************************OBTENEMOS EL PAIS QUE SE ESTA EDITANDO********************************/
+    	select mon.id_lugar,mon.id_moneda into v_id_lugar,v_id_moneda
+        from conta.tmoneda_pais mon
+        inner join conta.ttipo_cambio_pais cam ON cam.id_moneda_pais = mon.id_moneda_pais
+        where cam.id_tipo_cambio_pais = v_parametros.id_tipo_cambio_pais;
 
-    /*Establecemos la conexion con ENDESIS*/
-    v_cadena_cnx = migra.f_obtener_cadena_conexion();
-    v_conexion = (SELECT dblink_connect(v_cadena_cnx));
-    /*************************************************/
+        select lu.nombre into v_nombre
+        from param.tlugar lu
+        where lu.id_lugar = v_id_lugar and lu.tipo = 'pais';
 
-    v_consulta = '
-                update param.tpm_tipo_cambio set
-                observaciones = '''||v_parametros.observaciones||''',
-                compra = '||v_parametros.compra||',
-                venta = '||v_parametros.venta||',
-                oficial = '||v_parametros.oficial||',
-                id_moneda = '||v_parametros.id_moneda_pais||',
-                where WHERE param.tpm_tipo_cambio.id_tipo_cambio = '||v_parametros.id_tipo_cambio_pais||';';
+    /*************************************************************************************************/
 
+    /*Si el pais es Bolivia se actualiza la tabla param.ttipo_cambio para el ERP1 INFORMIX y ERP2*/
+    if (v_nombre = 'BOLIVIA') THEN
 
-    IF(v_conexion!='OK') THEN
-
-    raise exception 'FALLA CONEXION A LA BASE DE DATOS CON DBLINK';
-
-    ELSE
-
-
-    perform dblink_exec(v_cadena_cnx,v_consulta,TRUE);
-
-    v_res_cone=(select dblink_disconnect());
+    	/*Actualizamos en el ERP 2*/
+        update param.ttipo_cambio set
+			observaciones = v_parametros.observaciones,
+			compra = v_parametros.compra,
+			venta = v_parametros.venta,
+			oficial = v_parametros.oficial,
+			fecha_mod = now(),
+			id_usuario_mod = p_id_usuario
+			where fecha=v_parametros.fecha and id_moneda = v_id_moneda;
+        /*****************************************************/
 
 
+          /*Actualizamos tambien en ENDESIS*/
+          /*Establecemos la conexion con ENDESIS*/
+          v_cadena_cnx = migra.f_obtener_cadena_conexion();
+          v_conexion = (SELECT dblink_connect(v_cadena_cnx));
+          /*************************************************/
+          v_consulta = '
+                      update param.tpm_tipo_cambio set
+                      hora = '''||now()::time||''',
+                      observaciones = '''||v_parametros.observaciones||''',
+                      compra = '||v_parametros.compra||',
+                      venta = '||v_parametros.venta||',
+                      oficial = '||v_parametros.oficial||'
+                      WHERE param.tpm_tipo_cambio.fecha = '''||v_parametros.fecha||''' and param.tp_tipo_cambio.id_moneda = '||v_id_moneda||';';
 
-    END IF;
+          IF(v_conexion!='OK') THEN
+          	raise exception 'FALLA CONEXION A LA BASE DE DATOS CON DBLINK';
+          ELSE
+          	perform dblink_exec(v_cadena_cnx,v_consulta,TRUE);
+          	v_res_cone=(select dblink_disconnect());
+          END IF;
+          /*********************************************************************************/
+    end if;
+
+    if (v_id_moneda = 2) then
+    /*********************MODIFICACION BASE DE DATOS INFORMIX************************/
+    DROP FOREIGN TABLE IF EXISTS informix.tipo_cambio_pais;
+
+    select informix.f_user_mapping() into v_resp;
+
+    execute ('CREATE FOREIGN TABLE informix.tipo_cambio_pais (
+              pais varchar(3),
+              fecha date,
+              tcambio numeric(15,7)
+              ) SERVER sai1
+              OPTIONS ( table ''cambio'',
+              database ''ingresos'',
+              informixdir ''/opt/informix'',
+              client_locale ''en_US.utf8'',
+              informixserver ''sai1'');');
+
+    /*Recuperamos el codigo pais para informix*/
+        select lu.codigo into v_codigo_pais
+        from param.tlugar lu
+        where lu.id_lugar = v_id_lugar and lu.tipo = 'pais';
+        SELECT to_char(v_parametros.fecha,'YYYY/MM/DD') into v_fecha;
+    /*****************************************/
+
+    /*Inserccion a informix prueba*/
+    update informix.tipo_cambio_pais SET
+    tcambio = v_parametros.oficial
+    WHERE pais = v_codigo_pais  AND fecha = v_fecha;
+
+    /**************************************/
+
+    DROP FOREIGN TABLE IF EXISTS informix.tipo_cambio_pais;
+
+    /********************************************************************************************************/
+    end if;
 
     /************************************/
 
