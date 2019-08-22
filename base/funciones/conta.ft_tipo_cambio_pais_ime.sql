@@ -307,12 +307,11 @@ if(p_transaccion='CONTA_TCPA_INS')then
           /*************************************************/
           v_consulta = '
                       update param.tpm_tipo_cambio set
-                      hora = '''||now()::time||''',
                       observaciones = '''||v_parametros.observaciones||''',
                       compra = '||v_parametros.compra||',
                       venta = '||v_parametros.venta||',
                       oficial = '||v_parametros.oficial||'
-                      WHERE param.tpm_tipo_cambio.fecha = '''||v_parametros.fecha||''' and param.tp_tipo_cambio.id_moneda = '||v_id_moneda||';';
+                      WHERE fecha = '''||v_parametros.fecha||''' and id_moneda = '||v_id_moneda||';';
 
           IF(v_conexion!='OK') THEN
           	raise exception 'FALLA CONEXION A LA BASE DE DATOS CON DBLINK';
