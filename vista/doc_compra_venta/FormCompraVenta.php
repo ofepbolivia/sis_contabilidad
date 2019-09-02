@@ -1401,6 +1401,21 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 {
                     config: {
+                        name: 'tipo_cambio',
+                        fieldLabel: 'Tipo de Cambio',
+                        allowBlank: false,
+                        anchor: '80%',
+                        maxLength: 100,
+                        allowDecimals: true,
+                        decimalPrecision: 15
+                    },
+                    type: 'NumberField',
+                    valorInicial: 1,
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
                         name: 'importe_descuento',
                         fieldLabel: 'Descuento',
                         allowBlank: true,
@@ -1753,6 +1768,20 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.importe_doc.on('change', this.calcularDuis, this);
                     this.aux = 'Póliza de Importación - DUI';
                 }
+
+                //(may) tipo de cambio solo muestre para la moneda en dolares
+                this.Cmp.id_moneda.on('select', function (cmb, rec, i) {
+                    if (rec.data.id_moneda == 2) {
+                        this.mostrarComponente(this.Cmp.tipo_cambio);
+                    }
+                    else {
+                        this.ocultarComponente(this.Cmp.tipo_cambio);
+                        this.Cmp.tipo_cambio.reset();
+                        //this.Cmp.tipo_cambio.reset();
+                    }
+                }, this);
+
+
             }, this);
 
             this.Cmp.importe_doc.on('change', this.calculaMontoPago, this);
@@ -1763,6 +1792,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.importe_pendiente.on('change', this.calculaMontoPago, this);
             this.Cmp.importe_anticipo.on('change', this.calculaMontoPago, this);
             this.Cmp.importe_retgar.on('change', this.calculaMontoPago, this);
+
+            this.Cmp.tipo_cambio.on('change', this.calculaMontoPago, this);
 
 
             this.Cmp.nro_autorizacion.on('change', function (fild, newValue, oldValue) {
@@ -1900,6 +1931,8 @@ header("content-type: text/javascript; charset=UTF-8");
             }
 
             var porc_descuento = this.Cmp.porc_descuento.getValue();
+
+
 
             if (this.regitrarDetalle == 'si') {
                 for (i = 0; i < me.megrid.store.getCount(); i++) {

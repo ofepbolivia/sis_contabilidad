@@ -14,7 +14,7 @@ header("content-type: text/javascript; charset=UTF-8");
         tam_pag: 10,
         tabEnter: true,
         codigoSistema: 'ADQ',
-        mostrarFormaPago: true,
+        mostrarFormaPago: false,
         mostrarPartidas: false,
         regitrarDetalle: 'si',
         id_moneda_defecto: 0,  // 0 quiere decir todas las monedas
@@ -121,7 +121,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     pageSize: 10,
                     queryDelay: 1000,
                     minChars: 2,
-                    qtip: 'Si el conceto de gasto que necesita no existe por favor  comuniquese con el área de presupuestos para solictar la creación',
+                    qtip: 'Si el concepto de gasto que necesita no existe por favor  comuniquese con el área de presupuestos para solicitar la creación',
                     tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>{desc_ingas}</b></p><strong>{tipo}</strong><p>PARTIDA: {desc_partida}</p></div></tpl>',
                 })
             };
@@ -666,7 +666,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                         xtype: 'fieldset',
                                         frame: true,
                                         layout: 'form',
-                                        title: ' Datos básicos ',
+                                        title: ' Datos Básicos ',
                                         width: '100%',
                                         border: false,
                                         //margins: '0 0 0 5',
@@ -685,7 +685,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                         xtype: 'fieldset',
                                         frame: true,
                                         layout: 'form',
-                                        title: 'Detalle de pago',
+                                        title: 'Detalle de Pago',
                                         width: '100%',
                                         border: false,
                                         padding: '0 0 0 10',
@@ -974,7 +974,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                     'sw_autorizacion', 'sw_codigo_control', 'tipo_plantilla', 'sw_nro_dui', 'sw_ic', 'tipo_excento', 'valor_excento', 'sw_qr', 'sw_nit', 'plantilla_qr',
                                     'sw_estacion', 'sw_punto_venta', 'sw_codigo_no_iata'],
                                 remoteSort: true,
-                                baseParams: {par_filtro: 'plt.desc_plantilla', sw_compro: 'si', sw_tesoro: 'si'}
+                                baseParams: {par_filtro: 'plt.desc_plantilla', sw_compro: 'si', sw_tesoro: 'si', fil_id_plantilla: true}
                             }),
                         tpl: '<tpl for="."><div class="x-combo-list-item"><p>{desc_plantilla}</p></div></tpl>',
                         valueField: 'id_plantilla',
@@ -1403,6 +1403,20 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 {
                     config: {
+                        name: 'tipo_cambio',
+                        fieldLabel: 'Tipo de Cambio',
+                        allowBlank: false,
+                        anchor: '80%',
+                        maxLength: 100,
+                        allowDecimals: true,
+                        decimalPrecision: 15
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
                         name: 'importe_descuento',
                         fieldLabel: 'Descuento',
                         allowBlank: true,
@@ -1754,6 +1768,20 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.importe_doc.on('change', this.calcularDuis, this);
                     this.aux = 'Póliza de Importación - DUI';
                 }
+
+                //(may) tipo de cambio solo muestre para la moneda en dolares
+                this.Cmp.id_moneda.on('select', function (cmb, rec, i) {
+                    if (rec.data.id_moneda == 2) {
+                        this.mostrarComponente(this.Cmp.tipo_cambio);
+                    }
+                    else {
+                        this.ocultarComponente(this.Cmp.tipo_cambio);
+                        this.Cmp.tipo_cambio.reset();
+                    }
+                }, this);
+
+
+
             }, this);
 
             this.Cmp.importe_doc.on('change', this.calculaMontoPago, this);
@@ -1870,7 +1898,6 @@ header("content-type: text/javascript; charset=UTF-8");
 
             }, this);
 
-
         },
 
         resetearMontos: function () {
@@ -1899,8 +1926,12 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue());
                 this.Cmp.porc_descuento.setValue(0);
             }
-
             var porc_descuento = this.Cmp.porc_descuento.getValue();
+
+
+            // var importe_neto = this.Cmp.importe_neto.getValue();
+            //
+
 
             if (this.regitrarDetalle == 'si') {
                 for (i = 0; i < me.megrid.store.getCount(); i++) {
@@ -2148,6 +2179,10 @@ header("content-type: text/javascript; charset=UTF-8");
 
         onSubmit: function (o) {
             var me = this;
+            /*this.Cmp.importe_pago_liquido.setValue(-this.Cmp.importe_pago_liquido.getValue());
+            this.Cmp.importe_doc.setValue(-this.Cmp.importe_doc.getValue());
+            this.Cmp.importe_neto.setValue(-this.Cmp.importe_neto.getValue());
+            this.Cmp.importe_excento.setValue(-this.Cmp.importe_excento.getValue());*/
             if (me.regitrarDetalle == 'si') {
                 //  validar formularios
                 var arra = [], total_det = 0.0, i;

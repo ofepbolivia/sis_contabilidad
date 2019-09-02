@@ -4882,3 +4882,19 @@ ALTER TABLE conta.tdoc_compra_venta
 ALTER TABLE conta.tdoc_compra_venta
   ALTER COLUMN codigo_control SET NOT NULL;
 /***********************************F-SCP-MAY-CONTA-0-20/08/2019****************************************/
+
+/***********************************I-SCP-MAY-CONTA-0-28/08/2019****************************************/
+ALTER TABLE conta.tdoc_compra_venta
+  ADD COLUMN tipo_cambio NUMERIC;
+
+COMMENT ON COLUMN conta.tdoc_compra_venta.tipo_cambio
+IS 'tipo de cambio para cada documento registrado y si esta moneda es distinta a su moneda base';
+/***********************************F-SCP-MAY-CONTA-0-28/08/2019****************************************/
+
+/***********************************I-SCP-MAY-CONTA-0-01/09/2019****************************************/
+ALTER TABLE conta.tdoc_compra_venta
+  ALTER COLUMN tipo_cambio SET DEFAULT 1;
+
+ALTER TABLE conta.tdoc_compra_venta
+  ALTER COLUMN tipo_cambio SET NOT NULL;
+/***********************************F-SCP-MAY-CONTA-0-01/09/2019****************************************/

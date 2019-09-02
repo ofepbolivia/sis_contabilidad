@@ -1121,9 +1121,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     text: 'Generar Cbte',
                     iconCls: 'bchecklist',
-                    disabled: false,
+                    disabled: true,
                     handler: this.loadWizard,
-                    tooltip: '<b>Generar Comprobante</b><br/>Genera cbte de  para el deto selecionado'
+                    tooltip: '<b>Generar Comprobante</b><br/>Genera cbte de  para el dato seleccionado'
                 }
             );
             //Botón para Imprimir el Comprobante
@@ -1350,7 +1350,7 @@ header("content-type: text/javascript; charset=UTF-8");
             'desc_tipo_doc_compra_venta', 'id_tipo_doc_compra_venta', 'nro_tramite',
             'desc_comprobante', 'id_int_comprobante', 'id_auxiliar', 'codigo_auxiliar', 'nombre_auxiliar', 'tipo_reg',
             'estacion', 'id_punto_venta', 'nombre', 'id_agencia', 'codigo_noiata', 'codigo_int', 'c31',
-            {name: 'fecha_vencimiento', type: 'date', dateFormat: 'Y-m-d'}
+            {name: 'fecha_vencimiento', type: 'date', dateFormat: 'Y-m-d'}, 'tipo_cambio'
         ],
         sortInfo: {
             field: 'id_doc_compra_venta',
@@ -1467,7 +1467,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('btnWizard').enable();
             }
             else {
-                this.getBoton('btnWizard').disable();
+                this.getBoton('btnWizard').enable   ();
             }
         },
         liberaMenu: function (tb) {

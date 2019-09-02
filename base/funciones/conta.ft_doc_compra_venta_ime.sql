@@ -69,6 +69,7 @@ DECLARE
   v_cuenta					varchar;
   v_fecha_venci				date;
   v_estacion				varchar;
+  v_moneda					varchar;
 
 BEGIN
 
@@ -327,6 +328,27 @@ BEGIN
 		else
 	        v_fecha_venci = null;
         end if;
+
+        --controles
+        IF (v_parametros.importe_doc is NULL) THEN
+        	RAISE EXCEPTION 'Falta completar el campo MONTO';
+        END IF;
+
+        IF (v_parametros.id_plantilla is NULL) THEN
+        	RAISE EXCEPTION 'Falta completar el campo TIPO DE DOCUMENTO';
+        END IF;
+
+        IF (v_parametros.id_moneda = 2) THEN
+          SELECT mo.codigo
+          INTO v_moneda
+          FROM param.tmoneda mo
+          WHERE mo.id_moneda = v_parametros.id_moneda;
+
+          IF (v_parametros.tipo_cambio is NULL or v_parametros.tipo_cambio < 1) THEN
+              RAISE EXCEPTION 'Falta completar el campo TIPO DE CAMBIO para la Moneda %', v_moneda;
+          END IF;
+        END IF;
+
 --IF (v_parametros.id_int_comprobante is Null) THEN
 IF (v_id_int_comprobante is Null) THEN
 
@@ -372,7 +394,8 @@ IF (v_id_int_comprobante is Null) THEN
         id_int_comprobante,
         nro_tramite,
         id_plan_pago,
-        fecha_vencimiento
+        fecha_vencimiento,
+        tipo_cambio
 
       ) values(
         v_parametros.tipo,
@@ -416,7 +439,8 @@ IF (v_id_int_comprobante is Null) THEN
         v_id_int_comprobante,
         v_nro_tramite,
         v_id_plan_pago,
-        v_fecha_venci
+        v_fecha_venci,
+        v_parametros.tipo_cambio
 
       )RETURNING id_doc_compra_venta into v_id_doc_compra_venta;
 
@@ -465,7 +489,8 @@ ELSE  --raise exception 'llega2 %',v_i;
         id_int_comprobante,
         nro_tramite,
         id_plan_pago,
-        fecha_vencimiento
+        fecha_vencimiento,
+        tipo_cambio
 
       ) values(
         v_parametros.tipo,
@@ -509,11 +534,10 @@ ELSE  --raise exception 'llega2 %',v_i;
         v_id_int_comprobante,
         v_nro_tramite,
         v_id_plan_pago_dcv,
-        v_fecha_venci
+        v_fecha_venci,
+        v_parametros.tipo_cambio
       )RETURNING id_doc_compra_venta into v_id_doc_compra_venta;
 END IF;
-
-
 
       if (pxp.f_existe_parametro(p_tabla,'id_origen')) then
         update conta.tdoc_compra_venta
@@ -992,7 +1016,8 @@ END IF;
         id_cliente = v_id_cliente,
         id_auxiliar = v_parametros.id_auxiliar,
         id_int_comprobante = v_id_int_comprobante,
-        fecha_vencimiento = v_fecha_venci
+        fecha_vencimiento = v_fecha_venci,
+        tipo_cambio = v_parametros.tipo_cambio
       where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
 
       if (pxp.f_existe_parametro(p_tabla,'id_tipo_compra_venta')) then
@@ -1495,7 +1520,7 @@ END IF;
           INTO v_tipo_obligacion
           FROM tes.tobligacion_pago op
           inner join tes.tplan_pago pp on pp.id_obligacion_pago = op.id_obligacion_pago
-          WHERE pp.id_plan_pago = v_parametros.id_plan_pago ;
+          WHERE pp.id_plan_pago = v_parametros.id_plan_pago;
 
 
         IF(v_tipo_obligacion in ('sp','spd','pago_especial_spi', 'spi'))THEN
@@ -1521,7 +1546,15 @@ END IF;
               id_plan_pago =  v_parametros.id_plan_pago,
               nro_tramite =   v_nro_tramite
             where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+     	ELSE
 
+            if v_parametros.id_plan_pago is null then
+            	v_parametros.id_plan_pago = 0;
+            end if;
+
+        	update conta.tdoc_compra_venta d  set
+              id_plan_pago =  v_parametros.id_plan_pago
+            where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
         END IF;
 
       ELSE

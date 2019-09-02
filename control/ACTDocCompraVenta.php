@@ -29,6 +29,11 @@ class ACTDocCompraVenta extends ACTbase
         if ($this->objParam->getParametro('id_plan_pago') != '') {
             $this->objParam->addFiltro("dcv.id_plan_pago = " . $this->objParam->getParametro('id_plan_pago'));
         }
+        //else
+//            {
+////            $this->objParam->addFiltro("dcv.id_plan_pago is NULL and dcv.id_int_comprobante is NULL");
+//            $this->objParam->addFiltro("dcv.id_plan_pago = " . $this->objParam->getParametro('id_plan_pago'));
+//        }
 //        }
 
         if ($this->objParam->getParametro('id_int_comprobante') != '') {
@@ -88,6 +93,7 @@ class ACTDocCompraVenta extends ACTbase
         $temp['importe_descuento_ley'] = $this->res->extraData['total_importe_descuento_ley'];
         $temp['importe_pago_liquido'] = $this->res->extraData['total_importe_pago_liquido'];
         $temp['importe_aux_neto'] = $this->res->extraData['total_importe_aux_neto'];
+
 
         $temp['tipo_reg'] = 'summary';
         $temp['id_doc_compra_venta'] = 0;
@@ -490,6 +496,209 @@ class ACTDocCompraVenta extends ACTbase
     {
         $this->objFunc = $this->create('MODDocCompraVenta');
         $this->res = $this->objFunc->eliminarRegistrosAirbp($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //(may) listado para combos sin mostrar facturas ya vinculadas con comprobantes o plan de pagos
+    function listarDocCompraVentaSinCbte()
+    {
+        $this->objParam->defecto('ordenacion', 'id_doc_compra_venta');
+
+        $this->objParam->defecto('dir_ordenacion', 'asc');
+
+        if ($this->objParam->getParametro('id_periodo') != '') {
+            $this->objParam->addFiltro("dcv.id_periodo = " . $this->objParam->getParametro('id_periodo'));
+        }
+
+        //filtro para facturas para cada plan de pagos
+        if ($this->objParam->getParametro('id_plan_pago') != '') {
+            $this->objParam->addFiltro("dcv.id_plan_pago = " . $this->objParam->getParametro('id_plan_pago'));
+        }
+
+        if ($this->objParam->getParametro('id_int_comprobante') != '') {
+            $this->objParam->addFiltro("dcv.id_int_comprobante = " . $this->objParam->getParametro('id_int_comprobante'));
+        }
+
+        if ($this->objParam->getParametro('tipo') != '') {
+            $this->objParam->addFiltro("dcv.tipo = ''" . $this->objParam->getParametro('tipo') . "''");
+        }
+
+        if ($this->objParam->getParametro('sin_cbte') == 'si') {
+            $this->objParam->addFiltro("dcv.id_int_comprobante is NULL");
+        } else {
+            /* en algunos casos es necesario relacionar con documentos con fechas mayores
+            if($this->objParam->getParametro('manual')!=''){
+                $this->objParam->addFiltro("dcv.manual = ''".$this->objParam->getParametro('manual')."''");
+            }*/
+
+            if ($this->objParam->getParametro('fecha_cbte') != '') {
+                $this->objParam->addFiltro("dcv.fecha <= ''" . $this->objParam->getParametro('fecha_cbte') . "''::date");
+            }
+        }
+
+        if ($this->objParam->getParametro('filtro_usuario') == 'si') {
+            $this->objParam->addFiltro("dcv.id_usuario_reg = " . $_SESSION["ss_id_usuario"]);
+        }
+
+        if ($this->objParam->getParametro('id_depto') != '') {
+            if ($this->objParam->getParametro('id_depto') != 0)
+                $this->objParam->addFiltro("dcv.id_depto_conta = " . $this->objParam->getParametro('id_depto'));
+        }
+
+        if ($this->objParam->getParametro('id_agrupador') != '') {
+            $this->objParam->addFiltro("dcv.id_doc_compra_venta not in (select ad.id_doc_compra_venta from conta.tagrupador_doc ad where ad.id_agrupador = " . $this->objParam->getParametro('id_agrupador') . ") ");
+        }
+
+        if ($this->objParam->getParametro('tipoReporte') == 'excel_grid' || $this->objParam->getParametro('tipoReporte') == 'pdf_grid') {
+            $this->objReporte = new Reporte($this->objParam, $this);
+            $this->res = $this->objReporte->generarReporteListado('MODDocCompraVenta', 'listarDocCompraVentaSinCbte');
+        } else {
+            $this->objFunc = $this->create('MODDocCompraVenta');
+            $this->res = $this->objFunc->listarDocCompraVentaSinCbte($this->objParam);
+        }
+
+
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //(may) listado para  tipo de plantilla para retenciones que no fueron asignadas aun
+    function listarDocCompraVentaCreDeb()
+    {
+        $this->objParam->defecto('ordenacion', 'id_doc_compra_venta');
+
+        $this->objParam->defecto('dir_ordenacion', 'asc');
+
+        if ($this->objParam->getParametro('id_periodo') != '') {
+            $this->objParam->addFiltro("dcv.id_periodo = " . $this->objParam->getParametro('id_periodo'));
+        }
+
+        //filtro para facturas que aun no se relacionaron un plan de pagos
+        if ($this->objParam->getParametro('id_plan_pago') != '' or $this->objParam->getParametro('id_plan_pago') == '') {
+            $this->objParam->addFiltro("dcv.id_plan_pago is Null" );
+        }
+        //filtro para facturas que aun no se relacionaron un plan de pagos
+        if ($this->objParam->getParametro('id_int_comprobante') != '' or $this->objParam->getParametro('id_int_comprobante') == '') {
+            $this->objParam->addFiltro("dcv.id_int_comprobante is Null" );
+        }
+
+        //(may) para la plantilla nota de credito y debito
+        if ($this->objParam->getParametro('id_plantilla') == '' or $this->objParam->getParametro('id_plantilla') != '') {
+            $this->objParam->addFiltro("dcv.id_plantilla in(52, 53) " );
+        }
+
+        if ($this->objParam->getParametro('id_proveedor') != '') {
+            $this->objParam->addFiltro("dcv.id_proveedor = " . $this->objParam->getParametro('id_proveedor'));
+        }
+
+//        if ($this->objParam->getParametro('tipo') != '') {
+//            $this->objParam->addFiltro("dcv.tipo = ''" . $this->objParam->getParametro('tipo') . "''");
+//        }
+//
+//        if ($this->objParam->getParametro('sin_cbte') == 'si') {
+//            $this->objParam->addFiltro("dcv.id_int_comprobante is NULL");
+//        } else {
+//            /* en algunos casos es necesario relacionar con documentos con fechas mayores
+//            if($this->objParam->getParametro('manual')!=''){
+//                $this->objParam->addFiltro("dcv.manual = ''".$this->objParam->getParametro('manual')."''");
+//            }*/
+//
+//            if ($this->objParam->getParametro('fecha_cbte') != '') {
+//                $this->objParam->addFiltro("dcv.fecha <= ''" . $this->objParam->getParametro('fecha_cbte') . "''::date");
+//            }
+//        }
+
+        if ($this->objParam->getParametro('filtro_usuario') == 'si') {
+            $this->objParam->addFiltro("dcv.id_usuario_reg = " . $_SESSION["ss_id_usuario"]);
+        }
+
+        if ($this->objParam->getParametro('id_depto') != '') {
+            if ($this->objParam->getParametro('id_depto') != 0)
+                $this->objParam->addFiltro("dcv.id_depto_conta = " . $this->objParam->getParametro('id_depto'));
+        }
+
+        if ($this->objParam->getParametro('id_agrupador') != '') {
+            $this->objParam->addFiltro("dcv.id_doc_compra_venta not in (select ad.id_doc_compra_venta from conta.tagrupador_doc ad where ad.id_agrupador = " . $this->objParam->getParametro('id_agrupador') . ") ");
+        }
+
+        if ($this->objParam->getParametro('tipoReporte') == 'excel_grid' || $this->objParam->getParametro('tipoReporte') == 'pdf_grid') {
+            $this->objReporte = new Reporte($this->objParam, $this);
+            $this->res = $this->objReporte->generarReporteListado('MODDocCompraVenta', 'listarDocCompraVentaCreDeb');
+        } else {
+            $this->objFunc = $this->create('MODDocCompraVenta');
+            $this->res = $this->objFunc->listarDocCompraVentaCreDeb($this->objParam);
+        }
+
+
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //(may) listar Doc Compra Venta formulario plan de pago  Nota de Credito y Debito
+    function listarDocCompraVentaDC()
+    {
+        $this->objParam->defecto('ordenacion', 'id_doc_compra_venta');
+
+        $this->objParam->defecto('dir_ordenacion', 'asc');
+
+        if ($this->objParam->getParametro('id_periodo') != '') {
+            $this->objParam->addFiltro("dcv.id_periodo = " . $this->objParam->getParametro('id_periodo'));
+        }
+
+        //filtro para facturas para cada plan de pagos
+//        if ($this->objParam->getParametro('id_int_comprobante') == '') {
+        if ($this->objParam->getParametro('id_plan_pago') != '') {
+            $this->objParam->addFiltro("dcv.id_plan_pago = " . $this->objParam->getParametro('id_plan_pago'));
+        }
+        //else
+//            {
+////            $this->objParam->addFiltro("dcv.id_plan_pago is NULL and dcv.id_int_comprobante is NULL");
+//            $this->objParam->addFiltro("dcv.id_plan_pago = " . $this->objParam->getParametro('id_plan_pago'));
+//        }
+//        }
+
+        if ($this->objParam->getParametro('id_int_comprobante') != '') {
+            $this->objParam->addFiltro("dcv.id_int_comprobante = " . $this->objParam->getParametro('id_int_comprobante'));
+        }
+
+        if ($this->objParam->getParametro('tipo') != '') {
+            $this->objParam->addFiltro("dcv.tipo = ''" . $this->objParam->getParametro('tipo') . "''");
+        }
+
+        if ($this->objParam->getParametro('sin_cbte') == 'si') {
+            $this->objParam->addFiltro("dcv.id_int_comprobante is NULL");
+        } else {
+            /* en algunos casos es necesario relacionar con documentos con fechas mayores
+            if($this->objParam->getParametro('manual')!=''){
+                $this->objParam->addFiltro("dcv.manual = ''".$this->objParam->getParametro('manual')."''");
+            }*/
+
+            if ($this->objParam->getParametro('fecha_cbte') != '') {
+                $this->objParam->addFiltro("dcv.fecha <= ''" . $this->objParam->getParametro('fecha_cbte') . "''::date");
+            }
+        }
+
+        if ($this->objParam->getParametro('filtro_usuario') == 'si') {
+            $this->objParam->addFiltro("dcv.id_usuario_reg = " . $_SESSION["ss_id_usuario"]);
+        }
+
+        if ($this->objParam->getParametro('id_depto') != '') {
+            if ($this->objParam->getParametro('id_depto') != 0)
+                $this->objParam->addFiltro("dcv.id_depto_conta = " . $this->objParam->getParametro('id_depto'));
+        }
+
+        if ($this->objParam->getParametro('id_agrupador') != '') {
+            $this->objParam->addFiltro("dcv.id_doc_compra_venta not in (select ad.id_doc_compra_venta from conta.tagrupador_doc ad where ad.id_agrupador = " . $this->objParam->getParametro('id_agrupador') . ") ");
+        }
+
+        if ($this->objParam->getParametro('tipoReporte') == 'excel_grid' || $this->objParam->getParametro('tipoReporte') == 'pdf_grid') {
+            $this->objReporte = new Reporte($this->objParam, $this);
+            $this->res = $this->objReporte->generarReporteListado('MODDocCompraVenta', 'listarDocCompraVenta');
+        } else {
+            $this->objFunc = $this->create('MODDocCompraVenta');
+            $this->res = $this->objFunc->listarDocCompraVenta($this->objParam);
+        }
+
+
+
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 
