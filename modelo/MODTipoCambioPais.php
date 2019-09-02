@@ -11,6 +11,8 @@ class MODTipoCambioPais extends MODbase{
 
 	function __construct(CTParametro $pParam){
 		parent::__construct($pParam);
+		// $this->cone = new conexion();
+		// $this->informix = $this->cone->conectarPDOInformix();
 	}
 
 	function listarTipoCambioPais(){
@@ -69,6 +71,8 @@ class MODTipoCambioPais extends MODbase{
 		$this->setParametro('venta','venta','numeric');
 		$this->setParametro('observaciones','observaciones','varchar');
 		$this->setParametro('id_moneda_pais','id_moneda_pais','int4');
+		$this->setParametro('id_lugar','id_lugar','int4');
+		$this->setParametro('id_moneda','id_moneda','int4');
 
 		//Ejecuta la instruccion
     //Ejecuta la instruccion
@@ -87,10 +91,6 @@ class MODTipoCambioPais extends MODbase{
 
 		$this->insertarTipoCambioSQLServer($respuesta);
 
-		/*Si el id_moneda es 2 entonces Conectamos a Informix para hacer inserccion*/
-		if ($this->aParam->getParametro('id_moneda') == 2) {
-    	$this->insertarTipoCambioInformix($respuesta);
-		}
 		/***************************************************************************/
 
     //si todo va bien confirmamos y regresamos el resultado
@@ -113,84 +113,6 @@ class MODTipoCambioPais extends MODbase{
 		return $this->respuesta;
 	}
 	/**************Insertamos en las base de datos********************************/
-  function insertarTipoCambioInformix($respuesta){
-		$this->cone = new conexion();
-		$this->informix = $this->cone->conectarPDOInformix();
-		//$this->link = $this->cone->conectarpdo(); //conexion a pxp(postgres)
-			try {
-					$arreglo_fecha= explode( '/', $this->aParam->getParametro('fecha') );
-					$fecha = ($arreglo_fecha[2].'-'.$arreglo_fecha[1].'-'.$arreglo_fecha[0]);
-					$codigo_pais = $this->pais();
-					$this->informix->beginTransaction();
-					$sql_in = "INSERT INTO ingresos:cambio ( pais,
-																									 fecha,
-																									 tcambio
-																									)
-																								 VALUES
-																								 (
-																								 '".$codigo_pais."',
-																								 '".$fecha."' ,
-																								 '".$this->aParam->getParametro('oficial')."'
-																								 )";
-					$info_nota_ins = $this->informix->prepare($sql_in);
-
-					$info_nota_ins->execute();
-					$this->informix->commit();
-					return true;
-			} catch (Exception $e) {
-					$this->informix->rollBack();
-			}
-  }
-	function modificarTipoCambioInformix(){
-		 $this->cone = new conexion();
-		 $this->informix = $this->cone->conectarPDOInformix();
-		//$this->link = $this->cone->conectarpdo(); //conexion a pxp(postgres)
-			try {
-					$arreglo_fecha= explode( '/', $this->aParam->getParametro('fecha') );
-					$fecha = ($arreglo_fecha[2].'-'.$arreglo_fecha[1].'-'.$arreglo_fecha[0]);
-					$oficial = $this->aParam->getParametro('oficial');
-					$codigo_pais = $this->pais();
-					$this->informix->beginTransaction();
-					$sql_in = "UPDATE ingresos:cambio
-										 SET
-												 tcambio = $oficial
-										 WHERE
-												 fecha =  '".$fecha."' and pais = '".$codigo_pais."'
-												 ";
-					$info_nota_ins = $this->informix->prepare($sql_in);
-
-					$info_nota_ins->execute();
-					$this->informix->commit();
-					return true;
-			} catch (Exception $e) {
-					$this->informix->rollBack();
-			}
-  }
-
-	function eliminarTipoCambioInformix(){
-		 $this->cone = new conexion();
-		 $this->informix = $this->cone->conectarPDOInformix();
-		//$this->link = $this->cone->conectarpdo(); //conexion a pxp(postgres)
-			try {
-					$arreglo_fecha= explode( '/', $this->aParam->getParametro('fecha') );
-					$fecha = ($arreglo_fecha[2].'-'.$arreglo_fecha[1].'-'.$arreglo_fecha[0]);
-					$oficial = $this->aParam->getParametro('oficial');
-					$codigo_pais = $this->pais();
-					$this->informix->beginTransaction();
-					$sql_in = "UPDATE ingresos:cambio
-										 SET
-												 tcambio = $oficial
-										 WHERE
-												 fecha =  '".$fecha."' and pais = '".$codigo_pais."'
-												 ";
-					$info_nota_ins = $this->informix->prepare($sql_in);
-					$info_nota_ins->execute();
-					$this->informix->commit();
-					return true;
-			} catch (Exception $e) {
-					$this->informix->rollBack();
-			}
-  }
 
 	function insertarTipoCambioSQLServer($respuesta) {
 		$this->link = new ConexionSqlServer($_SESSION['_SQL_HOST'],$_SESSION['_SQL_USER'], $_SESSION['_SQL_PASS'], $_SESSION['_SQL_BD']);
@@ -219,12 +141,19 @@ class MODTipoCambioPais extends MODbase{
 	}
 
 	function modificarTipoCambioPaisSQLServer() {
+		/*Obtenemos la fecha actual para comprar con la fecha de modificacion*/
+		$fecha_registro= explode( '/', $this->aParam->getParametro('fecha_reg') );
+		$fecha_reg = ($fecha_registro[2].'-'.$fecha_registro[1].'-'.$fecha_registro[0]);
+		$fecha_actual = date("Y")."-".date("m")."-".date("d");
+		/*********************************************************************/
+		if ($fecha_actual != $fecha_reg) {
+				throw new Exception("Solo se puede modificar el tipo de cambio en la misma fecha que se registró. La fecha de registro para este tipo de cambio es del: ".$this->aParam->getParametro('fecha_reg'));
+		}
 		$this->link = new ConexionSqlServer($_SESSION['_SQL_HOST'],$_SESSION['_SQL_USER'], $_SESSION['_SQL_PASS'], $_SESSION['_SQL_BD']);
 		$this->conexion = $this->link->conectarSQL();
 		try {
 		$arreglo_fecha= explode( '/', $this->aParam->getParametro('fecha') );
 		$fecha = ($arreglo_fecha[2].'-'.$arreglo_fecha[1].'-'.$arreglo_fecha[0]);
-
 		$idErp = $this->aParam->getParametro('id_tipo_cambio_pais');
 		$id_moneda_pais = $this->aParam->getParametro('id_moneda_pais');
 		$oficial = $this->aParam->getParametro('oficial');
@@ -236,6 +165,7 @@ class MODTipoCambioPais extends MODbase{
 		$sql = "EXEC [ParametrosGenerales].[dbo].[TipoCambioCRUD] N'UPD',$idErp,$id_moneda_pais,'$fecha',$oficial,$compra, $venta, '$observaciones','$estado'";
 		$consulta = @mssql_query(utf8_decode($sql), $this->conexion);
 		/*************************************************************************************************/
+
 		}
 		catch (Exception $e) {
 				throw new Exception("La conexion a la bd POSTGRESQL ha fallado.");
@@ -291,14 +221,12 @@ class MODTipoCambioPais extends MODbase{
 		$this->setParametro('venta','venta','numeric');
 		$this->setParametro('observaciones','observaciones','varchar');
 		$this->setParametro('id_moneda_pais','id_moneda_pais','int4');
+		$this->setParametro('fecha_reg','fecha_reg','date');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 		$this->modificarTipoCambioPaisSQLServer();
-		if ($this->aParam->getParametro('id_moneda') == 2) {
-     	$this->modificarTipoCambioInformix();
-		}
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
@@ -336,9 +264,7 @@ class MODTipoCambioPais extends MODbase{
 
 		$this->eliminarTipoCambioPaisSQLServer($respuesta);
 
-		if ($respuesta['id_moneda'] == 2) {
-     	$this->eliminarTipoCambioInformix();
-		}
+
 		//si todo va bien confirmamos y regresamos el resultado
 		$link->commit();
 		$this->respuesta=new Mensaje();
