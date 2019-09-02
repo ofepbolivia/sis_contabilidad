@@ -583,7 +583,8 @@ class ACTDocCompraVenta extends ACTbase
 
         //(may) para la plantilla nota de credito y debito
         if ($this->objParam->getParametro('id_plantilla') == '' or $this->objParam->getParametro('id_plantilla') != '') {
-            $this->objParam->addFiltro("dcv.id_plantilla in(52, 53) " );
+            //$this->objParam->addFiltro("dcv.id_plantilla in(52, 53) " );
+            $this->objParam->addFiltro("dcv.id_plantilla in(41, 42) " );
         }
 
         if ($this->objParam->getParametro('id_proveedor') != '') {

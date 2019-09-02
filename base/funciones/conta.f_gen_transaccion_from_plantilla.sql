@@ -353,10 +353,10 @@ BEGIN
                                     where tp.id_plan_pago = p_id_tabla_padre_valor;
 
                                 	v_record_int_tran.importe_debe = case when v_moneda_record.id_moneda_op != v_moneda_record.id_moneda_cb then
-                                    								 (p_super->'columna_tipo_cambio')::numeric * v_moneda_record.monto::numeric
+                                    								 (p_super->'columna_tipo_cambio')::numeric * (v_this_hstore->'campo_monto')::numeric
                                     								 else (v_this_hstore->'campo_monto')::numeric end;
                                  	v_record_int_tran.importe_gasto = case when v_moneda_record.id_moneda_op != v_moneda_record.id_moneda_cb then
-                                    								  (p_super->'columna_tipo_cambio')::numeric * v_moneda_record.monto::numeric
+                                    								  (p_super->'columna_tipo_cambio')::numeric * (v_this_hstore->'campo_monto')::numeric
                                     								  else (v_this_hstore->'campo_monto_pres')::numeric end;
                                   	v_record_int_tran.importe_haber = 0::numeric;
                                  	v_record_int_tran.importe_recurso = 0::numeric;
@@ -381,10 +381,10 @@ BEGIN
                                 	v_record_int_tran.importe_debe = 0;
                                  	v_record_int_tran.importe_gasto = 0;
                                  	v_record_int_tran.importe_haber = case when v_moneda_record.id_moneda_op != v_moneda_record.id_moneda_cb then
-                                    								  (p_super->'columna_tipo_cambio')::numeric * v_moneda_record.monto::numeric
+                                    								  (p_super->'columna_tipo_cambio')::numeric * (v_this_hstore->'campo_monto')::numeric
                                     								  else(v_this_hstore->'campo_monto')::numeric end;
                                  	v_record_int_tran.importe_recurso = case when v_moneda_record.id_moneda_op != v_moneda_record.id_moneda_cb then
-                                    								  	(p_super->'columna_tipo_cambio')::numeric * v_moneda_record.monto::numeric
+                                    								  	(p_super->'columna_tipo_cambio')::numeric * (v_this_hstore->'campo_monto')::numeric
                                     								   	else (v_this_hstore->'campo_monto_pres')::numeric end;
                                  end if;
                               END IF;
