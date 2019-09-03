@@ -71,6 +71,7 @@ DECLARE
   v_estacion				varchar;
   v_moneda					varchar;
 
+  v_codigo_control			varchar;
 
 BEGIN
 
@@ -350,6 +351,12 @@ BEGIN
           END IF;
         END IF;
 
+        -- para que el codigo_control no is null
+        if (v_parametros.codigo_control is NUll or v_parametros.codigo_control = '' or v_parametros.codigo_control = ' ') then
+        	v_codigo_control =  '0' ;
+        else
+        	v_codigo_control = v_parametros.codigo_control;
+        end if;
 
 --IF (v_parametros.id_int_comprobante is Null) THEN
 IF (v_id_int_comprobante is Null) THEN
@@ -419,8 +426,7 @@ IF (v_id_int_comprobante is Null) THEN
         v_id_depto_contatipo,
         v_parametros.obs,
         'activo',
-        (CASE WHEN (v_parametros.codigo_control ='') THEN '0' ELSE v_parametros.codigo_control END)::varchar,
-		--upper(COALESCE(v_parametros.codigo_control,'0')),
+        upper(v_codigo_control),
         v_parametros.importe_it,
         upper(trim(v_parametros.razon_social)),
         v_parametros._id_usuario_ai,
@@ -515,8 +521,7 @@ ELSE  --raise exception 'llega2 %',v_i;
         v_id_depto_contatipo,
         v_parametros.obs,
         'activo',
-        (CASE WHEN (v_parametros.codigo_control is null) THEN '0' ELSE v_parametros.codigo_control END)::varchar,
-		--upper(COALESCE(v_parametros.codigo_control,'0')),
+        upper(v_codigo_control),
         v_parametros.importe_it,
         upper(trim(v_parametros.razon_social)),
         v_parametros._id_usuario_ai,
@@ -702,6 +707,13 @@ END IF;
         v_importe_ice = v_parametros.importe_excento;
       END IF;
 
+        -- para que el codigo_control no is null
+        if (v_parametros.codigo_control is NUll or v_parametros.codigo_control = '' or v_parametros.codigo_control = ' ') then
+        	v_codigo_control =  '0' ;
+        else
+        	v_codigo_control = v_parametros.codigo_control;
+        end if;
+
       --Sentencia de la insercion
       insert into conta.tdoc_compra_venta(
         tipo,
@@ -762,7 +774,7 @@ END IF;
         v_parametros.id_depto_conta,
         v_parametros.obs,
         'activo',
-        upper(COALESCE(v_parametros.codigo_control,'0')),
+        upper(v_codigo_control),
         v_parametros.importe_it,
         upper(trim(v_parametros.razon_social)),
         v_parametros._id_usuario_ai,
@@ -990,6 +1002,13 @@ END IF;
 	        v_fecha_venci = null;
         end if;
 
+        -- para que el codigo_control no is null
+        if (v_parametros.codigo_control is NUll or v_parametros.codigo_control = '' or v_parametros.codigo_control = ' ') then
+        	v_codigo_control =  '0' ;
+        else
+        	v_codigo_control = v_parametros.codigo_control;
+        end if;
+
       --Sentencia de la modificacion
       update conta.tdoc_compra_venta set
         tipo = v_parametros.tipo,
@@ -1007,7 +1026,7 @@ END IF;
         importe_doc = v_parametros.importe_doc,
         id_depto_conta = v_parametros.id_depto_conta,
         obs = v_parametros.obs,
-        codigo_control =  upper(COALESCE(v_parametros.codigo_control,'0')),
+        codigo_control =  upper(v_codigo_control),
         importe_it = v_parametros.importe_it,
         razon_social = upper(trim(v_parametros.razon_social)),
         id_periodo = v_id_periodo,
@@ -1159,6 +1178,14 @@ END IF;
 
       END IF;
 
+        -- para que el codigo_control no is null
+        if (v_parametros.codigo_control is NUll or v_parametros.codigo_control = '' or v_parametros.codigo_control = ' ') then
+        	v_codigo_control =  '0' ;
+        else
+        	v_codigo_control = v_parametros.codigo_control;
+        end if;
+
+
       --Sentencia de la modificacion
       update conta.tdoc_compra_venta set
         tipo = v_parametros.tipo,
@@ -1176,7 +1203,7 @@ END IF;
         importe_doc = v_parametros.importe_doc,
         id_depto_conta = v_parametros.id_depto_conta,
         obs = v_parametros.obs,
-        codigo_control =  upper(COALESCE(v_parametros.codigo_control,'0')),
+        codigo_control =  upper(v_codigo_control),
         importe_it = v_parametros.importe_it,
         razon_social = upper(trim(v_parametros.razon_social)),
         id_periodo = v_id_periodo,
