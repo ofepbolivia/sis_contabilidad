@@ -93,7 +93,8 @@ BEGIN
                         'campo_nro_cuenta_bancaria_trans',
                         'campo_porc_monto_excento_var',
                         'campo_nombre_cheque_trans',
-                        'campo_forma_pago'];
+                        'campo_forma_pago',
+                        'monto_no_pagado'];
     v_tamano:=array_upper(v_def_campos,1);
          
   
