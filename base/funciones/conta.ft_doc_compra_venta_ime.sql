@@ -71,6 +71,7 @@ DECLARE
   v_estacion				varchar;
   v_moneda					varchar;
 
+
 BEGIN
 
   v_nombre_funcion = 'conta.ft_doc_compra_venta_ime';
@@ -349,6 +350,7 @@ BEGIN
           END IF;
         END IF;
 
+
 --IF (v_parametros.id_int_comprobante is Null) THEN
 IF (v_id_int_comprobante is Null) THEN
 
@@ -417,7 +419,8 @@ IF (v_id_int_comprobante is Null) THEN
         v_id_depto_contatipo,
         v_parametros.obs,
         'activo',
-        upper(COALESCE(v_parametros.codigo_control,'0')),
+        (CASE WHEN (v_parametros.codigo_control ='') THEN '0' ELSE v_parametros.codigo_control END)::varchar,
+		--upper(COALESCE(v_parametros.codigo_control,'0')),
         v_parametros.importe_it,
         upper(trim(v_parametros.razon_social)),
         v_parametros._id_usuario_ai,
@@ -512,7 +515,8 @@ ELSE  --raise exception 'llega2 %',v_i;
         v_id_depto_contatipo,
         v_parametros.obs,
         'activo',
-        upper(COALESCE(v_parametros.codigo_control,'0')),
+        (CASE WHEN (v_parametros.codigo_control is null) THEN '0' ELSE v_parametros.codigo_control END)::varchar,
+		--upper(COALESCE(v_parametros.codigo_control,'0')),
         v_parametros.importe_it,
         upper(trim(v_parametros.razon_social)),
         v_parametros._id_usuario_ai,
@@ -538,6 +542,7 @@ ELSE  --raise exception 'llega2 %',v_i;
         v_parametros.tipo_cambio
       )RETURNING id_doc_compra_venta into v_id_doc_compra_venta;
 END IF;
+
 
       if (pxp.f_existe_parametro(p_tabla,'id_origen')) then
         update conta.tdoc_compra_venta
@@ -1484,11 +1489,16 @@ END IF;
 
     begin
 
-
-      update conta.tdoc_compra_venta  set
-        id_int_comprobante = NULL,
-        id_plan_pago =NULL
-      where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
+      if pxp.f_get_variable_global('ESTACION_inicio') = 'BOL' then
+			update conta.tdoc_compra_venta  set
+        		id_int_comprobante = NULL,
+        		id_plan_pago =NULL
+      		where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
+    	else
+			update conta.tdoc_compra_venta  set
+        		id_int_comprobante = NULL
+      		where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
+      	end if;
 
 
 
@@ -1515,47 +1525,70 @@ END IF;
 
         IF(v_estacion = 'BUE')THEN
 
-          --para tipo de obligaciones internacionales sp, spd y spi, porque se añade desde un estado en borrador
-          SELECT op.tipo_obligacion
-          INTO v_tipo_obligacion
-          FROM tes.tobligacion_pago op
-          inner join tes.tplan_pago pp on pp.id_obligacion_pago = op.id_obligacion_pago
-          WHERE pp.id_plan_pago = v_parametros.id_plan_pago;
+        	IF v_parametros.id_int_comprobante is not null then
+                    IF not EXISTS(select
+                                1
+                              from conta.tdoc_compra_venta dcv
+                              where dcv.id_doc_compra_venta = v_parametros.id_doc_compra_venta and dcv.id_int_comprobante is null) THEN
+
+                   		 raise exception 'El documento no existe o ya tiene un cbte relacionado';
+                    END IF;
+
+                    --#14, recupera nro de tramite del cbte
+                    select cbte.nro_tramite
+                    into v_nro_tramite
+                    from conta.tint_comprobante cbte
+                    where cbte.id_int_comprobante = v_parametros.id_int_comprobante;
+
+                    update conta.tdoc_compra_venta d  set
+                      id_int_comprobante =  v_parametros.id_int_comprobante,
+                      nro_tramite =   v_nro_tramite
+                    where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+
+            ELSE
+                  --para tipo de obligaciones internacionales sp, spd y spi, porque se añade desde un estado en borrador
+                  SELECT op.tipo_obligacion
+                  INTO v_tipo_obligacion
+                  FROM tes.tobligacion_pago op
+                  inner join tes.tplan_pago pp on pp.id_obligacion_pago = op.id_obligacion_pago
+                  WHERE pp.id_plan_pago = v_parametros.id_plan_pago;
 
 
-        IF(v_tipo_obligacion in ('sp','spd','pago_especial_spi', 'spi'))THEN
+                IF(v_tipo_obligacion in ('sp','spd','pago_especial_spi', 'spi'))THEN
 
-           -- validamos que el documento no tenga otro comprobante
+                   -- validamos que el documento no tenga otro comprobante
 
-            IF not EXISTS(select
-                            1
-                          from conta.tdoc_compra_venta dcv
-                          where dcv.id_doc_compra_venta = v_parametros.id_doc_compra_venta and dcv.id_plan_pago is null) THEN
+                    IF not EXISTS(select
+                                    1
+                                  from conta.tdoc_compra_venta dcv
+                                  where dcv.id_doc_compra_venta = v_parametros.id_doc_compra_venta and dcv.id_plan_pago is null) THEN
 
-              raise exception 'El documento no existe o ya tiene un plan de pago relacionado';
+                      raise exception 'El documento no existe o ya tiene un plan de pago relacionado';
+                    END IF;
+
+                    --recupera nro de tramite del cbte
+                    select op.num_tramite
+                    into v_num_tramite
+                    from tes.tplan_pago pp
+                    inner join tes.tobligacion_pago op on op.id_obligacion_pago = pp.id_obligacion_pago
+                    where pp.id_plan_pago = v_parametros.id_plan_pago ;
+
+                    update conta.tdoc_compra_venta d  set
+                      id_plan_pago =  v_parametros.id_plan_pago,
+                      nro_tramite =   v_nro_tramite
+                    where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+
+                  ELSE
+
+                      if v_parametros.id_plan_pago is null then
+                          v_parametros.id_plan_pago = 0;
+                      end if;
+
+                      update conta.tdoc_compra_venta d  set
+                        id_plan_pago =  v_parametros.id_plan_pago
+                      where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+                  END IF;
             END IF;
-
-            --recupera nro de tramite del cbte
-            select op.num_tramite
-            into v_num_tramite
-            from tes.tplan_pago pp
-            inner join tes.tobligacion_pago op on op.id_obligacion_pago = pp.id_obligacion_pago
-            where pp.id_plan_pago = v_parametros.id_plan_pago ;
-
-            update conta.tdoc_compra_venta d  set
-              id_plan_pago =  v_parametros.id_plan_pago,
-              nro_tramite =   v_nro_tramite
-            where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
-     	ELSE
-
-            if v_parametros.id_plan_pago is null then
-            	v_parametros.id_plan_pago = 0;
-            end if;
-
-        	update conta.tdoc_compra_venta d  set
-              id_plan_pago =  v_parametros.id_plan_pago
-            where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
-        END IF;
 
       ELSE
           -- validamos que el documento no tenga otro comprobante
