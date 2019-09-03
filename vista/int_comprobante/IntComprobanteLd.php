@@ -116,7 +116,7 @@ Phx.vista.IntComprobanteLd = {
 			var rec = this.sm.getSelected();
 			this.getBoton('btnImprimir').enable();
 			this.getBoton('btnRelDev').enable();
-			//this.getBoton('btnDocCmpVnt').enable();
+			this.getBoton('btnDocCmpVnt').enable();
 			this.getBoton('chkpresupuesto').enable();
 			this.getBoton('btnVolcar').enable();
 			this.getBoton('btnClonar').enable();
@@ -125,12 +125,13 @@ Phx.vista.IntComprobanteLd = {
             this.getBoton('diagrama_gantt').enable();
             this.getBoton('btnObs').enable();
             this.getBoton('btnWizard').enable()
-			
-			if(rec.data.momento =='presupuestario'){
+
+        // 02-09-2018 se comenta para que muestre la opcion de registro de documentos
+			/*if(rec.data.momento =='presupuestario'){
 				this.getBoton('btnDocCmpVnt').enable();
 			}else{
 				this.getBoton('btnDocCmpVnt').disable();
-			}
+			}*/
             
 			
 			return tb;
@@ -139,7 +140,7 @@ Phx.vista.IntComprobanteLd = {
 			var tb = Phx.vista.IntComprobanteLd.superclass.liberaMenu.call(this);
 			this.getBoton('btnImprimir').disable();
 			this.getBoton('btnRelDev').disable();
-			this.getBoton('btnDocCmpVnt').disable();
+			//this.getBoton('btnDocCmpVnt').disable();
 			this.getBoton('chkpresupuesto').disable();
 			this.getBoton('btnVolcar').disable();
 			this.getBoton('btnClonar').disable();
