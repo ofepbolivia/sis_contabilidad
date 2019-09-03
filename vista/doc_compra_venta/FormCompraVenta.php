@@ -1028,55 +1028,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 0,
                     form: true
                 },
-                {
-                    config: {
-                        name: 'dia',
-                        fieldLabel: 'Dia',
-                        allowBlank: true,
-                        allowNEgative: false,
-                        allowDecimal: false,
-                        anchor: '85%',
-                        maxValue: 31,
-                        minValue: 1,
-                        width: 40
-                    },
-                    type: 'NumberField',
-                    id_grupo: 0,
-                    form: true
-                },
 
-                {
-                    config: {
-                        name: 'fecha',
-                        fieldLabel: 'Fecha',
-                        allowBlank: false,
-                        anchor: '85%',
-                        format: 'd/m/Y',
-                        readOnly: true,
-                        renderer: function (value, p, record) {
-                            return value ? value.dateFormat('d/m/Y') : ''
-                        }
-                    },
-                    type: 'DateField',
-                    id_grupo: 0,
-                    form: true
-                },
-                {
-                    config: {
-                        name: 'fecha_vencimiento',
-                        fieldLabel: 'Fecha Vencimiento',
-                        allowBlank: true,
-                        anchor: '85%',
-                        format: 'd/m/Y',
-                        readOnly: true,
-                        renderer: function (value, p, record) {
-                            return value ? value.dateFormat('d/m/Y') : ''
-                        }
-                    },
-                    type: 'DateField',
-                    id_grupo: 0,
-                    form: true
-                },
+
                 {
                     config: {
                         name: 'nro_autorizacion',
@@ -1110,7 +1063,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         lazyRender: false,
                         mode: 'remote',
                         pageSize: 20,
-                        width: 200,
+                        width: 180,
                         boxMinWidth: 200,
                         queryDelay: 500,
                         minChars: 1,
@@ -1219,6 +1172,54 @@ header("content-type: text/javascript; charset=UTF-8");
                     },
                     // type:'NumberField',
                     type: 'TextField',
+                    id_grupo: 1,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'dia',
+                        fieldLabel: 'Día',
+                        allowBlank: true,
+                        allowNEgative: false,
+                        allowDecimal: false,
+                        anchor: '85%',
+                        maxValue: 31,
+                        minValue: 1,
+                        width: 40
+                    },
+                    type: 'NumberField',
+                    id_grupo: 1,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'fecha',
+                        fieldLabel: 'Fecha',
+                        allowBlank: false,
+                        anchor: '85%',
+                        format: 'd/m/Y',
+                        readOnly: true,
+                        renderer: function (value, p, record) {
+                            return value ? value.dateFormat('d/m/Y') : ''
+                        }
+                    },
+                    type: 'DateField',
+                    id_grupo: 1,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'fecha_vencimiento',
+                        fieldLabel: 'Fecha Vencimiento',
+                        allowBlank: true,
+                        anchor: '85%',
+                        format: 'd/m/Y',
+                        readOnly: true,
+                        renderer: function (value, p, record) {
+                            return value ? value.dateFormat('d/m/Y') : ''
+                        }
+                    },
+                    type: 'DateField',
                     id_grupo: 1,
                     form: true
                 },
@@ -1511,7 +1512,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'Cuenta Corriente',
                         baseParams: {corriente: 'si'},
                         gdisplayField: 'codigo_auxiliar',//mapea al store del grid
-                        anchor: '80%',
+                        anchor: '85%',
                         listWidth: 350
                     },
                     type: 'ComboRec',
@@ -1576,7 +1577,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     config: {
                         name: 'importe_pago_liquido',
-                        fieldLabel: 'Liquido Pagado',
+                        fieldLabel: 'Líquido Pagado',
                         allowBlank: true,
                         allowNegative: false,
                         readOnly: true,
@@ -1704,9 +1705,13 @@ header("content-type: text/javascript; charset=UTF-8");
 
                 if (rec.data.sw_autorizacion == 'si') {
                     this.mostrarComponente(this.Cmp.nro_autorizacion);
+                    //para que se oculte el listado del proveedor, porque llena automaticamente el num de autorizacion
+                    this.ocultarComponente(this.Cmp.id_proveedor);
                 }
                 else {
                     this.ocultarComponente(this.Cmp.nro_autorizacion);
+                    //para que se muestre el listado del proveedor
+                    this.mostrarComponente(this.Cmp.id_proveedor);
                 }
 
                 if (rec.data.sw_nit == 'si') {

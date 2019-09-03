@@ -1184,7 +1184,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     config: {
                         name: 'razon_social',
-                        fieldLabel: 'Razón Social',
+                        fieldLabel: 'Razón Social (Impuestos)',
                         allowBlank: false,
                         // maskRe: /[A-Za-z0-9 &-. ñ Ñ]/,
                         // fieldStyle: 'text-transform:uppercase',
@@ -1703,9 +1703,13 @@ header("content-type: text/javascript; charset=UTF-8");
 
                 if (rec.data.sw_autorizacion == 'si') {
                     this.mostrarComponente(this.Cmp.nro_autorizacion);
+                    //para que se oculte el listado del proveedor, porque llena automaticamente el num de autorizacion
+                    this.ocultarComponente(this.Cmp.id_proveedor);
                 }
                 else {
                     this.ocultarComponente(this.Cmp.nro_autorizacion);
+                    //para que se muestre el listado del proveedor
+                    this.mostrarComponente(this.Cmp.id_proveedor);
                 }
 
                 if (rec.data.sw_nit == 'si') {
