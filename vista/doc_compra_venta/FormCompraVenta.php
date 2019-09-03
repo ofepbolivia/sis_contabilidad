@@ -1016,7 +1016,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         name: 'id_moneda',
                         origen: 'MONEDA',
                         allowBlank: false,
-                        baseParams: {id_moneda_defecto: me.id_moneda_defecto},
+                        //02-09-2019, se comenta poque se tiene que ver las demas monedas para los pagos
+                        //baseParams: {id_moneda_defecto: me.id_moneda_defecto},
                         fieldLabel: 'Moneda',
                         gdisplayField: 'desc_moneda',
                         gwidth: 100,
@@ -1183,7 +1184,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     config: {
                         name: 'razon_social',
-                        fieldLabel: 'Razón Social',
+                        fieldLabel: 'Razón Social (Impuestos)',
                         allowBlank: false,
                         // maskRe: /[A-Za-z0-9 &-. ñ Ñ]/,
                         // fieldStyle: 'text-transform:uppercase',
