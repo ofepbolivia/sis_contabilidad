@@ -271,7 +271,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     config: {
                         name: 'fecha_vencimiento',
-                        fieldLabel: 'Fecha Vencimiento',
+                        fieldLabel: 'Fecha de Vencimiento de la Deuda',
                         allowBlank: false,
                         anchor: '80%',
                         gwidth: 100,

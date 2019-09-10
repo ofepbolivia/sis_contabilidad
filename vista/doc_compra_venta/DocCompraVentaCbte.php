@@ -10,8 +10,8 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
     Phx.vista.DocCompraVentaCbte=Ext.extend(Phx.gridInterfaz,{
-        fheight: '80%',
-        fwidth: '70%',
+        fheight: '20%',
+        fwidth: '20%',
         tabEnter: true,
         constructor:function(config){
             var me = this;
@@ -728,8 +728,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 'Formulario de Documento Compra/Venta',
                 {
                     modal:true,
-                    width:'100%',
-                    height:'100%'
+                    width:'80%',
+                    height:'50%'
                 }, { data: {
                         objPadre: me ,
                         tipoDoc: (record)?record.data.tipo:'compra',

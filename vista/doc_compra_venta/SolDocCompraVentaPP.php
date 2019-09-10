@@ -103,24 +103,25 @@ header("content-type: text/javascript; charset=UTF-8");
                 }
                 if(this.maestro.tipo_cambio == 1){
                     if(this.grid.store.data.items[i].data.tipo_cambio == 1 || this.grid.store.data.items[i].data.tipo_cambio == null){
-                        if (this.grid.store.data.items[i].data.id_plantilla == 53)
+                        //if (this.grid.store.data.items[i].data.id_plantilla == 53)
+                        if (this.grid.store.data.items[i].data.id_plantilla == 42)
                             total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc);
                         else
                             total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc);
                     }else{
-                        if (this.grid.store.data.items[i].data.id_plantilla == 53)
+                        if (this.grid.store.data.items[i].data.id_plantilla == 42)
                             total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc)*parseFloat(this.grid.store.data.items[i].data.tipo_cambio);
                         else
                             total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)*parseFloat(this.grid.store.data.items[i].data.tipo_cambio);
                     }
                 }else{
                     if(this.grid.store.data.items[i].data.tipo_cambio == 1 || this.grid.store.data.items[i].data.tipo_cambio == null){
-                        if (this.grid.store.data.items[i].data.id_plantilla == 53)
+                        if (this.grid.store.data.items[i].data.id_plantilla == 42)
                             total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc)*parseFloat(this.maestro.tipo_cambio);
                         else
                             total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)*parseFloat(this.maestro.tipo_cambio);
                     }else{
-                        if (this.grid.store.data.items[i].data.id_plantilla == 53)
+                        if (this.grid.store.data.items[i].data.id_plantilla == 42)
                             total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc);
                         else
                             total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc);
@@ -320,7 +321,7 @@ header("content-type: text/javascript; charset=UTF-8");
             {
                 config: {
                     name: 'fecha_vencimiento',
-                    fieldLabel: 'Fecha Vencimiento',
+                    fieldLabel: 'Fecha de Vencimiento de la Deuda',
                     allowBlank: false,
                     anchor: '80%',
                     gwidth: 100,

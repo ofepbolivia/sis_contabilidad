@@ -1210,7 +1210,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     config: {
                         name: 'fecha_vencimiento',
-                        fieldLabel: 'Fecha Vencimiento',
+                        fieldLabel: 'Fecha de Vencimiento de la Deuda',
                         allowBlank: true,
                         anchor: '85%',
                         format: 'd/m/Y',
