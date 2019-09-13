@@ -70,7 +70,7 @@ DECLARE
   v_fecha_venci				date;
   v_estacion				varchar;
   v_moneda					varchar;
-
+  v_tipo_cambio				numeric;
   v_codigo_control			varchar;
 
 BEGIN
@@ -89,7 +89,11 @@ BEGIN
 
     begin
 
-
+		if pxp.f_existe_parametro(p_tabla,'tipo_cambio') then
+			v_tipo_cambio = v_parametros.tipo_cambio;
+		else
+	        v_tipo_cambio = null;
+        end if;
 
     if (pxp.f_existe_parametro(p_tabla,'desc_clase_comprobante')) then
         if(v_parametros.desc_clase_comprobante = 'Comprobante de Pago Contable') then
@@ -346,7 +350,7 @@ BEGIN
           FROM param.tmoneda mo
           WHERE mo.id_moneda = v_parametros.id_moneda;
 
-          IF (v_parametros.tipo_cambio is NULL or v_parametros.tipo_cambio < 1) THEN
+          IF (v_tipo_cambio is NULL or v_tipo_cambio < 1) THEN
               RAISE EXCEPTION 'Falta completar el campo TIPO DE CAMBIO para la Moneda %', v_moneda;
           END IF;
         END IF;
@@ -449,7 +453,7 @@ IF (v_id_int_comprobante is Null) THEN
         v_nro_tramite,
         v_id_plan_pago,
         v_fecha_venci,
-        v_parametros.tipo_cambio
+        v_tipo_cambio
 
       )RETURNING id_doc_compra_venta into v_id_doc_compra_venta;
 
@@ -544,7 +548,7 @@ ELSE  --raise exception 'llega2 %',v_i;
         v_nro_tramite,
         v_id_plan_pago_dcv,
         v_fecha_venci,
-        v_parametros.tipo_cambio
+        v_tipo_cambio
       )RETURNING id_doc_compra_venta into v_id_doc_compra_venta;
 END IF;
 
@@ -872,6 +876,12 @@ END IF;
 
       */
 
+        if pxp.f_existe_parametro(p_tabla,'tipo_cambio') then
+          	v_tipo_cambio = v_parametros.tipo_cambio;
+      	else
+          	v_tipo_cambio = null;
+      	end if;
+
       select tipo_informe into v_tipo_informe
       from param.tplantilla
       where id_plantilla = v_parametros.id_plantilla;
@@ -1041,7 +1051,7 @@ END IF;
         id_auxiliar = v_parametros.id_auxiliar,
         id_int_comprobante = v_id_int_comprobante,
         fecha_vencimiento = v_fecha_venci,
-        tipo_cambio = v_parametros.tipo_cambio
+        tipo_cambio = v_tipo_cambio
       where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
 
       if (pxp.f_existe_parametro(p_tabla,'id_tipo_compra_venta')) then
