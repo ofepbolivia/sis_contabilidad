@@ -12,8 +12,8 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
     Phx.vista.SolFormCompraVentaPP = {
-        require: '../../../sis_contabilidad/vista/doc_compra_venta/SolFormCompraVenta.php',
-        requireclase: 'Phx.vista.SolFormCompraVenta',
+        require: '../../../sis_contabilidad/vista/doc_compra_venta/SolForCompraVentPP.php',
+        requireclase: 'Phx.vista.SolForCompraVentPP',
         mostrarFormaPago: false,
         heightHeader: 245,
         constructor: function (config) {

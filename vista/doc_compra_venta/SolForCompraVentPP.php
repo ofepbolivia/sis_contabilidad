@@ -1,7 +1,7 @@
 <?php
 /**
  * @package pXP
- * @file    SolFormCompraVenta.php
+ * @file    SolForCompraVentPP.php
  * @author  Maylee Perez
  * @date    26-03-2019
  * @description permites subir archivos a la tabla de documento_sol
@@ -9,7 +9,7 @@
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-    Phx.vista.SolFormCompraVenta = Ext.extend(Phx.frmInterfaz, {
+    Phx.vista.SolForCompraVentPP = Ext.extend(Phx.frmInterfaz, {
         ActSave: '../../sis_contabilidad/control/DocCompraVenta/insertarDocCompleto',
         tam_pag: 10,
         tabEnter: true,
@@ -51,7 +51,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.buildGrupos();
 
 
-            Phx.vista.SolFormCompraVenta.superclass.constructor.call(this, config);
+            Phx.vista.SolForCompraVentPP.superclass.constructor.call(this, config);
 
             this.init();
 
@@ -782,7 +782,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         loadValoresIniciales: function () {
 
-            Phx.vista.SolFormCompraVenta.superclass.loadValoresIniciales.call(this);
+            Phx.vista.SolForCompraVentPP.superclass.loadValoresIniciales.call(this);
 
 
         },
@@ -974,7 +974,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                     'sw_autorizacion', 'sw_codigo_control', 'tipo_plantilla', 'sw_nro_dui', 'sw_ic', 'tipo_excento', 'valor_excento', 'sw_qr', 'sw_nit', 'plantilla_qr',
                                     'sw_estacion', 'sw_punto_venta', 'sw_codigo_no_iata'],
                                 remoteSort: true,
-                                baseParams: {par_filtro: 'plt.desc_plantilla', sw_compro: 'si', sw_tesoro: 'si'}
+                                baseParams: {par_filtro: 'plt.desc_plantilla', sw_compro: 'si', sw_tesoro: 'si', fil_id_plantilla: true}
                             }),
                         tpl: '<tpl for="."><div class="x-combo-list-item"><p>{desc_plantilla}</p></div></tpl>',
                         valueField: 'id_plantilla',
@@ -2216,7 +2216,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     if (this.aux != 'Póliza de Importación - DUI') {
                         // importe_pago_liquido
                         if ((total_det.toFixed(2) * 1) == this.Cmp.importe_doc.getValue()) {
-                            Phx.vista.SolFormCompraVenta.superclass.onSubmit.call(this, o, undefined, true);
+                            Phx.vista.SolForCompraVentPP.superclass.onSubmit.call(this, o, undefined, true);
                         }
                         else {
                             alert('El total del detalle no cuadra con el total del documento');
@@ -2226,7 +2226,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
 
                         if ((total_det.toFixed(2) * 1) == this.Cmp.importe_pago_liquido.getValue()) {
-                            Phx.vista.SolFormCompraVenta.superclass.onSubmit.call(this, o, undefined, true);
+                            Phx.vista.SolForCompraVentPP.superclass.onSubmit.call(this, o, undefined, true);
                         }
                         else {
                             alert('El total del detalle no cuadra con el Liquido Pagado');
@@ -2240,7 +2240,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }
             else {
                 me.argumentExtraSubmit = {'regitrarDetalle': me.regitrarDetalle};
-                Phx.vista.SolFormCompraVenta.superclass.onSubmit.call(this, o, undefined, true);
+                Phx.vista.SolForCompraVentPP.superclass.onSubmit.call(this, o, undefined, true);
             }
         },
 

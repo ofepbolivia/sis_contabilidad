@@ -3,13 +3,13 @@
  * @package pXP
  * @file gen-DocCompraVentaCbte.php
  * @author  Maylee Perez
- * @date 26-03-2019 15:57:09
+ * @date 06-009-2019 15:57:09
  * @description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-    Phx.vista.SolDocCompraVentaPP = Ext.extend(Phx.gridInterfaz, {
+    Phx.vista.SolDocCompraVentaOP = Ext.extend(Phx.gridInterfaz, {
         fheight: '80%',
         fwidth: '70%',
         tabEnter: true,
@@ -18,7 +18,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.maestro = config;
             console.log('franky', this.maestro);
             ///llama al constructor de la clase padre
-            Phx.vista.SolDocCompraVentaPP.superclass.constructor.call(this, config);
+            Phx.vista.SolDocCompraVentaOP.superclass.constructor.call(this, config);
             // this.disparador= this.maestro.disparador == undefined ?'contabilidad':this.maestro.disparador;
             this.disparador = this.maestro.disparador == undefined ? 'obligacion' : this.maestro.disparador;
 
@@ -78,11 +78,16 @@ header("content-type: text/javascript; charset=UTF-8");
         importe_dc:0,
         calcularDC: function(){
             var total = 0;
-            console.log('datos enviados', this.maestro.tipo_cambio);
+
             this.maestro.tipo_cambio = (Phx.CP.getPagina(this.maestro.id_padre)).getComponente('tipo_cambio').getValue();
-            if (this.maestro.tipo_cambio == '' || this.maestro.tipo_cambio == null) {
+
+            console.log('datos enviados', this.maestro);
+            console.log('cuenta', this.maestro.cuenta_bancaria);
+
+            /*if (this.maestro.tipo_cambio == '' || this.maestro.tipo_cambio == null) {
                 this.maestro.tipo_cambio = 1;
-            }
+            }*/
+
             /*
             if (this.maestro.tipo_cambio == '' || this.maestro.tipo_cambio == null){
                 Ext.Msg.show({
@@ -93,92 +98,149 @@ header("content-type: text/javascript; charset=UTF-8");
                     icon: Ext.Msg.WARNING
                 });
             }*/
+
+
             var id_documentos = '';
-            for (var i = 0; i < this.grid.store.data.items.length; i++) {
-                //id_documentos[i] = this.grid.store.data.items[i].data.id_doc_compra_venta;
-                if(i+1 == this.grid.store.data.items.length){
-                    id_documentos  += this.grid.store.data.items[i].data.id_doc_compra_venta;
-                }else{
-                    id_documentos  += this.grid.store.data.items[i].data.id_doc_compra_venta+',';
+            var contador_moneda_base = 0;
+            var that = this;
+            //ciclo para verificar la moneda de los documentos
+            (this.grid.store.data.items).forEach(function (documento){
+                let moneda_documento = documento.data.id_moneda;
+                if (that.maestro.id_moneda != moneda_documento) {
+                    contador_moneda_base += 1;
                 }
-                console.log('llegamay', this.maestro.tipo_cambio)
+                console.log('documento', moneda_documento);
+            });
 
-                if(this.maestro.tipo_cambio == 1){
-                    console.log('llegamay1', this.maestro.tipo_cambio)
-                    console.log('llegamaytipocambionewfac1', this.grid.store.data.items[i].data.tipo_cambio )
-                    if(this.grid.store.data.items[i].data.tipo_cambio == 1 || this.grid.store.data.items[i].data.tipo_cambio == null){
-                        //alerta si necesita el tipo de cambio
-                        /*Ext.Msg.prompt({
-                            title: 'Alerta',
-                            msg: '<b> Estimado Usuario: <br><br><span style="color: red;">No ha definido un valor para en el campo "tipo de cambio".</span></b>',
-                            fn: function (text) {
-                                console.log('legatext', text)
-                            },
-                            scope: this
-                        });*/
-                        Ext.Msg.prompt('Alerta', '<b> Estimado Usuario: <br><br><span style="color: red;">Definir "Tipo de Cambio" de la Factura.</span></b>', function(btn, text){
-                            if (btn == 'ok'){
-                                console.log('text:', text)
+            if (contador_moneda_base > 0 && (this.maestro.tipo_cambio == '' || this.maestro.tipo_cambio == null)) {
 
-                                 tipo_cambio = text;
-                                console.log('maestrotipocambio',tipo_cambio)
-                            }
-                        });
-                        //
-                        if (this.grid.store.data.items[i].data.id_plantilla == 53) {
-                            //if (this.grid.store.data.items[i].data.id_plantilla == 42)
-                            total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc) / parseFloat(tipo_cambio);
+                Ext.Msg.prompt(
+                    'Alerta',
+                    '<b> Estimado Usuario: <br><span style="color: red;">Debe definir tipo de cambio para el pago.</span></b>',
+                    function(btn, text){
+                        if (btn == 'ok') {
+
+                            that.maestro.tipo_cambio = text;
+                            let tam_documento = that.grid.store.data.items.length;
+                            let cont_documento = 0;
+
+                            (that.grid.store.data.items).forEach(function (documento){
+                                if(cont_documento + 1 == tam_documento){
+                                    id_documentos  += documento.data.id_doc_compra_venta;
+                                }else{
+                                    id_documentos  += documento.data.id_doc_compra_venta+',';
+                                }
+                                console.log('forEach', that.maestro.tipo_moneda, documento.tipo_cambio, documento.data.importe_doc);
+                                if(that.maestro.tipo_moneda == 'base'){
+
+                                    if(documento.data.tipo_cambio == 1 || documento.data.tipo_cambio == null){
+                                        if (documento.data.id_plantilla == 53)
+                                            total = total - parseFloat(documento.data.importe_doc);
+                                        else
+                                            total = total + parseFloat(documento.data.importe_doc);
+                                    }else{
+                                        if (documento.data.id_plantilla == 53)
+                                            total = total - parseFloat(documento.data.importe_doc)*parseFloat(documento.data.tipo_cambio);
+                                        else
+                                            total = total + parseFloat(documento.data.importe_doc)*parseFloat(documento.data.tipo_cambio);
+                                    }
+                                }else{
+                                    if(documento.data.tipo_cambio == 1 || documento.data.tipo_cambio == null){
+                                        if (documento.data.id_plantilla == 53)
+                                            total = total - parseFloat(documento.data.importe_doc)/parseFloat(that.maestro.tipo_cambio);
+                                        else
+                                            total = total + parseFloat(documento.data.importe_doc)/parseFloat(that.maestro.tipo_cambio);
+                                    }else{
+                                        if (documento.data.id_plantilla == 53) {
+
+                                            total = total - parseFloat(documento.data.importe_doc);
+                                        }else
+                                            total = total + parseFloat(documento.data.importe_doc);
+                                    }
+                                }
+
+                            });
+
+
+                            that.panel.close();
+                            (Phx.CP.getPagina(that.maestro.id_padre)).getComponente('tipo_cambio').setVisible(true);
+                            (Phx.CP.getPagina(that.maestro.id_padre)).getComponente('tipo_cambio').enable();
+                            (Phx.CP.getPagina(that.maestro.id_padre)).getComponente('tipo_cambio').setValue(that.maestro.tipo_cambio);
+
+                            (Phx.CP.getPagina(that.maestro.id_padre)).getComponente('monto_no_pagado').setValue(that.total);
+                            Phx.CP.getPagina(that.maestro.id_padre).definirDC(total, id_documentos);
+                            Phx.CP.getPagina(that.maestro.id_padre).calculaMontoPago();
                         }
-                        else {
-                            console.log('moneda12', this.grid.store.data.items[i].data.id_moneda)
-                            console.log('importee', parseFloat(this.grid.store.data.items[i].data.importe_doc))
-                            total_1 = 0;
-                            if (this.grid.store.data.items[i].data.id_moneda == 2){
-                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc) ;
-                            }else{
-                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/ parseFloat(tipo_cambio);
-                            }
+                    }
+                );
 
+                /*this.panel.close();
+                (Phx.CP.getPagina(this.maestro.id_padre)).getComponente('tipo_cambio').setVisible(true);
+                (Phx.CP.getPagina(this.maestro.id_padre)).getComponente('tipo_cambio').enable();
+
+                Ext.Msg.show({
+                    title: 'Alerta',
+                    msg: '<b> Estimado Usuario: <br><br><span style="color: red;">Debe definir el tipo de cambio para el pago.</span></b>',
+                    buttons: Ext.Msg.OK,
+                    fn: function(){
+                        (Phx.CP.getPagina(that.maestro.id_padre)).getComponente('tipo_cambio').focus(false,200);
+                    },
+                    width: 512,
+                    icon: Ext.Msg.WARNING
+                });*/
+
+
+            }else {
+                let tam_documento = that.grid.store.data.items.length;
+                let cont_documento = 0;
+
+                (that.grid.store.data.items).forEach(function (documento) {
+                    if (cont_documento + 1 == tam_documento) {
+                        id_documentos += documento.data.id_doc_compra_venta;
+                    } else {
+                        id_documentos += documento.data.id_doc_compra_venta + ',';
+                    }
+                    console.log('forEach', that.maestro.tipo_moneda, documento.tipo_cambio, documento.data.importe_doc);
+                    if (that.maestro.tipo_moneda == 'base') {
+
+                        if (documento.data.tipo_cambio == 1 || documento.data.tipo_cambio == null) {
+                            if (documento.data.id_plantilla == 53)
+                                total = total - parseFloat(documento.data.importe_doc);
+                            else
+                                total = total + parseFloat(documento.data.importe_doc);
+                        } else {
+                            if (documento.data.id_plantilla == 53)
+                                total = total - parseFloat(documento.data.importe_doc) * parseFloat(documento.data.tipo_cambio);
+                            else
+                                total = total + parseFloat(documento.data.importe_doc) * parseFloat(documento.data.tipo_cambio);
                         }
-                    }else{
-                        if (this.grid.store.data.items[i].data.id_plantilla ==52)
-                        //if (this.grid.store.data.items[i].data.id_plantilla == 42)
-                            if (this.grid.store.data.items[i].data.id_moneda == 2){
-                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc) ;
-                            }else{
-                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/ parseFloat(tipo_cambio);
-                            }
-                    }
-                }else{
-                    console.log('llegamay2', this.maestro.tipo_cambio)
-                    console.log('llegamaytipocambionewfac', this.grid.store.data.items[i].data.tipo_cambio )
-                    if(this.grid.store.data.items[i].data.tipo_cambio == 1 || this.grid.store.data.items[i].data.tipo_cambio == null){
-                        if (this.grid.store.data.items[i].data.id_plantilla == 52)
-                        //if (this.grid.store.data.items[i].data.id_plantilla == 42)
-                            total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc)/parseFloat(this.maestro.tipo_cambio);
-                        else
-                            total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/parseFloat(this.maestro.tipo_cambio);
-                    }else{
-                        if (this.grid.store.data.items[i].data.id_plantilla == 52)
-                        //if (this.grid.store.data.items[i].data.id_plantilla == 42)
-                            total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc);
-                        else
-                            total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc);
-                    }
-                }
+                    } else {
+                        if (documento.data.tipo_cambio == 1 || documento.data.tipo_cambio == null) {
+                            if (documento.data.id_plantilla == 53)
+                                total = total - parseFloat(documento.data.importe_doc) / parseFloat(that.maestro.tipo_cambio);
+                            else
+                                total = total + parseFloat(documento.data.importe_doc) / parseFloat(that.maestro.tipo_cambio);
+                        } else {
+                            if (documento.data.id_plantilla == 53) {
 
+                                total = total - parseFloat(documento.data.importe_doc);
+                            } else
+                                total = total + parseFloat(documento.data.importe_doc);
+                        }
+                    }
+
+                });
+
+
+                that.panel.close();
+                (Phx.CP.getPagina(that.maestro.id_padre)).getComponente('tipo_cambio').setVisible(true);
+                (Phx.CP.getPagina(that.maestro.id_padre)).getComponente('tipo_cambio').enable();
+                (Phx.CP.getPagina(that.maestro.id_padre)).getComponente('tipo_cambio').setValue(that.maestro.tipo_cambio);
+
+                (Phx.CP.getPagina(that.maestro.id_padre)).getComponente('monto_no_pagado').setValue(that.total);
+                Phx.CP.getPagina(that.maestro.id_padre).definirDC(total, id_documentos);
+                Phx.CP.getPagina(that.maestro.id_padre).calculaMontoPago();
             }
-            console.log('total importe', total);
-            Phx.CP.getPagina(this.maestro.id_padre).definirDC(total, id_documentos);
-            Phx.CP.getPagina(this.maestro.id_padre).calculaMontoPago();
-            /*Ext.Ajax.request({
-                    url: '../../sis_parametros/control/Plantilla/listarPlantilla',
-                    params: {id_plantilla: id_plantilla, start: 0, limit: 1},
-                    success: this.successPlantilla,
-                    failure: this.conexionFailure,
-                    timeout: this.timeout,
-                    scope: this
-            }); */
         },
         Atributos: [
             {
@@ -896,7 +958,7 @@ header("content-type: text/javascript; charset=UTF-8");
             // console.log('objPadrerecord', record);
             console.log('objPadre1me', me);
             me.objSolForm = Phx.CP.loadWindows('../../../sis_contabilidad/vista/doc_compra_venta/SolFormCompraVentaPP.php',
-                'Formulario Nota de Crédito / Débito',
+                'Formulario de Documento Compra/Venta',
                 {
                     modal: true,
                     width: '80%',
@@ -942,7 +1004,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         onButtonNew: function () { console.log('qr');
 
-            //Phx.vista.SolDocCompraVentaPP.superclass.onButtonNew.call(this);
+            //Phx.vista.SolDocCompraVentaOP.superclass.onButtonNew.call(this);
             var record = Phx.CP.getPagina(this.maestro.id_padre).getSelectedData();
             console.log('llega new pp', record)
             if (this.maestro.momento == 'EDIT'){
@@ -957,7 +1019,7 @@ header("content-type: text/javascript; charset=UTF-8");
         },
 
         onButtonEdit: function () { console.log('qs');
-          
+
 
             this.abrirFormulario('edit', this.sm.getSelected())
         },
@@ -967,7 +1029,7 @@ header("content-type: text/javascript; charset=UTF-8");
         // },
 
         newDoc: function () {
-            Phx.vista.SolDocCompraVentaPP.superclass.onButtonNew.call(this);
+            Phx.vista.SolDocCompraVentaOP.superclass.onButtonNew.call(this);
 
             var record = Phx.CP.getPagina(this.maestro.id_padre).getSelectedData();
 
@@ -991,35 +1053,14 @@ header("content-type: text/javascript; charset=UTF-8");
 
 
         preparaMenu: function (tb) {
-            Phx.vista.SolDocCompraVentaPP.superclass.preparaMenu.call(this, tb)
+            Phx.vista.SolDocCompraVentaOP.superclass.preparaMenu.call(this, tb)
             // this.getBoton('btnShowDoc').enable();
         },
 
         liberaMenu: function (tb) {
-            Phx.vista.SolDocCompraVentaPP.superclass.liberaMenu.call(this, tb);
+            Phx.vista.SolDocCompraVentaOP.superclass.liberaMenu.call(this, tb);
             // this.getBoton('btnShowDoc').disable();
         },
-
-        //
-        //
-        /*onSubmit:function(o){
-            Phx.vista.SolDocCompraVentaPP.superclass.onSubmit.call(this,o);
-            console.log('onSubmit',-this.Cmp.importe_pago_liquido.getValue(),-this.Cmp.importe_doc.getValue());
-            this.Cmp.importe_pago_liquido.setValue(-this.Cmp.importe_pago_liquido.getValue());
-            this.Cmp.importe_doc.setValue(-this.Cmp.importe_doc.getValue());
-        }*/
-        //
-        // successSave:function(resp)
-        // {
-        //
-        //     var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-        //     // Phx.CP.getPagina(this.maestro.id_padre).cargarCuenta(reg.ROOT.datos.nro_cuenta, this.Cmp.nro_cuenta.getValue());
-        //     Phx.CP.getPagina(this.maestro.id_padre).cargarCompraVenta(reg.ROOT.datos.id_doc_compra_venta, this.Cmp.id_doc_compra_venta.getValue());
-        //     Phx.CP.loadingHide();
-        //     this.close();
-        //     this.onDestroy();
-        //
-        // },
 
 
     })
