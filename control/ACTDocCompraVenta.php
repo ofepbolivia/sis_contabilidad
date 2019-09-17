@@ -583,7 +583,6 @@ class ACTDocCompraVenta extends ACTbase
 
         //(may) para la plantilla nota de credito y debito
         if ($this->objParam->getParametro('id_plantilla') == '' or $this->objParam->getParametro('id_plantilla') != '') {
-            //$this->objParam->addFiltro("dcv.id_plantilla in(52, 53) " );
             $this->objParam->addFiltro("dcv.id_plantilla in(41, 42) " );
         }
 
@@ -649,12 +648,12 @@ class ACTDocCompraVenta extends ACTbase
         if ($this->objParam->getParametro('id_plan_pago') != '') {
             $this->objParam->addFiltro("dcv.id_plan_pago = " . $this->objParam->getParametro('id_plan_pago'));
         }
-        //else
-//            {
-////            $this->objParam->addFiltro("dcv.id_plan_pago is NULL and dcv.id_int_comprobante is NULL");
-//            $this->objParam->addFiltro("dcv.id_plan_pago = " . $this->objParam->getParametro('id_plan_pago'));
-//        }
-//        }
+
+        //(may) para listra grilla plantilla nota de credito y debito
+        if ($this->objParam->getParametro('id_plantilla') == '' or $this->objParam->getParametro('id_plantilla') != '') {
+            $this->objParam->addFiltro("dcv.id_plantilla in(41, 42) " );
+        }
+
 
         if ($this->objParam->getParametro('id_int_comprobante') != '') {
             $this->objParam->addFiltro("dcv.id_int_comprobante = " . $this->objParam->getParametro('id_int_comprobante'));
