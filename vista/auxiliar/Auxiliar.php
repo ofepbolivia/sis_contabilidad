@@ -95,7 +95,7 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-				maxLength:15
+				maxLength:50
 			},
 			type:'TextField',
 			filters:{pfiltro:'auxcta.codigo_auxiliar',type:'string'},
