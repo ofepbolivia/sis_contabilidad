@@ -453,7 +453,7 @@ IF (v_id_int_comprobante is Null) THEN
         v_nro_tramite,
         v_id_plan_pago,
         v_fecha_venci,
-        v_tipo_cambio
+        COALESCE(v_tipo_cambio,1)
 
       )RETURNING id_doc_compra_venta into v_id_doc_compra_venta;
 
@@ -548,7 +548,7 @@ ELSE  --raise exception 'llega2 %',v_i;
         v_nro_tramite,
         v_id_plan_pago_dcv,
         v_fecha_venci,
-        v_tipo_cambio
+        COALESCE(v_tipo_cambio,1)
       )RETURNING id_doc_compra_venta into v_id_doc_compra_venta;
 END IF;
 
@@ -1051,7 +1051,7 @@ END IF;
         id_auxiliar = v_parametros.id_auxiliar,
         id_int_comprobante = v_id_int_comprobante,
         fecha_vencimiento = v_fecha_venci,
-        tipo_cambio = v_tipo_cambio
+        tipo_cambio = COALESCE(v_tipo_cambio,1)
       where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
 
       if (pxp.f_existe_parametro(p_tabla,'id_tipo_compra_venta')) then
@@ -1739,3 +1739,6 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
+
+ALTER FUNCTION conta.ft_doc_compra_venta_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;
