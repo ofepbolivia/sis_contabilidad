@@ -286,12 +286,16 @@ BEGIN
       from param.tplantilla p
       where p.id_plantilla = v_parametros.id_plantilla;
 
+      IF v_parametros.nro_autorizacion is null or v_parametros.nro_autorizacion = '' THEN
+      	raise exception 'Falta registrar el Número de Autorización';
+      END IF;
+
       IF  v_sw_nit = 'si' and  v_parametros.nit = '' THEN
-      raise exception 'Falta registrar el nit';
+      	raise exception 'Falta registrar el Nit';
       END IF;
 
       IF v_parametros.razon_social is null or v_parametros.razon_social = '' THEN
-      raise exception 'Falta registrar el razon social';
+      	raise exception 'Falta registrar el Razon Social';
       END IF;
 
       select plt.desc_plantilla
@@ -1019,6 +1023,26 @@ END IF;
         	v_codigo_control = v_parametros.codigo_control;
         end if;
 
+        --controles
+        --raise exception 'llegaa %',v_parametros.id_plantilla;
+          select p.sw_nit
+          into
+          v_sw_nit
+          from param.tplantilla p
+          where p.id_plantilla = v_parametros.id_plantilla;
+
+          IF v_parametros.nro_autorizacion is null or v_parametros.nro_autorizacion = '' THEN
+           	raise exception 'Falta registrar el Número de Autorización';
+          END IF;
+
+          IF  v_sw_nit = 'si' and  v_parametros.nit = '' THEN
+          	raise exception 'Falta registrar el Nit';
+          END IF;
+
+          IF v_parametros.razon_social is null or v_parametros.razon_social = '' THEN
+          	raise exception 'Falta registrar el Razon Social';
+          END IF;
+
       --Sentencia de la modificacion
       update conta.tdoc_compra_venta set
         tipo = v_parametros.tipo,
@@ -1739,6 +1763,3 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
-
-ALTER FUNCTION conta.ft_doc_compra_venta_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;
