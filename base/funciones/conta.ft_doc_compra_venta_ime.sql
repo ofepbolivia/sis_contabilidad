@@ -72,6 +72,7 @@ DECLARE
   v_moneda					varchar;
   v_tipo_cambio				numeric;
   v_codigo_control			varchar;
+  v_autorizacion			varchar;
 
 BEGIN
 
@@ -280,13 +281,14 @@ BEGIN
       raise exception 'El Importe Exento: %, no puede ser mayor al Monto Total: %. Revise los importes.',v_parametros.importe_excento,v_parametros.importe_neto;
 	  END IF;
 
-      select p.sw_nit
+      select p.sw_nit, p.sw_autorizacion
       into
       v_sw_nit
+      v_autorizacion
       from param.tplantilla p
       where p.id_plantilla = v_parametros.id_plantilla;
 
-      IF v_parametros.nro_autorizacion is null or v_parametros.nro_autorizacion = '' THEN
+      IF v_autorizacion  ='si' and v_parametros.nro_autorizacion = '' THEN
       	raise exception 'Falta registrar el Número de Autorización';
       END IF;
 
@@ -1025,14 +1027,15 @@ END IF;
 
         --controles
         --raise exception 'llegaa %',v_parametros.id_plantilla;
-          select p.sw_nit
+          select p.sw_nit, p.sw_autorizacion
           into
           v_sw_nit
+          v_autorizacion
           from param.tplantilla p
           where p.id_plantilla = v_parametros.id_plantilla;
 
-          IF v_parametros.nro_autorizacion is null or v_parametros.nro_autorizacion = '' THEN
-           	raise exception 'Falta registrar el Número de Autorización';
+          IF v_autorizacion  ='si' and v_parametros.nro_autorizacion = '' THEN
+            raise exception 'Falta registrar el Número de Autorización';
           END IF;
 
           IF  v_sw_nit = 'si' and  v_parametros.nit = '' THEN
