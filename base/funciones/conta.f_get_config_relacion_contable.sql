@@ -642,8 +642,14 @@ BEGIN
                               from param.tgestion
                               where id_gestion = p_id_gestion;
                               --raise exception '% (% - %) No se encuentra Cuenta para la Gestión % (tiene_centro_costo = %) - Centro de costo: %',COALESCE(p_mensaje_error,''), p_codigo,v_registros.nombre_tipo_relacion,v_gestion,v_registros.tiene_centro_costo,COALESCE(p_id_centro_costo,'0');
-                        	  --(f.e.a)
-                              raise exception '% no se encuentra parametrizado para el Centro de Costo: <b>%</b>, para la Gestión (<b>%</b>). <br>Estimado Usuario: Favor de contactactarse con la Unidad de Presupuestos.',COALESCE(p_mensaje_error,''), COALESCE(v_codigos.codigo,'0'), v_gestion;
+
+                              --(f.e.a)
+                              --raise exception '% 2no se encuentra parametrizado para el Centro de Costo: <b>%</b>, para la Gestión (<b>%</b>). <br>Estimado Usuario: Favor de contactactarse con la Unidad de Presupuestos.',COALESCE(p_mensaje_error,''), COALESCE(v_codigos.codigo,'0'), v_gestion;
+
+                              --(may) 24-09-2019 modificacion anuncio para la relacion contable de un proveedor.
+                              raise exception 'El Proveedor no tiene parametrizada la relación contable: <b>% - %</b>, para la Gestión (<b>%</b>). <br>Estimado Usuario: Favor contactactarse con la Unidad de Contabilidad.',COALESCE(p_codigo,''), ps_nombre_tipo_relacion, v_gestion;
+
+
                         end if;
 
                  ELSE
@@ -734,3 +740,6 @@ STABLE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100 ROWS 1;
+
+ALTER FUNCTION conta.f_get_config_relacion_contable (p_codigo varchar, p_id_gestion integer, p_id_tabla integer, p_id_centro_costo integer, p_mensaje_error varchar, p_id_moneda integer, out ps_id_cuenta integer, out ps_id_auxiliar integer, out ps_id_partida integer, out ps_id_centro_costo integer, out ps_nombre_tipo_relacion varchar)
+  OWNER TO postgres;
