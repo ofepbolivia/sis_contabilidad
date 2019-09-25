@@ -714,6 +714,57 @@ class ACTIntComprobante extends ACTbase{
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 
+    //filtro listado grilla de comprobantes para las estaciones internacionales en Registro de Comprobantes(contador)EXT
+    function listarIntComprobanteEXT(){
+        $this->objParam->defecto('ordenacion','id_int_comprobante');
+        $this->objParam->defecto('dir_ordenacion','asc');
+        $this->objParam->addFiltro("(incbte.temporal = ''no'' or (incbte.temporal = ''si'' and vbregional = ''si''))");
+
+        if($this->objParam->getParametro('id_deptos')!=''){
+            $this->objParam->addFiltro("incbte.id_depto in (".$this->objParam->getParametro('id_deptos').")");
+        }
+
+        if($this->objParam->getParametro('id_gestion')!=''){
+            $this->objParam->addFiltro("incbte.id_gestion in (".$this->objParam->getParametro('id_gestion').")");
+        }
+
+        if($this->objParam->getParametro('id_clase_comprobante')!=''){
+            $this->objParam->addFiltro("incbte.id_clase_comprobante in (".$this->objParam->getParametro('id_clase_comprobante').")");
+        }
+
+        if($this->objParam->getParametro('nombreVista') == 'IntComprobanteLd'  || $this->objParam->getParametro('nombreVista') == 'IntComprobanteLdEntrega'){
+            $this->objParam->addFiltro("incbte.estado_reg = ''validado''");
+        }
+        else{
+            $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
+        }
+
+        if($this->objParam->getParametro('nombreVista') == 'IntComprobanteLdEntrega'){
+            $this->objParam->addFiltro(" (incbte.c31 = '''' or incbte.c31 is null )" );
+        }
+
+        if($this->objParam->getParametro('momento')!= ''){
+            $this->objParam->addFiltro("incbte.momento = ''".$this->objParam->getParametro('momento')."''");
+        }
+
+        //RCM 01/09/2017
+        if($this->objParam->getParametro('id_int_comprobante')!= ''){
+            $this->objParam->addFiltro("incbte.id_int_comprobante = ".$this->objParam->getParametro('id_int_comprobante'));
+        }
+
+        if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+            $this->objReporte = new Reporte($this->objParam,$this);
+            $this->res = $this->objReporte->generarReporteListado('MODIntComprobante','listarIntComprobanteEXT');
+        } else{
+            $this->objFunc=$this->create('MODIntComprobante');
+
+            $this->res=$this->objFunc->listarIntComprobanteEXT($this->objParam);
+        }
+
+        //echo dirname(__FILE__).'/../../lib/lib_reporte/ReportePDF2.php';exit;
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
 }
 
 ?>
