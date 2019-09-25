@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.f_gen_transaccion_from_plantilla (
   p_super public.hstore,
   p_tabla_padre public.hstore,
@@ -624,7 +622,9 @@ BEGIN
                             end if;
 
                              	 IF(v_resp_doc is null)THEN
-                                 	raise exception 'Error en procesar la pantilla de calculo, revisar la configuracion de la plantilla de calculo';
+                                 	--raise exception 'Error en procesar la pantilla de calculo, revisar la configuracion de la plantilla de calculo';
+                                    --(may)25-09-2019
+                                    raise exception 'Error en procesar el Tipo de Documento, revisar la configuración de la Plantilla de Cálculo';
                                  END IF;
 
                                   --si tiene funcion de actualizacion,  envia el id de la trasaccion generada para que se almacene
@@ -704,3 +704,6 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
+
+ALTER FUNCTION conta.f_gen_transaccion_from_plantilla (p_super public.hstore, p_tabla_padre public.hstore, p_reg_det_plantilla public.hstore, p_plantilla_comprobante public.hstore, p_id_tabla_padre_valor integer, p_id_int_comprobante integer, p_id_usuario integer, p_reg_tabla public.hstore, p_def_campos varchar [], p_tamano integer)
+  OWNER TO postgres;
