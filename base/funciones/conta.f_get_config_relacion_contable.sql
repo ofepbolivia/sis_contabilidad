@@ -102,7 +102,7 @@ BEGIN
     into
       v_registros
     from conta.ttipo_relacion_contable trc
-    inner join conta.ttabla_relacion_contable rc on rc.id_tabla_relacion_contable = trc.id_tabla_relacion_contable
+    left join conta.ttabla_relacion_contable rc on rc.id_tabla_relacion_contable = trc.id_tabla_relacion_contable
     where trc.codigo_tipo_relacion = p_codigo
       and trc.estado_reg = 'activo';
 
@@ -743,7 +743,7 @@ EXCEPTION
 END;
 $body$
 LANGUAGE 'plpgsql'
-VOLATILE
+STABLE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100 ROWS 1;
