@@ -436,6 +436,8 @@ class MODIntComprobante extends MODbase{
         $this->captura('sw_tipo_cambio','varchar');
 
         $this->captura('nro_cuenta_bancaria','varchar');
+        $this->captura('fecha_costo_ini','date');
+        $this->captura('fecha_costo_fin','date');
 
 
 

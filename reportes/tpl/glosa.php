@@ -35,25 +35,20 @@
 		    <?php
 			 } else {
 			 ?>
-                <?php
-                 if ($this->cabecera[0]['id_clase_comprobante'] != 5){
-                ?>
-                    <td>
+                <td>
                         <b>Dctos: </b><?php echo $this->cabecera[0]['documentos']; ?><br/>
-                    </td>
-                 <?php
-                } else {
-                ?>
-                    <td>
-                        <b>Nro.Cuenta Bancaria: </b><?php echo $this->cabecera[0]['nro_cuenta_bancaria']; ?>
-                    </td>
-                <?php
-                }
-                ?>
+                 </td>
+
 
 			<?php
 			}
 			?>
 		</tr>
+
+        <tr>
+            <td><b>Nro.Cuenta Proveedor: </b>&nbsp;&nbsp;&nbsp;&nbsp; <?php  echo $this->cabecera[0]['nro_cuenta_bancaria']; ?></td>
+
+            <td><b>Periodo de Costo:</b>   <?php echo (date("d/m/Y", strtotime($this->cabecera[0]['fecha_costo_ini'])) .'  - '. date("d/m/Y", strtotime($this->cabecera[0]['fecha_costo_fin'] ))); ?> </td>
+        </tr>
 </tbody>
 </table></font>
