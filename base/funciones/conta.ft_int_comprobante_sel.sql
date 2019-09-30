@@ -317,6 +317,7 @@ BEGIN
 		begin
 
             v_filtro = ' 0 = 0 and ';
+            v_inner = '';
 
            -- si no es administrador, solo puede listar al responsable del depto o al usuario que creo e documentos
             IF p_administrador !=1 THEN
