@@ -172,7 +172,15 @@ Phx.vista.IntComprobanteReg = {
 					this.getBoton('btnDocCmpVnt').disable();
 				}
 
-		        this.getBoton('sig_estado').enable();            
+                //para bloquear estadosvbconta y vbfin solo para el visto bueno
+                if (rec.data.estado_reg == 'vbconta' || rec.data.estado_reg =='vbfin') {
+                    this.getBoton('sig_estado').disable();
+                }else {
+                    this.getBoton('sig_estado').enable();
+                }
+                //
+
+		       // this.getBoton('sig_estado').enable();
 				this.getBoton('btnImprimir').enable();
 				this.getBoton('btnRelDev').enable();
 				this.getBoton('btnIgualarCbte').enable();

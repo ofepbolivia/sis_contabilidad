@@ -188,7 +188,11 @@ Phx.vista.IntComprobanteRegAux = {
                this.getBoton('btnDocCmpVnt').disable();
            }
 
-
+           //para bloquear estadosvbconta y vbfin solo para el visto bueno
+           if (rec.data.estado_reg == 'vbconta' || rec.data.estado_reg =='vbfin') {
+               this.getBoton('sig_estado').disable();
+           }
+            //
 
 
 

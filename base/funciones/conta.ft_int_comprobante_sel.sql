@@ -37,6 +37,9 @@ DECLARE
     --planillas
     v_llave				varchar;
     v_desc_orden		varchar = '';
+
+    v_inner 			varchar;
+
 BEGIN
 
 	v_nombre_funcion = 'conta.ft_int_comprobante_sel';
@@ -54,6 +57,7 @@ BEGIN
 
             v_id_moneda_base=param.f_get_moneda_base();
             v_filtro = ' 0 = 0 and ';
+            v_inner = '';
 
             select
              *
@@ -72,11 +76,23 @@ BEGIN
                 from param.tdepto_usuario depu
                 where depu.id_usuario =  p_id_usuario and depu.cargo = 'responsable';
 
-				IF v_parametros.nombreVista != 'IntComprobanteLd' THEN
-	                v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||'  or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
+				IF v_parametros.nombreVista != 'IntComprobanteLd' or v_parametros.nombreVista != 'VbIntComprobante' THEN
+                	v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||'  or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
                 END IF;
 
+                -- para la vista visto bueno comprobante
+       			IF v_parametros.nombreVista = 'VbIntComprobante' THEN
+                    v_inner = 'left join orga.vfuncionario fun on fun.id_funcionario = ew.id_funcionario
+                              left join segu.vusuario vu on vu.id_persona = fun.id_persona  ' ;
+
+                    v_filtro = ' (vu.id_usuario = '||p_id_usuario::varchar ||') and ';
+
+             	 END IF;
+
+
             END IF;
+
+
     		--Sentencia de la consulta
 			v_consulta := 'select
                               incbte.id_int_comprobante,
@@ -151,7 +167,8 @@ BEGIN
                           from conta.vint_comprobante incbte
                           inner join wf.tproceso_wf pwf on pwf.id_proceso_wf = incbte.id_proceso_wf
                           inner join wf.testado_wf ew on ew.id_estado_wf = incbte.id_estado_wf
-                          where  incbte.estado_reg in (''borrador'',''validado'') and '||v_filtro;
+                          '||v_inner||'
+                          where (incbte.estado_reg in (''borrador'',''validado'',''vbfin'',''vbconta'')) and '||v_filtro;
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -159,6 +176,7 @@ BEGIN
 
             --raise exception '--> %', v_consulta;
             raise notice  '-- % --', v_consulta;
+
 			--Devuelve la respuesta
 			return v_consulta;
 
@@ -310,9 +328,18 @@ BEGIN
                 from param.tdepto_usuario depu
                 where depu.id_usuario =  p_id_usuario and depu.cargo = 'responsable';
 
-            	IF v_parametros.nombreVista != 'IntComprobanteLd' THEN
-	                v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||'  or  (ew.id_depto  in ('||COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
+                IF v_parametros.nombreVista != 'IntComprobanteLd' or v_parametros.nombreVista != 'VbIntComprobante' THEN
+                	v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||'  or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
                 END IF;
+
+                -- para la vista visto bueno comprobante
+       			IF v_parametros.nombreVista = 'VbIntComprobante' THEN
+                    v_inner = 'left join orga.vfuncionario fun on fun.id_funcionario = ew.id_funcionario
+                              left join segu.vusuario vu on vu.id_persona = fun.id_persona  ' ;
+
+                    v_filtro = ' (vu.id_usuario = '||p_id_usuario::varchar ||') and ';
+
+             	 END IF;
 
             END IF;
 
@@ -321,7 +348,8 @@ BEGIN
 					     from conta.vint_comprobante incbte
                          inner join wf.tproceso_wf pwf on pwf.id_proceso_wf = incbte.id_proceso_wf
                          inner join wf.testado_wf ew on ew.id_estado_wf = incbte.id_estado_wf
-                         where  incbte.estado_reg in (''borrador'',''validado'') and '||v_filtro;
+                         '||v_inner||'
+                         where  incbte.estado_reg in (''borrador'',''validado'',''vbfin'',''vbconta'') and '||v_filtro;
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -824,6 +852,144 @@ BEGIN
 			return v_consulta;
 
 		end;
+
+        /*********************************
+        #TRANSACCION:  'CONTA_INCBTEEXT_SEL'
+        #DESCRIPCION:	Consulta de datos
+        #AUTOR:		Maylee Perez Pastor
+        #FECHA:		25-9-2019 00:28:30
+        ***********************************/
+        elsif(p_transaccion='CONTA_INCBTEEXT_SEL') then
+
+            begin
+
+                v_id_moneda_base=param.f_get_moneda_base();
+                v_filtro = ' 0 = 0 and ';
+
+                select
+                 *
+                into
+                 v_registro_moneda
+                from param.tmoneda m
+                where m.id_moneda = v_id_moneda_base;
+
+
+                --Sentencia de la consulta
+                v_consulta := 'select
+                                  incbte.id_int_comprobante,
+                                  incbte.id_clase_comprobante,
+                                  incbte.id_subsistema,
+                                  incbte.id_depto,
+                                  incbte.id_moneda,
+                                  incbte.id_periodo,
+                                  incbte.id_funcionario_firma1,
+                                  incbte.id_funcionario_firma2,
+                                  incbte.id_funcionario_firma3,
+                                  incbte.tipo_cambio,
+                                  incbte.beneficiario,
+                                  incbte.nro_cbte,
+                                  incbte.estado_reg,
+                                  incbte.glosa1,
+                                  incbte.fecha,
+                                  incbte.glosa2,
+                                  incbte.nro_tramite,
+                                  incbte.momento,
+                                  incbte.id_usuario_reg,
+                                  incbte.fecha_reg,
+                                  incbte.id_usuario_mod,
+                                  incbte.fecha_mod,
+                                  incbte.usr_reg,
+                                  incbte.usr_mod,
+                                  incbte.desc_clase_comprobante,
+                                  incbte.desc_subsistema,
+                                  incbte.desc_depto,
+                                  incbte.desc_moneda,
+                                  incbte.desc_firma1,
+                                  incbte.desc_firma2,
+                                  incbte.desc_firma3,
+                                  incbte.momento_comprometido,
+                                  incbte.momento_ejecutado,
+                                  incbte.momento_pagado,
+                                  incbte.manual,
+                                  incbte.id_int_comprobante_fks,
+                                  incbte.id_tipo_relacion_comprobante,
+                                  incbte.desc_tipo_relacion_comprobante,
+                                  '||v_id_moneda_base::VARCHAR||'::integer as id_moneda_base,
+                                  '''||v_registro_moneda.codigo::TEXT||'''::TEXT as desc_moneda_base,
+                                  incbte.cbte_cierre,
+                                  incbte.cbte_apertura,
+                                  incbte.cbte_aitb,
+                                  incbte.fecha_costo_ini,
+                                  incbte.fecha_costo_fin,
+                                  incbte.tipo_cambio_2,
+                                  incbte.id_moneda_tri,
+                                  incbte.sw_tipo_cambio,
+                                  incbte.id_config_cambiaria,
+                                  incbte.ope_1,
+                                  incbte.ope_2,
+                                  incbte.desc_moneda_tri,
+                                  incbte.origen,
+                                  incbte.localidad,
+                                  incbte.sw_editable,
+                                  incbte.cbte_reversion,
+                                  incbte.volcado,
+                                  incbte.id_proceso_wf,
+                                  incbte.id_estado_wf,
+                                  incbte.fecha_c31,
+                                  incbte.c31,
+                                  incbte.id_gestion,
+                                  incbte.periodo,
+                                  incbte.forma_cambio,
+                                  incbte.ope_3,
+                                  incbte.tipo_cambio_3,
+                                  incbte.id_moneda_act
+
+
+                              from conta.vint_comprobante incbte
+                              inner join wf.tproceso_wf pwf on pwf.id_proceso_wf = incbte.id_proceso_wf
+                              inner join wf.testado_wf ew on ew.id_estado_wf = incbte.id_estado_wf
+                              where  incbte.estado_reg in (''borrador'',''validado'') and '||v_filtro;
+
+                --Definicion de la respuesta
+                v_consulta:=v_consulta||v_parametros.filtro;
+                v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
+                --raise exception '--> %', v_consulta;
+                raise notice  '-- % --', v_consulta;
+                --Devuelve la respuesta
+                return v_consulta;
+
+            end;
+
+        /*********************************
+        #TRANSACCION:  'CONTA_INCBTEEXT_CONT'
+        #DESCRIPCION:	Conteo de registros
+        #AUTOR:		Maylee Perez Pastor
+        #FECHA:		25-9-2019 00:28:30
+        ***********************************/
+
+        elsif(p_transaccion='CONTA_INCBTEEXT_CONT')then
+
+            begin
+
+                v_filtro = ' 0 = 0 and ';
+
+
+                --Sentencia de la consulta de conteo de registros
+                v_consulta:='select count(id_int_comprobante)
+                             from conta.vint_comprobante incbte
+                             inner join wf.tproceso_wf pwf on pwf.id_proceso_wf = incbte.id_proceso_wf
+                             inner join wf.testado_wf ew on ew.id_estado_wf = incbte.id_estado_wf
+                             where  incbte.estado_reg in (''borrador'',''validado'') and '||v_filtro;
+
+                --Definicion de la respuesta
+                v_consulta:=v_consulta||v_parametros.filtro;
+
+                --Devuelve la respuesta
+                return v_consulta;
+
+            end;
+        ---
 
 
 	else

@@ -41,12 +41,24 @@ class ACTIntComprobante extends ACTbase{
             $this->objParam->addFiltro("incbte.estado_reg = ''validado''");    
         }
 		else{
-			$this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
+            //(may) vb de los comprobantes en estado vbfin y vbconta
+            if($this->objParam->getParametro('nombreVista') == 'VbIntComprobante'){
+               $this->objParam->addFiltro(" (incbte.estado_reg in (''vbfin'',''vbconta''))" );
+
+            }else{
+                //(may)25-09-2019 para que enliste el nuevo estado vbfin y vbconta
+               // $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
+                $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'',''vbfin'',''vbconta'')");
+            }
+
 		}
+
+
 		
 		if($this->objParam->getParametro('nombreVista') == 'IntComprobanteLdEntrega'){
             $this->objParam->addFiltro(" (incbte.c31 = '''' or incbte.c31 is null )" );      
         }
+
 		
 		if($this->objParam->getParametro('momento')!= ''){
 			$this->objParam->addFiltro("incbte.momento = ''".$this->objParam->getParametro('momento')."''");    
