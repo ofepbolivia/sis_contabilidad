@@ -76,7 +76,7 @@ BEGIN
                 from param.tdepto_usuario depu
                 where depu.id_usuario =  p_id_usuario and depu.cargo = 'responsable';
 
-				IF v_parametros.nombreVista != 'IntComprobanteLd' or v_parametros.nombreVista != 'VbIntComprobante' THEN
+				IF v_parametros.nombreVista != 'IntComprobanteLd' and v_parametros.nombreVista != 'VbIntComprobante' THEN
                 	v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||'  or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
                 END IF;
 
@@ -329,7 +329,7 @@ BEGIN
                 from param.tdepto_usuario depu
                 where depu.id_usuario =  p_id_usuario and depu.cargo = 'responsable';
 
-                IF v_parametros.nombreVista != 'IntComprobanteLd' or v_parametros.nombreVista != 'VbIntComprobante' THEN
+                IF v_parametros.nombreVista != 'IntComprobanteLd' and v_parametros.nombreVista != 'VbIntComprobante' THEN
                 	v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||'  or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
                 END IF;
 
