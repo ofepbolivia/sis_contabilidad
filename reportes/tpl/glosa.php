@@ -35,11 +35,7 @@
 		    <?php
 			 } else {
 			 ?>
-                <td>
-                        <b>Dctos: </b><?php echo $this->cabecera[0]['documentos']; ?><br/>
-                 </td>
-
-
+                <td><b>Dctos: </b><?php echo $this->cabecera[0]['documentos']; ?><br/></td>
 			<?php
 			}
 			?>
@@ -48,7 +44,7 @@
         <tr>
             <td><b>Nro.Cuenta Proveedor: </b>&nbsp;&nbsp;&nbsp;&nbsp; <?php  echo $this->cabecera[0]['nro_cuenta_bancaria']; ?></td>
 
-            <td><b>Periodo de Costo:</b>   <?php echo (date("d/m/Y", strtotime($this->cabecera[0]['fecha_costo_ini'])) .'  - '. date("d/m/Y", strtotime($this->cabecera[0]['fecha_costo_fin'] ))); ?> </td>
+           <td><b>Periodo de Costo:</b>   <?php echo $this->cabecera[0]['fecha_costo_ini'] .'  - '. $this->cabecera[0]['fecha_costo_fin']; ?> </td>
         </tr>
 </tbody>
 </table></font>

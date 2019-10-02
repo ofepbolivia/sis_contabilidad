@@ -490,8 +490,8 @@ BEGIN
                             COALESCE(en.c31,'''') as c31,
                             incbte.sw_tipo_cambio,
                             pp.nro_cuenta_bancaria::varchar,
-                            incbte.fecha_costo_ini,
-                            incbte.fecha_costo_fin
+                            COALESCE((to_char(incbte.fecha_costo_ini,''DD/MM/YYYY''))::varchar,'''')::varchar,
+                            COALESCE((to_char(incbte.fecha_costo_fin,''DD/MM/YYYY''))::varchar,'''')::varchar
 
                           from conta.vint_comprobante incbte
                           left join conta.tentrega_det ed on ed.id_int_comprobante = incbte.id_int_comprobante
