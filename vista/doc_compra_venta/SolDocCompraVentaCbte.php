@@ -146,6 +146,16 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'Field',
                 form: true
             },
+            {
+                //configuracion del componente
+                config: {
+                    labelSeparator: '',
+                    inputType: 'hidden',
+                    name: 'id_int_comprobante'
+                },
+                type: 'Field',
+                form: true
+            },
 
             {
                 config: {
