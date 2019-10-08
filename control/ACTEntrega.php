@@ -98,7 +98,6 @@ class ACTEntrega extends ACTbase
         $this->objParam->addParametro('titulo_archivo', $titulo);
         $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
 
-
         $reporte = new REntregaXls($this->objParam);
         $reporte->datosHeader($dataSource->getDatos(), $this->objParam->getParametro('id_entrega'));
         $reporte->generarReporte();

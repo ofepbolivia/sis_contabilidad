@@ -617,7 +617,8 @@ Phx.vista.Entrega=Ext.extend(Phx.gridInterfaz,{
 				Ext.Ajax.request({
 					url : '../../sis_contabilidad/control/Entrega/reporteEntrega',
 					params : {
-						'id_entrega' : data.id_entrega
+						'id_entrega' : data.id_entrega,
+                        'nro_tramite' : data.nro_tramite
 					},
 					success : this.successExport,
 					failure : this.conexionFailure,
