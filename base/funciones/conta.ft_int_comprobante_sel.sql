@@ -76,7 +76,7 @@ BEGIN
                 from param.tdepto_usuario depu
                 where depu.id_usuario =  p_id_usuario and depu.cargo = 'responsable';
 
-				IF v_parametros.nombreVista != 'IntComprobanteLd' or v_parametros.nombreVista != 'VbIntComprobante' THEN
+				IF v_parametros.nombreVista != 'IntComprobanteLd' and v_parametros.nombreVista != 'VbIntComprobante' THEN
                 	v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||'  or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
                 END IF;
 
@@ -329,7 +329,7 @@ BEGIN
                 from param.tdepto_usuario depu
                 where depu.id_usuario =  p_id_usuario and depu.cargo = 'responsable';
 
-                IF v_parametros.nombreVista != 'IntComprobanteLd' or v_parametros.nombreVista != 'VbIntComprobante' THEN
+                IF v_parametros.nombreVista != 'IntComprobanteLd' and v_parametros.nombreVista != 'VbIntComprobante' THEN
                 	v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||'  or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
                 END IF;
 
@@ -490,8 +490,8 @@ BEGIN
                             COALESCE(en.c31,'''') as c31,
                             incbte.sw_tipo_cambio,
                             pp.nro_cuenta_bancaria::varchar,
-                            incbte.fecha_costo_ini,
-                            incbte.fecha_costo_fin
+                            COALESCE((to_char(incbte.fecha_costo_ini,''DD/MM/YYYY''))::varchar,'''')::varchar,
+                            COALESCE((to_char(incbte.fecha_costo_fin,''DD/MM/YYYY''))::varchar,'''')::varchar
 
                           from conta.vint_comprobante incbte
                           left join conta.tentrega_det ed on ed.id_int_comprobante = incbte.id_int_comprobante
