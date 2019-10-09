@@ -281,10 +281,10 @@ BEGIN
 
     end;
 
-    /*********************************
+  /*********************************
      #TRANSACCION:  'CONTA_BANCA_POSIB'
      #DESCRIPCION:    datos posibles para bancarizar
-     #AUTOR:        favio figueroa
+     #AUTOR:        favio figueroa mod alan felipez
      #FECHA:        06-11-2017 14:36:46
     ***********************************/
 
@@ -307,10 +307,10 @@ BEGIN
       libro.comprobante_sigma,
       libro.id_libro_bancos,
       libro.tipo,
-      doc.id_documento::bigint as id_documento,
+      doc.id_documento as id_documento,
       doc.razon_social,
       doc.fecha_documento,
-      doc.nro_documento::varchar,
+      doc.nro_documento,
        doc.nro_autorizacion,
       doc.importe_total,
       doc.nro_nit,
@@ -335,7 +335,7 @@ BEGIN
       sigma.comprobante_c31,
       sigma.fecha_entrega,
       pg_pagado.id_cuenta_bancaria as id_cuenta_bancaria_plan_pago,
-      libro.nro_cheque,
+      libro.nro_cheque::integer,
       pg_pagado.id_proceso_wf,
       contra.resolucion_bancarizacion,
       pg_pagado.monto_retgar_mo,
@@ -345,10 +345,10 @@ BEGIN
       pg_pagado.descuento_inter_serv,
       libro.estado as estado_libro,
       libro.importe_cheque,
-      doc.importe_debe::integer,
-      doc.importe_gasto::integer,
-      sigma.importe_recurso::integer,
-      sigma.importe_haber::integer,
+      doc.importe_debe,
+      doc.importe_gasto,
+      sigma.importe_recurso,
+      sigma.importe_haber,
       contra.tipo_monto
       --libro_fk.importe_cheque as importe_cheque_fk
       --libro_fk.nro_cheque as nro_cheque_fk

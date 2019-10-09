@@ -442,10 +442,10 @@ BEGIN
 
       END;
 
-      /*********************************
+       /*********************************
      #TRANSACCION: 'CONTA_BANCA_ELITO'
      #DESCRIPCION:	ELIMINA TODOS LOS REGISTROS
-     #AUTOR:		admin
+     #AUTOR:		admin mod Alan Felipez
      #FECHA:		11-09-2015 14:36:46
     ***********************************/
 
@@ -476,6 +476,7 @@ BEGIN
               AND ban.id_depto_conta = v_parametros.id_depto_conta
               AND ban.tipo = v_parametros.tipo
               AND ban.revisado = 'no'
+              AND ban.revisado2 = 'no'
               AND ban.lista_negra = 'no';
 
         --Definicion de la respuesta
@@ -662,10 +663,10 @@ BEGIN
       END;
 
 
-      /*********************************
+ /*********************************
     #TRANSACCION: 'CONTA_BANCA_AUT'
     #DESCRIPCION:	Inserccion de registros automatico desde endesis y pxp
-    #AUTOR:		ffigueroa
+    #AUTOR:		ffigueroa mod Alan Felipez
     #FECHA:		18-03-2016 14:36:46
    ***********************************/
 
@@ -769,7 +770,7 @@ BEGIN
                     fecha_entrega date )
               )';
 */
-
+--raise exception 'a: %, b: %',v_periodo.fecha_ini, v_periodo.fecha_fin;
         v_consulta:= v_consulta || 'select pg_pagado.id_plan_pago,
       pg_devengado.id_plan_pago,
       libro.comprobante_sigma,
@@ -788,7 +789,8 @@ BEGIN
       pg_pagado.fecha_pag,
       pg_devengado.fecha_costo_ini,
       pg_devengado.fecha_costo_fin,
-      libro.fecha as fecha_pago,
+     coalesce(libro.fecha, libro.fecha_pago) as fecha_pago,
+     libro.fecha_reg::date,
       cuenta.id_cuenta_bancaria,
       cuenta.denominacion,
       cuenta.nro_cuenta,
@@ -819,16 +821,16 @@ BEGIN
       doc.importe_gasto,
       sigma.importe_recurso,
       sigma.importe_haber,
-      contra.tipo_monto
-      --libro_fk.importe_cheque as importe_cheque_fk,
-      --libro_fk.nro_cheque as nro_cheque_fk
+      contra.tipo_monto,
+      libro_fk.importe_cheque as importe_cheque_fk,
+      libro_fk.nro_cheque as nro_cheque_fk
 from tes.tplan_pago pg_pagado
 inner join tes.tplan_pago pg_devengado on pg_devengado.id_plan_pago = pg_pagado.id_plan_pago_fk
 inner join param.tplantilla plantilla  on plantilla.id_plantilla = pg_devengado.id_plantilla
 
 left join tabla_temporal_sigma sigma on sigma.id_int_comprobante = pg_pagado.id_int_comprobante
 left join tes.tts_libro_bancos libro on libro.id_int_comprobante = pg_pagado.id_int_comprobante
---left join tes.tts_libro_bancos libro_fk on libro_fk.id_libro_bancos_fk = libro.id_libro_bancos
+left join tes.tts_libro_bancos libro_fk on libro_fk.id_libro_bancos_fk = libro.id_libro_bancos
 
 
 left join tes.tcuenta_bancaria cuenta on cuenta.id_cuenta_bancaria = pg_pagado.id_cuenta_bancaria
@@ -842,7 +844,7 @@ inner join tabla_temporal_documentos doc on doc.id_int_comprobante = pg_devengad
 
 
 where pg_pagado.estado=''pagado'' and pg_devengado.estado = ''devengado''
-and ( (libro.tipo=''cheque'' or libro.tipo=''transferencia_carta''  or libro.tipo=''transferencia_fondos'') or  pg_pagado.forma_pago = ''transferencia'' or pg_pagado.forma_pago = ''cheque'')
+and ((libro.tipo=''cheque'' or libro.tipo=''transferencia_carta''  or libro.tipo=''transferencia_fondos'') or  pg_pagado.forma_pago = ''transferencia'' or pg_pagado.forma_pago = ''cheque'')
 and ( pg_pagado.forma_pago = ''transferencia'' or pg_pagado.forma_pago=''cheque'')
 and (plantilla.tipo_informe = ''lcv'' or plantilla.id_plantilla = 28)
 
@@ -854,7 +856,7 @@ and (
 
 and ((doc.fecha_documento >= ''' || v_periodo.fecha_ini || '''::date and doc.fecha_documento <=''' ||
                      v_periodo.fecha_fin || '''::date)
-or (libro.fecha >= ''' || v_periodo.fecha_ini || '''::date and libro.fecha <=''' || v_periodo.fecha_fin || '''::date)
+or (coalesce(libro.fecha, libro.fecha_reg::date)  >= ''' || v_periodo.fecha_ini || '''::date and coalesce(libro.fecha, libro.fecha_reg::date)  <=''' || v_periodo.fecha_fin || '''::date)
 or (sigma.fecha_entrega >= ''' || v_periodo.fecha_ini || '''::date and sigma.fecha_entrega <=''' || v_periodo.fecha_fin
                      || '''::date)
 )
@@ -865,15 +867,16 @@ and (
   )
  ORDER BY doc.fecha_documento,doc.nro_documento ,libro.estado asc ';
 
-
+--raise exception 'v_consulta: %', v_consulta;
+--raise exception 'llega';
         FOR v_record_plan_pago_pxp IN EXECUTE v_consulta LOOP
 
 
-          --RAISE EXCEPTION '%',v_record_plan_pago_pxp.importe_haber;
+          --RAISE EXCEPTION 'a: %, b: %, c: %, d: %',v_record_plan_pago_pxp.fecha_pago, v_record_plan_pago_pxp.nro_cheque, v_record_plan_pago_pxp.forma_pago, v_record_plan_pago_pxp.comprobante_c31;
           v_monto_acumulado = 0;
           v_saldo = 0;
           v_monto_contrato = 0;
-
+			--raise exception 'forma_pago %',v_record_plan_pago_pxp.fecha_pago;
           --vemos si es transferencia o cheque dependiendo de eso entra la feccha
           IF v_record_plan_pago_pxp.forma_pago = 'cheque'
           THEN
@@ -888,15 +891,27 @@ and (
             END IF;
           ELSIF v_record_plan_pago_pxp.forma_pago = 'transferencia'
             THEN
-              v_fecha_libro_o_entrega = v_record_plan_pago_pxp.fecha_entrega;
-              v_nro_cheque_o_sigma = v_record_plan_pago_pxp.comprobante_c31;
-          END IF;
 
+            	if (v_record_plan_pago_pxp.fecha_pago is null)THEN
+
+                	v_fecha_libro_o_entrega=v_record_plan_pago_pxp.fecha_reg::date;
+                else
+
+                	 v_fecha_libro_o_entrega = coalesce ( v_record_plan_pago_pxp.fecha_entrega,v_record_plan_pago_pxp.fecha_pago::date);
+                end if;
+
+
+              v_nro_cheque_o_sigma = v_record_plan_pago_pxp.comprobante_c31;
+              --raise exception 'fecha_entrega %',v_fecha_libro_o_entrega;
+          END IF;
+			--raise exception 'forma_pago %',  v_record_plan_pago_pxp.fecha_entrega; revisar bien
           --si cualquiera de las fecha es mayor al periodo seleccinado no se registra
           --si las dos fechas son menores a la del periodo entonces se registra
 
           --si la fecha del documento o la del libro o de bancos estan dentro del periodo seleccionado
           --si es la resolucion antigua entonces solo importa la fecha del pago que este dentro de este periodo
+
+
           IF ((v_record_plan_pago_pxp.fecha_documento :: DATE <= v_periodo.fecha_fin :: DATE
                AND v_fecha_libro_o_entrega :: DATE <= v_periodo.fecha_fin :: DATE)
 
@@ -910,12 +925,26 @@ and (
 
 
             --raise exception '%',v_record_plan_pago_pxp;
-
             IF EXISTS(SELECT 0
                       FROM conta.tbanca_compra_venta
                       WHERE id_documento = v_record_plan_pago_pxp.id_documento)
             THEN
-            --existe ya un registro con esta documentacion asi que no se registra
+            --actualizamos la informacion de la bancarizacion de compra
+            --raise exception 'llega %',v_fecha_libro_o_entrega ;--||*/ v_record_plan_pago_pxp.id_documento;
+            --raise exception 'llega %',v_record_plan_pago_pxp.num_tramite;
+
+            	/*if (v_record_plan_pago_pxp.num_tramite = 'PCP-000353-2019') then
+                raise exception 'llega %',v_fecha_libro_o_entrega;
+                end if;*/
+            	update conta.tbanca_compra_venta
+                set
+                    id_usuario_mod=p_id_usuario,
+                    fecha_mod=now(),
+                    fecha_documento=v_record_plan_pago_pxp.fecha_documento,
+                    fecha_de_pago=v_fecha_libro_o_entrega,
+                    num_documento=v_record_plan_pago_pxp.nro_documento,
+                    num_documento_pago=v_nro_cheque_o_sigma
+                where conta.tbanca_compra_venta.id_documento = v_record_plan_pago_pxp.id_documento;
 
 
             ELSE
@@ -1181,7 +1210,7 @@ and (
 
               END IF;
 
-
+				--raise exception 'importe %',v_record_plan_pago_pxp.importe_total || v_record_plan_pago_pxp.descuento_inter_serv;
               IF (v_record_plan_pago_pxp.importe_total != v_record_plan_pago_pxp.descuento_inter_serv)
               THEN
 
@@ -1226,7 +1255,7 @@ and (
                   fecha_de_pago,
                   razon,
                   tipo,
-                  num_documento_pago,
+                  num_documento_pago,--sigma
                   num_contrato,
                   nit_entidad,
                   id_periodo,
@@ -1269,7 +1298,7 @@ and (
                   v_fecha_libro_o_entrega,
                   v_record_plan_pago_pxp.razon_social,
                   'Compras',
-                  v_nro_cheque_o_sigma,
+                  v_nro_cheque_o_sigma, --sigma
                   v_record_plan_pago_pxp.numero_contrato,
                   v_doc_id :: NUMERIC,
                   v_parametros.id_periodo,
