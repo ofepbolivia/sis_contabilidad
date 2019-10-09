@@ -690,7 +690,7 @@ class MODBancaCompraVenta extends MODbase{
         $this->captura('comprobante_c31','varchar');
         $this->captura('fecha_entrega','date');
         $this->captura('id_cuenta_bancaria_plan_pago','int4');
-        $this->captura('nro_cheque','int4');
+        $this->captura('nro_cheque','varchar');
         $this->captura('id_proceso_wf','int4');
         $this->captura('resolucion_bancarizacion','varchar');
         $this->captura('monto_retgar_mo','numeric');
