@@ -1070,6 +1070,17 @@ header("content-type: text/javascript; charset=UTF-8");
             this.setLabelsTc();
         },
 
+        onButtonNew: function() {
+            this.swButton = 'NEW';
+            this.sw_valores = 'si';
+            Phx.vista.IntTransaccion.superclass.onButtonNew.call(this);
+            this.setModificadoCombos()
+            this.Cmp.tipo_cambio.setValue(this.maestro.tipo_cambio);
+            this.Cmp.tipo_cambio_2.setValue(this.maestro.tipo_cambio_2);
+            this.Cmp.tipo_cambio_3.setValue(this.maestro.tipo_cambio_3);
+            this.setLabelsTc();
+        }
+
 
     })
 </script>
