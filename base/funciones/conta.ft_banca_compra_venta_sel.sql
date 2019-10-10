@@ -281,10 +281,10 @@ BEGIN
 
     end;
 
-    /*********************************
+  /*********************************
      #TRANSACCION:  'CONTA_BANCA_POSIB'
      #DESCRIPCION:    datos posibles para bancarizar
-     #AUTOR:        favio figueroa
+     #AUTOR:        favio figueroa mod alan felipez
      #FECHA:        06-11-2017 14:36:46
     ***********************************/
 
@@ -311,7 +311,7 @@ BEGIN
       doc.razon_social,
       doc.fecha_documento,
       doc.nro_documento::varchar,
-       doc.nro_autorizacion,
+      doc.nro_autorizacion,
       doc.importe_total,
       doc.nro_nit,
       plantilla.tipo_informe,
@@ -331,7 +331,7 @@ BEGIN
       contra.bancarizacion,
       obliga.num_tramite,
       pg_devengado.nro_cuota,
-       pg_pagado.forma_pago,
+      pg_pagado.forma_pago,
       sigma.comprobante_c31,
       sigma.fecha_entrega,
       pg_pagado.id_cuenta_bancaria as id_cuenta_bancaria_plan_pago,

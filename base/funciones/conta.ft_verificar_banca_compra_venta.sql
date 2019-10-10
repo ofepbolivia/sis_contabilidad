@@ -43,7 +43,7 @@ BEGIN
 	/*********************************
  	#TRANSACCION:  'CONTA_REVISAR_BANCA'
  	#DESCRIPCION:	revision del registro
- 	#AUTOR:		Favio Figueroa
+ 	#AUTOR:		Favio Figueroa mod Alan Felipez
  	#FECHA:		21-09-2015 20:44:52
 	***********************************/
 
@@ -71,72 +71,72 @@ BEGIN
             where id_banca_compra_venta = 	v_parametros.id_banca_compra_venta;
 
             if v_record.tipo = '' then
-            raise exception '%', ' tipo de documento Vacia' ;
+            raise exception '%', ' tipo de documento Vacio' ;
             end if;
 
             if v_record.modalidad_transaccion is null then
-            raise exception '%', ' Modalidad de Transaccion de documento Vacia' ;
+            raise exception '%', ' Modalidad de Transaccion de documento Vacio' ;
             end if;
 
              if v_record.fecha_documento is null then
-            raise exception '%', ' Fecha de Documento de documento Vacia' ;
+            raise exception '%', ' Fecha de Documento de documento Vacio' ;
             end if;
 
             if v_record.tipo_transaccion is null then
-            raise exception '%', 'Tipo de Transaccion de documento Vacia' ;
+            raise exception '%', 'Tipo de Transaccion de documento Vacio' ;
             end if;
 
             if v_record.nit_ci = '' then
-            raise exception '%', ' Nit de documento Vacia' ;
+            raise exception '%', ' Nit de documento Vacio' ;
             end if;
 
             if v_record.razon = '' then
-            raise exception '%', ' Razon de documento Vacia' ;
+            raise exception '%', ' Razon de documento Vacio' ;
             end if;
 
 
             if (v_record.num_documento = '') then
-            raise exception '%', ' Numero de documento Vacia' ;
+            raise exception '%', ' Numero de documento Vacio' ;
             end if;
 
             if (v_record.num_contrato = '') then
-            raise exception '%', ' Numero de Contrato Vacia' ;
+            raise exception '%', ' Numero de Contrato Vacio' ;
             end if;
 
             if (v_record.importe_documento is null) then
-            raise exception '%', ' Importe de Documento Vacia' ;
+            raise exception '%', ' Importe de Documento Vacio' ;
             end if;
 
             if (v_record.autorizacion is null) then
-            raise exception '%', ' Autorizacion de Contrato Vacia' ;
+            raise exception '%', ' Autorizacion de Contrato Vacio' ;
             end if;
 
             if (v_record.num_cuenta_pago = '') then
-            raise exception '%', ' Numero de cuenta de pago Vacia' ;
+            raise exception '%', ' Numero de cuenta de pago Vacio' ;
             end if;
 
              if (v_record.monto_pagado is null) then
-            raise exception '%', ' Monto Pagado Vacia' ;
+            raise exception '%', ' Monto Pagado Vacio' ;
             end if;
 
              if (v_record.monto_acumulado is null) then
-            raise exception '%', 'Monto Acumulado Vacia' ;
+            raise exception '%', 'Monto Acumulado Vacio' ;
             end if;
 
             if (v_record.nit_entidad is null) then
-            raise exception '%', 'Nit Entidad Acumulado Vacia' ;
+            raise exception '%', 'Nit Entidad Acumulado Vacio' ;
             end if;
 
-             if (v_record.num_documento_pago = '') then
-            raise exception '%', ' Numero de documento de pago Vacia' ;
+             if (v_record.num_documento_pago = '' or v_record.num_documento_pago is null) then
+            raise exception '%', ' Numero de documento de pago Vacio' ;
             end if;
 
             if (v_record.tipo_documento_pago is null) then
-            raise exception '%', 'tipo de documento de pago Acumulado Vacia' ;
+            raise exception '%', 'tipo de documento de pago Acumulado Vacio' ;
             end if;
 
              if (v_record.fecha_de_pago is null) then
-            raise exception '%', 'fecha de pago Vacia' ;
+            raise exception '%', 'fecha de pago Vacio' ;
             end if;
 
 
@@ -146,7 +146,7 @@ BEGIN
             where id_banca_compra_venta = v_parametros.id_banca_compra_venta;
             end if;
 
-            if v_record.revisado = 'no' or v_record.revisado is null then
+            if v_record.revisado = 'no' then
             update conta.tbanca_compra_venta
             set revisado = 'si'
             where id_banca_compra_venta = v_parametros.id_banca_compra_venta;
@@ -165,10 +165,11 @@ BEGIN
 
 		end;
 
+
 	/*********************************
  	#TRANSACCION:  'CONTA_REVISAR2_BANCA'
  	#DESCRIPCION:	revision del registro
- 	#AUTOR:		Favio Figueroa
+ 	#AUTOR:		Favio Figueroa mod Alan Felipez
  	#FECHA:		11-06-2019 20:44:52
 	***********************************/
 
@@ -196,72 +197,72 @@ BEGIN
             where id_banca_compra_venta = 	v_parametros.id_banca_compra_venta;
 
             if v_record.tipo = '' then
-            raise exception '%', ' tipo de documento Vacia' ;
+            raise exception '%', ' tipo de documento Vacio' ;
             end if;
 
             if v_record.modalidad_transaccion is null then
-            raise exception '%', ' Modalidad de Transaccion de documento Vacia' ;
+            raise exception '%', ' Modalidad de Transaccion de documento Vacio' ;
             end if;
 
              if v_record.fecha_documento is null then
-            raise exception '%', ' Fecha de Documento de documento Vacia' ;
+            raise exception '%', ' Fecha de Documento de documento Vacio' ;
             end if;
 
             if v_record.tipo_transaccion is null then
-            raise exception '%', 'Tipo de Transaccion de documento Vacia' ;
+            raise exception '%', 'Tipo de Transaccion de documento Vacio' ;
             end if;
 
             if v_record.nit_ci = '' then
-            raise exception '%', ' Nit de documento Vacia' ;
+            raise exception '%', ' Nit de documento Vacio' ;
             end if;
 
             if v_record.razon = '' then
-            raise exception '%', ' Razon de documento Vacia' ;
+            raise exception '%', ' Razon de documento Vacio' ;
             end if;
 
 
             if (v_record.num_documento = '') then
-            raise exception '%', ' Numero de documento Vacia' ;
+            raise exception '%', ' Numero de documento Vacio' ;
             end if;
 
             if (v_record.num_contrato = '') then
-            raise exception '%', ' Numero de Contrato Vacia' ;
+            raise exception '%', ' Numero de Contrato Vacio' ;
             end if;
 
             if (v_record.importe_documento is null) then
-            raise exception '%', ' Importe de Documento Vacia' ;
+            raise exception '%', ' Importe de Documento Vacio' ;
             end if;
 
             if (v_record.autorizacion is null) then
-            raise exception '%', ' Autorizacion de Contrato Vacia' ;
+            raise exception '%', ' Autorizacion de Contrato Vacio' ;
             end if;
 
             if (v_record.num_cuenta_pago = '') then
-            raise exception '%', ' Numero de cuenta de pago Vacia' ;
+            raise exception '%', ' Numero de cuenta de pago Vacio' ;
             end if;
 
              if (v_record.monto_pagado is null) then
-            raise exception '%', ' Monto Pagado Vacia' ;
+            raise exception '%', ' Monto Pagado Vacio' ;
             end if;
 
              if (v_record.monto_acumulado is null) then
-            raise exception '%', 'Monto Acumulado Vacia' ;
+            raise exception '%', 'Monto Acumulado Vacio' ;
             end if;
 
             if (v_record.nit_entidad is null) then
-            raise exception '%', 'Nit Entidad Acumulado Vacia' ;
+            raise exception '%', 'Nit Entidad Acumulado Vacio' ;
             end if;
 
-             if (v_record.num_documento_pago = '') then
+            /* if (v_record.num_documento_pago = '') then
             raise exception '%', ' Numero de documento de pago Vacia' ;
-            end if;
+            end if;*/
 
             if (v_record.tipo_documento_pago is null) then
-            raise exception '%', 'tipo de documento de pago Acumulado Vacia' ;
+            raise exception '%', 'tipo de documento de pago Acumulado Vacio' ;
             end if;
 
              if (v_record.fecha_de_pago is null) then
-            raise exception '%', 'fecha de pago Vacia' ;
+            raise exception '%', 'fecha de pago Vacio' ;
             end if;
 
 

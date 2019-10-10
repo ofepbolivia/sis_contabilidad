@@ -320,11 +320,13 @@ BEGIN
                             e.beneficiario::varchar,
                             e.glosa1::varchar,
                             e.id_int_comprobante,
-                            e.id_int_comprobante_dev
+                            e.id_int_comprobante_dev,
+                            e.nro_cuenta,
+                            e.nombre_institucion
                           FROM
                             conta.ventrega   e
                           WHERE id_entrega = '||v_parametros.id_entrega||'
-						  ORDER by e.codigo_cg , e.codigo_categoria , e.codigo';
+						  ORDER by e.nro_cuenta, e.codigo_cg , e.codigo_categoria , e.codigo';
 
       --Devuelve la respuesta
       raise notice '--> %',v_consulta;
