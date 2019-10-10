@@ -70,9 +70,10 @@ header("content-type: text/javascript; charset=UTF-8");
 
             Phx.vista.IntComprobanteRegAuxEXT.superclass.onButtonEdit.call(this);
             this.Cmp.id_moneda.setReadOnly(true);
-            if (rec.localidad == 'internacional') {
+            //para que se puede modificar bolivia de sus comprobantes de ñas estaciones internacionales
+            /*if (rec.localidad == 'internacional') {
                 this.Cmp.fecha.setReadOnly(true);
-            }
+            }*/
             //si el tic vari en lastransacciones ..
             if (rec.sw_tipo_cambio == 'si') {
                 this.ocultarComponente(this.Cmp.tipo_cambio);
