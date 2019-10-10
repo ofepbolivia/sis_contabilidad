@@ -314,6 +314,55 @@ header("content-type: text/javascript; charset=UTF-8");
                 bottom_filter: true,
                 form: true
             },
+
+            {
+                config:{
+                    name:'id_concepto_ingas',
+                    fieldLabel:'Concepto Ingreso Gasto',
+                    allowBlank:true,
+                    emptyText:'Concepto Ingreso Gasto...',
+                    store: new Ext.data.JsonStore({
+                        url: '../../sis_parametros/control/ConceptoIngas/listarConceptoIngasMasPartida',
+                        id: 'id_concepto_ingas',
+                        root: 'datos',
+                        sortInfo:{
+                            field: 'desc_ingas',
+                            direction: 'ASC'
+                        },
+                        totalProperty: 'total',
+                        fields: ['id_concepto_ingas','tipo','desc_ingas','movimiento','desc_partida','id_grupo_ots','filtro_ot','requiere_ot'],
+                        // turn on remote sorting
+                        remoteSort: true,
+                        baseParams:{par_filtro:'desc_ingas#par.codigo#par.nombre_partida#par.id_partida',movimiento:'gasto' ,autorizacion_nulos: 'no'}
+                    }),
+                    valueField: 'id_concepto_ingas',
+                    displayField: 'desc_ingas',
+                    gdisplayField:'nombre_ingas',
+                    tpl:'<tpl for="."><div class="x-combo-list-item"><p><b>{desc_ingas}</b></p><p>TIPO:{tipo}</p><p>MOVIMIENTO:{movimiento}</p> <p>PARTIDA:{desc_partida}</p></div></tpl>',
+                    hiddenName: 'id_concepto_ingas',
+                    forceSelection:true,
+                    typeAhead: false,
+                    triggerAction: 'all',
+                    lazyRender:true,
+                    mode:'remote',
+                    pageSize:30,
+                    queryDelay:1000,
+                    listWidth:380,
+                    resizable:true,
+                    gwidth: 800,
+                    width: 380,
+                    renderer:function(value, p, record){return String.format('{0}', record.data['nombre_ingas']);}
+                },
+                type:'ComboBox',
+                id_grupo:0,
+                filters:{
+                    pfiltro:'cig.movimiento#cig.desc_ingas',
+                    type:'string'
+                },
+                grid:true,
+                form:true
+            },
+
             {
                 config: {
                     name: 'importe_debe',
@@ -706,7 +755,9 @@ header("content-type: text/javascript; charset=UTF-8");
             'banco', 'forma_pago', 'nombre_cheque_trans', 'nro_cuenta_bancaria_trans', 'nro_cheque',
             'importe_debe_mt',	'importe_haber_mt','importe_gasto_mt','importe_recurso_mt',
             'importe_debe_ma',	'importe_haber_ma','importe_gasto_ma','importe_recurso_ma',
-            'id_moneda_tri','id_moneda_act','id_moneda', 'tipo_cambio','tipo_cambio_2','tipo_cambio_3','codigo_categoria','actualizacion','triangulacion','id_suborden','desc_suborden','codigo_ot', 'planilla'
+            'id_moneda_tri','id_moneda_act','id_moneda', 'tipo_cambio','tipo_cambio_2','tipo_cambio_3',
+            'codigo_categoria','actualizacion','triangulacion','id_suborden','desc_suborden','codigo_ot', 'planilla',
+            {name:'id_concepto_ingas', type: 'string'}
 
         ],
 
@@ -1019,17 +1070,6 @@ header("content-type: text/javascript; charset=UTF-8");
             this.setLabelsTc();
         },
 
-        onButtonNew: function(){
-            this.swButton = 'NEW';
-            this.sw_valores = 'si';
-            Phx.vista.IntTransaccion.superclass.onButtonNew.call(this);
-            this.setModificadoCombos()
-            this.Cmp.tipo_cambio.setValue(this.maestro.tipo_cambio);
-            this.Cmp.tipo_cambio_2.setValue(this.maestro.tipo_cambio_2);
-            this.Cmp.tipo_cambio_3.setValue(this.maestro.tipo_cambio_3);
-            this.setLabelsTc();
-
-        },
 
     })
 </script>

@@ -4898,3 +4898,8 @@ ALTER TABLE conta.tdoc_compra_venta
 ALTER TABLE conta.tdoc_compra_venta
   ALTER COLUMN tipo_cambio SET NOT NULL;
 /***********************************F-SCP-MAY-CONTA-0-01/09/2019****************************************/
+
+/***********************************I-SCP-MAY-CONTA-0-01/10/2019****************************************/
+ALTER TABLE conta.tint_transaccion
+  ADD COLUMN id_concepto_ingas INTEGER;
+/***********************************F-SCP-MAY-CONTA-0-01/10/2019****************************************/

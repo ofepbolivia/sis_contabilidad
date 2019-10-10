@@ -104,6 +104,7 @@ class MODIntTransaccion extends MODbase
         $this->captura('codigo_ot', 'varchar');
         $this->captura('codigo_categoria', 'varchar');
         $this->captura('planilla', 'varchar');
+        $this->captura('id_concepto_ingas', 'int4');
 
 
         //Ejecuta la instruccion
@@ -151,6 +152,8 @@ class MODIntTransaccion extends MODbase
         $this->setParametro('tipo_cambio_3', 'tipo_cambio_3', 'numeric');
         $this->setParametro('id_suborden', 'id_suborden', 'int4');
 
+        $this->setParametro('id_concepto_ingas', 'id_concepto_ingas', 'int4');
+
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -197,6 +200,8 @@ class MODIntTransaccion extends MODbase
         $this->setParametro('tipo_cambio_2', 'tipo_cambio_2', 'numeric');
         $this->setParametro('tipo_cambio_3', 'tipo_cambio_3', 'numeric');
         $this->setParametro('id_suborden', 'id_suborden', 'int4');
+
+        $this->setParametro('id_concepto_ingas', 'id_concepto_ingas', 'int4');
 
 
         //Ejecuta la instruccion

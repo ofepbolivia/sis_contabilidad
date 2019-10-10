@@ -135,7 +135,8 @@ BEGIN
                             (''(''||suo.codigo||'') ''||suo.nombre)::varchar as desc_suborden,
                             ot.codigo as codigo_ot,
                             cp.codigo_categoria::varchar,
-                            '''||v_planilla||'''::varchar as planilla
+                            '''||v_planilla||'''::varchar as planilla,
+                            transa.id_concepto_ingas
                         from conta.tint_transaccion transa
 						inner join segu.tusuario usu1 on usu1.id_usuario = transa.id_usuario_reg
                         inner join conta.tcuenta cue on cue.id_cuenta = transa.id_cuenta
@@ -984,7 +985,7 @@ BEGIN
                 END IF;
              END IF;
 
-
+			--raise exception 'cadena: %, b: %, c: %, d: %', v_filtro_cuentas, v_filtro_ordenes, v_filtro_tipo_cc, v_parametros.filtro;
 
             --Sentencia de la consulta
 			v_consulta:='select
@@ -1006,9 +1007,11 @@ BEGIN
 						usu2.cuenta as usr_mod,
                         COALESCE(transa.importe_debe_mb,0) as importe_debe_mb,
                         COALESCE(transa.importe_haber_mb,0) as importe_haber_mb,
+
                         conta.f_next_int_transaccion_monto(transa.id_int_transaccion,icbte.id_int_comprobante,icbte.nro_tramite,
                         case when COALESCE(transa.importe_debe_mb,0) != 0 then ''debe'' else ''haber'' end,
                         case when COALESCE(transa.importe_debe_mb,0) != 0 then transa.importe_debe_mb else transa.importe_haber_mb end)::numeric as importe_saldo_mb,
+
                        	COALESCE(transa.importe_gasto_mb,0) as importe_gasto_mb,
 						COALESCE(transa.importe_recurso_mb,0) as importe_recurso_mb,
 
@@ -1074,10 +1077,10 @@ BEGIN
                               and '||v_filtro_tipo_cc||'
 
                                and';
-
+--raise exception 'a: %, b: %, c: %, d: %, e:%', v_parametros.filtro, v_parametros.ordenacion, v_parametros.dir_ordenacion, v_parametros.cantidad, v_parametros.puntero;
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' order by icbte.nro_tramite asc, ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ', id_int_comprobante asc limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+			v_consulta:=v_consulta||' order by icbte.nro_tramite asc, ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ', id_int_comprobante asc  limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
             raise notice '%', v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
@@ -1614,4 +1617,8 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
+
+ALTER FUNCTION conta.ft_int_transaccion_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;

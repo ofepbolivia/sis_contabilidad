@@ -47,13 +47,17 @@ Phx.vista.IntTransaccionAux = {
 		 	  this.Cmp.id_auxiliar.store.baseParams.id_centro_costo = rec.data.id_centro_costo;
 		 	  this.Cmp.id_auxiliar.modificado = true;
 		 	  
-		 	  
 		 }, this);
 		 
 		 this.Cmp.id_partida.on('select',function(cmp,rec,ind){
 		 	     this.Cmp.id_cuenta.reset();		 	     
 		 	     this.Cmp.id_cuenta.store.baseParams.id_partida = rec.data.id_partida;
 		 	     this.Cmp.id_cuenta.modificado = true;
+
+                //may filtro segun partida para el concepto de gasto
+		 	     this.Cmp.id_concepto_ingas.reset();
+                 this.Cmp.id_concepto_ingas.store.baseParams.id_partida = rec.data.id_partida;
+                 this.Cmp.id_concepto_ingas.modificado = true;
 		 }, this);
 		  
 		 this.Cmp.id_cuenta.on('select',function(cmp,rec,ind){		 	     
@@ -85,11 +89,12 @@ Phx.vista.IntTransaccionAux = {
 		 	 this.Cmp.id_orden_trabajo.modificado = true
 		 	 this.Cmp.id_suborden.store.baseParams.id_orden_trabajo = rec.id_orden_trabajo;
 		 	 this.Cmp.id_suborden.modificado = true;
-		 	 
-		 	
-	         
-	         
-       },
+
+            //may filtro segun partida para el concepto de gasto
+            this.Cmp.id_concepto_ingas.store.baseParams.id_partida = rec.id_partida;
+            this.Cmp.id_concepto_ingas.modificado = true;
+
+    },
 	
 	
 };
