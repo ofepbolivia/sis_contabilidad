@@ -26,7 +26,7 @@ Phx.vista.IntComprobanteRegAux = {
             me.addButtonCustom(config.idContenedor, 'sig_estado', { text: 'Aprobar', iconCls: 'badelante', disabled: true, handler: this.sigEstado, tooltip: '<b>Pasar al Siguiente Estado</b>' });
         
 	        Phx.vista.IntComprobanteRegAux.superclass.constructor.call(this,config);
-				
+        this.store.baseParams.tipo = 'diario';
 		    this.addButton('btnWizard', {
 					text : 'Plantilla',
 					iconCls : 'bgear',
@@ -62,7 +62,8 @@ Phx.vista.IntComprobanteRegAux = {
 
         this.cmpFecha.enable();
 
-         Phx.vista.IntComprobanteRegAux.superclass.onButtonEdit.call(this); 
+         Phx.vista.IntComprobanteRegAux.superclass.onButtonEdit.call(this);
+        this.Cmp.id_clase_comprobante.store.baseParams.tipo='diario';
          this.Cmp.id_moneda.setReadOnly(true);
          if(rec.localidad == 'internacional'){
          	this.Cmp.fecha.setReadOnly(true);
@@ -91,6 +92,9 @@ Phx.vista.IntComprobanteRegAux = {
        
        onButtonNew:function(){
           this.swButton = 'NEW';
+
+          this.Cmp.id_clase_comprobante.store.baseParams.tipo = 'diario';
+
           Phx.vista.IntComprobanteRegAux.superclass.onButtonNew.call(this); 
           this.Cmp.id_moneda.setReadOnly(false);
           //this.Cmp.fecha.setReadOnly(false);
@@ -98,7 +102,6 @@ Phx.vista.IntComprobanteRegAux = {
            //this.cmpFecha.disable();
            this.cmpFecha.setValue(new Date());
            this.cmpFecha.fireEvent('change');
-
           this.mostrarComponente(this.Cmp.tipo_cambio);
           this.mostrarComponente(this.Cmp.tipo_cambio_2);
           this.mostrarComponente(this.Cmp.tipo_cambio_3);

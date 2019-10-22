@@ -19,73 +19,80 @@ require_once(dirname(__FILE__).'/../reportes/RComprobanteDiario.php');
 class ACTIntComprobante extends ACTbase{
 	
 	private $objPlantHtml;
-	
-	function listarIntComprobante(){
-		$this->objParam->defecto('ordenacion','id_int_comprobante');
-		$this->objParam->defecto('dir_ordenacion','asc');
-		$this->objParam->addFiltro("(incbte.temporal = ''no'' or (incbte.temporal = ''si'' and vbregional = ''si''))");    
-		
-		if($this->objParam->getParametro('id_deptos')!=''){
-            $this->objParam->addFiltro("incbte.id_depto in (".$this->objParam->getParametro('id_deptos').")");    
+
+    function listarIntComprobante(){
+        $this->objParam->defecto('ordenacion','id_int_comprobante');
+        $this->objParam->defecto('dir_ordenacion','asc');
+        $this->objParam->addFiltro("(incbte.temporal = ''no'' or (incbte.temporal = ''si'' and vbregional = ''si''))");
+
+        if($this->objParam->getParametro('tipo')=='diario'){
+            $this->objParam->addFiltro("incbte.id_clase_comprobante in (''3'',''4'')");
         }
-		
-		if($this->objParam->getParametro('id_gestion')!=''){
-            $this->objParam->addFiltro("incbte.id_gestion in (".$this->objParam->getParametro('id_gestion').")");    
+
+        if($this->objParam->getParametro('tipo')=='pago'){
+            $this->objParam->addFiltro("incbte.id_clase_comprobante in (''1'',''5'')");
         }
-		
-		if($this->objParam->getParametro('id_clase_comprobante')!=''){
-            $this->objParam->addFiltro("incbte.id_clase_comprobante in (".$this->objParam->getParametro('id_clase_comprobante').")");    
+
+
+        if($this->objParam->getParametro('id_deptos')!=''){
+            $this->objParam->addFiltro("incbte.id_depto in (".$this->objParam->getParametro('id_deptos').")");
         }
-		
-		if($this->objParam->getParametro('nombreVista') == 'IntComprobanteLd'  || $this->objParam->getParametro('nombreVista') == 'IntComprobanteLdEntrega'){
-            $this->objParam->addFiltro("incbte.estado_reg = ''validado''");    
+
+        if($this->objParam->getParametro('id_gestion')!=''){
+            $this->objParam->addFiltro("incbte.id_gestion in (".$this->objParam->getParametro('id_gestion').")");
         }
-		else{
+
+        if($this->objParam->getParametro('id_clase_comprobante')!=''){
+            $this->objParam->addFiltro("incbte.id_clase_comprobante in (".$this->objParam->getParametro('id_clase_comprobante').")");
+        }
+
+        if($this->objParam->getParametro('nombreVista') == 'IntComprobanteLd'  || $this->objParam->getParametro('nombreVista') == 'IntComprobanteLdEntrega'){
+            $this->objParam->addFiltro("incbte.estado_reg = ''validado''");
+        }
+        else{
             //(may) vb de los comprobantes en estado vbfin y vbconta
             if($this->objParam->getParametro('nombreVista') == 'VbIntComprobante'){
-               $this->objParam->addFiltro(" (incbte.estado_reg in (''vbfin'',''vbconta''))" );
+                $this->objParam->addFiltro(" (incbte.estado_reg in (''vbfin'',''vbconta''))" );
 
             }else{
                 //(may)25-09-2019 para que enliste el nuevo estado vbfin y vbconta
-               // $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
+                // $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
                 $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'',''vbfin'',''vbconta'')");
             }
 
-		}
-
-
-		
-		if($this->objParam->getParametro('nombreVista') == 'IntComprobanteLdEntrega'){
-            $this->objParam->addFiltro(" (incbte.c31 = '''' or incbte.c31 is null )" );      
         }
 
-		
-		if($this->objParam->getParametro('momento')!= ''){
-			$this->objParam->addFiltro("incbte.momento = ''".$this->objParam->getParametro('momento')."''");    
-		}
-
-		//RCM 01/09/2017
-		if($this->objParam->getParametro('id_int_comprobante')!= ''){
-			$this->objParam->addFiltro("incbte.id_int_comprobante = ".$this->objParam->getParametro('id_int_comprobante'));    
-		}
-		
-		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
-			$this->objReporte = new Reporte($this->objParam,$this);
-			$this->res = $this->objReporte->generarReporteListado('MODIntComprobante','listarIntComprobante');
-		} else{
-			$this->objFunc=$this->create('MODIntComprobante');
-			
-			$this->res=$this->objFunc->listarIntComprobante($this->objParam);
-		}
-		
-		//echo dirname(__FILE__).'/../../lib/lib_reporte/ReportePDF2.php';exit;
-		$this->res->imprimirRespuesta($this->res->generarJson());
-	}
 
 
+        if($this->objParam->getParametro('nombreVista') == 'IntComprobanteLdEntrega'){
+            $this->objParam->addFiltro(" (incbte.c31 = '''' or incbte.c31 is null )" );
+        }
 
 
-   function listarIntComprobanteWF(){
+        if($this->objParam->getParametro('momento')!= ''){
+            $this->objParam->addFiltro("incbte.momento = ''".$this->objParam->getParametro('momento')."''");
+        }
+
+        //RCM 01/09/2017
+        if($this->objParam->getParametro('id_int_comprobante')!= ''){
+            $this->objParam->addFiltro("incbte.id_int_comprobante = ".$this->objParam->getParametro('id_int_comprobante'));
+        }
+
+        if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+            $this->objReporte = new Reporte($this->objParam,$this);
+            $this->res = $this->objReporte->generarReporteListado('MODIntComprobante','listarIntComprobante');
+        } else{
+            $this->objFunc=$this->create('MODIntComprobante');
+
+            $this->res=$this->objFunc->listarIntComprobante($this->objParam);
+        }
+
+        //echo dirname(__FILE__).'/../../lib/lib_reporte/ReportePDF2.php';exit;
+        $this->res->imprimirRespuesta($this->res->generarJson());
+
+    }
+
+    function listarIntComprobanteWF(){
 		$this->objParam->defecto('ordenacion','id_int_comprobante');
 		$this->objParam->defecto('dir_ordenacion','asc');
 		$this->objParam->addFiltro("(incbte.temporal = ''no'' or (incbte.temporal = ''si'' and vbregional = ''si''))");    

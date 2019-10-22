@@ -20,8 +20,9 @@ header("content-type: text/javascript; charset=UTF-8");
             this.maestro = config.maestro;
             this.initButtons = [this.cmbDepto, this.cmbGestion];
 
-            //llama al constructor de la clase padre
+                //llama al constructor de la clase padre
             Phx.vista.IntComprobante.superclass.constructor.call(this, config);
+
             this.bbar.add(this.cmbTipoCbte);
 
             //Botón para Imprimir el Comprobante
@@ -131,6 +132,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.iniciarEventos();
             this.addBotonesLibroDiario();
         },
+
 
         capturaFiltros: function (combo, record, index) {
             this.desbloquearOrdenamientoGrid();
