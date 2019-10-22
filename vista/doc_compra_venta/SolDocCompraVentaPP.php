@@ -106,6 +106,69 @@ header("content-type: text/javascript; charset=UTF-8");
                 console.log('tipo_moneda2',this.maestro.tipo_moneda);
                 console.log('moneda',moneda);
 
+                /*if(this.maestro.tipo_cambio == 1){
+                                    console.log('llegamay1', this.maestro.tipo_cambio)
+                                    console.log('llegamaytipocambionewfac1', this.grid.store.data.items[i].data.tipo_cambio )
+                                    if(this.grid.store.data.items[i].data.tipo_cambio == 1 || this.grid.store.data.items[i].data.tipo_cambio == null){
+                                        alerta si necesita el tipo de cambio
+                                        Ext.Msg.prompt({
+                                            title: 'Alerta',
+                                            msg: '<b> Estimado Usuario: <br><br><span style="color: red;">No ha definido un valor para en el campo "tipo de cambio".</span></b>',
+                                            fn: function (text) {
+                                                console.log('legatext', text)
+                                            },
+                                            scope: this
+                                        });
+                                        Ext.Msg.prompt('Alerta', '<b> Estimado Usuario: <br><br><span style="color: red;">Definir "Tipo de Cambio" de la Factura.</span></b>', function(btn, text){
+                                            if (btn == 'ok'){
+                                                console.log('text:', text)
+                                                 tipo_cambio = text;
+                                                console.log('maestrotipocambio',tipo_cambio)
+                                            }
+                                        });
+
+                                        if (this.grid.store.data.items[i].data.id_plantilla == 53) {
+                                            //if (this.grid.store.data.items[i].data.id_plantilla == 42)
+                                            total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc) / parseFloat(tipo_cambio);
+                                        }
+                                        else {
+                                            console.log('moneda12', this.grid.store.data.items[i].data.id_moneda)
+                                            console.log('importee', parseFloat(this.grid.store.data.items[i].data.importe_doc))
+                                            total_1 = 0;
+                                            if (this.grid.store.data.items[i].data.id_moneda == 2){
+                                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc) ;
+                                            }else{
+                                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/ parseFloat(tipo_cambio);
+                                            }
+                                        }
+                                    }else{
+                                        if (this.grid.store.data.items[i].data.id_plantilla ==52)
+                                       if (this.grid.store.data.items[i].data.id_plantilla == 42)
+                                            if (this.grid.store.data.items[i].data.id_moneda == 2){
+                                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc) ;
+                                            }else{
+                                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/ parseFloat(tipo_cambio);
+                                            }
+                                    }
+                                }else{
+                                    console.log('llegamay2', this.maestro.tipo_cambio)
+                                    console.log('llegamaytipocambionewfac', this.grid.store.data.items[i].data.tipo_cambio )
+                                    if(this.grid.store.data.items[i].data.tipo_cambio == 1 || this.grid.store.data.items[i].data.tipo_cambio == null){
+                                        if (this.grid.store.data.items[i].data.id_plantilla == 52)
+                                        if (this.grid.store.data.items[i].data.id_plantilla == 42)
+                                            total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc)/parseFloat(this.maestro.tipo_cambio);
+                                        else
+                                            total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/parseFloat(this.maestro.tipo_cambio);
+                                    }else{
+                                        if (this.grid.store.data.items[i].data.id_plantilla == 52)
+                                        if (this.grid.store.data.items[i].data.id_plantilla == 42)
+                                            total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc);
+                                        else
+                                            total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc);
+                                    }
+                                }*/
+
+                //cambio Alan al 22/10/2019
                 console.log('tipo moneda deb/cred',this.grid.store.data.items[i].data.desc_moneda);
                 if(this.maestro.tipo_moneda=='Bs' || this.maestro.tipo_moneda=='$'){//la obligacion de pago esta en bs
                     console.log('tipo moneda',this.maestro.tipo_moneda);
