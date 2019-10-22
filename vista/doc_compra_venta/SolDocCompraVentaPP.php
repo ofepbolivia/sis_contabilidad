@@ -80,6 +80,8 @@ header("content-type: text/javascript; charset=UTF-8");
             var total = 0;
             console.log('datos enviados', this.maestro.tipo_cambio);
             this.maestro.tipo_cambio = (Phx.CP.getPagina(this.maestro.id_padre)).getComponente('tipo_cambio').getValue();
+            this.maestro.tipo_moneda=(Phx.CP.getPagina(this.maestro.id_padre)).getComponente('desc_moneda').getValue();
+            var moneda=(Phx.CP.getPagina(this.maestro.id_padre)).getComponente('desc_moneda').getValue();
             if (this.maestro.tipo_cambio == '' || this.maestro.tipo_cambio == null) {
                 this.maestro.tipo_cambio = 1;
             }
@@ -94,79 +96,110 @@ header("content-type: text/javascript; charset=UTF-8");
                 });
             }*/
             var id_documentos = '';
-            for (var i = 0; i < this.grid.store.data.items.length; i++) {
-                //id_documentos[i] = this.grid.store.data.items[i].data.id_doc_compra_venta;
+            for(var i = 0; i < this.grid.store.data.items.length; i++){
                 if(i+1 == this.grid.store.data.items.length){
                     id_documentos  += this.grid.store.data.items[i].data.id_doc_compra_venta;
                 }else{
                     id_documentos  += this.grid.store.data.items[i].data.id_doc_compra_venta+',';
                 }
-                console.log('llegamay', this.maestro.tipo_cambio)
+                console.log('llegamay', this.maestro.tipo_cambio);
+                console.log('tipo_moneda2',this.maestro.tipo_moneda);
+                console.log('moneda',moneda);
 
-                if(this.maestro.tipo_cambio == 1){
-                    console.log('llegamay1', this.maestro.tipo_cambio)
-                    console.log('llegamaytipocambionewfac1', this.grid.store.data.items[i].data.tipo_cambio )
-                    if(this.grid.store.data.items[i].data.tipo_cambio == 1 || this.grid.store.data.items[i].data.tipo_cambio == null){
-                        //alerta si necesita el tipo de cambio
-                        /*Ext.Msg.prompt({
-                            title: 'Alerta',
-                            msg: '<b> Estimado Usuario: <br><br><span style="color: red;">No ha definido un valor para en el campo "tipo de cambio".</span></b>',
-                            fn: function (text) {
-                                console.log('legatext', text)
-                            },
-                            scope: this
-                        });*/
-                        Ext.Msg.prompt('Alerta', '<b> Estimado Usuario: <br><br><span style="color: red;">Definir "Tipo de Cambio" de la Factura.</span></b>', function(btn, text){
-                            if (btn == 'ok'){
-                                console.log('text:', text)
-
-                                 tipo_cambio = text;
-                                console.log('maestrotipocambio',tipo_cambio)
+                console.log('tipo moneda deb/cred',this.grid.store.data.items[i].data.desc_moneda);
+                if(this.maestro.tipo_moneda=='Bs' || this.maestro.tipo_moneda=='$'){//la obligacion de pago esta en bs
+                    console.log('tipo moneda',this.maestro.tipo_moneda);
+                    if(this.maestro.tipo_cambio==1){//implica que el banco esta en bs
+                        if(this.grid.store.data.items[i].tipo_cambio==1){//implica que la nota de debito/credito esta en bs
+                            if (this.grid.store.data.items[i].data.id_plantilla == 42){//plantilla de debito
+                                total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc) ;
                             }
-                        });
-                        //
-                        if (this.grid.store.data.items[i].data.id_plantilla == 53) {
-                            //if (this.grid.store.data.items[i].data.id_plantilla == 42)
-                            total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc) / parseFloat(tipo_cambio);
-                        }
-                        else {
-                            console.log('moneda12', this.grid.store.data.items[i].data.id_moneda)
-                            console.log('importee', parseFloat(this.grid.store.data.items[i].data.importe_doc))
-                            total_1 = 0;
-                            if (this.grid.store.data.items[i].data.id_moneda == 2){
+                            else{
                                 total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc) ;
-                            }else{
-                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/ parseFloat(tipo_cambio);
                             }
-
                         }
-                    }else{
-                        if (this.grid.store.data.items[i].data.id_plantilla ==52)
-                        //if (this.grid.store.data.items[i].data.id_plantilla == 42)
-                            if (this.grid.store.data.items[i].data.id_moneda == 2){
-                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc) ;
-                            }else{
-                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/ parseFloat(tipo_cambio);
+                        else{//la nota de debito/credito esta en otra moneda que no es bs, entonces hacemos la conversion deacuerdo al tipo de plantilla
+                            if (this.grid.store.data.items[i].data.id_plantilla == 42){//plantilla de debito
+                                total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc)*this.grid.store.data.items[i].data.tipo_cambio;
                             }
+                            else{
+                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)*this.grid.store.data.items[i].data.tipo_cambio;
+                            }
+                        }
                     }
-                }else{
-                    console.log('llegamay2', this.maestro.tipo_cambio)
-                    console.log('llegamaytipocambionewfac', this.grid.store.data.items[i].data.tipo_cambio )
-                    if(this.grid.store.data.items[i].data.tipo_cambio == 1 || this.grid.store.data.items[i].data.tipo_cambio == null){
-                        if (this.grid.store.data.items[i].data.id_plantilla == 52)
-                        //if (this.grid.store.data.items[i].data.id_plantilla == 42)
-                            total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc)/parseFloat(this.maestro.tipo_cambio);
-                        else
-                            total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/parseFloat(this.maestro.tipo_cambio);
-                    }else{
-                        if (this.grid.store.data.items[i].data.id_plantilla == 52)
-                        //if (this.grid.store.data.items[i].data.id_plantilla == 42)
-                            total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc);
-                        else
-                            total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc);
+                    else{//el banco se encuentra en moneda extranjera
+                        if(this.grid.store.data.items[i].tipo_cambio==1){//implica que la nota de debito/credito esta en bs
+                            if (this.grid.store.data.items[i].data.id_plantilla == 42){//plantilla de debito
+                                total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc) ;
+                            }
+                            else{
+                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc) ;
+                            }
+                        }
+                        else{//la nota de debito/credito esta en otra moneda que no es bs, entonces hacemos la conversion deacuerdo al tipo de plantilla
+                            if (this.grid.store.data.items[i].data.id_plantilla == 42){//plantilla de debito
+                                total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc)*this.grid.store.data.items[i].data.tipo_cambio;
+                            }
+                            else{
+                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)*this.grid.store.data.items[i].data.tipo_cambio;
+                            }
+                        }
                     }
                 }
+                else{//la obligacion de pago se encuentra en moneda extranjera
+                    console.log('tipo moneda',this.maestro.tipo_moneda);
+                    if(this.maestro.tipo_cambio==1){//implica que el banco se encuentra con la misma moneda de la obligacion de pago
+                        if(this.grid.store.data.items[i].data.tipo_cambio!=1){//la nota de credito debito se encuentra en moneda extranjera
+                            if (this.grid.store.data.items[i].data.id_plantilla == 42){//plantilla de debito
+                                total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc);
+                            }
+                            else{//plantilla de credito
+                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc);
+                            }
+                        }
+                        else{//la nota de credito/debito difiere de la obligacion de pago
+                            Ext.Msg.prompt('Alerta', '<b> Estimado Usuario: <br><br><span style="color: red;">Definir "Tipo de Cambio" de la Factura.</span></b>', function(btn, text){
+                                if (btn == 'ok'){
+                                    console.log('text:', text)
 
+                                    tipo_cambio = text;
+                                    console.log('maestrotipocambio',tipo_cambio)
+
+                                }
+                            });
+                            if (this.grid.store.data.items[i].data.id_plantilla == 42){//plantilla de debito
+                                total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc)/tipo_cambio;
+                            }
+                            else{//plantilla de credito
+                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/tipo_cambio;
+                            }
+                        }
+                    }
+                    else{//el banco no esta en el mismo tipo de la obligacion de pago
+                        console.log('tipo de cambio de la factura',this.grid.store.data.items[i].data.tipo_cambio);
+                        if(this.grid.store.data.items[i].data.tipo_cambio!=1){//la nota de credito debito se encuentra en moneda extranjera
+                            if (this.grid.store.data.items[i].data.id_plantilla == 42){//plantilla de debito
+                                total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc);
+                            }
+                            else{//plantilla de credito
+                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc);
+                            }
+                        }
+                        else{//la nota de credito/debito difiere de la obligacion de pago
+                            if (this.grid.store.data.items[i].data.id_plantilla == 42){//plantilla de debito
+                                //hay que considerar el tipo de cambio que no aparece en el formulario de debito credito
+
+                                total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc)/this.maestro.tipo_cambio;
+                                //total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc)/this.grid.store.data.items[i].data.tipo_cambio;
+                            }
+                            else{//plantilla de credito
+                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/this.maestro.tipo_cambio;
+                               // total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/this.grid.store.data.items[i].data.tipo_cambio;
+                            }
+                        }
+
+                    }
+                }
             }
             console.log('total importe', total);
             Phx.CP.getPagina(this.maestro.id_padre).definirDC(total, id_documentos);
@@ -896,7 +929,7 @@ header("content-type: text/javascript; charset=UTF-8");
             // console.log('objPadrerecord', record);
             console.log('objPadre1me', me);
             me.objSolForm = Phx.CP.loadWindows('../../../sis_contabilidad/vista/doc_compra_venta/SolFormCompraVentaPP.php',
-                'Formulario Nota de Crédito / Débito',
+                'Formulario de Compra/Venta',
                 {
                     modal: true,
                     width: '80%',
