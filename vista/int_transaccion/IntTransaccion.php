@@ -337,7 +337,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     }),
                     valueField: 'id_concepto_ingas',
                     displayField: 'desc_ingas',
-                    gdisplayField:'nombre_ingas',
+                    gdisplayField:'desc_ingas',
                     tpl:'<tpl for="."><div class="x-combo-list-item"><p><b>{desc_ingas}</b></p><p>TIPO:{tipo}</p><p>MOVIMIENTO:{movimiento}</p> <p>PARTIDA:{desc_partida}</p></div></tpl>',
                     hiddenName: 'id_concepto_ingas',
                     forceSelection:true,
@@ -351,12 +351,12 @@ header("content-type: text/javascript; charset=UTF-8");
                     resizable:true,
                     gwidth: 800,
                     width: 380,
-                    renderer:function(value, p, record){return String.format('{0}', record.data['nombre_ingas']);}
+                    renderer:function(value, p, record){return String.format('{0}', record.data['desc_ingas']);}
                 },
                 type:'ComboBox',
                 id_grupo:0,
                 filters:{
-                    pfiltro:'cig.movimiento#cig.desc_ingas',
+                    pfiltro:'conig.desc_ingas',
                     type:'string'
                 },
                 grid:true,
@@ -757,7 +757,8 @@ header("content-type: text/javascript; charset=UTF-8");
             'importe_debe_ma',	'importe_haber_ma','importe_gasto_ma','importe_recurso_ma',
             'id_moneda_tri','id_moneda_act','id_moneda', 'tipo_cambio','tipo_cambio_2','tipo_cambio_3',
             'codigo_categoria','actualizacion','triangulacion','id_suborden','desc_suborden','codigo_ot', 'planilla',
-            {name:'id_concepto_ingas', type: 'string'}
+            {name:'id_concepto_ingas', type: 'numeric'},
+            {name:'desc_ingas', type: 'string'}
 
         ],
 
