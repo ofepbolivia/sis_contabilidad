@@ -75,7 +75,7 @@ Phx.vista.EntregaForm=Ext.extend(Phx.frmInterfaz,{
 				name : 'id_tipo_relacion_comprobante',
 				fieldLabel : 'Incluir Relación',
 				qtip : 'Si selecciona una de estas relaciones el nro de entrega se extendera a los comprobantes marcados como relacioandos por el tipo seleccionado solo si ysolo si: "no tiene una entrega"',
-				allowBlank : true,
+				allowBlank : false,
 				emptyText : 'Elija una opción...',
 				store : new Ext.data.JsonStore({
 					url : '../../sis_contabilidad/control/TipoRelacionComprobante/listarTipoRelacionComprobante',
