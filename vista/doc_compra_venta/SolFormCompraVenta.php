@@ -1409,7 +1409,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         anchor: '80%',
                         maxLength: 100,
                         allowDecimals: true,
-                        decimalPrecision: 15
+                        decimalPrecision: 2
                     },
                     type: 'NumberField',
                     id_grupo: 2,
