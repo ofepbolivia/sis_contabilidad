@@ -27,6 +27,7 @@ DECLARE
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
 	v_id_tipo_relacion_comprobante	integer;
+	v_counter				integer  := 0;						   
 			    
 BEGIN
 
@@ -43,6 +44,15 @@ BEGIN
 	if(p_transaccion='CONTA_TRC_INS')then
 					
         begin
+        	--validar que no exista el mismo codigo
+            select count(*)
+            into v_counter
+            from conta.ttipo_relacion_comprobante trc
+            where LOWER(trc.codigo)=LOWER(v_parametros.codigo);
+            
+            if v_counter > 0 then
+             raise exception 'el codigo que intenta registrar ya existe, favor cambiar a otro codigo';
+            end if; 
         	--Sentencia de la insercion
         	insert into conta.ttipo_relacion_comprobante(
 			estado_reg,
@@ -88,6 +98,15 @@ BEGIN
 	elsif(p_transaccion='CONTA_TRC_MOD')then
 
 		begin
+        	--validar que no exista el mismo codigo
+            select count(*)
+            into v_counter
+            from conta.ttipo_relacion_comprobante trc
+            where LOWER(trc.codigo)=LOWER(v_parametros.codigo);
+            
+            if v_counter > 0 then
+             raise exception 'el codigo que intenta modificar ya existe, favor cambiar a otro codigo';
+            end if; 
 			--Sentencia de la modificacion
 			update conta.ttipo_relacion_comprobante set
 			nombre = v_parametros.nombre,

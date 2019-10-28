@@ -98,8 +98,8 @@ BEGIN
       
       update  conta.tint_comprobante set
         id_estado_wf = v_id_estado_wf,
-        id_proceso_wf = v_id_proceso_wf,
-        nro_tramite = v_num_tramite
+        id_proceso_wf = v_id_proceso_wf/*,
+        nro_tramite = v_num_tramite*/
       where id_int_comprobante = p_id_int_comprobante;
           
    
