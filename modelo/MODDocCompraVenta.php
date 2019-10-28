@@ -1528,6 +1528,8 @@ class MODDocCompraVenta extends MODbase
         $this->transaccion = 'CONTA_ELIRAIRBP_ELI';
         $this->tipo_procedimiento = 'IME';
 
+        $this->setParametro('id_depto_conta', 'id_depto_conta', 'int4');
+        $this->setParametro('id_periodo', 'id_periodo', 'int4');
         $this->setParametro('id_int_comprobante', 'id_int_comprobante', 'int8');
 
         //Ejecuta la instruccion

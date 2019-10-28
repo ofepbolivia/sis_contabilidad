@@ -43,11 +43,11 @@ header("content-type: text/javascript; charset=UTF-8");
             );
             this.addButton('btnDelRegAirbp',
                 {
-                    text: 'Eliminar Regis. AIRBP.',
+                    text: 'Eliminar Registro y relacion. AIRBP.',
                     iconCls: 'bdel',
                     disabled: false,
                     handler: this.delRegAirbp,
-                    tooltip: 'Permite relacionar un documento existente al Cbte'
+                    tooltip: 'Elimina las facturas registradas y su relacion con el comprobante, si el periodo no esta cerrado'
                 }
             );
             console.log('maestrom', this.maestro, this.disparador);
@@ -801,9 +801,11 @@ header("content-type: text/javascript; charset=UTF-8");
             Phx.vista.DocCompraVentaCbte.superclass.liberaMenu.call(this,tb);
             this.getBoton('btnShowDoc').disable();
         },
-        delRegAirbp:function(){ 
-            var id_comprobante = this.id_int_comprobante;                               
-            var seguro = confirm('Esta seguro? La accion eliminara todos los registros');
+        delRegAirbp:function(){                         
+            var id_comprobante = this.id_int_comprobante;
+            var id_periodo = this.id_periodo;
+            var id_depto = this.id_depto;
+            var seguro = confirm('Esta seguro? La accion eliminara todos los registros y sus relaciones a su comprobante');
             if(seguro){
                 Ext.Ajax.request({                
                 url: '../../sis_contabilidad/control/DocCompraVenta/eliminarRegistrosAirbp',                
@@ -811,7 +813,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         Phx.CP.loadingHide();
                         this.reload()},
                 failure : this.conexionFailure,
-                params:{id_int_comprobante: id_comprobante},                
+                params:{id_int_comprobante: id_comprobante, id_depto_conta: id_depto, id_periodo, id_periodo},                
                 timeout : this.timeout,
                 scope : this
                 });
