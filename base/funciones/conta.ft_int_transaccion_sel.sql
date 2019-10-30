@@ -136,7 +136,9 @@ BEGIN
                             ot.codigo as codigo_ot,
                             cp.codigo_categoria::varchar,
                             '''||v_planilla||'''::varchar as planilla,
-                            transa.id_concepto_ingas
+                            transa.id_concepto_ingas,
+                            (conig.desc_ingas)::varchar as desc_ingas
+
                         from conta.tint_transaccion transa
 						inner join segu.tusuario usu1 on usu1.id_usuario = transa.id_usuario_reg
                         inner join conta.tcuenta cue on cue.id_cuenta = transa.id_cuenta
@@ -148,6 +150,7 @@ BEGIN
                         left join conta.tsuborden suo on suo.id_suborden =  transa.id_suborden
                         left join pre.vcategoria_programatica cp ON cp.id_categoria_programatica = cc.id_categoria_prog
 
+						left join param.tconcepto_ingas conig on conig.id_concepto_ingas = transa.id_concepto_ingas
 
 				        where ';
 

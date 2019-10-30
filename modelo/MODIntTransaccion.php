@@ -105,6 +105,7 @@ class MODIntTransaccion extends MODbase
         $this->captura('codigo_categoria', 'varchar');
         $this->captura('planilla', 'varchar');
         $this->captura('id_concepto_ingas', 'int4');
+        $this->captura('desc_ingas', 'varchar');
 
 
         //Ejecuta la instruccion

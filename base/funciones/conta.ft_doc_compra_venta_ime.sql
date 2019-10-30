@@ -1731,8 +1731,10 @@ END IF;
 
     begin
 
-	  delete from conta.tdoc_compra_venta
-	  where id_int_comprobante = v_parametros.id_int_comprobante;
+	  if(conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_parametros.id_periodo))then
+          delete from conta.tdoc_compra_venta
+          where id_int_comprobante = v_parametros.id_int_comprobante;
+	  end if;
 
       --Definicion de la respuesta
       v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se retiro el cbte del documento '||v_parametros.id_int_comprobante);
