@@ -19,7 +19,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 	constructor:function(config){
 
 
-	
+
 	
 	this.tbarItems = ['-',
 			this.cmbResolucion,
@@ -263,7 +263,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		 
 		 this.addBotonesListaNegra();
 		 this.addBotonesRetencionGarantias();
-		 
+
 		this.addButton('insertAuto',{argument: {imprimir: 'insertAuto'},text:'<i class="fa fa-file-text-o fa-2x"></i> insertAuto',/*iconCls:'' ,*/disabled:true,handler:this.insertAuto});
 
 
@@ -280,23 +280,24 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 
 
 
-		this.addButton('Clonar',{argument: {imprimir: 'Clonar'},text:'<i class="fa fa-file-text-o fa-2x"></i> Clonar',/*iconCls:'' ,*/disabled:false,handler:this.Clonar});
+		this.addButton('Clonar',{argument: {imprimir: 'Clonar'},text:'<i class="fa fa-file-text-o fa-2x"></i> Clonar',/*iconCls:'' ,*/disabled:true,handler:this.Clonar});
 		//this.addButton('airbp',{argument: {imprimir: 'airbp'},text:'<i class="fa fa-file-text-o fa-2x"></i> airbp',/*iconCls:'' ,*/disabled:false,handler:this.airbp});
 
 
 
-		this.addButton('exportarGestionCompleta',{argument: {imprimir: 'exportarGestionCompleta'},text:'<i class="fa fa-file-text-o fa-2x"></i> Generar Gestion TXT - SIN',/*iconCls:'' ,*/disabled:false,handler:this.exportarGestionCompleta});
+		this.addButton('exportarGestionCompleta',{argument: {imprimir: 'exportarGestionCompleta'},text:'<i class="fa fa-file-text-o fa-2x"></i> Generar Gestion TXT - SIN',/*iconCls:'' ,*/disabled:true,handler:this.exportarGestionCompleta});
 
 
-        this.addButton('consultarPosiblesBancarizaciones',{argument: {imprimir: 'consultarPosiblesBancarizaciones'},text:'<i class="fa fa-file-text-o fa-2x"></i> Posibles Bancarizaciones',/*iconCls:'' ,*/disabled:false,handler:this.consultarPosiblesBancarizaciones});
+        this.addButton('consultarPosiblesBancarizaciones',{argument: {imprimir: 'consultarPosiblesBancarizaciones'},text:'<i class="fa fa-file-text-o fa-2x"></i> Posibles Bancarizaciones',/*iconCls:'' ,*/disabled:true,handler:this.consultarPosiblesBancarizaciones});
 
-
+        this.getBoton('new').disable();
         //this.load({params:{start:0, limit:this.tam_pag}})
 	},
 	
 	
 	capturaFiltros:function(combo, record, index){
         this.desbloquearOrdenamientoGrid();
+        this.getBoton('new').disable();
         if(this.validarFiltros()){
         	if(this.cmbResolucion.getValue() == 'todos'){
         		this.store.baseParams.resolucion = '';
@@ -318,11 +319,36 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
     
     validarFiltros:function(){
         if(this.cmbDepto.getValue() && this.cmbGestion.validate() && this.cmbPeriodo.validate()){
-        	this.getBoton('insertAuto').enable();
-        	this.getBoton('exportar').enable();
-        	this.getBoton('Importar').enable();
-        	this.getBoton('Acumulado').enable();
-        	this.getBoton('BorrarTodo').enable();
+
+            //this.getBoton('new').enable();
+
+        	if (this.cmbPeriodo.getValue()==0){
+                this.getBoton('insertAuto').disable();
+                this.getBoton('exportar').disable();
+                this.getBoton('Importar').disable();
+                this.getBoton('Acumulado').disable();
+                this.getBoton('BorrarTodo').disable();
+                this.getBoton('btnChequeoDocumentosWf').disable();
+                this.getBoton('new').disable();
+                this.getBoton('Clonar').disable();
+                this.getBoton('exportarGestionCompleta').disable();
+                this.menuAdqGantt.disable();
+                this.menuRetencionGarantias.disable();
+            }
+            else{
+                this.getBoton('insertAuto').enable();
+                this.getBoton('exportar').enable();
+                this.getBoton('Importar').enable();
+                this.getBoton('Acumulado').enable();
+                this.getBoton('BorrarTodo').enable();
+                this.getBoton('btnChequeoDocumentosWf').enable();
+                this.getBoton('Clonar').enable();
+                this.getBoton('exportarGestionCompleta').enable();
+                this.getBoton('consultarPosiblesBancarizaciones').enable();
+                this.getBoton('new').enable();
+                this.menuAdqGantt.enable();
+                this.menuRetencionGarantias.enable();
+            }
             return true;
         }
         else{
@@ -331,6 +357,12 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
         	this.getBoton('Importar').disable();
         	this.getBoton('Acumulado').disable();
         	this.getBoton('BorrarTodo').disable();
+            this.getBoton('new').disable();
+            //this.getBoton('save').disable();
+            this.getBoton('Clonar').enable();
+            this.getBoton('exportarGestionCompleta').enable();
+            this.getBoton('consultarPosiblesBancarizaciones').enable();
+
             return false;
             
         }
@@ -381,7 +413,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 					fields: ['id_depto','nombre','codigo'],
 					// turn on remote sorting
 					remoteSort: true,
-					baseParams: { par_filtro:'deppto.nombre#deppto.codigo', estado:'activo', codigo_subsistema: 'CONTA'}
+					baseParams: { par_filtro:'deppto.nombre#deppto.codigo', estado:'activo', codigo_subsistema: 'CONTA',prioridad:'1'}
                 }),
                 valueField: 'id_depto',
    				displayField: 'nombre',
@@ -445,14 +477,14 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 						direction: 'ASC'
 					},
 					totalProperty: 'total',
-					fields: ['id_periodo','periodo','id_gestion'],
+					fields: ['id_periodo','periodo','id_gestion','literal'],
 					// turn on remote sorting
 					remoteSort: true,
-					baseParams:{par_filtro:'gestion'}
+					baseParams:{par_filtro:'gestion',_adicionar:'si'}
 				}),
 				valueField: 'id_periodo',
 				triggerAction: 'all',
-				displayField: 'periodo',
+				displayField: 'literal',
 			    hiddenName: 'id_periodo',
     			mode:'remote',
 				pageSize:50,
@@ -1890,6 +1922,8 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 	},
 	bdel:true,
 	bsave:true,
+    bnew: true,
+    bsave: false,
 	
 	
 	
@@ -1956,6 +1990,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
         	
             this.store.baseParams.id_gestion=this.cmbGestion.getValue();
             this.store.baseParams.id_periodo = this.cmbPeriodo.getValue();
+            //console.log('periodo',this.cmbPeriodo.getValue());
             this.store.baseParams.id_depto = this.cmbDepto.getValue();
             this.store.baseParams.tipo = this.tipoBan;
             
@@ -1971,21 +2006,24 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
         }
         else{
         	this.accionFormulario = 'NEW';
-            Phx.vista.BancaCompraVenta.superclass.onButtonNew.call(this);//habilita el boton y se abre
-            
-            this.Cmp.id_depto_conta.setValue(this.cmbDepto.getValue()); 
-            this.Cmp.id_periodo.setValue(this.cmbPeriodo.getValue()); 
-            //this.Cmp.tipo.setValue(this.cmbTipo.getValue()); 
-            
-            Ext.Ajax.request({
-                url: '../../sis_parametros/control/Periodo/literalPeriodo',
-                params: { "id_periodo":this.cmbPeriodo.getValue(),"id_depto_conta":this.cmbDepto.getValue()},
-                success: this.successLiteralPeriodo,
-                failure: this.conexionFailure,
-                timeout: this.timeout,
-                scope:   this
-            });
-            
+            if (this.cmbPeriodo.getValue()!=0){
+        	    Phx.vista.BancaCompraVenta.superclass.onButtonNew.call(this);//habilita el boton y se abre
+                this.Cmp.id_depto_conta.setValue(this.cmbDepto.getValue());
+                this.Cmp.id_periodo.setValue(this.cmbPeriodo.getValue());
+                //this.Cmp.tipo.setValue(this.cmbTipo.getValue());
+
+                Ext.Ajax.request({
+                    url: '../../sis_parametros/control/Periodo/literalPeriodo',
+                    params: { "id_periodo":this.cmbPeriodo.getValue(),"id_depto_conta":this.cmbDepto.getValue()},
+                    success: this.successLiteralPeriodo,
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope:   this
+                });
+            }
+            else{
+                alert('NO ES POSIBLE CREAR UN NUEVO REGISTRO AL ENLISTAR EL PERIODO --TODOS--');
+            }
             
             
         }
@@ -2005,11 +2043,11 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
         if(data['revisado'] ==  'no' ){
             this.getBoton('edit').enable();
             this.getBoton('del').enable();
-         
          }
          else{
             this.getBoton('edit').disable();
             this.getBoton('del').disable();
+
          } 
 	        
     },

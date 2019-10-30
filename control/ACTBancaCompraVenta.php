@@ -6,40 +6,28 @@
  *@date 11-09-2015 14:36:46
  *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
  */
-class ACTBancaCompraVenta extends ACTbase{ 
+class ACTBancaCompraVenta extends ACTbase{
 
     function listarBancaCompraVenta(){
         $this->objParam->defecto('ordenacion','id_periodo');
         $this->objParam->defecto('dir_ordenacion','asc');
-
-
         $this->objParam->addFiltro("confmo.tipo = ''Modalidad de transacción''
                         and conftt.tipo = ''Tipo de transacción''
                         and conftd.tipo = ''Tipo de documento de pago'' ");
-
         if($this->objParam->getParametro('tipo') != ''){
             $this->objParam->addFiltro("banca.tipo = ''".$this->objParam->getParametro('tipo')."'' ");
-
-
-
         }
         if($this->objParam->getParametro('id_periodo') != ''){
-            $this->objParam->addFiltro("banca.id_periodo = ".$this->objParam->getParametro('id_periodo'));
+                $this->objParam->addFiltro("banca.id_periodo in( select * from param.f_get_periodo_anual(".$this->objParam->getParametro('id_gestion').",".$this->objParam->getParametro('id_periodo').") )");
+
+            //$this->objParam->addFiltro("banca.id_periodo = ".$this->objParam->getParametro('id_periodo'));
         }
-
-
-
         if($this->objParam->getParametro('autorizacion') != ''){
             $this->objParam->addFiltro("banca.autorizacion = ".$this->objParam->getParametro('autorizacion'));
         }
-
-
         /*if($this->objParam->getParametro('id_contrato') != ''){
             $this->objParam->addFiltro("banca.id_contrato = ".$this->objParam->getParametro('id_contrato'));
         }*/
-
-
-
         if($this->objParam->getParametro('acumulado') == 'si'){
             if($this->objParam->getParametro('id_contrato_fk') != ''){
                 $this->objParam->addFiltro("banca.id_contrato in ( ".$this->objParam->getParametro('id_contrato').", ".$this->objParam->getParametro('id_contrato_fk')." ) ");
@@ -51,38 +39,24 @@ class ACTBancaCompraVenta extends ACTbase{
             }
             if($this->objParam->getParametro('num_documento') != ''){
                 $this->objParam->addFiltro("banca.num_documento = ''".$this->objParam->getParametro('num_documento')."'' ");
-
             }
-
-
         }
-
         if($this->objParam->getParametro('id_depto') != ''){
             $this->objParam->addFiltro("banca.id_depto_conta = ".$this->objParam->getParametro('id_depto'));
-
         }
-
-
         if($this->objParam->getParametro('resolucion') != ''){
             $this->objParam->addFiltro("banca.resolucion = ''".$this->objParam->getParametro('resolucion')."'' ");
-
         }
-
-
-
-
-
-
         if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
             $this->objReporte = new Reporte($this->objParam,$this);
             $this->res = $this->objReporte->generarReporteListado('MODBancaCompraVenta','listarBancaCompraVenta');
         } else{
             $this->objFunc=$this->create('MODBancaCompraVenta');
-
             $this->res=$this->objFunc->listarBancaCompraVenta($this->objParam);
         }
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+
 
     function insertarBancaCompraVenta(){
         $this->objFunc=$this->create('MODBancaCompraVenta');
