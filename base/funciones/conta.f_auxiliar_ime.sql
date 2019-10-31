@@ -42,6 +42,7 @@ DECLARE
     v_cadena_execute		varchar;
     v_usuario_reg			varchar;
     v_res_conn				varchar;
+	v_existencia			integer;					   
 BEGIN
 
     v_nombre_funcion = 'conta.f_auxiliar_ime';
@@ -57,6 +58,16 @@ BEGIN
 	if(p_transaccion='CONTA_AUXCTA_INS')then
 
         begin
+		
+			select count(*) into v_existencia
+             from conta.tauxiliar auxi
+             where auxi.codigo_auxiliar = v_parametros.codigo_auxiliar or
+                   auxi.nombre_auxiliar = v_parametros.nombre_auxiliar;
+                   
+            if v_existencia > 0 then
+             raise exception 'El codigo o nombre del auxiliar ya se encuentran registrados';
+            end if;  
+		   
         	--Sentencia de la insercion
         	insert into conta.tauxiliar(
 			--id_empresa,
