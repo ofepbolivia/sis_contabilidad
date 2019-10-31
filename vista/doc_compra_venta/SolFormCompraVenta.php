@@ -30,6 +30,9 @@ header("content-type: text/javascript; charset=UTF-8");
         tipo_pres_recurso: 'recurso',
         aux: '',
         constructor: function (config) {
+
+            this.razon_social=config.data.objPadre.maestro.nombre_pago;
+
             this.addEvents('beforesave');
             this.addEvents('successsave');
             if (config.data.mostrarFormaPago === false) {
@@ -2173,6 +2176,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.nro_autorizacion.modificado = true;
             this.esconderImportes();
 
+            this.getComponente('razon_social').setValue(this.razon_social);
 
             this.Cmp.id_depto_conta.setValue(this.data.id_depto);
             this.Cmp.id_gestion.setValue(this.data.id_gestion);

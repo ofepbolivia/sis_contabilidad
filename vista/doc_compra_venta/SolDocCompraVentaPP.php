@@ -22,6 +22,7 @@ header("content-type: text/javascript; charset=UTF-8");
             // this.disparador= this.maestro.disparador == undefined ?'contabilidad':this.maestro.disparador;
             this.disparador = this.maestro.disparador == undefined ? 'obligacion' : this.maestro.disparador;
 
+            this.maestro.razon_social=(Phx.CP.getPagina(this.maestro.id_padre)).getComponente('nombre_pago').getValue();
 
             this.init();
 
