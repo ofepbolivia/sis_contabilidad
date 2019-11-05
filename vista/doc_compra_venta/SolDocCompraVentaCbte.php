@@ -850,6 +850,18 @@ header("content-type: text/javascript; charset=UTF-8");
 
         preparaMenu: function (tb) {
             Phx.vista.SolDocCompraVentaCbte.superclass.preparaMenu.call(this, tb)
+            var data = this.getSelectedData();
+            console.log('this',data['desc_plantilla']);
+            var data = this.getSelectedData();
+            if(data['desc_plantilla']== 'Nota de Crédito' || data['desc_plantilla']== 'Nota de Débito'){
+                this.getBoton('edit').disable();
+                //this.getBoton('del').disable();
+            }
+            else{
+                this.getBoton('edit').enable();
+                //this.getBoton('del').enable();
+
+            }
             // this.getBoton('btnShowDoc').enable();
         },
 
