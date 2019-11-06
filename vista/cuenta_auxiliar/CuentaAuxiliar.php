@@ -53,11 +53,8 @@ Phx.vista.CuentaAuxiliar=Ext.extend(Phx.gridInterfaz,{
                  },
                 type:'ComboRec',
                 id_grupo:0,
-                filters:{   
-                    pfiltro:'au.codigo_auxiliar#au.nombre_auxiliar',
-                    type:'string'
-                },
-               
+                filters:{pfiltro:'aux.nombre_auxiliar#aux.codigo_auxiliar',type:'string'},
+                bottom_filter : true,
                 grid:true,
                 form:true
         },

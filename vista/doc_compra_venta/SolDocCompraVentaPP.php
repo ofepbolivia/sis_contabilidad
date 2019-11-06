@@ -16,14 +16,14 @@ header("content-type: text/javascript; charset=UTF-8");
         constructor: function (config) {
             var me = this;
             this.maestro = config;
-            this.tipo_cambio_1=0;
             console.log('franky', this.maestro);
             ///llama al constructor de la clase padre
             Phx.vista.SolDocCompraVentaPP.superclass.constructor.call(this, config);
             // this.disparador= this.maestro.disparador == undefined ?'contabilidad':this.maestro.disparador;
             this.disparador = this.maestro.disparador == undefined ? 'obligacion' : this.maestro.disparador;
-            console.log('razon social',(Phx.CP.getPagina(this.maestro.id_padre)).getComponente('nombre_pago').getValue());
+
             this.maestro.razon_social=(Phx.CP.getPagina(this.maestro.id_padre)).getComponente('nombre_pago').getValue();
+
             this.init();
 
             // this.addButton('btnShowDoc',
@@ -106,69 +106,69 @@ header("content-type: text/javascript; charset=UTF-8");
                 console.log('llegamay', this.maestro.tipo_cambio);
                 console.log('tipo_moneda2',this.maestro.tipo_moneda);
                 console.log('moneda',moneda);
-/*
-                if(this.maestro.tipo_cambio == 1){
-                                    console.log('llegamay1', this.maestro.tipo_cambio)
-                                    console.log('llegamaytipocambionewfac1', this.grid.store.data.items[i].data.tipo_cambio )
-                                    if(this.grid.store.data.items[i].data.tipo_cambio == 1 || this.grid.store.data.items[i].data.tipo_cambio == null){
-                                        alerta si necesita el tipo de cambio
-                                        Ext.Msg.prompt({
-                                            title: 'Alerta',
-                                            msg: '<b> Estimado Usuario: <br><br><span style="color: red;">No ha definido un valor para en el campo "tipo de cambio".</span></b>',
-                                            fn: function (text) {
-                                                console.log('legatext', text)
-                                            },
-                                            scope: this
-                                        });
-                                        Ext.Msg.prompt('Alerta', '<b> Estimado Usuario: <br><br><span style="color: red;">Definir "Tipo de Cambio" de la Factura.</span></b>', function(btn, text){
-                                            if (btn == 'ok'){
-                                                console.log('text:', text)
-                                                 tipo_cambio = text;
-                                                console.log('maestrotipocambio',tipo_cambio)
-                                            }
-                                        });
+                /*
+                                if(this.maestro.tipo_cambio == 1){
+                                                    console.log('llegamay1', this.maestro.tipo_cambio)
+                                                    console.log('llegamaytipocambionewfac1', this.grid.store.data.items[i].data.tipo_cambio )
+                                                    if(this.grid.store.data.items[i].data.tipo_cambio == 1 || this.grid.store.data.items[i].data.tipo_cambio == null){
+                                                        alerta si necesita el tipo de cambio
+                                                        Ext.Msg.prompt({
+                                                            title: 'Alerta',
+                                                            msg: '<b> Estimado Usuario: <br><br><span style="color: red;">No ha definido un valor para en el campo "tipo de cambio".</span></b>',
+                                                            fn: function (text) {
+                                                                console.log('legatext', text)
+                                                            },
+                                                            scope: this
+                                                        });
+                                                        Ext.Msg.prompt('Alerta', '<b> Estimado Usuario: <br><br><span style="color: red;">Definir "Tipo de Cambio" de la Factura.</span></b>', function(btn, text){
+                                                            if (btn == 'ok'){
+                                                                console.log('text:', text)
+                                                                 tipo_cambio = text;
+                                                                console.log('maestrotipocambio',tipo_cambio)
+                                                            }
+                                                        });
 
-                                        if (this.grid.store.data.items[i].data.id_plantilla == 53) {
-                                            //if (this.grid.store.data.items[i].data.id_plantilla == 42)
-                                            total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc) / parseFloat(tipo_cambio);
-                                        }
-                                        else {
-                                            console.log('moneda12', this.grid.store.data.items[i].data.id_moneda)
-                                            console.log('importee', parseFloat(this.grid.store.data.items[i].data.importe_doc))
-                                            total_1 = 0;
-                                            if (this.grid.store.data.items[i].data.id_moneda == 2){
-                                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc) ;
-                                            }else{
-                                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/ parseFloat(tipo_cambio);
-                                            }
-                                        }
-                                    }else{
-                                        if (this.grid.store.data.items[i].data.id_plantilla ==52)
-                                       if (this.grid.store.data.items[i].data.id_plantilla == 42)
-                                            if (this.grid.store.data.items[i].data.id_moneda == 2){
-                                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc) ;
-                                            }else{
-                                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/ parseFloat(tipo_cambio);
-                                            }
-                                    }
-                                }else{
-                                    console.log('llegamay2', this.maestro.tipo_cambio)
-                                    console.log('llegamaytipocambionewfac', this.grid.store.data.items[i].data.tipo_cambio )
-                                    if(this.grid.store.data.items[i].data.tipo_cambio == 1 || this.grid.store.data.items[i].data.tipo_cambio == null){
-                                        if (this.grid.store.data.items[i].data.id_plantilla == 52)
-                                        if (this.grid.store.data.items[i].data.id_plantilla == 42)
-                                            total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc)/parseFloat(this.maestro.tipo_cambio);
-                                        else
-                                            total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/parseFloat(this.maestro.tipo_cambio);
-                                    }else{
-                                        if (this.grid.store.data.items[i].data.id_plantilla == 52)
-                                        if (this.grid.store.data.items[i].data.id_plantilla == 42)
-                                            total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc);
-                                        else
-                                            total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc);
-                                    }
-                                }
-*/
+                                                        if (this.grid.store.data.items[i].data.id_plantilla == 53) {
+                                                            //if (this.grid.store.data.items[i].data.id_plantilla == 42)
+                                                            total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc) / parseFloat(tipo_cambio);
+                                                        }
+                                                        else {
+                                                            console.log('moneda12', this.grid.store.data.items[i].data.id_moneda)
+                                                            console.log('importee', parseFloat(this.grid.store.data.items[i].data.importe_doc))
+                                                            total_1 = 0;
+                                                            if (this.grid.store.data.items[i].data.id_moneda == 2){
+                                                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc) ;
+                                                            }else{
+                                                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/ parseFloat(tipo_cambio);
+                                                            }
+                                                        }
+                                                    }else{
+                                                        if (this.grid.store.data.items[i].data.id_plantilla ==52)
+                                                       if (this.grid.store.data.items[i].data.id_plantilla == 42)
+                                                            if (this.grid.store.data.items[i].data.id_moneda == 2){
+                                                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc) ;
+                                                            }else{
+                                                                total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/ parseFloat(tipo_cambio);
+                                                            }
+                                                    }
+                                                }else{
+                                                    console.log('llegamay2', this.maestro.tipo_cambio)
+                                                    console.log('llegamaytipocambionewfac', this.grid.store.data.items[i].data.tipo_cambio )
+                                                    if(this.grid.store.data.items[i].data.tipo_cambio == 1 || this.grid.store.data.items[i].data.tipo_cambio == null){
+                                                        if (this.grid.store.data.items[i].data.id_plantilla == 52)
+                                                        if (this.grid.store.data.items[i].data.id_plantilla == 42)
+                                                            total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc)/parseFloat(this.maestro.tipo_cambio);
+                                                        else
+                                                            total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/parseFloat(this.maestro.tipo_cambio);
+                                                    }else{
+                                                        if (this.grid.store.data.items[i].data.id_plantilla == 52)
+                                                        if (this.grid.store.data.items[i].data.id_plantilla == 42)
+                                                            total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc);
+                                                        else
+                                                            total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc);
+                                                    }
+                                                }
+                */
                 //cambio Alan al 22/10/2019
                 console.log('tipo moneda deb/cred',this.grid.store.data.items[i].data.desc_moneda);
                 console.log('tipo cambio credito/debito',this.grid.store.data.items[i].data.tipo_cambio);
@@ -176,7 +176,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     console.log('tipo moneda1',this.maestro.tipo_moneda);
                     if(this.maestro.tipo_cambio==1){//implica que el banco esta en bs
                         //if(this.grid.store.data.items[i].tipo_cambio==1){//implica que la nota de debito/credito esta en bs
-                            if(this.grid.store.data.items[i].data.desc_moneda=='Bs' || this.grid.store.data.items[i].data.desc_moneda=='$'){
+                        if(this.grid.store.data.items[i].data.desc_moneda=='Bs' || this.grid.store.data.items[i].data.desc_moneda=='$'){
                             console.log('llega cambio 1 ',this.grid.store.data.items[i].data.desc_moneda);
                             if (this.grid.store.data.items[i].data.id_plantilla == 42){//plantilla de debito
                                 total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc) ;
@@ -201,7 +201,7 @@ header("content-type: text/javascript; charset=UTF-8");
                             }
                             else {
                                 this.tipo_cambio_1 = 0;
-                                }
+                            }
                             if (this.grid.store.data.items[i].data.id_plantilla == 42) {//plantilla de debito
                                 total = total - parseFloat(this.grid.store.data.items[i].data.importe_doc) * tipo_cambio;
                             }
@@ -287,7 +287,7 @@ header("content-type: text/javascript; charset=UTF-8");
                             }
                             else{//plantilla de credito
                                 total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/this.maestro.tipo_cambio;
-                               // total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/this.grid.store.data.items[i].data.tipo_cambio;
+                                // total = total + parseFloat(this.grid.store.data.items[i].data.importe_doc)/this.grid.store.data.items[i].data.tipo_cambio;
                             }
                         }
 
@@ -1076,6 +1076,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }else{
                 this.store.baseParams = {id_plan_pago: 0};
             }
+
 
             this.abrirFormulario('new', undefined, this.store.baseParams)
 

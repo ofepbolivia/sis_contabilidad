@@ -30,11 +30,15 @@ header("content-type: text/javascript; charset=UTF-8");
         tipo_pres_recurso: 'recurso',
         aux: '',
         constructor: function (config) {
+
+            this.razon_social=config.data.objPadre.maestro.razon_social;
+
             this.addEvents('beforesave');
             this.addEvents('successsave');
             if (config.data.mostrarFormaPago === false) {
-                this.mostrarFormaPago = config.data.mostrarFormaPago;
-            }
+                this.mostrarFormaPago = config.data.mostrarFormaPago;          }
+
+
             Ext.apply(this, config);
             this.obtenerVariableGlobal(config);
             console.log('config', config);
@@ -2173,6 +2177,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.nro_autorizacion.modificado = true;
             this.esconderImportes();
 
+            //alan
+            this.Cmp.razon_social.setValue(this.razon_social);
 
             this.Cmp.id_depto_conta.setValue(this.data.id_depto);
             this.Cmp.id_gestion.setValue(this.data.id_gestion);

@@ -30,8 +30,9 @@ header("content-type: text/javascript; charset=UTF-8");
         tipo_pres_recurso: 'recurso',
         aux: '',
         constructor: function (config) {
-            console.log('razon social',config.data.objPadre.maestro.nombre_pago);
+
             this.razon_social=config.data.objPadre.maestro.nombre_pago;
+
             this.addEvents('beforesave');
             this.addEvents('successsave');
             if (config.data.mostrarFormaPago === false) {
@@ -1905,6 +1906,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }, this);
 
         },
+
         resetearMontos: function () {
             this.Cmp.importe_doc.setValue(0);
             this.Cmp.importe_neto.setValue(0);
@@ -2147,7 +2149,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.loadForm(this.data.datosOriginales);
             }
 
-            console.log('editar ',this.Cmp.id_plantilla.getValue());
+
             this.esconderImportes();
             //carga configuracion de plantilla
             this.getPlantilla(this.Cmp.id_plantilla.getValue());
@@ -2173,6 +2175,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.nit.modificado = true;
             this.Cmp.nro_autorizacion.modificado = true;
             this.esconderImportes();
+
             this.getComponente('razon_social').setValue(this.razon_social);
 
             this.Cmp.id_depto_conta.setValue(this.data.id_depto);
