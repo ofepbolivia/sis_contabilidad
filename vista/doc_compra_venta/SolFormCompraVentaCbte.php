@@ -19,7 +19,7 @@ header("content-type: text/javascript; charset=UTF-8");
         heightHeader: 245,
         constructor: function (config) {
             Phx.vista.SolFormCompraVentaCbte.superclass.constructor.call(this, config);
-            console.log('config', config);
+            console.log('feeeeeeeeeeeeeeee', config);
         },
 
         extraAtributos: [
@@ -84,6 +84,23 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.fecha_vencimiento.setReadOnly(false);
             this.Cmp.fecha.on('change', this.cargarPeriodo, this);
 
+
+        },
+        preparaMenu:function(tb){
+            Phx.vista.SolFormCompraVenta.superclass.preparaMenu.call(this,tb);
+            console.log('this',this.getBoton('edit'));
+            var data = this.getSelectedData();
+            if(this.Cmp.id_plantilla.getValue()==  42 ||  this.Cmp.id_plantilla.getValue()==  41){
+                this.getBoton('edit').disable();
+                //this.getBoton('del').disable();
+            }
+            else{
+                this.getBoton('edit').enable();
+                //this.getBoton('del').enable();
+
+            }
+            //this.Cmp.id_plantilla.getValue();
+            //console.log('plantilla ', this.data['id_plantilla']);
 
         },
 

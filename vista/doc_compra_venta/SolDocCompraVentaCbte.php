@@ -16,6 +16,7 @@ header("content-type: text/javascript; charset=UTF-8");
         constructor: function (config) {
             var me = this;
             this.maestro = config;
+            console.log('config cbte',config);
             //llama al constructor de la clase padre
             Phx.vista.SolDocCompraVentaCbte.superclass.constructor.call(this, config);
             // this.disparador= this.maestro.disparador == undefined ?'contabilidad':this.maestro.disparador;
@@ -88,7 +89,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                 'desc_plantilla', 'desc_moneda', 'importe_doc', 'nro_documento',
                                 'tipo', 'razon_social', 'fecha'],
                             remoteSort: true,
-                            baseParams: {par_filtro: 'pla.desc_plantilla#dcv.razon_social#dcv.nro_documento#dcv.nit#dcv.importe_doc#dcv.codigo_control'},
+                            baseParams: {par_filtro: 'pla.desc_plantilla#dcv.razon_social#dcv.nro_documento#dcv.nit#dcv.importe_doc#dcv.codigo_control',relacionado:'no'},
                         }),
                     tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>{razon_social}</b>,  NIT: {nit}</p><p>{desc_plantilla} </p><p ><span style="color: #F00000">Doc: {nro_documento}</span> de Fecha: {fecha}</p><p style="color: green;"> {importe_doc} {desc_moneda}  </p></div></tpl>',
                     valueField: 'id_doc_compra_venta',
@@ -835,7 +836,12 @@ header("content-type: text/javascript; charset=UTF-8");
         newDoc: function () {
 
             Phx.vista.SolDocCompraVentaCbte.superclass.onButtonNew.call(this);
-
+            console.log('llega boton',Ext.apply(this.Cmp.id_doc_compra_venta.store.baseParams,
+                {
+                    fecha_cbte: this.fecha,
+                    sin_cbte: 'si',
+                    manual: 'si'
+                }));
             this.Cmp.id_doc_compra_venta.store.baseParams = Ext.apply(this.Cmp.id_doc_compra_venta.store.baseParams,
                 {
                     fecha_cbte: this.fecha,
@@ -850,6 +856,18 @@ header("content-type: text/javascript; charset=UTF-8");
 
         preparaMenu: function (tb) {
             Phx.vista.SolDocCompraVentaCbte.superclass.preparaMenu.call(this, tb)
+            var data = this.getSelectedData();
+            console.log('this',data['desc_plantilla']);
+            var data = this.getSelectedData();
+            if(data['desc_plantilla']== 'Nota de Crédito' || data['desc_plantilla']== 'Nota de Débito'){
+                this.getBoton('edit').disable();
+                //this.getBoton('del').disable();
+            }
+            else{
+                this.getBoton('edit').enable();
+                //this.getBoton('del').enable();
+
+            }
             // this.getBoton('btnShowDoc').enable();
         },
 
