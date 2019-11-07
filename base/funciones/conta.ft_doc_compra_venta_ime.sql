@@ -1574,10 +1574,10 @@ END IF;
       return v_resp;
 
     end;
-  /*********************************
+   /*********************************
  #TRANSACCION:  'CONTA_ADDCBTE_IME'
  #DESCRIPCION:	adiciona un documento al comprobante
- #AUTOR:		RAC
+ #AUTOR:		RAC mod Alan 06/11/2019
  #FECHA:		25-09-2015 15:57:09
 ***********************************/
 
@@ -1610,6 +1610,7 @@ END IF;
                     where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
 
             ELSE
+
                   --para tipo de obligaciones internacionales sp, spd y spi, porque se añade desde un estado en borrador
                   SELECT op.tipo_obligacion
                   INTO v_tipo_obligacion

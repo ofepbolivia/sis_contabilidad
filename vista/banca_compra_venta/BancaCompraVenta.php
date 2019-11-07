@@ -2043,6 +2043,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
         if(data['revisado'] ==  'no' ){
             this.getBoton('edit').enable();
             this.getBoton('del').enable();
+            console.log('llega',data['revisado']);
          }
          else{
             this.getBoton('edit').disable();

@@ -66,6 +66,11 @@ class ACTDocCompraVenta extends ACTbase
                 $this->objParam->addFiltro("dcv.id_depto_conta = " . $this->objParam->getParametro('id_depto'));
         }
 
+        if ($this->objParam->getParametro('relacionado') != '') {
+            if ($this->objParam->getParametro('relacionado')=='no')
+                    $this->objParam->addFiltro("dcv.id_plan_pago is null");
+        }
+
         if ($this->objParam->getParametro('id_agrupador') != '') {
             $this->objParam->addFiltro("dcv.id_doc_compra_venta not in (select ad.id_doc_compra_venta from conta.tagrupador_doc ad where ad.id_agrupador = " . $this->objParam->getParametro('id_agrupador') . ") ");
         }
