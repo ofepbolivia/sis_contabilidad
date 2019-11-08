@@ -14,17 +14,10 @@ $body$
 Autor inicial GAIME RIVERA ROJAS (No sabe porner comentarios)
 Fecha 28/02/2013
 Descripcion: nose por que el guy no puso comentarios
-
-
 Autor:  Rensi Arteaga Copari
 Fecha 21/08/2013
 Descripcion:   Esta funcion inicia la generacion de comprobantes contables,
                apartir de una plantilla predefinida
-
-
-
-
-
 */
 
 
@@ -107,7 +100,7 @@ BEGIN
     IF p_codigo is null THEN
       raise exception 'El codigo de plantilla del cbte no puede ser nulo';
     END IF;
-
+	--raise exception 'codigo %',p_codigo;
     select * into v_plantilla
 	from conta.tplantilla_comprobante cbte
 	where cbte.codigo=p_codigo;
@@ -143,6 +136,7 @@ BEGIN
     --v_columnas=conta.f_obtener_columnas(p_codigo)::varchar;
 
     v_columnas=conta.f_obtener_columnas_detalle(hstore(v_plantilla),v_def_campos)::varchar;
+
 	v_columnas=replace(v_columnas,'{','');
 	v_columnas=replace(v_columnas,'}','');
     v_consulta = 'select '||v_columnas ||
@@ -161,13 +155,10 @@ BEGIN
 
 
     -- raise exception 'llega .. % , % , % -',p_codigo, v_plantilla.tabla_origen,p_id_tabla_valor ;
-
- execute	'select '||v_columnas ||
+-- raise exception 'llega % / % / % / %',v_columnas, v_plantilla.tabla_origen,v_plantilla.id_tabla,p_id_tabla_valor;
+    execute	'select '||v_columnas ||--',tipo_cambio_conv as tipo_cambio'||
             ' from '||v_plantilla.tabla_origen|| ' where '
             ||v_plantilla.tabla_origen||'.'||v_plantilla.id_tabla||'='||p_id_tabla_valor||'' into v_tabla;
-
-
-
 
     ----------------------------------------------------------
     --  OBTIENE LOS VALORES,  THIS   (tipo de dato agrupador)
@@ -323,6 +314,8 @@ BEGIN
                                                                   hstore(v_tabla))::numeric;
 	end if;
 
+	--raise exception 'llega %',v_this.columna_tipo_cambio;
+	 --v_this.columna_tipo_cambio = v_tabla.tipo_cambio :: numeric;
 
     --RAC: guardar id_cuenta_bancaria_mov
     if ( v_plantilla.campo_cbte_relacionado != ''  AND  v_plantilla.campo_cbte_relacionado is not null ) then
@@ -398,12 +391,26 @@ BEGIN
 
 
       	--calcular el tipo de cambio segun fecha y moneda del comprobante
-      	IF v_this.columna_tipo_cambio is NULL THEN
+      	/*IF v_this.columna_tipo_cambio is NULL THEN
           v_tipo_cambio =   param.f_get_tipo_cambio( v_this.columna_moneda::integer, v_this.columna_fecha::date, 'O');
       	ELSE
           v_tipo_cambio = v_this.columna_tipo_cambio;
-     	END IF;
-
+     	END IF;*/
+        IF v_this.columna_tipo_cambio is NULL THEN
+        	--(franklin.espinoza) 2-9-2019
+          select tpp.tipo_cambio
+          into v_tipo_cambio
+          from tes.tplan_pago tpp
+          where tpp.id_plan_pago = p_id_tabla_valor;
+          if v_tipo_cambio is null then
+            v_tipo_cambio =   param.f_get_tipo_cambio( v_this.columna_moneda::integer, v_this.columna_fecha::date, 'O');
+          end if;
+          --(franklin.espinoza) si columna_tipo_cambio es null se define como tipo de cambio
+          v_this.columna_tipo_cambio = v_tipo_cambio;
+      	ELSE
+          v_tipo_cambio = v_this.columna_tipo_cambio;
+     	  END IF;
+		--raise exception 'tipo cambio1: %',v_tipo_cambio;
     --deterinar si es temporal
     v_temporal = 'no';
     v_localidad = 'nacional';
@@ -411,6 +418,7 @@ BEGIN
     IF p_sincronizar_internacional THEN
       v_temporal = 'si';
       v_localidad = 'internacional';
+
     END IF;
 
 
@@ -581,7 +589,6 @@ BEGIN
     FROM param.tfirma fir
     WHERE fir.prioridad = 2
     and fir.id_depto = v_this.columna_depto;
-
     --para comprobantes que no tengan firmas de funcionario parametrizados
     IF (v_prioridad1_firm is Null and v_prioridad2_firm is Null)THEN
     		INSERT INTO  conta.tint_comprobante
@@ -632,7 +639,8 @@ BEGIN
                 v_id_subsistema, --TODO agregar a la interface de plantilla,
                 v_this.columna_depto::integer,
                 v_this.columna_libro_banco::integer,
-                v_this.columna_moneda::integer,
+                --v_this.columna_moneda::integer,
+                v_id_moneda,
                 v_rec_periodo.po_id_periodo,
                 v_plantilla.momento_presupuestario, -- contable, o presupuestario
                 v_plantilla.momento_comprometido,
@@ -717,7 +725,8 @@ BEGIN
                   v_id_subsistema, --TODO agregar a la interface de plantilla,
                   v_this.columna_depto::integer,
                   v_this.columna_libro_banco::integer,
-                  v_this.columna_moneda::integer,
+                  --v_this.columna_moneda::integer,
+                  v_id_moneda,
                   v_rec_periodo.po_id_periodo,
                   v_plantilla.momento_presupuestario, -- contable, o presupuestario
                   v_plantilla.momento_comprometido,
@@ -773,7 +782,7 @@ BEGIN
                             p_id_usuario
                            );
 
-
+--raise exception 'llega - res- gen_transaccion';
 
 
     -- procesar las trasaaciones (con diversos propositos, ejm validar  cuentas bancarias)
