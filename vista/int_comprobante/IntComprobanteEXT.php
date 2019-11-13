@@ -231,6 +231,9 @@ header("content-type: text/javascript; charset=UTF-8");
                     queryEvent.cancel = true;
                 }
             }, this);
+
+
+
         },
 
         Atributos: [{
@@ -360,13 +363,10 @@ header("content-type: text/javascript; charset=UTF-8");
                     name: 'fecha',
                     fieldLabel: 'Fecha',
                     allowBlank: false,
-                    anchor: '80%',
+                    anchor: '90%',
                     maxValue: new Date(),
                     gwidth: 100,
                     format: 'd/m/Y',
-                    // renderer : function(value, p, record) {
-                    //     return value ? value.dateFormat('d/m/Y') : ''
-                    // }
                     renderer: function (value, p, record) {
                         return value ? value.dateFormat('d/m/Y') : ''
                     }
@@ -384,7 +384,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 config: {
                     name: 'id_depto',
                     hiddenName: 'id_depto',
-                    url: '../../sis_parametros/control/Depto/listarDeptoFiltradoXUsuario',
+                    url: '../../sis_parametros/control/Depto/listarDeptoFiltradoPrioridadEXT',
                     origen: 'DEPTO',
                     allowBlank: false,
                     fieldLabel: 'Depto',
@@ -624,7 +624,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 id_grupo: 1,
                 grid: true,
                 form: true
-            }, {
+            },
+
+            {
                 config: {
                     name: 'id_moneda',
                     origen: 'MONEDA',
@@ -646,8 +648,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid: true,
                 form: true
             },
-
-
             {
                 config: {
                     name: 'forma_cambio',
@@ -655,7 +655,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     qtip: 'Tipo cambio oficial, compra, venta o convenido',
                     allowBlank: false,
                     gwidth: 100,
-                    width: 250,
+                    anchor: '90%',
                     typeAhead: true,
                     triggerAction: 'all',
                     lazyRender: true,
@@ -680,7 +680,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     readOnly: true,
                     fieldLabel: 'TC',
                     allowBlank: false,
-                    anchor: '80%',
+                    anchor: '90%',
                     gwidth: 70,
                     maxLength: 20,
                     decimalPrecision: 10
@@ -700,7 +700,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     fieldLabel: '(TC)',
                     allowBlank: false,
                     readOnly: true,
-                    anchor: '80%',
+                    anchor: '90%',
                     gwidth: 70,
                     maxLength: 20,
                     decimalPrecision: 6
@@ -720,7 +720,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     fieldLabel: '(TC)',
                     allowBlank: false,
                     readOnly: true,
-                    anchor: '80%',
+                    anchor: '90%',
                     gwidth: 70,
                     maxLength: 20,
                     decimalPrecision: 6
@@ -1267,8 +1267,12 @@ header("content-type: text/javascript; charset=UTF-8");
             field: 'id_int_comprobante',
             direction: 'desc'
         },
-        bdel: true,
+
+        bdel: false,
         bsave: false,
+        bedit: false,
+        bnew: false,
+
         cmbDepto: new Ext.form.AwesomeCombo({
             name: 'id_depto',
             fieldLabel: 'Depto',
@@ -1848,6 +1852,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 scope: this
             });
         }
+
     })
 </script>
 

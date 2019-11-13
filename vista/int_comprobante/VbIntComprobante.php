@@ -72,7 +72,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 text: 'Igualar',
                 iconCls: 'bengineadd',
                 disabled: false,
-                hidden: true,
+                hidden: false,
                 handler: this.igualarCbte,
                 tooltip: '<b>Igualar comprobante</b><br/>Si existe diferencia por redondeo o por tipo de cambio inserta una transacción para igualar'
             });
