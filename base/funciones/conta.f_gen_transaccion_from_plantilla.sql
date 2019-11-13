@@ -63,6 +63,12 @@ DECLARE
      v_id_int_transaccion_pagado  	integer;
      v_conta_partidas				varchar;
      v_moneda_record				record;
+
+
+      v_monto_gen					numeric;
+     v_moneda_ob	varchar;
+     v_moneda_cb 	varchar;
+
 BEGIN
 
     v_nombre_funcion:='conta.f_gen_transaccion_from_plantilla';
@@ -334,6 +340,20 @@ BEGIN
 
 
                        IF (p_reg_det_plantilla->'forma_calculo_monto') = 'simple' THEN
+                                    select top.id_moneda as id_moneda_op, tcb.id_moneda as id_moneda_cb, tp.monto
+                                            into v_moneda_record
+                                    from tes.tplan_pago tp
+                                    inner join tes.tobligacion_pago top on top.id_obligacion_pago = tp.id_obligacion_pago
+                                    inner join tes.tcuenta_bancaria tcb on tcb.id_cuenta_bancaria = tp.id_cuenta_bancaria
+                                    where tp.id_plan_pago = p_id_tabla_padre_valor;
+
+                                	  select tipo_moneda into v_moneda_ob
+                                    from param.tmoneda
+                                    where id_moneda=v_moneda_record.id_moneda_op;
+                                    
+                                    select tipo_moneda into v_moneda_cb
+                                    from param.tmoneda
+                                    where id_moneda=v_moneda_record.id_moneda_cb;
 
                               IF (p_reg_det_plantilla->'debe_haber') = 'debe' THEN
                               	--(franklin.espinoza) realizamos la conversion del monto por el tipo de cambio
@@ -343,7 +363,33 @@ BEGIN
                                   	v_record_int_tran.importe_haber = 0::numeric;
                                  	v_record_int_tran.importe_recurso = 0::numeric;
                                 else
-                                	select top.id_moneda as id_moneda_op, tcb.id_moneda as id_moneda_cb, tp.monto
+
+                                --alan realizar la conversion por el tipo de cambio y obligacion
+
+                                    if v_moneda_record.id_moneda_op != v_moneda_record.id_moneda_cb --compruebo si la obligacion de pago es distinto del tipo de moneda del banco
+                                    then
+                                    	--raise exception 'monto %',v_this_hstore->'campo_monto';
+                                    	--raise exception 'llega%',v_moneda_record.id_moneda_cb;
+                                        --raise exception 'obligacion % , banco %',v_moneda_record.id_moneda_op,v_moneda_record.id_moneda_cb;
+                                    	--if v_moneda_record.id_moneda_op::integer>v_moneda_record.id_moneda_cb::integer -- compruebo si la obligacion de pago esta en moneda extrnajera
+                                        if v_moneda_ob='ref' and v_moneda_cb='base'
+                                        THEN
+                                        	v_record_int_tran.importe_debe=(p_super->'columna_tipo_cambio')::numeric * (v_this_hstore->'campo_monto')::numeric;
+                                            v_record_int_tran.importe_gasto=(p_super->'columna_tipo_cambio')::numeric * (v_this_hstore->'campo_monto')::numeric;
+                                        else
+                                        	--raise exception 'monto %',v_this_hstore->'campo_monto';
+                                        	v_record_int_tran.importe_debe= (v_this_hstore->'campo_monto')::numeric/(p_super->'columna_tipo_cambio')::numeric;
+                                            v_record_int_tran.importe_gasto=(v_this_hstore->'campo_monto')::numeric/(p_super->'columna_tipo_cambio')::numeric;
+                                            --raise exception 'v_record_int_tran%',v_record_int_tran.importe_debe;
+                                        end if;
+                                        --raise exception 'v_record_int_trandebe%',p_super->'columna_tipo_cambio';
+
+                                    ELSE
+                                    	v_record_int_tran.importe_debe=(v_this_hstore->'campo_monto')::numeric;
+                                        v_record_int_tran.importe_gasto=(v_this_hstore->'campo_monto_pres')::numeric;
+
+                                    end if;
+                                /*	select top.id_moneda as id_moneda_op, tcb.id_moneda as id_moneda_cb, tp.monto
                                     into v_moneda_record
                                     from tes.tplan_pago tp
                                     inner join tes.tobligacion_pago top on top.id_obligacion_pago = tp.id_obligacion_pago
@@ -357,7 +403,7 @@ BEGIN
                                     								  (p_super->'columna_tipo_cambio')::numeric * (v_this_hstore->'campo_monto')::numeric
                                     								  else (v_this_hstore->'campo_monto_pres')::numeric end;
                                   	v_record_int_tran.importe_haber = 0::numeric;
-                                 	v_record_int_tran.importe_recurso = 0::numeric;
+                                 	v_record_int_tran.importe_recurso = 0::numeric;*/
                                 end if;
 
                               ELSE
@@ -369,21 +415,45 @@ BEGIN
                                  	v_record_int_tran.importe_recurso = (v_this_hstore->'campo_monto_pres')::numeric;
                               	else
 
-                                	select top.id_moneda as id_moneda_op, tcb.id_moneda as id_moneda_cb, tp.monto
+                                	/*select top.id_moneda as id_moneda_op, tcb.id_moneda as id_moneda_cb, tp.monto
                                     into v_moneda_record
                                     from tes.tplan_pago tp
                                     inner join tes.tobligacion_pago top on top.id_obligacion_pago = tp.id_obligacion_pago
                                     inner join tes.tcuenta_bancaria tcb on tcb.id_cuenta_bancaria = tp.id_cuenta_bancaria
-                                    where tp.id_plan_pago = p_id_tabla_padre_valor;
+                                    where tp.id_plan_pago = p_id_tabla_padre_valor;*/
 
                                 	v_record_int_tran.importe_debe = 0;
                                  	v_record_int_tran.importe_gasto = 0;
-                                 	v_record_int_tran.importe_haber = case when v_moneda_record.id_moneda_op != v_moneda_record.id_moneda_cb then
+                                 	/*v_record_int_tran.importe_haber = case when v_moneda_record.id_moneda_op != v_moneda_record.id_moneda_cb then
                                     								  (p_super->'columna_tipo_cambio')::numeric * (v_this_hstore->'campo_monto')::numeric
                                     								  else(v_this_hstore->'campo_monto')::numeric end;
                                  	v_record_int_tran.importe_recurso = case when v_moneda_record.id_moneda_op != v_moneda_record.id_moneda_cb then
                                     								  	(p_super->'columna_tipo_cambio')::numeric * (v_this_hstore->'campo_monto')::numeric
-                                    								   	else (v_this_hstore->'campo_monto_pres')::numeric end;
+                                    								   	else (v_this_hstore->'campo_monto_pres')::numeric end;*/
+
+                                     --alan realizar la conversion por el tipo de cambio y obligacion
+                                    if v_moneda_record.id_moneda_op != v_moneda_record.id_moneda_cb --compruebo si la obligacion de pago es distinto del tipo de moneda del banco
+                                    then
+                                    	--raise exception 'llega%',v_moneda_record.id_moneda_cb;
+                                    	--if v_moneda_record.id_moneda_op::integer>v_moneda_record.id_moneda_cb::integer -- compruebo si la obligacion de pago esta en moneda extrnajera
+                                        if v_moneda_ob='ref' and v_moneda_cb='base'
+                                        THEN
+                                        	v_record_int_tran.importe_haber=(p_super->'columna_tipo_cambio')::numeric * (v_this_hstore->'campo_monto')::numeric;
+                                            v_record_int_tran.importe_recurso=(p_super->'columna_tipo_cambio')::numeric * (v_this_hstore->'campo_monto')::numeric;
+                                        else
+                                        	v_record_int_tran.importe_haber= (v_this_hstore->'campo_monto')::numeric/(p_super->'columna_tipo_cambio')::numeric;
+                                            v_record_int_tran.importe_recurso=(v_this_hstore->'campo_monto')::numeric/(p_super->'columna_tipo_cambio')::numeric;
+                                        end if;
+
+                                        	--raise exception 'haber %',v_record_int_tran.importe_haber;
+
+                                        --raise exception 'v_record_int_tranhaber%',v_record_int_tran.importe_haber::numeric;
+
+                                    ELSE
+                                    	v_record_int_tran.importe_haber=(v_this_hstore->'campo_monto')::numeric;
+                                        v_record_int_tran.importe_recurso=(v_this_hstore->'campo_monto_pres')::numeric;
+
+                                    end if;
                                  end if;
                               END IF;
 
@@ -606,12 +676,28 @@ BEGIN
                                                             (v_this_hstore->'campo_porc_monto_excento_var')::numeric
                                                             );
                             else
+                              --raise exception 'monto %',v_this_hstore->'campo_monto';
+                            	IF v_moneda_record.id_moneda_op != v_moneda_record.id_moneda_cb
+                                then
+                                	if v_moneda_record.id_moneda_op::integer>v_moneda_record.id_moneda_cb::integer then
+                                    	--mod 11/11/2019 Alan
+                                    	--v_monto_gen=(p_super->'columna_tipo_cambio')::numeric * v_moneda_record.monto::numeric;
+                                       v_monto_gen=(p_super->'columna_tipo_cambio')::numeric * (v_this_hstore->'campo_monto')::numeric;
+                                    ELSE
+                                    	--mod 11/11/2019 Alan
+                                    	--v_monto_gen=v_moneda_record.monto::numeric::numeric/(p_super->'columna_tipo_cambio')::numeric ;
+                                        v_monto_gen=(v_this_hstore->'campo_monto')::numeric/(p_super->'columna_tipo_cambio')::numeric ;
+                                    end if;
+                                else
+                                	v_monto_gen=(v_this_hstore->'campo_monto')::numeric;
+                                end if;
                             	v_resp_doc =  conta.f_gen_proc_plantilla_calculo(
                                                             hstore(v_record_int_tran),
                                                             (v_this_hstore->'campo_documento')::integer,--p_id_plantilla,
-                                                            case when v_moneda_record.id_moneda_op != v_moneda_record.id_moneda_cb then
+                                                            /*case when v_moneda_record.id_moneda_op != v_moneda_record.id_moneda_cb then
                                     								  (p_super->'columna_tipo_cambio')::numeric * v_moneda_record.monto::numeric
-                                    								  else (v_this_hstore->'campo_monto')::numeric end,--(fea)(v_this_hstore->'campo_monto')::numeric,
+                                    								  else (v_this_hstore->'campo_monto')::numeric end,--(fea)(v_this_hstore->'campo_monto')::numeric,*/
+                                    								        v_monto_gen, --13/11/2019 Alan
                                                             p_id_usuario,
                                                             (p_super->'columna_depto')::integer,--p_id_depto_conta
                                                             (p_super->'columna_gestion')::integer,
