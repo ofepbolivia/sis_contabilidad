@@ -69,6 +69,11 @@ DECLARE
      v_moneda_ob	varchar;
      v_moneda_cb 	varchar;
 
+      v_monto_total					numeric;
+     v_monto_no_pagado				numeric;
+     v_liq_pag						numeric;
+
+
 BEGIN
 
     v_nombre_funcion:='conta.f_gen_transaccion_from_plantilla';
@@ -79,6 +84,12 @@ BEGIN
      --      obtener la definicion de las variablles y los valores segun la plantilla del detalle
      *********************************************************************************************/
              v_this_hstore = hstore(v_this);
+
+              select tp.monto, tp.monto_no_pagado
+                  into v_monto_total,v_monto_no_pagado
+                        from tes.tplan_pago tp
+                        where tp.id_plan_pago = p_id_tabla_padre_valor;
+                    v_liq_pag=v_monto_total-v_monto_no_pagado;
 
              FOR v_i in 1..(p_tamano) loop
 
@@ -95,7 +106,11 @@ BEGIN
                                                               );
 
 
-
+                      if p_def_campos[v_i]='campo_monto' and pxp.f_get_variable_global('ESTACION_inicio')!='BOL' THEN
+                            if(p_reg_det_plantilla->'campo_monto'='{$tabla_padre.monto_no_pagado}')then
+                            	v_campo_tempo=v_monto_no_pagado;
+                           end if;
+                       end if;
                        v_this_hstore = v_this_hstore || hstore(p_def_campos[v_i],v_campo_tempo);
 
                   end if;
@@ -350,7 +365,7 @@ BEGIN
                                 	  select tipo_moneda into v_moneda_ob
                                     from param.tmoneda
                                     where id_moneda=v_moneda_record.id_moneda_op;
-                                    
+
                                     select tipo_moneda into v_moneda_cb
                                     from param.tmoneda
                                     where id_moneda=v_moneda_record.id_moneda_cb;
@@ -451,7 +466,7 @@ BEGIN
 
                                     ELSE
                                     	v_record_int_tran.importe_haber=(v_this_hstore->'campo_monto')::numeric;
-                                        v_record_int_tran.importe_recurso=(v_this_hstore->'campo_monto_pres')::numeric;
+                                        v_record_int_tran.importe_recurso=(v_this_hstore->'campo_monto')::numeric;
 
                                     end if;
                                  end if;

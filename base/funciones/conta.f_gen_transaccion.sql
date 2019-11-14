@@ -24,21 +24,21 @@ Descripcion:     Esta funciona inicia la generacion de las transacciones del
 
 
 DECLARE
-	v_this					conta.maestro_comprobante;
-    v_tabla					record;
-    v_nombre_funcion        text;
-    v_plantilla_det				record;        
-    v_resp 					varchar;
-    v_consulta				varchar;
-    v_posicion				integer;
-    v_columnas				varchar;
-    v_columna_requerida		varchar;
-    r 						record;  --  esta variable no se usa
-    v_valor					varchar;
+	  v_this					    conta.maestro_comprobante;
+    v_tabla					    record;
+    v_nombre_funcion    text;
+    v_plantilla_det	  	record;
+    v_resp 					    varchar;
+    v_consulta				  varchar;
+    v_posicion				  integer;
+    v_columnas				  varchar;
+    v_columna_requerida	varchar;
+    r 						      record;  --  esta variable no se usa
+    v_valor					    varchar;
     
     v_id_int_comprobante    integer;
     v_plantilla_det_sec     record;
-    resp_det               varchar;
+    resp_det                varchar;
 BEGIN
 	
     v_nombre_funcion:='conta.f_gen_transaccion';
@@ -84,6 +84,25 @@ BEGIN
              
             
             END LOOP;
+
+            --creacion de las transacciones notas de credito/debito Alan 13/11/2019
+                if(pxp.f_get_variable_global('ESTACION_inicio') != 'BOL') then
+     					Select *
+                        into v_tabla
+                        from conta.tdetalle_plantilla_comprobante dpc
+                        where dpc.primaria = 'si' and dpc.campo_monto = '{$tabla_padre.monto_no_pagado}';
+                        --raise exception 'plantilla CRE/DEB %',hstore(v_tabla);
+                        v_resp = conta.f_gen_transaccion_unitaria
+                                  (p_super,
+                                  p_tabla_padre,
+                                  hstore(v_tabla),--detalle_plantilla de notas de CRED/DEB
+                                  p_plantilla_comprobante,
+                                  p_id_tabla_padre_valor,
+                                  p_id_int_comprobante,
+                                  p_id_usuario
+                                  );
+                end if;
+
    ELSE
    
            -------------------------------------------------------
