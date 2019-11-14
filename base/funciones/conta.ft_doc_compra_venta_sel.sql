@@ -192,7 +192,7 @@ BEGIN
             IF (v_parametros.nombreVista = 'DocCompraCajero') THEN
 
                 IF p_administrador !=1 THEN
-                   v_filtro = 'dcv.id_usuario_reg'||p_id_usuario::varchar||' and pla.id_plantilla = 36   and ';
+                   v_filtro = 'dcv.id_usuario_reg = '||p_id_usuario::varchar||' and pla.id_plantilla = 36   and ';
                  ELSE
                    v_filtro = 'pla.id_plantilla = 36 and ';
                 END IF;
@@ -303,7 +303,7 @@ BEGIN
             IF (v_parametros.nombreVista = 'DocCompraCajero') THEN
 
                 IF p_administrador !=1 THEN
-                   v_filtro = 'dcv.id_usuario_reg'||p_id_usuario::varchar||' and pla.id_plantilla = 36   and ';
+                   v_filtro = 'dcv.id_usuario_reg = '||p_id_usuario::varchar||' and pla.id_plantilla = 36   and ';
                  ELSE
                    v_filtro = 'pla.id_plantilla = 36 and ';
                 END IF;
