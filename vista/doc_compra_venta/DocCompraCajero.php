@@ -41,6 +41,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('btnExpTxt').hide();
             this.getBoton('btnWizard').hide();
             this.store.baseParams.filtro_usuario = 'si';
+
+            this.store.baseParams.nombreVista = 'DocCompraCajero';
         },
         
         modificarAtributos: function(){
@@ -60,17 +62,21 @@ header("content-type: text/javascript; charset=UTF-8");
         capturaFiltros:function(combo, record, index){
             this.store.baseParams.tipo = this.tipoDoc;
             this.store.baseParams.filtro_usuario = 'si';
+
+            this.store.baseParams.nombreVista = 'DocCompraCajero';
+
             Phx.vista.DocCompraCajero.superclass.capturaFiltros.call(this,combo, record, index);
         },
         abrirFormulario: function(tipo, record){
             var me = this;
             console.log(' me.regitrarDetalle', me.regitrarDetalle)
-            me.objSolForm = Phx.CP.loadWindows('../../../sis_contabilidad/vista/doc_compra_venta/FormCompraVenta.php',
+            //me.objSolForm = Phx.CP.loadWindows('../../../sis_contabilidad/vista/doc_compra_venta/FormCompraVenta.php',
+            me.objSolForm = Phx.CP.loadWindows('../../../sis_contabilidad/vista/doc_compra_venta/FormCompraVentaCajero.php',
                 me.formTitulo,
                 {
                     modal:true,
-                    width:'100%',
-                    height:'100%'
+                    width:'83%',
+                    height:'60%'
 
                 }, { data: {
                     objPadre: me ,
@@ -87,7 +93,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     regitrarDetalle: me.regitrarDetalle
                 },
                 this.idContenedor,
-                'FormCompraVenta',
+                'FormCompraVentaCajero',
                 {
                     config:[{
                         event:'successsave',

@@ -37,6 +37,7 @@ DECLARE
     v_sincronizar		varchar;
     v_gestion			integer;
 
+
 BEGIN
 
 	v_nombre_funcion = 'conta.ft_doc_compra_venta_sel';
@@ -186,6 +187,20 @@ BEGIN
 	elsif(p_transaccion='CONTA_DCVCAJ_SEL')then
 
     	begin
+
+        	--(may) 13-11-2019 modificacion para distinta vista y por usuario
+            IF (v_parametros.nombreVista = 'DocCompraCajero') THEN
+
+                IF p_administrador !=1 THEN
+                   v_filtro = 'dcv.id_usuario_reg = '||p_id_usuario::varchar||' and pla.id_plantilla = 36   and ';
+                 ELSE
+                   v_filtro = 'pla.id_plantilla = 36 and ';
+                END IF;
+
+            ELSE
+            	v_filtro = ' ';
+            END IF;
+
     		--Sentencia de la consulta
 			v_consulta:='select
                             dcv.id_doc_compra_venta,
@@ -260,7 +275,9 @@ BEGIN
                           left join obingresos.tagencia ob on ob.id_agencia = dcv.id_agencia
                           left join param.tdepto dep on dep.id_depto = dcv.id_depto_conta
                           left join segu.tusuario usu2 on usu2.id_usuario = dcv.id_usuario_mod
-				        where  ';
+
+				        where '||v_filtro||' ';
+
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -281,6 +298,20 @@ BEGIN
 	elsif(p_transaccion='CONTA_DCVCAJ_CONT')then
 
 		begin
+
+        	--(may) 13-11-2019 modificacion para distinta vista y por usuario
+            IF (v_parametros.nombreVista = 'DocCompraCajero') THEN
+
+                IF p_administrador !=1 THEN
+                   v_filtro = 'dcv.id_usuario_reg = '||p_id_usuario::varchar||' and pla.id_plantilla = 36   and ';
+                 ELSE
+                   v_filtro = 'pla.id_plantilla = 36 and ';
+                END IF;
+
+            ELSE
+            	v_filtro = ' ';
+            END IF;
+
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select
                               count(dcv.id_doc_compra_venta),
@@ -308,7 +339,7 @@ BEGIN
                           left join obingresos.tagencia ob on ob.id_agencia = dcv.id_agencia
                           left join param.tdepto dep on dep.id_depto = dcv.id_depto_conta
                           left join segu.tusuario usu2 on usu2.id_usuario = dcv.id_usuario_mod
-				        where  ';
+				        where '||v_filtro||'  ';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;

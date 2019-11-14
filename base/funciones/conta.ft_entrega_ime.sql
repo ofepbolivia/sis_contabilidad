@@ -295,6 +295,9 @@ BEGIN
 		begin
 
 
+			if(v_parametros.id_tipo_relacion_comprobante is null or v_parametros.id_tipo_relacion_comprobante = 0)then
+              raise exception 'El campo "Incluir Relación" no puede ser nulo, por favor elegir una opción';
+            end if;	
             --  verificar que la estrega este en estado  borrador
             select
               *

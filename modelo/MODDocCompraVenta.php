@@ -119,6 +119,9 @@ class MODDocCompraVenta extends MODbase
         $this->tipo_procedimiento = 'SEL';//tipo de transaccion
 
         //captura parametros adicionales para el count
+
+        $this->setParametro('nombreVista','nombreVista','varchar');
+
         $this->capturaCount('total_importe_ice', 'numeric');
         $this->capturaCount('total_importe_excento', 'numeric');
         $this->capturaCount('total_importe_it', 'numeric');
@@ -133,6 +136,7 @@ class MODDocCompraVenta extends MODbase
         $this->capturaCount('total_importe_descuento_ley', 'numeric');
         $this->capturaCount('total_importe_pago_liquido', 'numeric');
         $this->capturaCount('total_importe_aux_neto', 'numeric');
+
 
 
         //Definicion de la lista del resultado del query

@@ -38,6 +38,7 @@ Phx.vista.DocCompraBOA = {
    },
    capturaFiltros:function(combo, record, index){
         this.store.baseParams.tipo = this.tipoDoc;
+        this.store.baseParams.nombreVista = 'DocCompra';
         Phx.vista.DocCompraBOA.superclass.capturaFiltros.call(this,combo, record, index);
     },
 

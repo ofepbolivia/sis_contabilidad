@@ -16,7 +16,7 @@ Phx.vista.EntregaForm=Ext.extend(Phx.frmInterfaz,{
     constructor:function(config){   
         Phx.vista.EntregaForm.superclass.constructor.call(this,config);
         this.init(); 
-         
+		this.iniciarEventos();	
     },
    
     Atributos:[
@@ -133,18 +133,40 @@ Phx.vista.EntregaForm=Ext.extend(Phx.frmInterfaz,{
     },
     getValues:function(){
     	console.log('this.estado_destino',this.estado_destino)
-    	
+    	var aux = this.Cmp.id_tipo_relacion_comprobante.getValue().trim() == '' ? 0 : this.Cmp.id_tipo_relacion_comprobante.getValue();
+
     	var resp = {    id_entrega: this.data.id_entrega,
                         c31:  this.Cmp.c31.getValue(),
                         fecha_c31:  this.Cmp.fecha_c31.getValue().dateFormat('d/m/Y'),  
-                        id_tipo_relacion_comprobante: this.Cmp.id_tipo_relacion_comprobante.getValue(),    
+                        id_tipo_relacion_comprobante: aux,    
                         obs: this.Cmp.obs.getValue(),
                      }
                      
     	
             
          return resp;   
-     }
+     },
+    iniciarEventos: function () {
+            this.cmpRelacion =this.getComponente('id_tipo_relacion_comprobante');
+
+            this.cmpRelacion.on('change',function(field,n,o){
+                var me = this;
+                if (this.Cmp.id_tipo_relacion_comprobante.getValue().trim() == ''){
+                    Ext.Msg.show({
+                        title:'Información',
+                        msg: 'El campo "Incluir Relación" no puede ser nulo, por favor elegir una opción',
+                        buttons: Ext.Msg.OK,
+                        icon: Ext.MessageBox.QUESTION,
+                        scope:this
+                    });
+                    this.cmpRelacion.reset();
+                }
+                 //   me.reset();*/
+                //this.cmpRelacion.reset();
+                //me.callParent( arguments );
+            },this);
+
+    }
     
     
 })    
