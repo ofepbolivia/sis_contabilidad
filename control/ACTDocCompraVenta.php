@@ -139,14 +139,30 @@ class ACTDocCompraVenta extends ACTbase
             $this->objParam->addFiltro("dcv.fecha <= ''" . $this->objParam->getParametro('fecha_cbte') . "''::date");
         }
 
-        if ($this->objParam->getParametro('filtro_usuario') == 'si') {
+       /* if ($this->objParam->getParametro('filtro_usuario') == 'si') {
             $this->objParam->addFiltro("dcv.id_usuario_reg = " . $_SESSION["ss_id_usuario"]);
-        }
+        }*/
 
         if ($this->objParam->getParametro('id_depto') != '') {
             if ($this->objParam->getParametro('id_depto') != 0)
                 $this->objParam->addFiltro("dcv.id_depto_conta = " . $this->objParam->getParametro('id_depto'));
         }
+
+        //(may) para tipo Facturas por Comisiones
+       // var_dump('llegam', $this->objParam->getParametro('nombreVista'));exit;
+      /*  if ($this->objParam->getParametro('id_plantilla') == '') {
+            var_dump('llegam');
+            $this->objParam->addFiltro("dcv.id_plantilla = 63");
+        }else{
+            var_dump('llegam222');
+        }*/
+        //var_dump('llegam222', $_SESSION["ss_id_usuario"]);
+       if ($this->objParam->getParametro('nombreVista') == 'DocCompraCajero'){
+           if ($this->objParam->getParametro('id_depto') != 0)
+               $this->objParam->addFiltro("dcv.id_depto_conta = " . $this->objParam->getParametro('id_depto'));
+
+       }
+
 
         if ($this->objParam->getParametro('id_agrupador') != '') {
             $this->objParam->addFiltro("dcv.id_doc_compra_venta not in (select ad.id_doc_compra_venta from conta.tagrupador_doc ad where ad.id_agrupador = " . $this->objParam->getParametro('id_agrupador') . ") ");
