@@ -90,7 +90,7 @@ BEGIN
      					Select *
                         into v_tabla
                         from conta.tdetalle_plantilla_comprobante dpc
-                        where dpc.primaria = 'si' and dpc.campo_monto = '{$tabla_padre.monto_no_pagado}';
+                        where dpc.primaria = 'si' and dpc.campo_monto = '{$tabla_padre.monto_no_pagado}' and dpc.codigo='PROV_DEB_CRE' and dpc.tipo_relacion_contable='CUENRETPRO';
                         --raise exception 'plantilla CRE/DEB %',hstore(v_tabla);
                         v_resp = conta.f_gen_transaccion_unitaria
                                   (p_super,
