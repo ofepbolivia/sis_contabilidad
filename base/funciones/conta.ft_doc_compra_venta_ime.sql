@@ -1560,7 +1560,8 @@ END IF;
       		where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
     	else
 			update conta.tdoc_compra_venta  set
-        		id_int_comprobante = NULL
+        		id_int_comprobante = NULL,
+        		id_plan_pago =NULL--15/11/2019 Alan
       		where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
       	end if;
 
