@@ -73,7 +73,7 @@ DECLARE
   v_tipo_cambio				numeric;
   v_codigo_control			varchar;
   v_autorizacion			varchar;
-
+  v_factura					record;
 BEGIN
 
   v_nombre_funcion = 'conta.ft_doc_compra_venta_ime';
@@ -1726,6 +1726,8 @@ END IF;
    #TRANSACCION:  'CONTA_ELIRAIRBP_ELI'
    #DESCRIPCION:	quita el comprobante del documento
    #AUTOR:		admin
+   #MODIFICADO: breydi.vasquez
+   #FECHA_MOD: 	21/11/2019
    #FECHA:		25-09-2015 15:57:09
   ***********************************/
 
@@ -1733,9 +1735,22 @@ END IF;
 
     begin
 
+    	--modificado por motivo de archivos Airbp
+		--verifica que el periodo este abierto caso contrario no permite la eliminacion.
 	  if(conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_parametros.id_periodo))then
-          delete from conta.tdoc_compra_venta
-          where id_int_comprobante = v_parametros.id_int_comprobante;
+          
+	      --verifica inicialmente si la factura se encuentra revisado. si esta revisado no se elimina; 
+          for v_factura in (select id_doc_compra_venta, revisado
+                            from conta.tdoc_compra_venta 
+                            where id_int_comprobante = v_parametros.id_int_comprobante)
+          				 loop 
+          	if v_factura.revisado is null or v_factura.revisado = 'no' then             
+                delete from conta.tdoc_compra_venta
+                where id_int_comprobante = v_parametros.id_int_comprobante
+                and id_doc_compra_venta = v_factura.id_doc_compra_venta;
+            end if;
+          end loop;
+          
 	  end if;
 
       --Definicion de la respuesta
