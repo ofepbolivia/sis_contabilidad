@@ -624,7 +624,7 @@ BEGIN
          --(franklin.espinoza)despues de cambiar a estado validadodo se migra el comprobante al ERP BOLIVIA.
          --if pxp.f_get_variable_global('ESTACION_inicio') = 'BUE' then}
          --(maylee.perez)modificacion para todas las estaciones internacionales BUE, MIA, MAD,SAO y no ingrese a estacion central BOL
-         if pxp.f_get_variable_global('ESTACION_inicio') != 'CENTRAL' then
+         if pxp.f_get_variable_global('ESTACION_inicio') != 'BOL' then
 
           select *
           into v_nombre_conexion
