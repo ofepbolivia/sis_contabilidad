@@ -47,7 +47,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     iconCls: 'bdel',
                     disabled: false,
                     handler: this.delRegAirbp,
-                    tooltip: 'Elimina las facturas registradas y su relacion con el comprobante, si el periodo no esta cerrado'
+                    tooltip: 'Elimina las facturas registradas y No revisados, y su relacion con el comprobante, si el periodo no esta cerrado'
                 }
             );
             console.log('maestrom', this.maestro, this.disparador);
@@ -805,7 +805,7 @@ header("content-type: text/javascript; charset=UTF-8");
             var id_comprobante = this.id_int_comprobante;
             var id_periodo = this.id_periodo;
             var id_depto = this.id_depto;
-            var seguro = confirm('Esta seguro? La accion eliminara todos los registros y sus relaciones a su comprobante');
+            var seguro = confirm('Esta seguro? La accion eliminara todos los registros No revisados, y sus relaciones a su comprobante');
             if(seguro){
                 Ext.Ajax.request({                
                 url: '../../sis_contabilidad/control/DocCompraVenta/eliminarRegistrosAirbp',                
