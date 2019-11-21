@@ -1270,7 +1270,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         bdel: false,
         bsave: false,
-        bedit: false,
+        bedit: true,
         bnew: false,
 
         cmbDepto: new Ext.form.AwesomeCombo({
