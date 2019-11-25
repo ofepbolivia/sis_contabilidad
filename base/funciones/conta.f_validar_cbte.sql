@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.f_validar_cbte (
   p_id_usuario integer,
   p_id_usuario_ai integer,
@@ -624,16 +622,21 @@ BEGIN
          -- migramos a contabilidad central
          ---------------------------------------------------------------------------------------
          --(franklin.espinoza)despues de cambiar a estado validadodo se migra el comprobante al ERP BOLIVIA.
-         if pxp.f_get_variable_global('ESTACION_inicio') = 'BUE' then
+         --if pxp.f_get_variable_global('ESTACION_inicio') = 'BUE' then}
+         --(maylee.perez)modificacion para todas las estaciones internacionales BUE, MIA, MAD,SAO y no ingrese a estacion central BOL
+         if pxp.f_get_variable_global('ESTACION_inicio') != 'BOL' then
 
-          select * into v_nombre_conexion from migra.f_crear_conexion();
+          select *
+          into v_nombre_conexion
+          from migra.f_crear_conexion();
+
           v_resp =  migra.f_migrar_cbte_a_central(p_id_int_comprobante, v_nombre_conexion);
 
          end if;
-
-         IF v_conta_codigo_estacion != 'CENTRAL' and v_rec_cbte.origen is NULL THEN
+		 --19-11-2019 (maylee.perez) se comenta porque sale doble registro de cbte
+         /*IF v_conta_codigo_estacion != 'CENTRAL' and v_rec_cbte.origen is NULL THEN
              v_resp =  migra.f_migrar_cbte_a_central(p_id_int_comprobante, v_nombre_conexion);
-         END IF;
+         END IF;*/
 
 
 
