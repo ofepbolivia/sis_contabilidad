@@ -91,6 +91,11 @@ DECLARE
   v_numero_de_contrato_original               VARCHAR;
 
 
+  --22/11/2109
+  v_revisado									varchar;
+  v_revisado2									varchar;
+  v_doc_pago									varchar;
+
 BEGIN
 
   v_nombre_funcion = 'conta.ft_banca_compra_venta_ime';
@@ -936,7 +941,31 @@ and (
             	/*if (v_record_plan_pago_pxp.num_tramite = 'PCP-000353-2019') then
                 raise exception 'llega %',v_fecha_libro_o_entrega;
                 end if;*/
-            	update conta.tbanca_compra_venta
+
+               --recuperamos informacion de los check box de la vista
+              select bcv.revisado, bcv.revisado2, bcv.num_documento_pago
+                  into v_revisado, v_revisado2, v_doc_pago
+              from conta.tbanca_compra_venta bcv
+              where bcv.id_documento= v_record_plan_pago_pxp.id_documento;
+
+               -- verificamos que ningun combo box revisado y finalizado no esten tiqueados para hacer la actualizacion Alan 22/11/2019
+              if (v_revisado='no' and v_revisado2='no') then
+                --revisamos si ya tiene registrado un num_documento_pago
+                    IF v_doc_pago is null or v_doc_pago = '' or v_doc_pago = ' ' then
+                      v_doc_pago=v_nro_cheque_o_sigma;
+                    end if;
+
+                    update conta.tbanca_compra_venta
+                    set
+                        id_usuario_mod=p_id_usuario,
+                        fecha_mod=now(),
+                        fecha_documento=v_record_plan_pago_pxp.fecha_documento,
+                        fecha_de_pago=v_fecha_libro_o_entrega,
+                        num_documento=v_record_plan_pago_pxp.nro_documento,
+                        num_documento_pago=v_doc_pago
+                    where conta.tbanca_compra_venta.id_documento = v_record_plan_pago_pxp.id_documento;
+              end if;
+            	/*update conta.tbanca_compra_venta
                 set
                     id_usuario_mod=p_id_usuario,
                     fecha_mod=now(),
@@ -944,7 +973,7 @@ and (
                     fecha_de_pago=v_fecha_libro_o_entrega,
                     num_documento=v_record_plan_pago_pxp.nro_documento,
                     num_documento_pago=v_nro_cheque_o_sigma
-                where conta.tbanca_compra_venta.id_documento = v_record_plan_pago_pxp.id_documento;
+                where conta.tbanca_compra_venta.id_documento = v_record_plan_pago_pxp.id_documento;*/
 
 
             ELSE
