@@ -1495,8 +1495,8 @@ and (
           select id_obligacion_pago
           into v_id_obligacion_pago
             from tes.tobligacion_pago
-              where num_tramite = split_part(v_parametros.numero_tramite, '(', 1);
-
+              where num_tramite = split_part(v_parametros.numero_tramite, '(', 1)
+              and estado_reg='activo';--/28/11/2019 Alan ignora las obligaciones de pago inactivas
               v_numeros_de_tramites =  '('||v_id_obligacion_pago||')';
 
 
