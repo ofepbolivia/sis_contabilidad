@@ -40,6 +40,10 @@ DECLARE
 
     v_inner 			varchar;
 
+  --29/11/2019 Alan
+    v_localidad			varchar;
+    v_tip_cambio		varchar;
+
 BEGIN
 
 	v_nombre_funcion = 'conta.ft_int_comprobante_sel';
@@ -443,6 +447,19 @@ BEGIN
             where m.id_moneda = v_id_moneda_base;
 
 
+         --Alan 29/11/2019 recuperar tipo de cambio viendo si es internacional o nacional
+        	select  vcbte.localidad
+          into 	v_localidad
+          from	conta.vint_comprobante vcbte
+          where  vcbte.id_proceso_wf=v_parametros.id_proceso_wf;
+
+          if (v_localidad = 'internacional') then
+            v_tip_cambio='incbte.tipo_cambio_2 as tipo_cambio,';
+          else
+            v_tip_cambio='incbte.tipo_cambio,';
+          end if;
+
+
     		--Sentencia de la consulta
 			v_consulta:='select
                             incbte.id_int_comprobante,
@@ -454,7 +471,8 @@ BEGIN
                             incbte.id_funcionario_firma1,
                             incbte.id_funcionario_firma2,
                             incbte.id_funcionario_firma3,
-                            incbte.tipo_cambio,
+                            --incbte.tipo_cambio,
+                            '||v_tip_cambio ||'
                             incbte.beneficiario,
                             incbte.nro_cbte,
                             incbte.estado_reg,
