@@ -20,7 +20,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.maestro = config.maestro;
             this.initButtons = [this.cmbDepto, this.cmbGestion];
 
-                //llama al constructor de la clase padre
+            //llama al constructor de la clase padre
             Phx.vista.IntComprobante.superclass.constructor.call(this, config);
 
             this.bbar.add(this.cmbTipoCbte);
@@ -140,8 +140,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.store.baseParams.id_gestion = this.cmbGestion.getValue();
             if (this.cmbTipoCbte.getValue()) {
                 this.store.baseParams.id_clase_comprobante = this.cmbTipoCbte.getValue();
-            }
-            else {
+            } else {
                 delete this.store.baseParams.id_clase_comprobante;
             }
             this.store.baseParams.id_clase_comprobante = this.cmbTipoCbte.getValue();
@@ -161,8 +160,7 @@ header("content-type: text/javascript; charset=UTF-8");
         onButtonAct: function () {
             if (!this.validarFiltros()) {
                 alert('Especifique los filtros antes')
-            }
-            else {
+            } else {
                 this.capturaFiltros();
             }
         },
@@ -228,8 +226,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     //RAC 29/!2/2016 comentado por que hay pagos de 2017 que necesitan relacion con cbte 2016
                     //this.Cmp.id_int_comprobante_fks.store.baseParams.id_gestion = id_g;
                     this.Cmp.id_int_comprobante_fks.store.modificado = true;
-                }
-                else {
+                } else {
                     queryEvent.cancel = true;
                 }
             }, this);
@@ -828,7 +825,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     gwidth: 120,
                     anchor: '100%',
                     allowBlank: true,
-                    baseParams: {estado_func:'todos'},
+                    baseParams: {estado_func: 'todos'},
                     renderer: function (value, p, record) {
                         return String.format('{0}', record.data['desc_firma1']);
                     }
@@ -851,7 +848,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     gwidth: 120,
                     anchor: '100%',
                     allowBlank: true,
-                    baseParams: {estado_func:'todos'},
+                    baseParams: {estado_func: 'todos'},
                     renderer: function (value, p, record) {
                         return String.format('{0}', record.data['desc_firma2']);
                     }
@@ -874,7 +871,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     gwidth: 120,
                     anchor: '100%',
                     allowBlank: true,
-                    baseParams: {estado_func:'todos'},
+                    baseParams: {estado_func: 'todos'},
                     renderer: function (value, p, record) {
                         return String.format('{0}', record.data['desc_firma3']);
                     }
@@ -1635,6 +1632,38 @@ header("content-type: text/javascript; charset=UTF-8");
 
 
         },
+
+        //may
+        regcbte: function () {
+            var rec = this.sm.getSelected();
+            console.log('llegaregrec', rec)
+            var data = rec.data;
+            console.log('llegaregrec', data)
+            if (data) {
+                Phx.CP.loadingShow();
+                Ext.Ajax.request({
+                    url: '../../sis_contabilidad/control/IntComprobante/cbteRegularizacion',
+                    params: {
+                        id_int_comprobante: data.id_int_comprobante,
+                        id_proceso_wf_act: data.id_proceso_wf_act,
+                        id_estado_wf_act: data.id_estado_wf_act,
+                        id_tipo_estado: data.id_tipo_estado,
+                        id_funcionario_wf: data.id_funcionario_wf,
+                        id_depto_wf: data.id_depto_wf,
+                        obs: data.obs,
+                        //instruc_rpc: data.instruc_rpc,
+                        json_procesos: Ext.util.JSON.encode(data.procesos)//,
+                        //validar_doc: validar_doc
+                    },
+                    success: this.successExport,
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
+                });
+            }
+
+        },
+
         successWizard: function (resp) {
             var rec = this.sm.getSelected();
             Phx.CP.loadingHide();
@@ -1647,14 +1676,12 @@ header("content-type: text/javascript; charset=UTF-8");
                 reg.ROOT.datos.desc_falla
                 if (confirm(reg.ROOT.datos.desc_falla + "\n¿Desea continuar de todas formas?")) {
                     this.mandarDatosWizard(resp.argument.wizard, resp.argument.resp, false);
-                }
-                else {
+                } else {
                     resp.argument.wizard.panel.destroy()
                     this.reload();
                 }
 
-            }
-            else {
+            } else {
                 resp.argument.wizard.panel.destroy()
                 this.reload();
 

@@ -784,6 +784,14 @@ class ACTIntComprobante extends ACTbase{
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 
+
+    //may regularizacion de comprobantes
+    function cbteRegularizacion(){
+        $this->objFunc=$this->create('MODIntComprobante');
+        $this->res=$this->objFunc->cbteRegularizacion($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
 }
 
 ?>

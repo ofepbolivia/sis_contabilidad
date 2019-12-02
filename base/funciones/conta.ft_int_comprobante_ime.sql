@@ -96,6 +96,10 @@ DECLARE
 
     v_anio_com						integer;
 
+    v_conta_codigo_estacion			varchar;
+    v_sincronizar					varchar;
+    v_nombre_conexion				varchar;
+
 
 BEGIN
 
@@ -2059,6 +2063,49 @@ BEGIN
 		end;
 
 
+		/*********************************
+        #TRANSACCION:  'CD_REGCBTE_IME'
+        #DESCRIPCION:  Regula comprobante en la estacion central
+        #AUTOR:		Maylee Perez Pastor
+        #FECHA:		01-13-2019 12:12:51
+        ***********************************/
+
+		elseif(p_transaccion='CD_REGCBTE_IME')then
+            begin
+
+            		v_conta_codigo_estacion = pxp.f_get_variable_global('conta_codigo_estacion');
+                    v_sincronizar = pxp.f_get_variable_global('sincronizar');
+
+            		--abrimos conexion dblink
+                    IF v_conta_codigo_estacion != 'CENTRAL'  or v_sincronizar = 'true' THEN
+                        select * into v_nombre_conexion from migra.f_crear_conexion();
+                    END IF;
+
+                    if pxp.f_get_variable_global('ESTACION_inicio') != 'BOL' then
+
+                          select *
+                          into v_nombre_conexion
+                          from migra.f_crear_conexion();
+
+                          v_resp =  migra.f_migrar_cbte_a_central(v_parametros.id_int_comprobante, v_nombre_conexion);
+
+					else
+                    	raise exception 'Solo las Estaciones Internacionales pueden realizar la regularización del Comprobante';
+                    end if;
+
+                   --cerrar la conexion comun (regional -> central)
+                   if  v_nombre_conexion is not null then
+                        select * into v_resp from migra.f_cerrar_conexion(v_nombre_conexion,'exito');
+                   end if;
+
+                   	-- si hay mas de un estado disponible  preguntamos al usuario
+                  	v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se realizo la regularizacion del controbante id='||v_parametros.id_int_comprobante);
+                  	v_resp = pxp.f_agrega_clave(v_resp,'operacion','cambio_exitoso');
+
+              -- Devuelve la respuesta
+              return v_resp;
+
+         end;
 
 
     else
