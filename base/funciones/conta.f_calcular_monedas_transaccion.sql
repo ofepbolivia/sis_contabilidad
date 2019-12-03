@@ -62,7 +62,6 @@ v_ajustar_tipo_cambio_cbte_rel		varchar;
 v_sw_tmp 				boolean;
 v_tipo_cambio_2			numeric;
 v_tipo_cambio			numeric;
-v_localidad				varchar;
 
 
 BEGIN
@@ -296,13 +295,32 @@ BEGIN
              --  OJO OJO OJO OJO OJO OJO
              --  OJO RAC 11/07/2017 no estoy seguro si el tipo de cambio que entra en esta funcion es correcto
 
+
               --si es un comprobante con edición habilitada (calculamos moenda de triangulacion)
               IF v_registros.sw_editable = 'si' THEN
+					--para localidad de cbtes nacionales
+                   IF (v_registros.localidad = 'nacional') THEN
+                     v_valor_debe_mt =  param.f_convertir_moneda (v_registros.id_moneda, v_id_moneda_tri,   v_registros.importe_debe, v_registros.fecha,'CUS',50, v_registros.tipo_cambio, 'no');
+                     v_valor_haber_mt =  param.f_convertir_moneda (v_registros.id_moneda, v_id_moneda_tri,   v_registros.importe_haber, v_registros.fecha,'CUS',50, v_registros.tipo_cambio, 'no');
+                     v_valor_gasto_mt =  param.f_convertir_moneda (v_registros.id_moneda, v_id_moneda_tri,   v_registros.importe_gasto, v_registros.fecha,'CUS',50, v_registros.tipo_cambio, 'no');
+                     v_valor_recurso_mt =  param.f_convertir_moneda(v_registros.id_moneda, v_id_moneda_tri,   v_registros.importe_recurso, v_registros.fecha,'CUS',50, v_registros.tipo_cambio, 'no');
+                   ELSE
+                    	--para localidad de cbtes internacionales
+                        --si es en pesos u otra moneda que viened  del cbte
+                    	IF (v_id_moneda_tri != v_registros.id_moneda ) THEN
+                             v_valor_debe_mt =   v_registros.importe_debe / v_registros.tipo_cambio;
+                             v_valor_haber_mt =  v_registros.importe_haber / v_registros.tipo_cambio;
+                             v_valor_gasto_mt =  v_registros.importe_gasto / v_registros.tipo_cambio;
+                             v_valor_recurso_mt =  v_registros.importe_recurso / v_registros.tipo_cambio;
+                     	ELSE
+                        --si es en dolar la noneda de triangulacion
+                        	 v_valor_debe_mt =   v_registros.importe_debe;
+                             v_valor_haber_mt =  v_registros.importe_haber;
+                             v_valor_gasto_mt =  v_registros.importe_gasto;
+                             v_valor_recurso_mt =  v_registros.importe_recurso;
+                        END IF;
 
-                   v_valor_debe_mt =  param.f_convertir_moneda (v_registros.id_moneda, v_id_moneda_tri,   v_registros.importe_debe, v_registros.fecha,'CUS',50, v_registros.tipo_cambio, 'no');
-                   v_valor_haber_mt =  param.f_convertir_moneda (v_registros.id_moneda, v_id_moneda_tri,   v_registros.importe_haber, v_registros.fecha,'CUS',50, v_registros.tipo_cambio, 'no');
-                   v_valor_gasto_mt =  param.f_convertir_moneda (v_registros.id_moneda, v_id_moneda_tri,   v_registros.importe_gasto, v_registros.fecha,'CUS',50, v_registros.tipo_cambio, 'no');
-                   v_valor_recurso_mt =  param.f_convertir_moneda(v_registros.id_moneda, v_id_moneda_tri,   v_registros.importe_recurso, v_registros.fecha,'CUS',50, v_registros.tipo_cambio, 'no');
+                   END IF;
 
                    v_registros.importe_debe_mt = v_valor_debe_mt;
                    v_registros.importe_haber_mt = v_valor_haber_mt;
@@ -325,17 +343,12 @@ BEGIN
                 raise exception 'No tenemos moneda de triangulacion,  para la triangulación es obligatorio para transacciones internacionales';
               END IF;
 
-           	 --(may)  int_comprobante
-                   select  c.localidad
-                   into  v_localidad
-                   from conta.tint_transaccion it
-                   inner join conta.tint_comprobante c on c.id_int_comprobante = it.id_int_comprobante
-                   where it.id_int_transaccion = p_id_int_transaccion;
+
 
            	 --(may)  Moneda Base
              -- 28-11-2019 segun localidad realiza calculo de importe para la moneda base
              --localidad nacional
-             IF (v_localidad = 'nacional') THEN
+             IF (v_registros.localidad = 'nacional') THEN
                  v_valor_debe_mb =   param.f_convertir_moneda (v_id_moneda_tri, v_id_moneda_base,    v_registros.importe_debe_mt,  v_registros.fecha, 'CUS',50, v_registros.tipo_cambio_2, 'no');
                  v_valor_haber_mb =  param.f_convertir_moneda (v_id_moneda_tri, v_id_moneda_base,    v_registros.importe_haber_mt, v_registros.fecha, 'CUS',50, v_registros.tipo_cambio_2, 'no');
                  v_valor_gasto_mb =   param.f_convertir_moneda (v_id_moneda_tri, v_id_moneda_base,    v_registros.importe_gasto_mt,  v_registros.fecha, 'CUS',50, v_registros.tipo_cambio_2, 'no');
@@ -347,6 +360,8 @@ BEGIN
                  v_valor_gasto_mb =  param.f_convertir_moneda (v_registros.id_moneda, v_id_moneda_base,   v_registros.importe_gasto, v_registros.fecha,'CUS',50, v_registros.tipo_cambio_2, 'no');
                  v_valor_recurso_mb =  param.f_convertir_moneda(v_registros.id_moneda, v_id_moneda_base,   v_registros.importe_recurso, v_registros.fecha,'CUS',50, v_registros.tipo_cambio_2, 'no');
          	  END IF;
+
+
 
              --Moneda de Actualizacion
                v_valor_debe_ma =   param.f_convertir_moneda (v_id_moneda_base, v_id_moneda_act,   v_valor_debe_mb,  v_registros.fecha, 'CUS',50, v_registros.tipo_cambio_3, 'no');
