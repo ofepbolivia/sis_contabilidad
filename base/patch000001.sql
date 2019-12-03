@@ -4903,3 +4903,48 @@ ALTER TABLE conta.tdoc_compra_venta
 ALTER TABLE conta.tint_transaccion
   ADD COLUMN id_concepto_ingas INTEGER;
 /***********************************F-SCP-MAY-CONTA-0-01/10/2019****************************************/
+
+/***********************************I-SCP-IRVA-CONTA-0-03/12/2019****************************************/
+CREATE TABLE conta.ttipo_cambio_pais_log (
+  id_log SERIAL,
+  id_tipo_cambio_pais INTEGER NOT NULL,
+  fecha DATE NOT NULL,
+  oficial NUMERIC(18,7) NOT NULL,
+  compra NUMERIC(18,7) NOT NULL,
+  venta NUMERIC(18,7) NOT NULL,
+  id_moneda_pais INTEGER NOT NULL,
+  observacion VARCHAR(300),
+  descripcion TEXT,
+  CONSTRAINT ttipo_cambio_pais_log_pkey PRIMARY KEY(id_log)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+COMMENT ON TABLE conta.ttipo_cambio_pais_log
+IS 'Tabla donde se guardaran los datos de la tabla conta.ttipo_cambio_pais
+si existe alguna diferencia con los datos registrados al momento de
+replicarlo.';
+
+COMMENT ON COLUMN conta.ttipo_cambio_pais_log.id_tipo_cambio_pais
+IS 'id_tipo_cambio_pais sirve como referencia para modificar por base de datos a las base de datos sqlServer, Informix y consultar con la tabla conta.ttipo_cambio_pais';
+
+COMMENT ON COLUMN conta.ttipo_cambio_pais_log.fecha
+IS 'dato respaldo';
+
+COMMENT ON COLUMN conta.ttipo_cambio_pais_log.oficial
+IS 'dato resplado';
+
+COMMENT ON COLUMN conta.ttipo_cambio_pais_log.compra
+IS 'dato resplado';
+
+COMMENT ON COLUMN conta.ttipo_cambio_pais_log.venta
+IS 'dato resplado';
+
+COMMENT ON COLUMN conta.ttipo_cambio_pais_log.id_moneda_pais
+IS 'campo para hacer referencia a que pais y que tipo de moneda pertenece el tipo de cambio';
+
+COMMENT ON COLUMN conta.ttipo_cambio_pais_log.descripcion
+IS 'Poner la descripcion que existe diferencia con el registro.';
+
+ALTER TABLE conta.ttipo_cambio_pais_log
+  OWNER TO postgres;
+/***********************************F-SCP-IRVA-CONTA-0-03/12/2019****************************************/
