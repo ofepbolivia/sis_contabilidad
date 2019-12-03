@@ -12,7 +12,7 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
     Phx.vista.IntComprobanteRegAuxEXT = {
-        bsave: true,
+        bsave: false,
 
         require: '../../../sis_contabilidad/vista/int_comprobante/IntComprobanteEXT.php',
         requireclase: 'Phx.vista.IntComprobanteEXT',
@@ -66,7 +66,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.swButton = 'EDIT';
             var rec = this.sm.getSelected().data;
 
-            this.cmpFecha.enable();
+            this.cmpFecha.disable();
 
             Phx.vista.IntComprobanteRegAuxEXT.superclass.onButtonEdit.call(this);
             this.Cmp.id_moneda.setReadOnly(true);
@@ -261,9 +261,11 @@ header("content-type: text/javascript; charset=UTF-8");
                 if (forma_cambio == 'convenido') {
                     this.Cmp.tipo_cambio.setReadOnly(false);
                     this.Cmp.tipo_cambio_2.setReadOnly(false);
+
                 } else {
                     this.Cmp.tipo_cambio.setReadOnly(true);
                     this.Cmp.tipo_cambio_2.setReadOnly(true);
+
                 }
 
                 this.Cmp.tipo_cambio_3.setReadOnly(true);
