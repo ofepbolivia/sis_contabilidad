@@ -298,35 +298,192 @@ BEGIN
 
     begin
       --Sentencia de la consulta
-      v_consulta:='SELECT
-                            e.id_entrega,
-                            e.estado::varchar,
-                            e.c31::varchar,
-                            e.id_depto_conta,
-                            e.fecha_c31,
-                            e.codigo::varchar,
-                            e.nombre_partida::varchar,
-                            e.importe_debe_mb::numeric,
-                            e.importe_haber_mb::numeric,
-                            e.importe_debe_mb_completo::numeric,
-                            e.importe_haber_mb_completo::numeric,
-                            e.importe_gasto_mb::numeric,
-                            e.importe_recurso_mb::numeric,
-                            e.factor_reversion::numeric,
-                            e.codigo_cc::varchar,
-                            e.codigo_categoria::varchar,
-                            e.codigo_cg::varchar,
-                            e.nombre_cg::varchar,
-                            e.beneficiario::varchar,
-                            e.glosa1::varchar,
-                            e.id_int_comprobante,
-                            e.id_int_comprobante_dev,
-                            e.nro_cuenta,
-                            e.nombre_institucion
-                          FROM
-                            conta.ventrega   e
-                          WHERE id_entrega = '||v_parametros.id_entrega||'
-						  ORDER by e.nro_cuenta, e.codigo_cg , e.codigo_categoria , e.codigo';
+      v_consulta:='select    COALESCE(t1.id_entrega, t2.id_entrega) as id_entrega,
+                             COALESCE(t1.estado, t2.estado)::varchar as estado,
+                             COALESCE(t1.c31, t2.c31)::varchar as c31,
+                             COALESCE(t1.id_depto_conta, t2.id_depto_conta) as id_depto_conta,
+                             COALESCE(t1.fecha_c31, t2.fecha_c31) as fecha_c31,
+                             COALESCE(t1.codigo, t2.codigo)::varchar as codigo,
+                             COALESCE(t1.nombre_partida, t2.nombre_partida)::varchar as nombre_partida,
+                             COALESCE(t1.importe_debe_mb, t2.importe_debe_mb)::numeric as importe_debe_mb,
+                             COALESCE(t1.importe_haber_mb, t2.importe_haber_mb)::numeric as importe_haber_mb,
+                             COALESCE(t1.importe_debe_mb_completo, t2.importe_debe_mb_completo)::numeric as importe_debe_mb_completo,
+                             COALESCE(t1.importe_haber_mb_completo, t2.importe_haber_mb_completo)::numeric as importe_haber_mb_completo,
+                             COALESCE(t1.importe_gasto_mb, t2.importe_gasto_mb)::numeric as importe_gasto_mb,
+                             COALESCE(t1.importe_recurso_mb, t2.importe_recurso_mb)::numeric as importe_recurso_mb,
+                             COALESCE(t1.factor_reversion, t2.factor_reversion)::numeric as factor_reversion,
+                             COALESCE(t1.codigo_cc, t2.codigo_cc)::varchar as codigo_cc,
+                             COALESCE(t1.codigo_categoria, t2.codigo_categoria)::varchar as codigo_categoria,
+                             COALESCE(t1.codigo_cg, t2.codigo_cg)::varchar as codigo_cg,
+                             COALESCE(t1.nombre_cg, t2.nombre_cg)::varchar as nombre_cg,
+                             COALESCE(t1.beneficiario, t2.beneficiario)::varchar as beneficiario,
+                             COALESCE(t1.glosa1, t2.glosa1)::varchar as glosa1,
+                             COALESCE(t1.id_int_comprobante, t2.id_int_comprobante) as id_int_comprobante,
+                             COALESCE(t1.id_int_comprobante_dev, t2.id_int_comprobante_dev) as id_int_comprobante_dev,
+                             COALESCE(t1.nro_cuenta, t2.nro_cuenta) as nro_cuenta,
+                             COALESCE(t1.nombre_institucion, t2.nombre_institucion) as nombre_institucion,
+                             COALESCE(t1.importe_debe, t2.importe_debe) as importe_debe,
+                             COALESCE(t1.importe_haber, t2.importe_haber) as importe_haber,
+                             COALESCE(t1.moneda_original, t2.moneda_original) as moneda_original
+                    from 
+                    (SELECT  ent.id_entrega,
+                             ent.estado,
+                             ent.c31,
+                             ent.id_depto_conta,
+                             ent.fecha_c31,
+                             par.codigo,
+                             par.nombre_partida,
+                             trd.importe_debe_mb,
+                             trd.importe_haber_mb,
+                             CASE
+                               WHEN trd.factor_reversion > 0::numeric THEN trd.importe_debe_mb /(1::
+                                 numeric - trd.factor_reversion)
+                               ELSE trd.importe_debe_mb
+                             END AS importe_debe_mb_completo,
+                             CASE
+                               WHEN trd.factor_reversion > 0::numeric THEN trd.importe_haber_mb /(1
+                                 ::numeric - trd.factor_reversion)
+                               ELSE trd.importe_haber_mb
+                             END AS importe_haber_mb_completo,
+                             trd.importe_gasto_mb,
+                             trd.importe_recurso_mb,
+                             trd.factor_reversion,
+                             pr.codigo_cc,
+                             cp.codigo_categoria,
+                             cg.codigo AS codigo_cg,
+                             cg.nombre AS nombre_cg,
+                             cbt.beneficiario,
+                             cbt.glosa1,
+                             cbt.id_int_comprobante,
+                             trd.id_int_comprobante AS id_int_comprobante_dev,
+                             COALESCE(cb.nro_cuenta, ''SIN CUENTA''::character varying) AS nro_cuenta,
+                             cb.nombre_institucion,
+                             trd.importe_debe,
+                             trd.importe_haber,
+                             mm.moneda AS moneda_original
+                      FROM conta.tentrega ent
+                           JOIN conta.tentrega_det ed ON ed.id_entrega = ent.id_entrega
+                           JOIN conta.tint_comprobante cbt ON cbt.id_int_comprobante =
+                             ed.id_int_comprobante
+                           JOIN tes.tplan_pago pg ON pg.id_int_comprobante = cbt.id_int_comprobante
+                           JOIN tes.tplan_pago dev ON dev.id_plan_pago = pg.id_plan_pago_fk
+                           JOIN conta.tint_transaccion trd ON trd.id_int_comprobante =
+                             dev.id_int_comprobante
+                           JOIN pre.tpartida par ON par.id_partida = trd.id_partida
+                           JOIN pre.vpresupuesto_cc pr ON pr.id_centro_costo = trd.id_centro_costo
+                           JOIN pre.vcategoria_programatica cp ON cp.id_categoria_programatica =
+                             pr.id_categoria_prog
+                           LEFT JOIN pre.tclase_gasto_partida cgp ON cgp.id_partida = par.id_partida
+                           LEFT JOIN pre.tclase_gasto cg ON cg.id_clase_gasto = cgp.id_clase_gasto
+                           LEFT JOIN tes.vcuenta_bancaria cb ON cb.id_cuenta_bancaria =
+                             cbt.id_cuenta_bancaria
+                           LEFT JOIN param.tmoneda mm ON trd.id_moneda = mm.id_moneda  
+                      WHERE par.sw_movimiento::text = ''presupuestaria''::text
+                      and ent.id_entrega = '||v_parametros.id_entrega||'
+                      UNION ALL
+                      SELECT ent.id_entrega,
+                             ent.estado,
+                             ent.c31,
+                             ent.id_depto_conta,
+                             ent.fecha_c31,
+                             par.codigo,
+                             par.nombre_partida,
+                             trp.importe_debe_mb,
+                             trp.importe_haber_mb,
+                             CASE
+                               WHEN trp.factor_reversion > 0::numeric THEN trp.importe_debe_mb /(1::
+                                 numeric - trp.factor_reversion)
+                               ELSE trp.importe_debe_mb
+                             END AS importe_debe_mb_completo,
+                             CASE
+                               WHEN trp.factor_reversion > 0::numeric THEN trp.importe_haber_mb /(1
+                                 ::numeric - trp.factor_reversion)
+                               ELSE trp.importe_haber_mb
+                             END AS importe_haber_mb_completo,
+                             trp.importe_gasto_mb,
+                             trp.importe_recurso_mb,
+                             trp.factor_reversion,
+                             pr.codigo_cc,
+                             cp.codigo_categoria,
+                             cg.codigo AS codigo_cg,
+                             cg.nombre AS nombre_cg,
+                             cbt.beneficiario,
+                             cbt.glosa1,
+                             cbt.id_int_comprobante,
+                             trp.id_int_comprobante AS id_int_comprobante_dev,
+                             COALESCE(cb.nro_cuenta, ''SIN CUENTA''::character varying) AS nro_cuenta,
+                             cb.nombre_institucion,
+                             trp.importe_debe,
+                             trp.importe_haber,
+                             m.moneda AS moneda_original
+                      FROM conta.tentrega ent
+                           JOIN conta.tentrega_det ed ON ed.id_entrega = ent.id_entrega
+                           JOIN conta.tint_comprobante cbt ON cbt.id_int_comprobante =
+                             ed.id_int_comprobante
+                           JOIN conta.tint_transaccion trp ON trp.id_int_comprobante =
+                             cbt.id_int_comprobante
+                           JOIN pre.tpartida par ON par.id_partida = trp.id_partida
+                           JOIN pre.vpresupuesto_cc pr ON pr.id_centro_costo = trp.id_centro_costo
+                           JOIN pre.vcategoria_programatica cp ON cp.id_categoria_programatica =
+                             pr.id_categoria_prog
+                           LEFT JOIN pre.tclase_gasto_partida cgp ON cgp.id_partida = par.id_partida
+                           LEFT JOIN pre.tclase_gasto cg ON cg.id_clase_gasto = cgp.id_clase_gasto
+                           LEFT JOIN tes.vcuenta_bancaria cb ON cb.id_cuenta_bancaria =
+                             cbt.id_cuenta_bancaria
+                           LEFT JOIN param.tmoneda m ON trp.id_moneda = m.id_moneda  
+                      WHERE par.sw_movimiento::text = ''presupuestaria''::text
+                      and ent.id_entrega = '||v_parametros.id_entrega||') t1
+                      full join 
+                      (SELECT ent.id_entrega,
+                             ent.estado,
+                             ent.c31,
+                             ent.id_depto_conta,
+                             ent.fecha_c31,
+                             par.codigo,
+                             par.nombre_partida,
+                             trp.importe_debe_mb,
+                             trp.importe_haber_mb,
+                             CASE
+                               WHEN trp.factor_reversion > 0::numeric THEN trp.importe_debe_mb /(1::
+                                 numeric - trp.factor_reversion)
+                               ELSE trp.importe_debe_mb
+                             END AS importe_debe_mb_completo,
+                             CASE
+                               WHEN trp.factor_reversion > 0::numeric THEN trp.importe_haber_mb /(1
+                                 ::numeric - trp.factor_reversion)
+                               ELSE trp.importe_haber_mb
+                             END AS importe_haber_mb_completo,
+                             trp.importe_gasto_mb,
+                             trp.importe_recurso_mb,
+                             trp.factor_reversion,
+                             pr.codigo_cc,
+                             cp.codigo_categoria,
+                             cg.codigo AS codigo_cg,
+                             cg.nombre AS nombre_cg,
+                             cbt.beneficiario,
+                             cbt.glosa1,
+                             cbt.id_int_comprobante,
+                             trp.id_int_comprobante AS id_int_comprobante_dev,
+                             COALESCE(cb.nro_cuenta, ''SIN CUENTA''::character varying) AS nro_cuenta,
+                             cb.nombre_institucion,
+                             trp.importe_debe,
+                             trp.importe_haber,
+                             m.moneda AS moneda_original
+                      FROM conta.tentrega ent
+                           JOIN conta.tentrega_det ed ON ed.id_entrega = ent.id_entrega
+                           JOIN conta.tint_comprobante cbt ON cbt.id_int_comprobante = ed.id_int_comprobante
+                           JOIN conta.tint_transaccion trp ON trp.id_int_comprobante = cbt.id_int_comprobante
+                           JOIN pre.tpartida par ON par.id_partida = trp.id_partida
+                           JOIN pre.vpresupuesto_cc pr ON pr.id_centro_costo = trp.id_centro_costo
+                           JOIN pre.vcategoria_programatica cp ON cp.id_categoria_programatica = pr.id_categoria_prog
+                           JOIN pre.tclase_gasto_partida cgp ON cgp.id_partida = par.id_partida
+                           JOIN pre.tclase_gasto cg ON cg.id_clase_gasto = cgp.id_clase_gasto
+                           LEFT JOIN tes.vcuenta_bancaria cb ON cb.id_cuenta_bancaria = cbt.id_cuenta_bancaria
+                           LEFT JOIN param.tmoneda m ON trp.id_moneda = m.id_moneda  
+                      WHERE par.sw_movimiento::text = ''flujo''::text
+                      and ent.id_entrega = '||v_parametros.id_entrega||') t2
+                      on t1.id_int_comprobante = t2.id_int_comprobante
+                      ORDER by nro_cuenta, codigo_cg , codigo_categoria , codigo';
 
       --Devuelve la respuesta
       raise notice '--> %',v_consulta;
