@@ -374,26 +374,49 @@ BEGIN
 
     	begin
     		--Sentencia de la consulta
-			v_consulta :=  'select inc.id_int_comprobante,
-                                   inc.nro_cbte,
-                                   inc.nro_tramite,
-                                   inc.fecha,
-                                   inc.glosa1,
-                                   inc.glosa2,
-                                   cc.id_clase_comprobante,
-                                   cc.codigo,
-                                   cc.descripcion,
-                                   mon.codigo::text AS desc_moneda
+			v_consulta :=  'SELECT inc.id_int_comprobante, 
+                                   inc.nro_cbte, 
+                                   inc.nro_tramite, 
+                                   inc.fecha, 
+                                   inc.glosa1, 
+                                   inc.glosa2, 
+                                   cc.id_clase_comprobante, 
+                                   cc.codigo, 
+                                   cc.descripcion, 
+                                   mon.codigo :: text AS desc_moneda 
 
-                            from conta.vint_comprobante inc
-                            inner JOIN param.tmoneda mon ON mon.id_moneda = inc.id_moneda
-                            inner JOIN param.tperiodo per ON per.id_periodo = inc.id_periodo
-                            inner join conta.tclase_comprobante cc on cc.id_clase_comprobante = inc.id_clase_comprobante
-                            where  ';
-
-			--Definicion de la respuesta
-			v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+                            FROM   conta.vint_comprobante inc 
+                                   inner join param.tmoneda mon ON mon.id_moneda = inc.id_moneda 
+                                   inner join param.tperiodo per ON per.id_periodo = inc.id_periodo 
+                                   inner join conta.tclase_comprobante cc ON cc.id_clase_comprobante = inc.id_clase_comprobante 
+                                   join conta.tint_comprobante cbt ON cbt.id_int_comprobante = inc.id_int_comprobante 
+                                   join conta.tint_transaccion trp ON trp.id_int_comprobante = cbt.id_int_comprobante 
+                                   join pre.tpartida par ON par.id_partida = trp.id_partida 
+                            WHERE  '||v_parametros.filtro||' 
+                                   AND par.sw_movimiento = ''presupuestaria''
+                            UNION 
+                            SELECT inc.id_int_comprobante, 
+                                   inc.nro_cbte, 
+                                   inc.nro_tramite, 
+                                   inc.fecha, 
+                                   inc.glosa1, 
+                                   inc.glosa2, 
+                                   cc.id_clase_comprobante, 
+                                   cc.codigo, 
+                                   cc.descripcion, 
+                                   mon.codigo :: text AS desc_moneda 
+                            FROM   conta.vint_comprobante inc 
+                                   inner join param.tmoneda mon ON mon.id_moneda = inc.id_moneda 
+                                   inner join param.tperiodo per ON per.id_periodo = inc.id_periodo 
+                                   inner join conta.tclase_comprobante cc ON cc.id_clase_comprobante = inc.id_clase_comprobante 
+                                   join conta.tint_comprobante cbt ON cbt.id_int_comprobante = inc.id_int_comprobante 
+                                   join tes.tplan_pago pg  ON pg.id_int_comprobante = cbt.id_int_comprobante 
+                                   join tes.tplan_pago dev ON dev.id_plan_pago = pg.id_plan_pago_fk 
+                                   join conta.tint_transaccion trd ON trd.id_int_comprobante = dev.id_int_comprobante 
+                                   join pre.tpartida par ON par.id_partida = trd.id_partida 
+                            WHERE  '||v_parametros.filtro||' 
+                                   AND par.sw_movimiento = ''presupuestaria'' ';
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' offset ' || v_parametros.puntero || ' limit ' || v_parametros.cantidad;
 
 			--Devuelve la respuesta
 			return v_consulta;
@@ -411,15 +434,34 @@ BEGIN
 
 		begin
 			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(id_int_comprobante)
-			             from conta.vint_comprobante inc
-                         inner JOIN param.tmoneda mon ON mon.id_moneda = inc.id_moneda
-                         inner JOIN param.tperiodo per ON per.id_periodo = inc.id_periodo
-                         inner join conta.tclase_comprobante cc on cc.id_clase_comprobante = inc.id_clase_comprobante
-                         where ';
+			v_consulta:= ' select count(comprobantes.*)
+                            from (
+                            SELECT inc.id_int_comprobante
+                            FROM   conta.vint_comprobante inc 
+                                   inner join param.tmoneda mon ON mon.id_moneda = inc.id_moneda 
+                                   inner join param.tperiodo per ON per.id_periodo = inc.id_periodo 
+                                   inner join conta.tclase_comprobante cc ON cc.id_clase_comprobante = inc.id_clase_comprobante 
+                                   join conta.tint_comprobante cbt ON cbt.id_int_comprobante = inc.id_int_comprobante 
+                                   join conta.tint_transaccion trp ON trp.id_int_comprobante = cbt.id_int_comprobante 
+                                   join pre.tpartida par ON par.id_partida = trp.id_partida 
+                            WHERE  '||v_parametros.filtro||' 
+                                   AND par.sw_movimiento = ''presupuestaria''
+                            UNION 
+                            SELECT inc.id_int_comprobante
+                            FROM   conta.vint_comprobante inc 
+                                   inner join param.tmoneda mon ON mon.id_moneda = inc.id_moneda 
+                                   inner join param.tperiodo per ON per.id_periodo = inc.id_periodo 
+                                   inner join conta.tclase_comprobante cc ON cc.id_clase_comprobante = inc.id_clase_comprobante 
+                                   join conta.tint_comprobante cbt ON cbt.id_int_comprobante = inc.id_int_comprobante 
+                                   join tes.tplan_pago pg  ON pg.id_int_comprobante = cbt.id_int_comprobante 
+                                   join tes.tplan_pago dev ON dev.id_plan_pago = pg.id_plan_pago_fk 
+                                   join conta.tint_transaccion trd ON trd.id_int_comprobante = dev.id_int_comprobante 
+                                   join pre.tpartida par ON par.id_partida = trd.id_partida 
+                            WHERE   '||v_parametros.filtro||' 
+                                   AND par.sw_movimiento = ''presupuestaria'') comprobantes';
 
 			--Definicion de la respuesta
-			v_consulta:=v_consulta||v_parametros.filtro;
+			--v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
 			return v_consulta;

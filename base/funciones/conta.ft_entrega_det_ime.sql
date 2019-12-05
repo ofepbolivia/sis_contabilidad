@@ -34,7 +34,7 @@ DECLARE
 	v_id_entrega_det	integer;
     v_registros			record;
     v_c31				varchar;
-			    
+	v_is_presupuestaria		integer; 		    
 BEGIN
 
     v_nombre_funcion = 'conta.ft_entrega_det_ime';
@@ -50,7 +50,37 @@ BEGIN
 	if(p_transaccion='CONTA_END_INS')then
 					
         begin
-        	
+        	--verificar que el comprobante este asociado a una partida presupuestaria
+            select count(comprobantes.*)
+            into v_is_presupuestaria
+            from (
+            SELECT inc.id_int_comprobante
+            FROM   conta.vint_comprobante inc 
+                   inner join param.tmoneda mon ON mon.id_moneda = inc.id_moneda 
+                   inner join param.tperiodo per ON per.id_periodo = inc.id_periodo 
+                   inner join conta.tclase_comprobante cc ON cc.id_clase_comprobante = inc.id_clase_comprobante 
+                   join conta.tint_comprobante cbt ON cbt.id_int_comprobante = inc.id_int_comprobante 
+                   join conta.tint_transaccion trp ON trp.id_int_comprobante = cbt.id_int_comprobante 
+                   join pre.tpartida par ON par.id_partida = trp.id_partida 
+            WHERE  inc.id_int_comprobante = v_parametros.id_int_comprobante
+                   AND par.sw_movimiento = 'presupuestaria'
+            UNION 
+            SELECT inc.id_int_comprobante
+            FROM   conta.vint_comprobante inc 
+                   inner join param.tmoneda mon ON mon.id_moneda = inc.id_moneda 
+                   inner join param.tperiodo per ON per.id_periodo = inc.id_periodo 
+                   inner join conta.tclase_comprobante cc ON cc.id_clase_comprobante = inc.id_clase_comprobante 
+                   join conta.tint_comprobante cbt ON cbt.id_int_comprobante = inc.id_int_comprobante 
+                   join tes.tplan_pago pg  ON pg.id_int_comprobante = cbt.id_int_comprobante 
+                   join tes.tplan_pago dev ON dev.id_plan_pago = pg.id_plan_pago_fk 
+                   join conta.tint_transaccion trd ON trd.id_int_comprobante = dev.id_int_comprobante 
+                   join pre.tpartida par ON par.id_partida = trd.id_partida 
+            WHERE  inc.id_int_comprobante = v_parametros.id_int_comprobante
+                   AND par.sw_movimiento = 'presupuestaria') comprobantes;
+            
+            if v_is_presupuestaria <= 0   then                 
+                raise exception 'Error comprobante (id: %) No es posible mezclar comprobantes que no ejecutan presupuesto con los que si ejecutan.',  v_parametros.id_int_comprobante;
+            end if;
             --verificar que no este asociado a otra entrega
             
             
