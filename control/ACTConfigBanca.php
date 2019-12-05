@@ -17,7 +17,8 @@ class ACTConfigBanca extends ACTbase{
 		
 		
 		if($this->objParam->getParametro('descripcion')!=''){
-			$this->objParam->addFiltro("confba.descripcion = ''".$this->objParam->getParametro('descripcion')."''");
+			//$this->objParam->addFiltro("confba.descripcion = ''".$this->objParam->getParametro('descripcion')."''");
+            $this->objParam->addFiltro("confba.descripcion in ( ''".$this->objParam->getParametro('descripcion')."'')");
 		}
 		
 		

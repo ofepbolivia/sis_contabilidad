@@ -640,7 +640,21 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 				 	}, scope : this
 				}); 
 				
-			}else{
+			}
+			else if(this.Cmp.id_cuenta_bancaria.getValue() == 79){
+                this.Cmp.tipo_documento_pago.reset();
+                this.Cmp.tipo_documento_pago.store.baseParams.descripcion = "Transferencia de fondos'', ''Cheque de cualquier naturaleza";
+                this.Cmp.tipo_documento_pago.modificado = true;
+
+
+                this.Cmp.tipo_documento_pago.store.load({params:{start:0,limit:10},
+                    callback:function(){
+
+                        this.Cmp.tipo_documento_pago.setValue(4);
+                    }, scope : this
+                });
+            }
+			else{
 				this.Cmp.tipo_documento_pago.reset();
 				this.Cmp.tipo_documento_pago.store.baseParams.descripcion = "Cheque de cualquier naturaleza";
 				this.Cmp.tipo_documento_pago.modificado = true;
