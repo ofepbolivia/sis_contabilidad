@@ -80,6 +80,8 @@ DECLARE
      v_ids_entregas			integer[];
 	 v_entg					integer;
      v_is_presupuestaria	integer;
+	 v_par_pre				integer := 0;
+     v_par_flu				integer := 0;
 BEGIN
 
     v_nombre_funcion = 'conta.ft_entrega_ime';
@@ -180,11 +182,16 @@ BEGIN
               WHERE  inc.id_int_comprobante = v_entg
                      AND par.sw_movimiento = 'presupuestaria') comprobantes;
                      
-              if v_is_presupuestaria <= 0   then                 
-                  raise exception 'Error comprobante (id: %) No es posible mezclar comprobantes que no ejecutan presupuesto con los que si ejecutan.',  v_entg;
-              end if;
+              IF v_is_presupuestaria<=0 THEN
+              	v_par_flu := v_par_flu + 1;
+              ELSE
+              	v_par_pre := v_par_pre + 1;
+              END IF;
            END LOOP;
            
+		   if v_par_pre > 0 and v_par_flu > 0 then                 
+             raise exception 'Error no es posible mezclar comprobantes que no ejecutan presupuesto con los que si ejecutan.';
+           end if;
            select tp.codigo, pm.id_proceso_macro
            into   v_codigo_tipo_proceso, v_id_proceso_macro
            from  wf.tproceso_macro pm
