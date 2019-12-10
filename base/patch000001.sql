@@ -4948,3 +4948,26 @@ IS 'Poner la descripcion que existe diferencia con el registro.';
 ALTER TABLE conta.ttipo_cambio_pais_log
   OWNER TO postgres;
 /***********************************F-SCP-IRVA-CONTA-0-03/12/2019****************************************/
+
+/***********************************I-SCP-BVP-CONTA-0-10/12/2019****************************************/
+CREATE TABLE conta.tlog_periodo_compra (
+  id_log_periodo_compra SERIAL,
+  id_periodo_compra_venta INTEGER NOT NULL,
+  estado VARCHAR(20),
+  CONSTRAINT tlog_periodo_compra_pkey PRIMARY KEY(id_log_periodo_compra)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE conta.tlog_periodo_compra
+  ALTER COLUMN id_log_periodo_compra SET STATISTICS 0;
+
+COMMENT ON TABLE conta.tlog_periodo_compra
+IS 'Log de estado registrado de los cambios ejecutados (abierto, cerrado, cerrado parcial) en el control 
+de periodos del sistema de contabilidad. ';
+
+COMMENT ON COLUMN conta.tlog_periodo_compra.estado
+IS 'Estado de periodo de libro de bancos, cerrado, cerrado_parcial, abierto.';
+
+ALTER TABLE conta.tlog_periodo_compra
+  OWNER TO postgres;
+/***********************************F-SCP-BVP-CONTA-0-10/12/2019****************************************/

@@ -36,15 +36,15 @@ class MODPeriodoCompraVenta extends MODbase{
 		
 		$this->captura('id_gestion','integer');
 		$this->captura('fecha_ini','date');
-		$this->captura('fecha_fin','date');
-		
+		$this->captura('fecha_fin','date');		
 		$this->captura('periodo','integer');
-		
-		
-		
-		
+		$this->captura('mes','varchar');
+		$this->captura('cantidad_cerrado','int4');
+		$this->captura('cantidad_abierto','int4');
+		$this->captura('cantidad_cerrado_parcial','int4');
 		//Ejecuta la instruccion
-		$this->armarConsulta();
+        $this->armarConsulta();
+        //echo($this->consulta);exit;
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
@@ -88,6 +88,36 @@ class MODPeriodoCompraVenta extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+    
+    function listarHistorialPeriodoCompra() {
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='conta.ft_periodo_compra_venta_sel';
+		$this->transaccion='CONTA_LOGPECOM_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+				
+        //Definicion de la lista del resultado del query
+        $this->captura('id_log_perido_compra','int4');
+		$this->captura('id_periodo_compra_venta','int4');
+		$this->captura('estado','varchar');
+        $this->captura('estado_reg','varchar');
+        $this->captura('id_usuario_ai','int4');
+        $this->captura('fecha_reg','timestamp');
+        $this->captura('fecha_mod','timestamp');
+        $this->captura('usuario_ai','varchar');
+		$this->captura('id_usuario_reg','int4');
+        $this->captura('id_usuario_mod','int4');        
+		$this->captura('usr_reg','varchar');
+		$this->captura('usr_mod','varchar');			
+        $this->captura('persona_reg','text');
+        $this->captura('persona_mod','text');
+								
+		//Ejecuta la instruccion
+        $this->armarConsulta();
+        //echo($this->consulta);exit;
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;        
+    }
 }
 ?>
