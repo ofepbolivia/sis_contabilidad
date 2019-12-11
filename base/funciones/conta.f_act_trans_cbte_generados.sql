@@ -58,32 +58,70 @@ BEGIN
    FROM conta.tint_comprobante cbte
    where cbte.id_int_comprobante = p_id_int_comprobante;
 
+
+    v_id_moneda_base = param.f_get_moneda_base();
+   	v_id_moneda_tri  = param.f_get_moneda_triangulacion();
+   	v_id_moneda_act  = param.f_get_moneda_actualizacion();
+
     -------------------------------------------------------
     --recupera configuracion activa, y tipos de cambio
     ------------------------------------------------------
+	--(may) 10-12-2019 modificaion tipo de cambio para las estaciones internacionales que lleguen a central Bolivia con el tipo de cambio de COMPRA
 
+	IF (v_registros_cbte.localidad ='internacional') THEN
 
+          IF (v_id_moneda_tri = v_registros_cbte.id_moneda) THEN
+              SELECT
+                 po_id_config_cambiaria ,
+                 po_valor_tc1 ,
+                 po_valor_tc2 ,
+                 po_valor_tc3 ,
+                 po_tc1 ,
+                 po_tc2 ,
+                 po_tc3
+               into
+                v_registros_config
+               FROM conta.f_get_tipo_cambio_segu_config(v_registros_cbte.id_moneda,
+                                                        v_registros_cbte.fecha,
+                                                        v_registros_cbte.localidad,
+                                                        'si',
+                                                        'C');
+          ELSE
+              SELECT
+                 po_id_config_cambiaria ,
+                 po_valor_tc1 ,
+                 po_valor_tc2 ,
+                 po_valor_tc3 ,
+                 po_tc1 ,
+                 po_tc2 ,
+                 po_tc3
+               into
+                v_registros_config
+               FROM conta.f_get_tipo_cambio_segu_config(v_registros_cbte.id_moneda,
+                                                        v_registros_cbte.fecha,
+                                                        v_registros_cbte.localidad,
+                                                        'si');
 
-         SELECT
-           po_id_config_cambiaria ,
-           po_valor_tc1 ,
-           po_valor_tc2 ,
-           po_valor_tc3 ,
-           po_tc1 ,
-           po_tc2 ,
-           po_tc3
-         into
-          v_registros_config
-         FROM conta.f_get_tipo_cambio_segu_config(v_registros_cbte.id_moneda,
-                                                  v_registros_cbte.fecha,
-                                                  v_registros_cbte.localidad,
-                                                  'si');
+          END IF;
 
+    ELSE
+          SELECT
+             po_id_config_cambiaria ,
+             po_valor_tc1 ,
+             po_valor_tc2 ,
+             po_valor_tc3 ,
+             po_tc1 ,
+             po_tc2 ,
+             po_tc3
+           into
+            v_registros_config
+           FROM conta.f_get_tipo_cambio_segu_config(v_registros_cbte.id_moneda,
+                                                    v_registros_cbte.fecha,
+                                                    v_registros_cbte.localidad,
+                                                    'si');
 
-        v_id_moneda_base = param.f_get_moneda_base();
-        v_id_moneda_tri  = param.f_get_moneda_triangulacion();
-        v_id_moneda_act  = param.f_get_moneda_actualizacion();
-
+    END IF;
+    --
 
        v_tipo_cambio = v_registros_cbte.tipo_cambio;
 
