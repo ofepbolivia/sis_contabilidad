@@ -18,9 +18,9 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION:	aumento de controles para cierre y apertura de periodo de compra venta
+ AUTOR:			breydi vasquez
+ FECHA:		    06/12/2019
 ***************************************************************************/
 
 DECLARE
@@ -133,10 +133,36 @@ BEGIN
              v_estado = 'abierto';
             END IF;
             
+            -- modificado (breydi.vasquez) incremento de columans no registradas y 
+            -- control de veces que fueron cerradas y abiertas los periodos 
+
+
             update conta.tperiodo_compra_venta pcv set
-              estado = v_estado
+              estado = v_estado,
+			  id_usuario_mod = p_id_usuario,
+              fecha_mod = now(),
+              id_usuario_ai = v_parametros._id_usuario_ai,
+              usuario_ai = v_parametros._nombre_usuario_ai              
             where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta; 
         	
+            -- registro log de cambios de periodos de compra contabilidad 
+            insert into conta.tlog_periodo_compra 
+                        (
+                          id_usuario_reg,
+                          fecha_reg,
+                          estado_reg,
+                          id_periodo_compra_venta,
+                          estado,
+                          id_usuario_ai
+                        )
+                        VALUES (
+                           p_id_usuario,
+                           now(),
+                          'activo',
+                          v_parametros.id_periodo_compra_venta,
+                          v_estado,
+                          v_parametros._id_usuario_ai
+                        );            
                
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','periodo de libro de compra y ventas pasa al estado: ' || v_estado); 

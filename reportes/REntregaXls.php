@@ -106,7 +106,7 @@ class REntregaXls
 
 
         $inicio_filas = 7;
-        $this->docexcel->getActiveSheet()->getStyle('A7:J7')->applyFromArray($styleTitulos);
+        $this->docexcel->getActiveSheet()->getStyle('A7:L7')->applyFromArray($styleTitulos);
 
         $this->docexcel->getActiveSheet()->getStyle('E:F')->getNumberFormat()->setFormatCode('#,##0.00');
 
@@ -125,12 +125,18 @@ class REntregaXls
         $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5,$inicio_filas,'Importe Doc.');
         $this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[6])->setWidth(20);
         $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$inicio_filas,'Moneda');
-        $this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[7])->setWidth(10);
-        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,$inicio_filas,'ID Cbte');
-        $this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[8])->setWidth(30);
-        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(8,$inicio_filas,'Concepto');
-        $this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[9])->setWidth(20);
-        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(9,$inicio_filas,'Beneficiario');
+
+        $this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[7])->setWidth(20);
+        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,$inicio_filas,'Inporte Original');
+        $this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[8])->setWidth(20);
+        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(8,$inicio_filas,'Moneda Original');
+
+        $this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[9])->setWidth(10);
+        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(9,$inicio_filas,'ID Cbte');
+        $this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[10])->setWidth(30);
+        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(10,$inicio_filas,'Concepto');
+        $this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[11])->setWidth(20);
+        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(11,$inicio_filas,'Beneficiario');
 
         //*************************************Fin Cabecera*****************************************
 
@@ -158,6 +164,15 @@ class REntregaXls
         $sumatoria_neto_cb = 0;
         $sumatoria_neto_gral = 0;
         $sumatoria_gral = 0;
+
+
+        $sumatoria_par_ori = 0;
+        $sumatoria_ori = 0;
+        $sumatoria_cg_ori = 0;
+        $sumatoria_cb_ori = 0;
+        $sumatoria_gral_ori = 0;
+
+
         //EStilos para categorias programaticas
 
         $styleArrayGroup = array(
@@ -238,21 +253,26 @@ class REntregaXls
             if($value['importe_gasto_mb'] > 0){
                 $importe_neto = $value['importe_gasto_mb'];
                 $importe = $value['importe_debe_mb_completo'];
+                $importe_original = $value['importe_debe'];
             }
             else{
                 $importe_neto = $value['importe_recurso_mb'];
                 $importe = $value['importe_haber_mb_completo'];
+                $importe_original = $value['importe_haber'];
             }
             $importe_neto = round ($importe_neto,2);
             $importe = round ($importe,2);
+            $importe_original = round ($importe_original,2);
+
 
             if(($tmp_rec['codigo'] != $value['codigo']) or ($tmp_rec['nro_cuenta'] != $value['nro_cuenta'])){
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$fila,$sumatoria_neto_par);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5,$fila,$sumatoria_par);
+                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,$fila,$sumatoria_par_ori);
                 $fila_fin_par = $fila;
                 $this->docexcel->setActiveSheetIndex(0)->mergeCells("D".($fila_ini_par).":D".($fila_fin_par));
                 $this->docexcel->setActiveSheetIndex(0)->getStyle("D".($fila_ini_par).":D".($fila_fin_par))->applyFromArray($styleArrayGroupPar);
-                $this->docexcel->setActiveSheetIndex(0)->getStyle("D".($fila_fin_par).":J".($fila_fin_par))->applyFromArray($styleArrayTotalPar);
+                $this->docexcel->setActiveSheetIndex(0)->getStyle("D".($fila_fin_par).":L".($fila_fin_par))->applyFromArray($styleArrayTotalPar);
                 $this->docexcel->setActiveSheetIndex(0)->getStyle("D".($fila_ini_par).":D".($fila_fin_par))->getAlignment()->setWrapText(true);
                 for ($row = $fila_ini_par; $row <= $fila_fin_par-1; ++$row) {
                     $this->docexcel->setActiveSheetIndex(0)->getRowDimension($row)->setOutlineLevel(1)->setVisible(false)->setCollapsed(true);
@@ -261,6 +281,7 @@ class REntregaXls
                 $fila_ini_par = $fila;
                 $sumatoria_par = 0;
                 $sumatoria_neto_par = 0;
+                $sumatoria_par_ori = 0;
 
             }
 
@@ -268,11 +289,11 @@ class REntregaXls
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(2,$fila,'TOTAL CATEGORIA');
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$fila,$sumatoria_neto);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5,$fila,$sumatoria);
-
+                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,$fila,$sumatoria_ori);
                 $fila_fin = $fila;
                 $this->docexcel->setActiveSheetIndex(0)->mergeCells("C".($fila_ini).":C".($fila_fin-1));
                 $this->docexcel->setActiveSheetIndex(0)->getStyle("C".($fila_ini).":C".($fila_fin))->applyFromArray($styleArrayGroup);
-                $this->docexcel->setActiveSheetIndex(0)->getStyle("D".($fila_fin).":J".($fila_fin))->applyFromArray($styleArrayTotal);
+                $this->docexcel->setActiveSheetIndex(0)->getStyle("D".($fila_fin).":L".($fila_fin))->applyFromArray($styleArrayTotal);
 
                 $fila++;
                 $fila_ini = $fila;
@@ -283,16 +304,19 @@ class REntregaXls
                 $sumatoria_par = 0;
                 $sumatoria_neto_par = 0;
 
+                $sumatoria_par_ori = 0;
+                $sumatoria_ori = 0;
             }
 
             if(($tmp_rec['codigo_cg'] != $value['codigo_cg']) or ($tmp_rec['nro_cuenta'] != $value['nro_cuenta'])){
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$fila,'TOTAL GASTO');
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$fila,$sumatoria_neto_cg);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5,$fila,$sumatoria_cg);
+                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,$fila,$sumatoria_cg_ori);
                 $fila_fin_cg = $fila;
                 $this->docexcel->setActiveSheetIndex(0)->mergeCells("B".($fila_ini_cg).":B".($fila_fin_cg-1));
                 $this->docexcel->setActiveSheetIndex(0)->getStyle("B".($fila_ini_cg).":B".($fila_fin_cg))->applyFromArray($styleArrayGroupCg);
-                $this->docexcel->setActiveSheetIndex(0)->getStyle("B".($fila_fin_cg).":J".($fila_fin_cg))->applyFromArray($styleArrayTotalCg);
+                $this->docexcel->setActiveSheetIndex(0)->getStyle("B".($fila_fin_cg).":L".($fila_fin_cg))->applyFromArray($styleArrayTotalCg);
                 $fila++;
                 $fila_ini_cg = $fila;
                 $sumatoria_cg = 0;
@@ -304,16 +328,21 @@ class REntregaXls
                 $fila_ini = $fila;
                 $sumatoria = 0;
                 $sumatoria_neto = 0;
+
+                $sumatoria_par_ori = 0;
+                $sumatoria_ori = 0;
+                $sumatoria_cg_ori = 0;
             }
 
             if($tmp_rec['nro_cuenta'] != $value['nro_cuenta']){
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0,$fila,'TOTAL CUENTA');
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$fila,$sumatoria_neto_cb);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5,$fila,$sumatoria_cb);
+                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,$fila,$sumatoria_cb_ori);
                 $fila_fin_cb = $fila;
                 $this->docexcel->setActiveSheetIndex(0)->mergeCells("A".($fila_ini_cb).":A".($fila_fin_cb-1));
                 $this->docexcel->setActiveSheetIndex(0)->getStyle("A".($fila_ini_cb).":A".($fila_fin_cb))->applyFromArray($styleArrayAccount);
-                $this->docexcel->setActiveSheetIndex(0)->getStyle("A".($fila_fin_cb).":J".($fila_fin_cb))->applyFromArray($styleArrayTotalAccount);
+                $this->docexcel->setActiveSheetIndex(0)->getStyle("A".($fila_fin_cb).":L".($fila_fin_cb))->applyFromArray($styleArrayTotalAccount);
                 $fila++;
                 $fila_ini_cg = $fila;
                 $sumatoria_cg = 0;
@@ -329,6 +358,11 @@ class REntregaXls
                 $sumatoria_neto = 0;
 
                 $fila_ini_cb = $fila;
+
+                $sumatoria_par_ori = 0;
+                $sumatoria_ori = 0;
+                $sumatoria_cg_ori = 0;
+                $sumatoria_cb_ori = 0;
             }
 
             $sumatoria = $sumatoria + $importe;
@@ -342,6 +376,12 @@ class REntregaXls
             $sumatoria_gral = $sumatoria_gral + $importe;
             $sumatoria_neto_gral = $sumatoria_neto_gral + $importe_neto;
 
+            $sumatoria_par_ori = $sumatoria_par_ori + $importe_original;
+            $sumatoria_ori = $sumatoria_ori + $importe_original;
+            $sumatoria_cg_ori = $sumatoria_cg_ori + $importe_original;
+            $sumatoria_cb_ori = $sumatoria_cb_ori + $importe_original;
+            $sumatoria_gral_ori = $sumatoria_gral_ori + $importe_original;
+
             if($fi != count($datos)){
                 if($value['nro_cuenta'] == 'SIN CUENTA'){
                     $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0,$fila,$value['nro_cuenta']);
@@ -354,9 +394,11 @@ class REntregaXls
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$fila,$importe_neto);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5,$fila,$importe);
                 $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$fila,'Bolivianos');
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,$fila,$value['id_int_comprobante_dev']);
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(8,$fila,$value['glosa1']);
-                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(9,$fila,$value['beneficiario']);
+                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,$fila,$importe_original);
+                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(8,$fila,$value['moneda_original']);
+                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(9,$fila,$value['id_int_comprobante_dev']);
+                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(10,$fila,$value['glosa1']);
+                $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(11,$fila,$value['beneficiario']);
             }
 
             $tmp_rec = $value;
@@ -365,10 +407,11 @@ class REntregaXls
         $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0,($fila-1),'TOTAL GENERAL');
         $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,($fila-1),$sumatoria_neto_gral);
         $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5,($fila-1),$sumatoria_gral);
-        $this->docexcel->setActiveSheetIndex(0)->getStyle("A".(($fila-1)).":J".(($fila-1)))->applyFromArray($styleArrayTotalGral);
+        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,($fila-1),$sumatoria_gral_ori);
+        $this->docexcel->setActiveSheetIndex(0)->getStyle("A".(($fila-1)).":L".(($fila-1)))->applyFromArray($styleArrayTotalGral);
 
         //ajustar testo en beneficiario y glosa
-        $this->docexcel->setActiveSheetIndex(0)->getStyle("I".($inicio_filas).":J".($fila+1))->getAlignment()->setWrapText(true);
+        $this->docexcel->setActiveSheetIndex(0)->getStyle("K".($inicio_filas).":L".($fila+1))->getAlignment()->setWrapText(true);
 
     }
 

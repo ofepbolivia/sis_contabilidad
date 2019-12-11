@@ -63,7 +63,7 @@ Phx.vista.BancarizacionPeriodo=Ext.extend(Phx.gridInterfaz,{
                 root: 'datos',
                 sortInfo:{
                     field: 'gestion',
-                    direction: 'ASC'
+                    direction: 'DESC'
                 },
                 totalProperty: 'total',
                 fields: ['id_gestion','gestion'],
@@ -76,7 +76,7 @@ Phx.vista.BancarizacionPeriodo=Ext.extend(Phx.gridInterfaz,{
         displayField: 'gestion',
         hiddenName: 'id_gestion',
         mode:'remote',
-        pageSize:50,
+        pageSize:5,
         queryDelay:500,
         listWidth:'280',
         width:80

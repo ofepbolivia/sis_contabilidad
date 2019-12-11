@@ -77,7 +77,11 @@ DECLARE
      v_estado_wf_com    integer;
 
      v_reg_cbte record;
-
+     v_ids_entregas			integer[];
+	 v_entg					integer;
+     v_is_presupuestaria	integer;
+	 v_par_pre				integer := 0;
+     v_par_flu				integer := 0;
 BEGIN
 
     v_nombre_funcion = 'conta.ft_entrega_ime';
@@ -146,7 +150,48 @@ BEGIN
 	elsif(p_transaccion='CONTA_CRENT_INS')then
 
 		begin
-
+        	--verificar que el comprobante este asociado a una partida presupuestaria
+        	v_ids_entregas = string_to_array(v_parametros.id_int_comprobantes,',');
+        	
+           FOREACH v_entg IN ARRAY v_ids_entregas
+           LOOP 
+             select count(comprobantes.*)
+              into v_is_presupuestaria
+              from (
+              SELECT inc.id_int_comprobante
+              FROM   conta.vint_comprobante inc 
+                     inner join param.tmoneda mon ON mon.id_moneda = inc.id_moneda 
+                     inner join param.tperiodo per ON per.id_periodo = inc.id_periodo 
+                     inner join conta.tclase_comprobante cc ON cc.id_clase_comprobante = inc.id_clase_comprobante 
+                     join conta.tint_comprobante cbt ON cbt.id_int_comprobante = inc.id_int_comprobante 
+                     join conta.tint_transaccion trp ON trp.id_int_comprobante = cbt.id_int_comprobante 
+                     join pre.tpartida par ON par.id_partida = trp.id_partida 
+              WHERE  inc.id_int_comprobante = v_entg
+                     AND par.sw_movimiento = 'presupuestaria'
+              UNION 
+              SELECT inc.id_int_comprobante
+              FROM   conta.vint_comprobante inc 
+                     inner join param.tmoneda mon ON mon.id_moneda = inc.id_moneda 
+                     inner join param.tperiodo per ON per.id_periodo = inc.id_periodo 
+                     inner join conta.tclase_comprobante cc ON cc.id_clase_comprobante = inc.id_clase_comprobante 
+                     join conta.tint_comprobante cbt ON cbt.id_int_comprobante = inc.id_int_comprobante 
+                     join tes.tplan_pago pg  ON pg.id_int_comprobante = cbt.id_int_comprobante 
+                     join tes.tplan_pago dev ON dev.id_plan_pago = pg.id_plan_pago_fk 
+                     join conta.tint_transaccion trd ON trd.id_int_comprobante = dev.id_int_comprobante 
+                     join pre.tpartida par ON par.id_partida = trd.id_partida 
+              WHERE  inc.id_int_comprobante = v_entg
+                     AND par.sw_movimiento = 'presupuestaria') comprobantes;
+                     
+              IF v_is_presupuestaria<=0 THEN
+              	v_par_flu := v_par_flu + 1;
+              ELSE
+              	v_par_pre := v_par_pre + 1;
+              END IF;
+           END LOOP;
+           
+		   if v_par_pre > 0 and v_par_flu > 0 then                 
+             raise exception 'Error no es posible mezclar comprobantes que no ejecutan presupuesto con los que si ejecutan.';
+           end if;
            select tp.codigo, pm.id_proceso_macro
            into   v_codigo_tipo_proceso, v_id_proceso_macro
            from  wf.tproceso_macro pm

@@ -81,7 +81,7 @@ BEGIN
                 where depu.id_usuario =  p_id_usuario and depu.cargo = 'responsable';
 
 				IF v_parametros.nombreVista != 'IntComprobanteLd' and v_parametros.nombreVista != 'VbIntComprobante' THEN
-                	v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||'  or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
+                	v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||' or incbte.id_usuario_mod = '||p_id_usuario::varchar ||' or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
                 END IF;
 
                 -- para la vista visto bueno comprobante
@@ -384,17 +384,16 @@ BEGIN
                                    cc.codigo,
                                    cc.descripcion,
                                    mon.codigo::text AS desc_moneda
-
                             from conta.vint_comprobante inc
                             inner JOIN param.tmoneda mon ON mon.id_moneda = inc.id_moneda
                             inner JOIN param.tperiodo per ON per.id_periodo = inc.id_periodo
                             inner join conta.tclase_comprobante cc on cc.id_clase_comprobante = inc.id_clase_comprobante
                             where  ';
 
-			--Definicion de la respuesta
-			v_consulta:=v_consulta||v_parametros.filtro;
+			--Definicion de la respuesta												
+			v_consulta:=v_consulta||v_parametros.filtro;								
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-
+			
 			--Devuelve la respuesta
 			return v_consulta;
 

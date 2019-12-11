@@ -200,6 +200,9 @@ class MODEntrega extends MODbase{
         $this->captura('id_int_comprobante_dev','int4');
         $this->captura('nro_cuenta','varchar');
         $this->captura('nombre_institucion','varchar');
+		$this->captura('importe_debe','numeric');
+        $this->captura('importe_haber','numeric');
+        $this->captura('moneda_original','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

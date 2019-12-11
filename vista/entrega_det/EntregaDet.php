@@ -69,7 +69,7 @@ Phx.vista.EntregaDet=Ext.extend(Phx.gridInterfaz,{
 						par_filtro : 'inc.id_int_comprobante#inc.nro_cbte#inc.fecha#inc.glosa1#inc.glosa2#inc.nro_tramite'
 					}
 				}),
-				tpl : new Ext.XTemplate('<tpl for="."><div class="awesomecombo-5item {checked}">', '<p>(ID: {id_int_comprobante}), Nro: {nro_cbte}</p>', '<p>Fecha: <strong>{fecha}</strong></p>', '<p>TR: {nro_tramite}</p>', '<p>GLS: {glosa1}</p>', '</div></tpl>'),
+				tpl : new Ext.XTemplate('<tpl for="."><div class="awesomecombo-5item {checked}">', '<p><b style="color:#0A5F2F";>ID: {id_int_comprobante}</b>, Nro: {nro_cbte}</p>', '<p>Fecha: <strong>{fecha}</strong></p>', '<p><b>TR: {nro_tramite}</b></p>', '<p>GLS: {glosa1}</p>', '</div></tpl>'),
 				itemSelector : 'div.awesomecombo-5item',
 
 				valueField : 'id_int_comprobante',

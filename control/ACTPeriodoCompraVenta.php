@@ -47,8 +47,26 @@ class ACTPeriodoCompraVenta extends ACTbase{
 		    $this->res=$this->objFunc->cerrarAbrirPeriodo($this->objParam);
 		    $this->res->imprimirRespuesta($this->res->generarJson());
 	}
-	
-	
+    
+    function listarHistorialPeriodoCompra() {		
+				
+         /* inicio filtros */
+
+        $this->objParam->getParametro('id_periodo_compra_venta')!='' && $this->objParam->addFiltro("lgp.id_periodo_compra_venta = ".$this->objParam->getParametro('id_periodo_compra_venta'));
+        $this->objParam->getParametro('estado')!='' && $this->objParam->addFiltro("lgp.estado = ''".$this->objParam->getParametro('estado')."''");
+        
+		/* fin filtros */
+		
+		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+			$this->objReporte = new Reporte($this->objParam,$this);
+			$this->res = $this->objReporte->generarReporteListado('MODPeriodoCompraVenta','listarHistorialPeriodoCompra');
+		} else{
+			$this->objFunc=$this->create('MODPeriodoCompraVenta');
+			
+			$this->res=$this->objFunc->listarHistorialPeriodoCompra($this->objParam);
+		}
+		$this->res->imprimirRespuesta($this->res->generarJson());        
+    }
 			
 }
 
