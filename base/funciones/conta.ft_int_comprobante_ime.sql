@@ -101,6 +101,11 @@ DECLARE
     v_nombre_conexion				varchar;
 
 
+  v_nro_tramite varchar;
+   v_registros_cd record;
+   estado_cbte	varchar;
+
+
 BEGIN
 
     v_nombre_funcion = 'conta.ft_int_comprobante_ime';
@@ -1351,6 +1356,39 @@ BEGIN
           $this->setParametro('json_procesos','json_procesos','text');
           */
 
+
+          ----recuperamos el numero de tramite para comprobar que viene de un fondo en avance
+        select nro_tramite
+        into v_nro_tramite
+        from conta.tint_comprobante
+        where id_int_comprobante= v_parametros.id_int_comprobante;
+
+                    IF EXISTS(
+                           select 1
+                          from cd.tcuenta_doc cd
+                          where cd.nro_tramite=v_nro_tramite
+                          )then
+                              for v_registros_cd in (select cd.*
+                                                     from cd.tcuenta_doc cd
+                                                     where cd.nro_tramite=v_nro_tramite)loop
+                                  if v_registros_cd.id_int_comprobante_reposicion = v_parametros.id_int_comprobante THEN
+                                        select cbte.estado_reg
+                                        into estado_cbte
+                                        FROM conta.tint_comprobante cbte
+                                        where cbte.id_int_comprobante = v_registros_cd.id_int_comprobante;
+                                            if estado_cbte = 'borrador' THEN
+                                              raise exception 'No es posible validar el comprobante de Reposición con ID: %  , sin antes validar primero el comprobante de Rendición con ID: % correspondiente al trámite: %',v_registros_cd.id_int_comprobante_reposicion,v_registros_cd.id_int_comprobante, v_registros_cd.nro_tramite;
+                                            end if;
+
+                                     /*  -- raise exception 'este comprobante es uno de reposicion de fondos % , %, %',v_registros_cd.id_cuenta_doc , estado_cbte ,v_registros_cd.id_int_comprobante;
+                                    elsif v_registros_cd.id_int_comprobante = v_parametros.id_int_comprobante then
+                                      raise exception 'este comprobante es uno de rendicion de fondos %',v_registros_cd.id_cuenta_doc;*/
+                                    end if;
+
+                                end loop;
+
+
+                     end if;
 
           --  obtenermos datos basicos
           select
