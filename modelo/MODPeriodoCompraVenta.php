@@ -119,5 +119,20 @@ class MODPeriodoCompraVenta extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;        
     }
+	
+	function cerrarPeriodosCompra(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_periodo_compra_venta_ime';
+        $this->transaccion='CONTA_ABRCERAUT_IME';
+        $this->tipo_procedimiento='IME';
+        //definicion de variables
+        $this->tipo_conexion='seguridad';
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 }
 ?>

@@ -67,6 +67,12 @@ class ACTPeriodoCompraVenta extends ACTbase{
 		}
 		$this->res->imprimirRespuesta($this->res->generarJson());        
     }
+	
+	function cerrarPeriodosCompra(){
+        $this->objFunc=$this->create('MODPeriodoCompraVenta');
+        $this->res=$this->objFunc->cerrarPeriodosCompra($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 			
 }
 
