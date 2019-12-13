@@ -4971,3 +4971,63 @@ IS 'Estado de periodo de libro de bancos, cerrado, cerrado_parcial, abierto.';
 ALTER TABLE conta.tlog_periodo_compra
   OWNER TO postgres;
 /***********************************F-SCP-BVP-CONTA-0-10/12/2019****************************************/
+
+/***********************************I-SCP-AKFG-CONTA-0-13/12/2019****************************************/
+CREATE TABLE conta.tplan_cuenta (
+  id_plan_cuenta SERIAL,
+  nombre VARCHAR(300),
+  estado VARCHAR(20),
+  CONSTRAINT tplan_cuenta_pkey PRIMARY KEY(id_plan_cuenta)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+COMMENT ON COLUMN conta.tplan_cuenta.nombre
+IS 'nombre del plan de cuentas';
+
+COMMENT ON COLUMN conta.tplan_cuenta.estado
+IS 'estado del plan de cuentas';
+
+ALTER TABLE conta.tplan_cuenta
+  OWNER TO postgres;
+
+
+
+  CREATE TABLE conta.tplan_cuenta_det (
+  id_plan_cuenta_det SERIAL,
+  id_plan_cuenta INTEGER,
+  nivel VARCHAR(50),
+  rubro VARCHAR(50),
+  grupo VARCHAR(50),
+  sub_grupo VARCHAR(20),
+  cuenta VARCHAR(50),
+  codigo_cuenta VARCHAR(50),
+  sub_cuenta VARCHAR(50),
+  auxiliar VARCHAR(50),
+  nombre_cuenta VARCHAR(150),
+  ajuste VARCHAR(20),
+  moneda_ajuste VARCHAR(20),
+  tipo_cuenta VARCHAR(50),
+  moneda VARCHAR(20),
+  tip_cuenta VARCHAR(50),
+  permite_auxiliar VARCHAR(20),
+  cuenta_sigep INTEGER,
+  partida_sigep_debe VARCHAR(150),
+  partida_sigep_haber VARCHAR(200),
+  observaciones VARCHAR(200),
+  sub_sub_cuenta VARCHAR(60),
+  numero INTEGER,
+  CONSTRAINT tplan_cuenta_det_pkey PRIMARY KEY(id_plan_cuenta_det),
+  CONSTRAINT tplan_cuenta_det_fk FOREIGN KEY (id_plan_cuenta)
+    REFERENCES conta.tplan_cuenta(id_plan_cuenta)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+COMMENT ON COLUMN conta.tplan_cuenta_det.numero
+IS 'numero de la fila del documento excel';
+
+ALTER TABLE conta.tplan_cuenta_det
+  OWNER TO postgres;
+/***********************************F-SCP-AKFG-CONTA-0-13/12/2019****************************************/
