@@ -1914,8 +1914,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             }, this);
 
-            this.Cmp.fecha_vencimiento.setReadOnly(false);
-			this.disableComponentes();						  
+            this.Cmp.fecha_vencimiento.setReadOnly(false);				  
         },
 
         resetearMontos: function () {
