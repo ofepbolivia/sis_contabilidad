@@ -5031,3 +5031,26 @@ IS 'numero de la fila del documento excel';
 ALTER TABLE conta.tplan_cuenta_det
   OWNER TO postgres;
 /***********************************F-SCP-AKFG-CONTA-0-13/12/2019****************************************/
+
+
+/***********************************I-SCP-AKFG-CONTA-0-27/12/2019****************************************/
+ALTER TABLE conta.tplan_cuenta
+  ADD COLUMN id_gestion INTEGER;
+
+COMMENT ON COLUMN conta.tplan_cuenta.id_gestion
+IS 'id de la gestion destino para la creacion del plan de cuentas';
+
+ALTER TABLE conta.tplan_cuenta_det
+  ADD COLUMN id_cuenta_asociada INTEGER;
+
+COMMENT ON COLUMN conta.tplan_cuenta_det.id_cuenta_asociada
+IS 'asocia el id de la cuenta creada a partir del registro';
+
+ALTER TABLE conta.tplan_cuenta_det
+  ADD COLUMN relacion_cuenta INTEGER;
+
+COMMENT ON COLUMN conta.tplan_cuenta_det.relacion_cuenta
+IS 'contiene informacion de la relacion de cuentas de la anterior gestion';
+
+
+/***********************************F-SCP-AKFG-CONTA-0-27/12/2019****************************************/

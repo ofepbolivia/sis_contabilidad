@@ -24,12 +24,14 @@ class MODPlanCuenta extends MODbase{
 		$this->captura('estado_reg','varchar');
 		$this->captura('nombre','varchar');
 		$this->captura('estado','varchar');
+        $this->captura('id_gestion','int4');
 		$this->captura('id_usuario_reg','int4');
 		$this->captura('fecha_reg','timestamp');
 		$this->captura('id_usuario_ai','int4');
 		$this->captura('usuario_ai','varchar');
 		$this->captura('id_usuario_mod','int4');
 		$this->captura('fecha_mod','timestamp');
+        $this->captura('desc_gestion','int4');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
 		
@@ -51,7 +53,7 @@ class MODPlanCuenta extends MODbase{
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('nombre','nombre','varchar');
 		$this->setParametro('estado','estado','varchar');
-
+        $this->setParametro('id_gestion','id_gestion','int4');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -71,6 +73,7 @@ class MODPlanCuenta extends MODbase{
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('nombre','nombre','varchar');
 		$this->setParametro('estado','estado','varchar');
+        $this->setParametro('id_gestion','id_gestion','int4');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

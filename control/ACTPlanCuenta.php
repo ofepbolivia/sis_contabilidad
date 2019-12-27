@@ -118,6 +118,7 @@ class ACTPlanCuenta extends ACTbase{
                 $this->objParam->addParametro('observaciones',$fila['observaciones'] == NULL ? '' : $fila['observaciones']);
                 $this->objParam->addParametro('sub_sub_cuenta',$fila['sub_sub_cuenta'] == NULL ? '' : $fila['sub_sub_cuenta']);
                 $this->objParam->addParametro('numero',$fila['numero'] == NULL ? '' : $fila['numero']);
+                $this->objParam->addParametro('relacion_cuenta',$fila['relacion_cuenta'] == NULL ? '' : $fila['relacion_cuenta']);
                 //var_dump('llega');exit;
                 $this->objFunc = $this->create('sis_contabilidad/MODPlanCuentaDet');
                 $this->res = $this->objFunc->insertarPlanCuentaDet($this->objParam);
