@@ -475,6 +475,8 @@ BEGIN
 
 
            END LOOP;
+          --insertar clonacion partidas y auxiliares a la gestion destino 27/12/2019 Alan
+           perform conta.f_replicar_cuentas_partidas(v_parametros.id_gestion,p_id_usuario);
 
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Plan de cuentas clonado para la gestion: '||v_registros_ges.gestion::varchar);
             v_resp = pxp.f_agrega_clave(v_resp,'observaciones','Se insertaron cuentas: '|| v_conta::varchar);
@@ -496,7 +498,7 @@ BEGIN
 		begin
 
            --  definir id de la gestion siguiente
-           perform conta.f_replicar_cuentas_partidas (v_parametros.id_gestion-1,p_id_usuario);
+           perform conta.f_replicar_cuentas_partidas (v_parametros.id_gestion,p_id_usuario);
 
 
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Plan de cuentas clonado para la gestion: '||v_parametros.id_gestion::varchar);
