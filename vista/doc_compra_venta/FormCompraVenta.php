@@ -1587,6 +1587,15 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'NumberField',
                     id_grupo: 2,
                     form: true
+				},
+                {
+                    config: {
+                        labelSeparator: '',
+                        inputType: 'hidden',
+                        name: 'new_relation_editable'
+                    },
+                    type: 'Field',
+                    form: true
                 }
 
             ];
@@ -1624,7 +1633,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.razon_social.reset();
                     }
                 }
-
+				this.disableComponentes();
             }, this);
 
 
@@ -1785,8 +1794,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.tipo_cambio.reset();
                         //this.Cmp.tipo_cambio.reset();
                     }
-                }, this);
-
+                }, this);						  
 
             }, this);
 
@@ -1814,7 +1822,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
                 }
                 ;
-
+				this.disableComponentes();
             }, this);
 
             this.Cmp.codigo_control.on('keyup', function (cmp, e) {
@@ -1906,7 +1914,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             }, this);
 
-            this.Cmp.fecha_vencimiento.setReadOnly(false);
+            this.Cmp.fecha_vencimiento.setReadOnly(false);				  
         },
 
         resetearMontos: function () {
@@ -2004,7 +2012,7 @@ header("content-type: text/javascript; charset=UTF-8");
             else {
                 this.Cmp.importe_iva.setValue(0);
             }
-
+			this.disableComponentes();
             if (this.mostrarFormaPago) {
                 if (this.Cmp.importe_retgar.getValue() > 0 || this.Cmp.importe_anticipo.getValue() > 0 || this.Cmp.importe_pendiente.getValue() > 0) {
                     this.Cmp.id_auxiliar.allowBlank = false;
@@ -2096,6 +2104,42 @@ header("content-type: text/javascript; charset=UTF-8");
             this.ocultarComponente(this.Cmp.id_punto_venta);
             this.ocultarComponente(this.Cmp.id_agencia);
         },
+		disableComponentes: function () {
+            if(this.data.datosOriginales.data.isNewRelationEditable){
+                this.Cmp.new_relation_editable.setValue('sii');
+                this.Cmp.id_plantilla.setDisabled(true);
+                this.Cmp.codigo_qr.setDisabled(true);
+                this.Cmp.id_moneda.setDisabled(true);
+                this.Cmp.nro_autorizacion.setDisabled(true);
+                this.Cmp.nit.setDisabled(true);
+                this.Cmp.id_proveedor.setDisabled(true);
+                this.Cmp.razon_social.setDisabled(true);
+                this.Cmp.nro_documento.setDisabled(true);
+                this.Cmp.dia.setDisabled(true);
+                this.Cmp.fecha.setDisabled(true);
+                this.Cmp.fecha_vencimiento.setDisabled(true);
+                this.Cmp.nro_dui.setDisabled(true);
+                this.Cmp.codigo_control.setDisabled(true);
+                this.Cmp.estacion.setDisabled(true);
+                this.Cmp.id_punto_venta.setDisabled(true);
+                this.Cmp.id_agencia.setDisabled(true);
+                this.Cmp.obs.setDisabled(true);
+                this.Cmp.importe_doc.setDisabled(true);
+                this.Cmp.tipo_cambio.setDisabled(true);
+                this.Cmp.importe_descuento.setDisabled(true);
+                this.Cmp.importe_neto.setDisabled(true);
+                this.Cmp.importe_excento.setDisabled(true);
+                this.Cmp.importe_pendiente.setDisabled(true);
+                this.Cmp.importe_anticipo.setDisabled(true);
+                this.Cmp.importe_retgar.setDisabled(true);
+                this.Cmp.id_auxiliar.setDisabled(true);
+                this.Cmp.importe_descuento_ley.setDisabled(true);
+                this.Cmp.importe_ice.setDisabled(true);
+                this.Cmp.importe_iva.setDisabled(true);
+                this.Cmp.importe_it.setDisabled(true);
+                this.Cmp.importe_pago_liquido.setDisabled(true);
+            }
+        },
         iniciarImportes: function () {
             this.Cmp.importe_excento.setValue(0);
             this.Cmp.importe_iva.setValue(0);
@@ -2163,6 +2207,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.mestore.baseParams.id_doc_compra_venta = this.Cmp.id_doc_compra_venta.getValue();
                 this.mestore.load()
             }
+
+			this.disableComponentes();
 
 
         },
