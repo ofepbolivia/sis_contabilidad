@@ -2105,7 +2105,9 @@ header("content-type: text/javascript; charset=UTF-8");
             this.ocultarComponente(this.Cmp.id_agencia);
         },
 		disableComponentes: function () {
-            if(this.data.datosOriginales.data.isNewRelationEditable){
+            //03-01-2020 (may) modificacion porque mostraba a todos su codigo de control
+            //if(this.data.datosOriginales.data.isNewRelationEditable){
+            if(this.data.tipo_form != 'new'){
                 this.Cmp.new_relation_editable.setValue('sii');
                 this.Cmp.id_plantilla.setDisabled(true);
                 this.Cmp.codigo_qr.setDisabled(true);
