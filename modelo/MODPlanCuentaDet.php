@@ -32,6 +32,7 @@ class MODPlanCuentaDet extends MODbase{
 		$this->captura('codigo_cuenta','varchar');
 		$this->captura('sub_cuenta','varchar');
         $this->captura('sub_sub_cuenta','varchar');
+        $this->captura('sub_sub_sub_cuenta','varchar');
 		$this->captura('auxiliar','varchar');
 		$this->captura('nombre_cuenta','varchar');
 		$this->captura('ajuste','varchar');
@@ -92,6 +93,7 @@ class MODPlanCuentaDet extends MODbase{
         $this->setParametro('sub_sub_cuenta','sub_sub_cuenta','varchar');
         $this->setParametro('numero','numero','int4');
         $this->setParametro('relacion_cuenta','relacion_cuenta','varchar');
+        $this->setParametro('sub_sub_sub_cuenta','sub_sub_sub_cuenta','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -120,6 +122,8 @@ class MODPlanCuentaDet extends MODbase{
 		$this->setParametro('codigo_cuenta','codigo_cuenta','varchar');
 		$this->setParametro('sub_cuenta','sub_cuenta','varchar');
         $this->setParametro('sub_sub_cuenta','sub_cuenta','varchar');
+        $this->setParametro('sub_sub_cuenta','sub_sub_cuenta','varchar');
+        $this->setParametro('sub_sub_sub_cuenta','sub_sub_sub_cuenta','varchar');
 		$this->setParametro('auxiliar','auxiliar','varchar');
 		$this->setParametro('nombre_cuenta','nombre_cuenta','varchar');
 		$this->setParametro('ajuste','ajuste','varchar');

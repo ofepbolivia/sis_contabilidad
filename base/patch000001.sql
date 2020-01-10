@@ -5054,3 +5054,12 @@ IS 'contiene informacion de la relacion de cuentas de la anterior gestion';
 
 
 /***********************************F-SCP-AKFG-CONTA-0-27/12/2019****************************************/
+
+/***********************************I-SCP-AKFG-CONTA-0-30/12/2019****************************************/
+ALTER TABLE conta.tplan_cuenta_det ALTER COLUMN relacion_cuenta SET DATA TYPE varchar(250);
+
+ALTER TABLE conta.tplan_cuenta_det
+  ADD COLUMN sub_sub_sub_cuenta varchar(200);
+  COMMENT ON COLUMN conta.tplan_cuenta_det.sub_sub_sub_cuenta
+IS 'informacion de la cuenta de nivel 7';
+/***********************************F-SCP-AKFG-CONTA-0-30/12/2019****************************************/

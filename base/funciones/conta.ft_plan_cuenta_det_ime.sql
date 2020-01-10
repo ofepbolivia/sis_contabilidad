@@ -39,6 +39,7 @@ DECLARE
   v_id_cuentas_padre		integer[];
   nivel					        integer;
 	v_codigo_aux			    integer;
+	v_nivel 					    integer;
 			    
 BEGIN
 
@@ -69,6 +70,7 @@ BEGIN
           codigo_cuenta,
           sub_cuenta,
           sub_sub_cuenta,
+          sub_sub_sub_cuenta,--10/01/2019
           auxiliar,
           nombre_cuenta,
           ajuste,
@@ -100,6 +102,7 @@ BEGIN
           v_parametros.codigo_cuenta,
           v_parametros.sub_cuenta,
           v_parametros.sub_sub_cuenta,
+          v_parametros.sub_sub_sub_cuenta,--10/01/2020
           v_parametros.auxiliar,
           v_parametros.nombre_cuenta,
           v_parametros.ajuste,
@@ -179,27 +182,39 @@ BEGIN
                 if(v_registros_pc.rubro != '' and v_registros_pc.grupo='' )then
                 	nivel=1;
 
-                elsif (v_registros_pc.rubro != '' and v_registros_pc.grupo !='' and v_registros_pc.sub_grupo = '') then
+                --elsif (v_registros_pc.rubro != '' and v_registros_pc.grupo !='' and v_registros_pc.sub_grupo = '') then
+                elsif (v_registros_pc.grupo !='' and v_registros_pc.sub_grupo = '') then
                 	nivel=2;
 
-                elsif (v_registros_pc.rubro != '' and v_registros_pc.grupo !='' and v_registros_pc.sub_grupo != '' and v_registros_pc.cuenta = '' ) then
+                --elsif (v_registros_pc.rubro != '' and v_registros_pc.grupo !='' and v_registros_pc.sub_grupo != '' and v_registros_pc.cuenta = '' ) then
+                elsif (v_registros_pc.sub_grupo != '' and v_registros_pc.cuenta = '' ) then
                 	nivel=3;
 
-                elsif (v_registros_pc.rubro != '' and v_registros_pc.grupo !='' and v_registros_pc.sub_grupo != '' and v_registros_pc.cuenta != '' and v_registros_pc.sub_cuenta = '') then
+                --elsif (v_registros_pc.rubro != '' and v_registros_pc.grupo !='' and v_registros_pc.sub_grupo != '' and v_registros_pc.cuenta != '' and v_registros_pc.sub_cuenta = '') then
+                elsif (v_registros_pc.cuenta != '' and v_registros_pc.sub_cuenta = '') then
                 	nivel=4;
 
-                elsif (v_registros_pc.rubro != '' and v_registros_pc.grupo !='' and v_registros_pc.sub_grupo != '' and v_registros_pc.cuenta != '' and v_registros_pc.sub_cuenta != '' and v_registros_pc.sub_sub_cuenta = '')then
+                --elsif (v_registros_pc.rubro != '' and v_registros_pc.grupo !='' and v_registros_pc.sub_grupo != '' and v_registros_pc.cuenta != '' and v_registros_pc.sub_cuenta != '' and v_registros_pc.sub_sub_cuenta = '')then
+                elsif (v_registros_pc.sub_cuenta != '' and v_registros_pc.sub_sub_cuenta = '')then
                 	nivel= 5;
 
-                elsif (v_registros_pc.sub_sub_cuenta != '' and v_registros_pc.auxiliar = '')then
+                elsif (v_registros_pc.sub_sub_cuenta != '' and v_registros_pc.sub_sub_sub_cuenta = '')then
                 	nivel= 6;
 
-                elsif (v_registros_pc.rubro != '' and v_registros_pc.grupo !='' and v_registros_pc.sub_grupo != '' and v_registros_pc.cuenta != '' and v_registros_pc.sub_cuenta != '' and v_registros_pc.sub_sub_cuenta != ''  and v_registros_pc.auxiliar != '')then
+                elsif (v_registros_pc.sub_sub_sub_cuenta != '' and v_registros_pc.auxiliar = '')then
                 	nivel= 7;
 
-                     --PERFORM conta.f_insertar_auxiliar(p_id_usuario,hstore(v_registros_pc),v_id_cuentas_padre[6],v_codigo_aux::varchar);
+                elsif (v_registros_pc.rubro != '' and v_registros_pc.grupo !='' and v_registros_pc.sub_grupo != '' and v_registros_pc.cuenta != '' and v_registros_pc.sub_cuenta != '' and v_registros_pc.sub_sub_cuenta != ''  and v_registros_pc.auxiliar != '')then
+                	nivel= 8;
+
+                    if (v_registros_pc.sub_sub_cuenta != '') then
+                    	v_nivel=7;
+                    else
+                    	v_nivel=6;
+                    end if;
+                      --set id_cuenta_asociada = v_id_cuentas_padre[6]
                       update conta.tplan_cuenta_det
-                      set id_cuenta_asociada = v_id_cuentas_padre[6]
+                      set id_cuenta_asociada = v_id_cuentas_padre[v_nivel]
                       WHERE id_plan_cuenta_det = v_registros_pc.id_plan_cuenta_det;
 
                       --actualizar la informacion de la cuenta si no tuviera la inclusion de auxiliares
@@ -208,14 +223,16 @@ BEGIN
                                      where id_cuenta = v_id_cuentas_padre[6] and sw_auxiliar = 'si')then
                       		update conta.tcuenta
                             set sw_auxiliar = 'si'
-                            where id_cuenta=v_id_cuentas_padre[6];
+                            where id_cuenta=v_id_cuentas_padre[v_nivel];
+                            --where id_cuenta=v_id_cuentas_padre[6];
                       end if;
-
+					            perform conta.f_insertar_cuenta_ids(p_id_usuario, v_id_gestion_destino, v_registros_pc.relacion_cuenta, v_id_cuentas_padre[6],v_registros_pc.id_plan_cuenta_det );
                 end if;
+
 
                 if (nivel = 1)then
                 	v_id_cuentas_padre[nivel]=conta.f_insertar_cuenta(p_id_usuario,NULL,v_id_gestion_destino, hstore(v_registros_pc));
-                elsif (nivel in (2,3,4,5,6)) then
+                elsif (nivel in (2,3,4,5,6,7)) then
                 	v_id_cuentas_padre[nivel]=conta.f_insertar_cuenta(p_id_usuario,v_id_cuentas_padre[nivel-1],v_id_gestion_destino, hstore(v_registros_pc));
                     /*update conta.tplan_cuenta_det
                       set id_cuenta_asociada = v_id_cuentas_padre[nivel]
@@ -266,6 +283,8 @@ BEGIN
 			cuenta = v_parametros.cuenta,
 			codigo_cuenta = v_parametros.codigo_cuenta,
 			sub_cuenta = v_parametros.sub_cuenta,
+			sub_sub_cuenta = v_parametros.sub_sub_cuenta,
+      sub_sub_sub_cuenta = v_parametros.sub_sub_sub_cuenta,--10/01/2020
 			auxiliar = v_parametros.auxiliar,
 			nombre_cuenta = v_parametros.nombre_cuenta,
 			ajuste = v_parametros.ajuste,

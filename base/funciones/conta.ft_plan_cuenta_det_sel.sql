@@ -52,6 +52,7 @@ BEGIN
 						ipcd.codigo_cuenta,
 						ipcd.sub_cuenta,
             ipcd.sub_sub_cuenta,
+            ipcd.sub_sub_sub_cuenta,
 						ipcd.auxiliar,
 						ipcd.nombre_cuenta,
 						ipcd.ajuste,
