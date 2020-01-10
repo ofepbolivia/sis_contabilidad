@@ -220,7 +220,7 @@ BEGIN
                       --actualizar la informacion de la cuenta si no tuviera la inclusion de auxiliares
                       if not exists (select 1
                       				 from conta.tcuenta
-                                     where id_cuenta = v_id_cuentas_padre[6] and sw_auxiliar = 'si')then
+                                     where id_cuenta = v_id_cuentas_padre[v_nivel] and sw_auxiliar = 'si')then
                       		update conta.tcuenta
                             set sw_auxiliar = 'si'
                             where id_cuenta=v_id_cuentas_padre[v_nivel];
