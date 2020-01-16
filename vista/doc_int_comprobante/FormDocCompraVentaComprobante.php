@@ -85,7 +85,8 @@ header("content-type: text/javascript; charset=UTF-8");
         successSave :function(resp){
             Phx.CP.loadingHide();
 
-            window.open('http://sms.obairlines.bo/ReportesERP2/Home/ReporteComprobanteDocumento');
+            window.open('http://sms.obairlines.bo/ErpReports/Reporte/ReporteComprobanteDocumento');
+            
 
         }
     })
