@@ -418,18 +418,18 @@ IF (v_id_int_comprobante is Null) THEN
 
       ) values(
         v_parametros.tipo,
-        v_parametros.importe_excento,
+        COALESCE(v_parametros.importe_excento,0),
         v_parametros.id_plantilla,
         v_parametros.fecha,
         v_parametros.nro_documento,
         v_parametros.nit,
         v_importe_ice,
         v_parametros.nro_autorizacion,
-        v_parametros.importe_iva,
-        v_parametros.importe_descuento,
-        v_parametros.importe_descuento_ley,
-        v_parametros.importe_pago_liquido,
-      	v_parametros.importe_doc, --Dui
+        COALESCE(v_parametros.importe_iva,0),
+        COALESCE(v_parametros.importe_descuento,0),
+        COALESCE(v_parametros.importe_descuento_ley,0),
+        COALESCE(v_parametros.importe_pago_liquido,0),
+      	COALESCE(v_parametros.importe_doc,0), --Dui
         'si', --sw_contabilizar,
         'registrado', --estado
         --v_parametros.id_depto_conta,
@@ -513,18 +513,18 @@ ELSE  --raise exception 'llega2 %',v_i;
 
       ) values(
         v_parametros.tipo,
-        v_parametros.importe_excento,
+        COALESCE(v_parametros.importe_excento,0),
         v_parametros.id_plantilla,
         v_parametros.fecha,
         v_parametros.nro_documento,
         v_parametros.nit,
         v_importe_ice,
         v_parametros.nro_autorizacion,
-        v_parametros.importe_iva,
-        v_parametros.importe_descuento,
-        v_parametros.importe_descuento_ley,
-        v_parametros.importe_pago_liquido,
-      	v_parametros.importe_doc, --Dui
+        COALESCE(v_parametros.importe_iva,0),
+        COALESCE(v_parametros.importe_descuento,0),
+        COALESCE(v_parametros.importe_descuento_ley,0),
+        COALESCE(v_parametros.importe_pago_liquido,0),
+      	COALESCE(v_parametros.importe_doc,0), --Dui
         'si', --sw_contabilizar,
         'registrado', --estado
         --v_parametros.id_depto_conta,
@@ -767,17 +767,17 @@ END IF;
         estacion
       ) values(
         v_parametros.tipo,
-        v_parametros.importe_excento,
+        COALESCE(v_parametros.importe_excento,0),
         v_parametros.id_plantilla,
         v_parametros.fecha,
         v_parametros.nro_documento,
         v_parametros.nit,
         v_importe_ice,
         v_parametros.nro_autorizacion,
-        v_parametros.importe_iva,
-        v_parametros.importe_descuento,
-        v_parametros.importe_descuento_ley,
-        v_parametros.importe_pago_liquido,
+        COALESCE(v_parametros.importe_iva,0),
+        COALESCE(v_parametros.importe_descuento,0),
+        COALESCE(v_parametros.importe_descuento_ley,0),
+        COALESCE(v_parametros.importe_pago_liquido,0),
         v_parametros.importe_doc,
         'si', --sw_contabilizar,
         'registrado', --estado
@@ -1049,18 +1049,18 @@ END IF;
       --Sentencia de la modificacion
       update conta.tdoc_compra_venta set
         tipo = v_parametros.tipo,
-        importe_excento = v_parametros.importe_excento,
+        importe_excento = COALESCE(v_parametros.importe_excento,0),
         id_plantilla = v_parametros.id_plantilla,
         fecha = v_parametros.fecha,
         nro_documento = v_parametros.nro_documento,
         nit = v_parametros.nit,
         importe_ice = v_importe_ice,
         nro_autorizacion =  upper(COALESCE(v_parametros.nro_autorizacion,'0')),
-        importe_iva = v_parametros.importe_iva,
-        importe_descuento = v_parametros.importe_descuento,
-        importe_descuento_ley = v_parametros.importe_descuento_ley,
-        importe_pago_liquido = v_parametros.importe_pago_liquido,
-        importe_doc = v_parametros.importe_doc,
+        importe_iva = COALESCE(v_parametros.importe_iva,0),
+        importe_descuento = COALESCE(v_parametros.importe_descuento,0),
+        importe_descuento_ley = COALESCE(v_parametros.importe_descuento_ley,0),
+        importe_pago_liquido = COALESCE(v_parametros.importe_pago_liquido,0),
+        importe_doc = COALESCE(v_parametros.importe_doc,0),
         id_depto_conta = v_parametros.id_depto_conta,
         obs = v_parametros.obs,
         codigo_control =  upper(v_codigo_control),
@@ -1233,10 +1233,10 @@ END IF;
         nit = v_parametros.nit,
         importe_ice = v_importe_ice,
         nro_autorizacion =  upper(COALESCE(v_parametros.nro_autorizacion,'0')),
-        importe_iva = v_parametros.importe_iva,
-        importe_descuento = v_parametros.importe_descuento,
-        importe_descuento_ley = v_parametros.importe_descuento_ley,
-        importe_pago_liquido = v_parametros.importe_pago_liquido,
+        importe_iva = COALESCE(v_parametros.importe_iva,0),
+        importe_descuento = COALESCE(v_parametros.importe_descuento,0),
+        importe_descuento_ley = COALESCE(v_parametros.importe_descuento_ley,0),
+        importe_pago_liquido = COALESCE(v_parametros.importe_pago_liquido,0),
         importe_doc = v_parametros.importe_doc,
         id_depto_conta = v_parametros.id_depto_conta,
         obs = v_parametros.obs,
@@ -1738,19 +1738,19 @@ END IF;
     	--modificado por motivo de archivos Airbp
 		--verifica que el periodo este abierto caso contrario no permite la eliminacion.
 	  if(conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_parametros.id_periodo))then
-          
-	      --verifica inicialmente si la factura se encuentra revisado. si esta revisado no se elimina; 
+
+	      --verifica inicialmente si la factura se encuentra revisado. si esta revisado no se elimina;
           for v_factura in (select id_doc_compra_venta, revisado
-                            from conta.tdoc_compra_venta 
+                            from conta.tdoc_compra_venta
                             where id_int_comprobante = v_parametros.id_int_comprobante)
-          				 loop 
-          	if v_factura.revisado is null or v_factura.revisado = 'no' then             
+          				 loop
+          	if v_factura.revisado is null or v_factura.revisado = 'no' then
                 delete from conta.tdoc_compra_venta
                 where id_int_comprobante = v_parametros.id_int_comprobante
                 and id_doc_compra_venta = v_factura.id_doc_compra_venta;
             end if;
           end loop;
-          
+
 	  end if;
 
       --Definicion de la respuesta
