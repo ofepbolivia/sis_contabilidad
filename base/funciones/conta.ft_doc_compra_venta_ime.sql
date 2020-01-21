@@ -593,6 +593,10 @@ END IF;
         end if;
       end if;
 
+      --21-01-2020 (may) modificacion para que el liquido pagable no se reistre como null ni 0
+	  IF (v_parametros.importe_pago_liquido is null or v_parametros.importe_pago_liquido = 0) THEN
+      	RAISE EXCEPTION 'Líquido Pagado debe ser mayor a 0';
+      END IF;
 
       --Definicion de la respuesta
       v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Documentos Compra/Venta almacenado(a) con exito (id_doc_compra_venta'||v_id_doc_compra_venta||')');
@@ -841,6 +845,11 @@ END IF;
         end if;
       end if;
 
+       --21-01-2020 (may) modificacion para que el liquido pagable no se reistre como null ni 0
+	  IF (v_parametros.importe_pago_liquido is null or v_parametros.importe_pago_liquido = 0) THEN
+      	RAISE EXCEPTION 'Líquido Pagado debe ser mayor a 0';
+      END IF;
+
       --Definicion de la respuesta
       v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Documentos Compra/Venta almacenado(a) con exito (id_doc_compra_venta'||v_id_doc_compra_venta||')');
       v_resp = pxp.f_agrega_clave(v_resp,'id_doc_compra_venta',v_id_doc_compra_venta::varchar);
@@ -913,8 +922,9 @@ END IF;
       FROM  param.tdepto_depto dd
       inner join tes.tobligacion_pago op on op.id_depto = dd.id_depto_origen
       inner join tes.tplan_pago pp on pp.id_obligacion_pago = op.id_obligacion_pago
-      WHERE pp.id_plan_pago = v_parametros.id_plan_pago;
-
+      left join conta.tdoc_compra_venta dc on dc.id_plan_pago = pp.id_plan_pago
+      WHERE dc.id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+      --pp.id_plan_pago = v_parametros.id_plan_pago;
 
 	IF v_tipo_informe = 'lcv' THEN
     	IF (v_tipo_obligacion= 'sp')THEN
@@ -926,9 +936,19 @@ END IF;
         END IF;
 	END IF;*/
      --
-
-      IF v_tipo_informe = 'lcv' THEN
+--raise exception 'llega %',v_tipo_informe;
+  /*    IF v_tipo_informe = 'lcv' THEN
 	      v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+	  END IF;
+      */
+     raise exception 'llega %',v_id_depto_destino;
+      IF v_tipo_informe = 'lcv' THEN
+
+          v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_id_depto_destino, v_rec.po_id_periodo);
+      ELSE
+          -- valida que periodO de libro de compras y ventas este abierto
+          v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+
 	  END IF;
 
       -- recuepra el periodo de la fecha ...
@@ -1108,6 +1128,11 @@ END IF;
         end if;
       end if;
 
+       --21-01-2020 (may) modificacion para que el liquido pagable no se reistre como null ni 0
+	  IF (v_parametros.importe_pago_liquido is null or v_parametros.importe_pago_liquido = 0) THEN
+      	RAISE EXCEPTION 'Líquido Pagado debe ser mayor a 0';
+      END IF;
+
       --Definicion de la respuesta
       v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Documentos Compra/Venta modificado(a)');
       v_resp = pxp.f_agrega_clave(v_resp,'id_doc_compra_venta',v_parametros.id_doc_compra_venta::varchar);
@@ -1283,6 +1308,11 @@ END IF;
           where id_doc_compra_venta = v_id_doc_compra_venta;
         end if;
       end if;
+
+       --21-01-2020 (may) modificacion para que el liquido pagable no se reistre como null ni 0
+	  IF (v_parametros.importe_pago_liquido is null or v_parametros.importe_pago_liquido = 0) THEN
+      	RAISE EXCEPTION 'Líquido Pagado debe ser mayor a 0';
+      END IF;
 
       --Definicion de la respuesta
       v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Documentos Compra/Venta modificado(a)');

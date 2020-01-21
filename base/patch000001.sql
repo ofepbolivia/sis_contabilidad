@@ -5063,3 +5063,12 @@ ALTER TABLE conta.tplan_cuenta_det
   COMMENT ON COLUMN conta.tplan_cuenta_det.sub_sub_sub_cuenta
 IS 'informacion de la cuenta de nivel 7';
 /***********************************F-SCP-AKFG-CONTA-0-30/12/2019****************************************/
+
+/***********************************I-SCP-MAY-CONTA-0-21/01/2020****************************************/
+COMMENT ON COLUMN conta.tdoc_compra_venta.importe_pago_liquido
+IS 'el importe liquido pagable nunca debe ser null ni 0';
+
+ALTER TABLE conta.tdoc_compra_venta
+  ALTER COLUMN importe_pago_liquido SET NOT NULL;
+/***********************************F-SCP-MAY-CONTA-0-21/01/2020****************************************/
+
