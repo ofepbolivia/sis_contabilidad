@@ -79,6 +79,36 @@ header("content-type: text/javascript; charset=UTF-8");
             }
 
         },
+        //may
+        volcarCbteContable: function (sw_validar) {
+
+            if (confirm("Esta seguro de volcar el cbte,  este proceso no puede revertirse (Si tiene presupuesto será revertido)!")) {
+                if (confirm("¿Esta realmente seguro?")) {
+                    var rec = this.sm.getSelected().data;
+                    Phx.CP.loadingShow();
+                    Ext.Ajax.request({
+                        url: '../../sis_contabilidad/control/IntComprobante/volcarCbteContable',
+                        params: {
+                            id_int_comprobante: rec.id_int_comprobante,
+                            sw_validar: (sw_validar == 'si') ? 'si' : 'no'
+                        },
+                        success: function (resp) {
+                            Phx.CP.loadingHide();
+                            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                            if (reg.ROOT.error) {
+                                Ext.Msg.alert('Error', 'Al volcar el cbte: ' + reg.ROOT.error)
+                            } else {
+                                this.reload()
+                            }
+                        },
+                        failure: this.conexionFailure,
+                        timeout: this.timeout,
+                        scope: this
+                    });
+                }
+            }
+
+        },
 
         clonarCbteSt: function () {
             this.clonarCbte('si');
@@ -208,7 +238,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 menu: {
                     items: [{
                         id: 'b-volb-' + this.idContenedor,
-                        text: 'Reversión Parcial (borrador)',
+                        text: 'Reversión Parcial (Borrador)',
                         tooltip: '<b>Al volcar en borrador tiene la opción de revertir parcialmente</b>',
                         handler: function () {
                             this.volcarCbte('no')
@@ -216,10 +246,20 @@ header("content-type: text/javascript; charset=UTF-8");
                         scope: this
                     }, {
                         id: 'b-vol-' + this.idContenedor,
-                        text: 'Reversión Total (Validado)',
+                        //text: 'Reversión Total (Validado)',
+                        text: 'Reversión Total Presupuestario (Validado)',
                         tooltip: '<b>Al volcar y validar se revierte el 100%</b>',
                         handler: function () {
                             this.volcarCbte('si')
+                        },
+                        scope: this
+                    }, {
+                        //23/01/2020 (may) nueva reversion para cbtes contables y no ejecuten presupuesto
+                        id: 'b-volc-' + this.idContenedor,
+                        text: 'Reversión Total Contable (Validado)',
+                        tooltip: '<b>Volcar y validar el cbte Contable </b>',
+                        handler: function () {
+                            this.volcarCbteContable('si')
                         },
                         scope: this
                     }
