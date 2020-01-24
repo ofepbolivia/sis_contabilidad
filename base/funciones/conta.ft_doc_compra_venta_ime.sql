@@ -941,7 +941,7 @@ END IF;
 	      v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
 	  END IF;
       */
-     raise exception 'llega %',v_id_depto_destino;
+     --raise exception 'llega %',v_id_depto_destino;
       IF v_tipo_informe = 'lcv' THEN
 
           v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_id_depto_destino, v_rec.po_id_periodo);
