@@ -34,7 +34,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.addEvents('successsave');
             if (config.data.mostrarFormaPago === false) {
                 this.mostrarFormaPago = config.data.mostrarFormaPago;
-            }
+            }                        
+            
             Ext.apply(this, config);
             this.obtenerVariableGlobal(config);
             this.generarAtributos();
@@ -2106,48 +2107,62 @@ header("content-type: text/javascript; charset=UTF-8");
         },
 		disableComponentes: function () {
             //03-01-2020 (may) modificacion porque mostraba a todos su codigo de control
-            //if(this.data.datosOriginales.data.isNewRelationEditable){
-
+            //if(this.data.datosOriginales.data.isNewRelationEditable){            
+            
             if(this.data.tipo_form != 'new' ){
                 //08-01-2020 (may) modificacion para que solo tenga bloqueado los campos de la factura en fondos en avance
                 //console.log('llegam',this.data );
                 //console.log('llegam22',this.data.objPadre.mycls );
                 //console.log('llegam233',this.mycls);
-                if (this.data.objPadre.mycls == 'RendicionDetReg' && this.mycls == 'FormRendicionCD'){
+                if (this.data.objPadre.mycls == 'RendicionDetReg' && this.mycls == 'FormRendicionCD'){                
+                    
+                    if (this.data.datosOriginales.data.revisado == 'si') {
+                        this.Cmp.new_relation_editable.setValue('sii');
+                        this.Cmp.id_plantilla.setDisabled(true);
+                        this.Cmp.codigo_qr.setDisabled(true);
+                        this.Cmp.id_moneda.setDisabled(true);
+                        this.Cmp.nro_autorizacion.setDisabled(true);
+                        this.Cmp.nit.setDisabled(true);
+                        this.Cmp.id_proveedor.setDisabled(true);
+                        this.Cmp.razon_social.setDisabled(true);
+                        this.Cmp.nro_documento.setDisabled(true);
+                        this.Cmp.dia.setDisabled(true);
+                        this.Cmp.fecha.setDisabled(true);
+                        this.Cmp.fecha_vencimiento.setDisabled(true);
+                        this.Cmp.nro_dui.setDisabled(true);
+                        this.Cmp.codigo_control.setDisabled(true);
+                        this.Cmp.estacion.setDisabled(true);
+                        this.Cmp.id_punto_venta.setDisabled(true);
+                        this.Cmp.id_agencia.setDisabled(true);
+                        this.Cmp.obs.setDisabled(true);
+                        this.Cmp.importe_doc.setDisabled(true);
 
-
-                    this.Cmp.new_relation_editable.setValue('sii');
-                    this.Cmp.id_plantilla.setDisabled(true);
-                    this.Cmp.codigo_qr.setDisabled(true);
-                    this.Cmp.id_moneda.setDisabled(true);
-                    this.Cmp.nro_autorizacion.setDisabled(true);
-                    this.Cmp.nit.setDisabled(true);
-                    this.Cmp.id_proveedor.setDisabled(true);
-                    this.Cmp.razon_social.setDisabled(true);
-                    this.Cmp.nro_documento.setDisabled(true);
-                    this.Cmp.dia.setDisabled(true);
-                    this.Cmp.fecha.setDisabled(true);
-                    this.Cmp.fecha_vencimiento.setDisabled(true);
-                    this.Cmp.nro_dui.setDisabled(true);
-                    this.Cmp.codigo_control.setDisabled(true);
-                    this.Cmp.estacion.setDisabled(true);
-                    this.Cmp.id_punto_venta.setDisabled(true);
-                    this.Cmp.id_agencia.setDisabled(true);
-                    this.Cmp.obs.setDisabled(true);
-                    this.Cmp.importe_doc.setDisabled(true);
-                    this.Cmp.tipo_cambio.setDisabled(true);
-                    this.Cmp.importe_descuento.setDisabled(true);
-                    this.Cmp.importe_neto.setDisabled(true);
-                    this.Cmp.importe_excento.setDisabled(true);
-                    this.Cmp.importe_pendiente.setDisabled(true);
-                    this.Cmp.importe_anticipo.setDisabled(true);
-                    this.Cmp.importe_retgar.setDisabled(true);
-                    this.Cmp.id_auxiliar.setDisabled(true);
-                    this.Cmp.importe_descuento_ley.setDisabled(true);
-                    this.Cmp.importe_ice.setDisabled(true);
-                    this.Cmp.importe_iva.setDisabled(true);
-                    this.Cmp.importe_it.setDisabled(true);
-                    this.Cmp.importe_pago_liquido.setDisabled(true);
+                        if (this.data.datosOriginales.data.id_moneda == 2) {
+                            this.mostrarComponente(this.Cmp.tipo_cambio);                            
+                        }
+                        else {
+                            this.ocultarComponente(this.Cmp.tipo_cambio);
+                        }
+                        this.Cmp.tipo_cambio.setDisabled(true);
+                        this.Cmp.importe_descuento.setDisabled(true);
+                        this.Cmp.importe_neto.setDisabled(true);
+                        this.Cmp.importe_excento.setDisabled(true);
+                        this.Cmp.importe_pendiente.setDisabled(true);
+                        this.Cmp.importe_anticipo.setDisabled(true);
+                        this.Cmp.importe_retgar.setDisabled(true);
+                        this.Cmp.id_auxiliar.setDisabled(true);
+                        this.Cmp.importe_descuento_ley.setDisabled(true);
+                        this.Cmp.importe_ice.setDisabled(true);
+                        this.Cmp.importe_iva.setDisabled(true);
+                        this.Cmp.importe_it.setDisabled(true);
+                        this.Cmp.importe_pago_liquido.setDisabled(true);
+                    }
+                    if (this.data.datosOriginales.data.id_moneda == 2) {
+                        this.mostrarComponente(this.Cmp.tipo_cambio);                            
+                    }
+                    else {
+                        this.ocultarComponente(this.Cmp.tipo_cambio);
+                    }                                        
                 }
             }
         },
