@@ -1597,7 +1597,25 @@ header("content-type: text/javascript; charset=UTF-8");
                     },
                     type: 'Field',
                     form: true
-                }
+                },
+                 {
+                     config: {
+                         labelSeparator: '',
+                         inputType: 'hidden',
+                         name: 'boton_rendicion'
+                     },
+                     type: 'Field',
+                     form: true
+                 },
+                  {
+                     config: {
+                         labelSeparator: '',
+                         inputType: 'hidden',
+                         name: 'mod_rev'
+                     },
+                     type: 'Field',
+                     form: true
+                 }
 
             ];
 
@@ -2114,10 +2132,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 //console.log('llegam',this.data );
                 //console.log('llegam22',this.data.objPadre.mycls );
                 //console.log('llegam233',this.mycls);
-                if (this.data.objPadre.mycls == 'RendicionDetReg' && this.mycls == 'FormRendicionCD'){                
+                if (this.data.objPadre.mycls == 'RendicionDetReg' && this.mycls == 'FormRendicionCD'){
                     
-                    if (this.data.datosOriginales.data.revisado == 'si') {
+                    if (this.data.datosOriginales.data.revisado == 'si' || this.data.boton_rendicion=='readOnly') {
+                        this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
+                        this.Cmp.mod_rev.setValue(this.data.datosOriginales.data.revisado);
                         this.Cmp.new_relation_editable.setValue('sii');
+
                         this.Cmp.id_plantilla.setDisabled(true);
                         this.Cmp.codigo_qr.setDisabled(true);
                         this.Cmp.id_moneda.setDisabled(true);
@@ -2157,6 +2178,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.importe_it.setDisabled(true);
                         this.Cmp.importe_pago_liquido.setDisabled(true);
                     }
+                    this.Cmp.mod_rev.setValue(this.data.datosOriginales.data.revisado);
+                    this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
                     if (this.data.datosOriginales.data.id_moneda == 2) {
                         this.mostrarComponente(this.Cmp.tipo_cambio);                            
                     }
