@@ -241,6 +241,8 @@ Phx.vista.Entrega=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:false
         },
+
+
 		{
 			config:{
 				name: 'estado_reg',
@@ -373,7 +375,10 @@ Phx.vista.Entrega=Ext.extend(Phx.gridInterfaz,{
         {name:'id_estado_wf', type: 'numeric'},
         {name:'id_proceso_wf', type: 'numeric'},
         {name:'nro_tramite', type: 'string'},
-        'desc_moneda', 'monto'
+        'desc_moneda', 'monto',
+        'tipo_cambio_2',
+        'fecha'
+
 
 
 		
@@ -612,13 +617,16 @@ Phx.vista.Entrega=Ext.extend(Phx.gridInterfaz,{
 	imprimirCbte : function() {
 			var rec = this.sm.getSelected();
 			var data = rec.data;
+			console.log('llgeam', data);
 			if (data) {
 				Phx.CP.loadingShow();
 				Ext.Ajax.request({
 					url : '../../sis_contabilidad/control/Entrega/reporteEntrega',
 					params : {
 						'id_entrega' : data.id_entrega,
-                        'nro_tramite' : data.nro_tramite
+                        'nro_tramite' : data.nro_tramite,
+                        'tipo_cambio_2' : data.tipo_cambio_2,
+                        'fecha' : data.fecha
 					},
 					success : this.successExport,
 					failure : this.conexionFailure,
@@ -655,7 +663,7 @@ Phx.vista.Entrega=Ext.extend(Phx.gridInterfaz,{
                 items: [{
                     id:'b-gantti-' + this.idContenedor,
                     text: 'Gantt Imagen',
-                    tooltip: '<b>Mues un reporte gantt en formato de imagen</b>',
+                    tooltip: '<b>Muestra un reporte gantt en formato de imagen</b>',
                     handler:this.diagramGantt,
                     scope: this
                 }, {

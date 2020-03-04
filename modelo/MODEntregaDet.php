@@ -39,6 +39,7 @@ class MODEntregaDet extends MODbase{
         $this->captura('glosa1','varchar');
         $this->captura('desc_moneda','varchar');
         $this->captura('monto','numeric');
+        $this->captura('tipo_cambio','numeric');
 
 		
 		//Ejecuta la instruccion
