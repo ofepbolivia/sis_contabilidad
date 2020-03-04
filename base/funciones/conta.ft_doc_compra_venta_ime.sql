@@ -247,9 +247,9 @@ BEGIN
              	  IF EXISTS(select 1
                             from conta.tdoc_compra_venta dcv
                             inner join param.tplantilla pla on pla.id_plantilla=dcv.id_plantilla
-                            where    dcv.estado_reg = 'activo' and  dcv.nro_documento = v_parametros.nro_documento
+                            where    dcv.estado_reg = 'activo' and  dcv.nro_documento = trim(v_parametros.nro_documento)
                             and dcv.fecha =v_parametros.fecha
-                            and dcv.razon_social =v_parametros.razon_social
+                            and dcv.razon_social =trim(v_parametros.razon_social)
                             and dcv.importe_doc = v_parametros.importe_doc)THEN
 
                        raise exception 'Ya existe un Documento/Factura registrado con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
