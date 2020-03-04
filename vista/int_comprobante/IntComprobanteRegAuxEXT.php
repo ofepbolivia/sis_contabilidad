@@ -57,6 +57,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: '<b>Hacer editable</b><br/>Si la edición esta deshabilitada toma un backup y la habilita'
             });
 
+            this.addButton('chkEntregas',{	text:'Entregas',
+                iconCls: 'blist',
+                disabled: true,
+                handler: this.crearEntrega,
+                tooltip: '<b>Crear Entregas </b><p>Las entregas permiten asociar con cbte en otros subsistema (por ejemplo SIGMA o SIGEP)</p>'
+            });
+
             this.init();
 
         },
@@ -170,6 +177,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('btnRelDev').disable();
                 this.getBoton('btnIgualarCbte').disable();
                 this.getBoton('btnDocCmpVnt').disable();
+
+                this.getBoton('chkEntregas').disable();
             } else {
                 if (rec.data.sw_editable == 'no') {
                     this.getBoton('btnSwEditble').setDisabled(false);
@@ -185,6 +194,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('btnChequeoDocumentosWf').enable();
                 this.getBoton('diagrama_gantt').enable();
                 this.getBoton('btnObs').enable();
+
+                this.getBoton('chkEntregas').enable();
             }
             if (rec.data.momento == 'presupuestario') {
                 this.getBoton('btnDocCmpVnt').enable();
@@ -207,6 +218,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('btnChequeoDocumentosWf').disable();
             this.getBoton('diagrama_gantt').disable();
             this.getBoton('btnObs').disable()
+
+            this.getBoton('chkEntregas').disable()
 
 
         },
@@ -352,6 +365,49 @@ header("content-type: text/javascript; charset=UTF-8");
                 height: 300
             }, rec, this.idContenedor, 'WizardCbte')
         },
+
+
+        crearEntrega: function(){
+            var filas=this.sm.getSelections(),
+                total= 0,tmp='',me = this;
+
+            for(var i=0;i<this.sm.getCount();i++){
+                aux={};
+                if(total == 0){
+                    tmp = filas[i].data[this.id_store];
+                }
+                else{
+                    tmp = tmp + ','+ filas[i].data[this.id_store];
+                }
+                total = total + 1;
+            }
+            if(total != 0){
+                if(confirm("¿Esta  seguro de Crear esta entrega?") ){
+                    Phx.CP.loadingShow();
+                    Ext.Ajax.request({
+                        url : '../../sis_contabilidad/control/Entrega/crearEntrega',
+                        params : {
+                            id_int_comprobantes : tmp,
+                            id_depto_conta: me.cmbDepto.getValue(),
+                            total_cbte: total
+                        },
+                        success : function(resp) {
+                            Phx.CP.loadingHide();
+                            alert('La entrega fue creada con exito, incluye cbte(s): '+ total);
+                            this.reload();
+
+                        },
+                        failure : this.conexionFailure,
+                        timeout : this.timeout,
+                        scope : this
+                    });
+                }
+            }
+            else{
+                alert ('No selecciono ningun comprobante');
+            }
+        },
+
         south: {
             url: '../../../sis_contabilidad/vista/int_transaccion/IntTransaccionAux.php',
             title: 'Transacciones',
