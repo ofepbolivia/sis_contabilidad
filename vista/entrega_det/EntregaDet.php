@@ -186,6 +186,27 @@ Phx.vista.EntregaDet=Ext.extend(Phx.gridInterfaz,{
             grid:true,
             form:false
         },
+
+        {
+            config: {
+                name: 'tipo_cambio',
+                fieldLabel: 'Tipo de Cambio',
+                allowBlank: false,
+                readOnly: true,
+                anchor: '80%',
+                gwidth: 90,
+                maxLength: 20,
+                decimalPrecision: 6
+            },
+            type: 'NumberField',
+            filters: {
+                pfiltro: 'cbte.tipo_cambio_2',
+                type: 'numeric'
+            },
+            id_grupo: 2,
+            grid: true,
+            form: true
+        },
 		
 		
 		{
@@ -317,7 +338,8 @@ Phx.vista.EntregaDet=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
-		'nro_cbte','nro_tramite', 'beneficiario','desc_clase_comprobante','glosa1', 'desc_moneda', 'monto'
+		'nro_cbte','nro_tramite', 'beneficiario','desc_clase_comprobante','glosa1', 'desc_moneda', 'monto',
+        'tipo_cambio'
 		
 	],
 	sortInfo:{

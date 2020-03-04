@@ -40,12 +40,11 @@ class MODEntrega extends MODbase{
         $this->captura('nro_tramite','varchar');
         $this->captura('desc_moneda','varchar');
         $this->captura('monto','numeric');
+        $this->captura('tipo_cambio_2','numeric');
+        $this->captura('fecha','varchar');
 
 
-
-		
-		
-		//Ejecuta la instruccion
+        //Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 		

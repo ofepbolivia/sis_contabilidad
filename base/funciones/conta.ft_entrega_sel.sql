@@ -106,7 +106,10 @@ BEGIN
                             (select sum(pp.monto)
                              from conta.tentrega_det ende
                              inner join tes.tplan_pago pp on pp.id_int_comprobante = ende.id_int_comprobante
-                             where ende.id_entrega = ent.id_entrega) as monto
+                             where ende.id_entrega = ent.id_entrega) as monto,
+                             com.tipo_cambio_2,
+                             to_char(com.fecha,''DD/MM/YYYY'')::varchar as fecha
+
 
 						from conta.tentrega ent
 						inner join segu.tusuario usu1 on usu1.id_usuario = ent.id_usuario_reg
@@ -325,7 +328,7 @@ BEGIN
                              COALESCE(t1.importe_debe, t2.importe_debe) as importe_debe,
                              COALESCE(t1.importe_haber, t2.importe_haber) as importe_haber,
                              COALESCE(t1.moneda_original, t2.moneda_original) as moneda_original
-                    from 
+                    from
                     (SELECT  ent.id_entrega,
                              ent.estado,
                              ent.c31,
@@ -377,7 +380,7 @@ BEGIN
                            LEFT JOIN pre.tclase_gasto cg ON cg.id_clase_gasto = cgp.id_clase_gasto
                            LEFT JOIN tes.vcuenta_bancaria cb ON cb.id_cuenta_bancaria =
                              cbt.id_cuenta_bancaria
-                           LEFT JOIN param.tmoneda mm ON trd.id_moneda = mm.id_moneda  
+                           LEFT JOIN param.tmoneda mm ON trd.id_moneda = mm.id_moneda
                       WHERE par.sw_movimiento::text = ''presupuestaria''::text
                       and ent.id_entrega = '||v_parametros.id_entrega||'
                       UNION ALL
@@ -430,10 +433,10 @@ BEGIN
                            LEFT JOIN pre.tclase_gasto cg ON cg.id_clase_gasto = cgp.id_clase_gasto
                            LEFT JOIN tes.vcuenta_bancaria cb ON cb.id_cuenta_bancaria =
                              cbt.id_cuenta_bancaria
-                           LEFT JOIN param.tmoneda m ON trp.id_moneda = m.id_moneda  
+                           LEFT JOIN param.tmoneda m ON trp.id_moneda = m.id_moneda
                       WHERE par.sw_movimiento::text = ''presupuestaria''::text
                       and ent.id_entrega = '||v_parametros.id_entrega||') t1
-                      full join 
+                      full join
                       (SELECT ent.id_entrega,
                              ent.estado,
                              ent.c31,
@@ -479,7 +482,7 @@ BEGIN
                            JOIN pre.tclase_gasto_partida cgp ON cgp.id_partida = par.id_partida
                            JOIN pre.tclase_gasto cg ON cg.id_clase_gasto = cgp.id_clase_gasto
                            LEFT JOIN tes.vcuenta_bancaria cb ON cb.id_cuenta_bancaria = cbt.id_cuenta_bancaria
-                           LEFT JOIN param.tmoneda m ON trp.id_moneda = m.id_moneda  
+                           LEFT JOIN param.tmoneda m ON trp.id_moneda = m.id_moneda
                       WHERE par.sw_movimiento::text = ''flujo''::text
                       and ent.id_entrega = '||v_parametros.id_entrega||') t2
                       on t1.id_int_comprobante = t2.id_int_comprobante
