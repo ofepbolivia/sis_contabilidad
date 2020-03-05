@@ -17,6 +17,8 @@ Phx.vista.TipoCcCuenta=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.TipoCcCuenta.superclass.constructor.call(this,config);
 		this.init();
+
+        this.iniciarEventos();
 		
 	},
 			
@@ -41,6 +43,25 @@ Phx.vista.TipoCcCuenta=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true 
 		},
+        {
+            config:{
+                name: 'id_gestion',
+                origen:'GESTION',
+                tinit:false,
+                fieldLabel: 'Gestión',
+                gdisplayField:'gestion',//mapea al store del grid
+                allowBlank:false,
+                gwidth: 200,
+                width:250,
+                renderer:function (value, p, record){return String.format('{0}', record.data['gestion']);}
+            },
+            type:'ComboRec',
+            filters:{pfiltro:'gestion',type:'numeric'},
+            id_grupo:1,
+            grid:false,
+            form:true
+        },
+
 		
 		{
            config: {
@@ -51,15 +72,16 @@ Phx.vista.TipoCcCuenta=Ext.extend(Phx.gridInterfaz,{
                     displayField: 'nro_cuenta',
                     valueField: 'nro_cuenta',
                     origen: 'CUENTAS',
-                    allowBlank: true,
+                    allowBlank: false,
                     fieldLabel: 'Cuenta',
                     gwidth: 200,
                     width: 180,
                     listWidth: 350,
                     renderer: function (value, p, record) {
                         return String.format('{0} - {1}', record.data['nro_cuenta'],record.data['desc_cuenta'] );
-                    },
-                    baseParams: {'filtro_ges': 'actual', sw_transaccional: undefined}
+                    }//,
+                    //baseParams: {'filtro_ges': 'actual', sw_transaccional: undefined}
+                   // baseParams: {sw_transaccional: undefined}
                 },
                 type: 'ComboRec',
                 id_grupo: 0,
@@ -261,6 +283,18 @@ Phx.vista.TipoCcCuenta=Ext.extend(Phx.gridInterfaz,{
     loadValoresIniciales: function () {    	
          Phx.vista.TipoCcCuenta.superclass.loadValoresIniciales.call(this);
          this.Cmp.id_tipo_cc.setValue(this.maestro.id_tipo_cc);
+    },
+
+    iniciarEventos: function(){
+        this.Cmp.id_gestion.on('select', function(cmp, rec, indice){
+            this.Cmp.nro_cuenta.reset();
+            //console.log(rec)
+            this.Cmp.nro_cuenta.store.baseParams.id_gestion = rec.data.id_gestion;
+            // console.log('llega2',this.Cmp.nro_cuenta.store.baseParams.id_gestion)
+            this.Cmp.nro_cuenta.modificado = true;
+
+        },this);
+
     },
 	
 bdel:true,
