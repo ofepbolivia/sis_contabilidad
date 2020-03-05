@@ -1011,8 +1011,9 @@ BEGIN
 
                   v_periodo_mes_now = date_part('month',now());
                   v_periodo_anio_now = date_part('year',now());
-
+			--raise exception 'lleam2 % = % - %= %',v_periodo_fecha_cbte, v_periodo_mes_now,  v_periodo_anio_cbte,v_periodo_anio_now ;
                   IF (v_periodo_fecha_cbte != v_periodo_mes_now and v_periodo_anio_cbte != v_periodo_anio_now ) THEN
+
                   		IF (v_reg_cbte.fecha < now()::date and v_reg_cbte.fecha > v_fecha_ini and (v_reg_cbte.fecha < v_fecha_fin or v_reg_cbte.fecha = v_fecha_fin)) THEN
 
                               v_fecha  = v_fecha_fin;
@@ -1032,7 +1033,31 @@ BEGIN
                               raise exception 'verificar fechas cbtes';
 
                         END IF;
+
+                ELSIF (v_periodo_fecha_cbte = v_periodo_mes_now and v_periodo_anio_cbte != v_periodo_anio_now ) THEN
+
+                  		IF (v_reg_cbte.fecha < now()::date and v_reg_cbte.fecha > v_fecha_ini and (v_reg_cbte.fecha < v_fecha_fin or v_reg_cbte.fecha = v_fecha_fin)) THEN
+
+                              v_fecha  = v_fecha_fin;
+                        ELSIF (v_reg_cbte.fecha < now()::date and v_reg_cbte.fecha> now()::date and v_reg_cbte.fecha > v_fecha_ini and (v_reg_cbte.fecha < v_fecha_fin or v_reg_cbte.fecha = v_fecha_fin)) THEN
+
+                              v_fecha = now()::date;
+
+                        ELSIF (v_reg_cbte.fecha = now()::date and v_reg_cbte.fecha > v_fecha_ini and (v_reg_cbte.fecha < v_fecha_fin or v_reg_cbte.fecha = v_fecha_fin)) THEN
+
+                              v_fecha = now()::date;
+
+                        ELSIF (v_reg_cbte.fecha > now()::date and v_reg_cbte.fecha > v_fecha_ini and (v_reg_cbte.fecha < v_fecha_fin or v_reg_cbte.fecha = v_fecha_fin)) THEN
+
+                              v_fecha = now()::date;
+
+                        ELSE
+                              raise exception 'verificar fechas cbtes';
+
+                        END IF;
+
                   ELSE
+
                   		IF (v_reg_cbte.fecha < now()::date and v_reg_cbte.fecha > v_fecha_ini and (v_reg_cbte.fecha < v_fecha_fin or v_reg_cbte.fecha = v_fecha_fin)) THEN
 
                               v_fecha  = now();
