@@ -86,6 +86,8 @@ DECLARE
      v_registros_int_cbte	record;
      v_prioridad_cbte		integer;
 
+     v_fecha_cbte			date;
+
 BEGIN
 
     v_nombre_funcion = 'conta.ft_entrega_ime';
@@ -241,6 +243,16 @@ BEGIN
                 raise exception 'No tiene comprobantes para entregar';
              end if;
 
+
+
+             v_ids = string_to_array(v_parametros.id_int_comprobantes,',');
+             v_i = 1;
+
+            SELECT cbte.fecha
+            INTO	v_fecha_cbte
+            FROM  conta.tint_comprobante cbte
+            WHERE cbte.id_int_comprobante::integer = v_ids[v_i]::integer;
+
            insert into conta.tentrega(
                       fecha_c31,
                       c31,
@@ -256,7 +268,9 @@ BEGIN
                       id_proceso_wf,
 					  id_estado_wf
                   ) values(
-                      now(),
+                      --17-03-2020 (may) modificacion para que inserte con la fecha de los cbtes
+                      --now(),
+                      v_fecha_cbte,
                       '',
                       v_codigo_estado, --> estado de la entrega
                       'activo',
@@ -271,8 +285,7 @@ BEGIN
                       v_id_estado_wf
 			)RETURNING id_entrega into v_id_entrega;
             --
-            v_ids = string_to_array(v_parametros.id_int_comprobantes,',');
-            v_i = 1;
+
 
             WHILE v_i <= v_parametros.total_cbte LOOP
 
