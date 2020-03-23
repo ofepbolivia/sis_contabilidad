@@ -5072,3 +5072,78 @@ ALTER TABLE conta.tdoc_compra_venta
   ALTER COLUMN importe_pago_liquido SET NOT NULL;
 /***********************************F-SCP-MAY-CONTA-0-21/01/2020****************************************/
 
+/***********************************I-SCP-MAY-CONTA-0-28/02/2020****************************************/
+CREATE TABLE conta.tdoc_compra_venta_ext (
+  id_doc_compra_venta_ext SERIAL NOT NULL,
+  id_doc_compra_venta INTEGER,
+  costo_directo VARCHAR(30),
+  c_emisor VARCHAR(50),
+  no_gravado NUMERIC(19,2),
+  base_21 NUMERIC(19,2),
+  base_27 NUMERIC(19,2),
+  base_10_5 NUMERIC(19,2),
+  base_2_5 NUMERIC(19,2),
+  percepcion_caba NUMERIC(19,2),
+  percepcion_bue NUMERIC(19,2),
+  percepcion_iva NUMERIC(19,2),
+  percepcion_salta NUMERIC(19,2),
+  imp_internos NUMERIC(19,2),
+  percepcion_tucuman NUMERIC(19,2),
+  percepcion_corrientes NUMERIC(19,2),
+  otros_impuestos NUMERIC(19,2),
+  percepcion_neuquen NUMERIC(19,2),
+  PRIMARY KEY(id_doc_compra_venta_ext)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE conta.tdoc_compra_venta_ext
+  OWNER TO postgres;
+
+COMMENT ON TABLE conta.tdoc_compra_venta_ext
+IS 'complemento para los datos de doc_compra_venta para las internacionales';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.id_doc_compra_venta_ext
+IS 'complemento para los datos de doc_compra_venta para las internacionales';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.id_doc_compra_venta
+IS 'para que se enlace con la cabecera tdoc_compra_venta';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.costo_directo
+IS 'si / no';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.base_21
+IS 'base 21%';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.base_27
+IS 'base 27%';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.base_10_5
+IS 'base 10,5%';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.base_2_5
+IS 'base 2,5%';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_caba
+IS 'percepcion IIBB CABA';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_bue
+IS 'percepcion IIBB BUE';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_iva
+IS 'percepcion IVA';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_salta
+IS 'percepcion IIBB SALTA';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_tucuman
+IS 'percepcion IIBB TUCUMAN';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_corrientes
+IS 'percepcion IIBB CORRIENTES';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.otros_impuestos
+IS 'otros impuestos';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_neuquen
+IS 'percepcion IIBB NEUQUEN';
+/***********************************F-SCP-MAY-CONTA-0-28/02/2020****************************************/
