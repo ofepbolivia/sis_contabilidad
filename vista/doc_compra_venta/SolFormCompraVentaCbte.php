@@ -13,8 +13,10 @@ header("content-type: text/javascript; charset=UTF-8");
 <script>
     Phx.vista.SolFormCompraVentaCbte = {
         // require: '../../../sis_contabilidad/vista/doc_compra_venta/FormCompraVenta.php',
-        require: '../../../sis_contabilidad/vista/doc_compra_venta/SolFormCompraVenta.php',
-        requireclase: 'Phx.vista.SolFormCompraVenta',
+        //require: '../../../sis_contabilidad/vista/doc_compra_venta/SolFormCompraVenta.php',
+        require: '../../../sis_contabilidad/vista/doc_compra_venta/FormCompraVentaEXT.php',
+        //requireclase: 'Phx.vista.SolFormCompraVenta',
+        requireclase: 'Phx.vista.FormCompraVentaEXT',
         mostrarFormaPago: false,
         heightHeader: 245,
         constructor: function (config) {
