@@ -53,7 +53,7 @@ class RepDocCompraVentaExt
 
     //function imprimeIniciados(){
     function imprimeCabecera(){
-        $this->docexcel->getActiveSheet()->setTitle('Procesos Adjudicados');
+        $this->docexcel->getActiveSheet()->setTitle('Documentos');
         $this->docexcel->setActiveSheetIndex(0);
 
         //*************************************TITULO*****************************************

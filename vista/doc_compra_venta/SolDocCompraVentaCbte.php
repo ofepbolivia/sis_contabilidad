@@ -1173,7 +1173,8 @@ header("content-type: text/javascript; charset=UTF-8");
             'otros_impuestos',
             'percepcion_neuquen',
             'control',
-            'id_proveedor'
+            'id_proveedor',
+            'condicion'
 
 
         ],
