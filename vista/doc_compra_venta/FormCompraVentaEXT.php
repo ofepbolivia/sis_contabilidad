@@ -1266,7 +1266,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         qtip: 'Punto de Venta',
                         anchor: '85%',
                         gwidth: 100,
-                        //maxLength: 1179650
+                        readOnly :true
                     },
                     type: 'TextField',
                     //type: 'NumberField',

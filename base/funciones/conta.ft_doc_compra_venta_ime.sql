@@ -2097,26 +2097,77 @@ END IF;
       where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
 
 
-      update conta.tdoc_compra_venta_ext set
-          costo_directo = v_parametros.costo_directo,
-          c_emisor = v_parametros.c_emisor,
-          no_gravado = COALESCE(v_parametros.no_gravado,0),
-          base_21 = COALESCE(v_parametros.base_21,0),
-          base_27 = COALESCE(v_parametros.base_27,0),
-          base_10_5  = COALESCE(v_parametros.base_10_5,0),
-          base_2_5 = COALESCE(v_parametros.base_2_5,0),
-          percepcion_caba  = COALESCE(v_parametros.percepcion_caba,0),
-          percepcion_bue  = COALESCE(v_parametros.percepcion_bue,0),
-          percepcion_iva = COALESCE(v_parametros.percepcion_iva,0),
-          percepcion_salta = COALESCE(v_parametros.percepcion_salta,0),
-          imp_internos  = COALESCE(v_parametros.imp_internos,0),
-          percepcion_tucuman  = COALESCE(v_parametros.percepcion_tucuman,0),
-          percepcion_corrientes  = COALESCE(v_parametros.percepcion_corrientes,0),
-          otros_impuestos  = COALESCE(v_parametros.otros_impuestos,0),
-          percepcion_neuquen  = COALESCE(v_parametros.percepcion_neuquen,0)--,
-          --control  = v_parametros.control
 
-      where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+
+      SELECT dcve.id_doc_compra_venta_ext
+      INTO v_id_doc_compra_venta_ext
+      FROM conta.tdoc_compra_venta_ext dcve
+      WHERE dcve.id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+
+      IF (v_id_doc_compra_venta_ext is null) THEN
+      		--tabla complemento para las internacionales
+             insert into conta.tdoc_compra_venta_ext (
+
+                  costo_directo,
+                  c_emisor,
+                  no_gravado,
+                  base_21,
+                  base_27,
+                  base_10_5,
+                  base_2_5,
+                  percepcion_caba,
+                  percepcion_bue,
+                  percepcion_iva,
+                  percepcion_salta,
+                  imp_internos,
+                  percepcion_tucuman,
+                  percepcion_corrientes,
+                  otros_impuestos,
+                  percepcion_neuquen,
+                  id_doc_compra_venta
+
+                ) values(
+                  v_parametros.costo_directo,
+                  v_parametros.c_emisor,
+                  v_parametros.no_gravado,
+                  v_parametros.base_21,
+                  v_parametros.base_27,
+                  v_parametros.base_10_5,
+                  v_parametros.base_2_5,
+                  v_parametros.percepcion_caba,
+                  v_parametros.percepcion_bue,
+                  v_parametros.percepcion_iva,
+                  v_parametros.percepcion_salta,
+                  v_parametros.imp_internos,
+                  v_parametros.percepcion_tucuman,
+                  v_parametros.percepcion_corrientes,
+                  v_parametros.otros_impuestos,
+                  v_parametros.percepcion_neuquen,
+                  v_parametros.id_doc_compra_venta
+
+            )RETURNING id_doc_compra_venta_ext into v_id_doc_compra_venta_ext;
+
+      ELSE
+      		update conta.tdoc_compra_venta_ext set
+              costo_directo = v_parametros.costo_directo,
+              c_emisor = v_parametros.c_emisor,
+              no_gravado = COALESCE(v_parametros.no_gravado,0),
+              base_21 = COALESCE(v_parametros.base_21,0),
+              base_27 = COALESCE(v_parametros.base_27,0),
+              base_10_5  = COALESCE(v_parametros.base_10_5,0),
+              base_2_5 = COALESCE(v_parametros.base_2_5,0),
+              percepcion_caba  = COALESCE(v_parametros.percepcion_caba,0),
+              percepcion_bue  = COALESCE(v_parametros.percepcion_bue,0),
+              percepcion_iva = COALESCE(v_parametros.percepcion_iva,0),
+              percepcion_salta = COALESCE(v_parametros.percepcion_salta,0),
+              imp_internos  = COALESCE(v_parametros.imp_internos,0),
+              percepcion_tucuman  = COALESCE(v_parametros.percepcion_tucuman,0),
+              percepcion_corrientes  = COALESCE(v_parametros.percepcion_corrientes,0),
+              otros_impuestos  = COALESCE(v_parametros.otros_impuestos,0),
+              percepcion_neuquen  = COALESCE(v_parametros.percepcion_neuquen,0)
+
+      		where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+      END IF;
 
 
 
