@@ -799,6 +799,20 @@ class ACTIntComprobante extends ACTbase{
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 
+    //may
+    function cbtePerdidaCbte(){
+        $this->objFunc=$this->create('MODIntComprobante');
+        $this->res=$this->objFunc->cbtePerdidaCbte($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //may
+    function cbteIncrementoCbte(){
+        $this->objFunc=$this->create('MODIntComprobante');
+        $this->res=$this->objFunc->cbteIncrementoCbte($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
 }
 
 ?>

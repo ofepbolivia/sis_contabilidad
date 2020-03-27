@@ -947,5 +947,43 @@ class MODIntComprobante extends MODbase{
         return $this->respuesta;
     }
 
+    //may
+    function cbtePerdidaCbte(){
+        //swEditable de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_int_comprobante_ime';
+        $this->transaccion='CONTA_CBTEPER_IME';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_int_comprobante','id_int_comprobante','int4');
+        $this->setParametro('sw_validar','sw_validar','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
+    //may
+    function cbteIncrementoCbte(){
+        //swEditable de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_int_comprobante_ime';
+        $this->transaccion='CONTA_CBTEINCR_IME';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_int_comprobante','id_int_comprobante','int4');
+        $this->setParametro('sw_validar','sw_validar','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
 }
 ?>

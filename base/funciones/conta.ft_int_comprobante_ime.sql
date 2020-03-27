@@ -114,6 +114,17 @@ DECLARE
    v_periodo_mes_now				integer;
    v_periodo_anio_now				integer;
 
+   v_reg_cbte_sol					record;
+   v_importe_debe					numeric;
+   v_importe_haber					numeric;
+   v_importe_total_debe				numeric;
+   v_importe_debe_sol				numeric;
+   v_importe_haber_sol				numeric;
+   v_mon_tri						numeric;
+   v_mon_act						numeric;
+   v_ofi_tri						numeric;
+   v_ofi_act						numeric;
+
 
 BEGIN
 
@@ -2715,6 +2726,7 @@ BEGIN
                   else
                      v_resp = pxp.f_agrega_clave(v_resp,'mensaje','fue volcado en borrador el cbte : id '||v_parametros.id_int_comprobante::varchar);
                   end if;
+
                   --Definicion de la respuesta
 
                   v_resp = pxp.f_agrega_clave(v_resp,'id_int_comprobante',v_parametros.id_int_comprobante::varchar);
@@ -2723,6 +2735,555 @@ BEGIN
                   return v_resp;
 
               end;
+
+              /*********************************
+              #TRANSACCION:  'CONTA_CBTEPER_IME'
+              #DESCRIPCION:	Genera nuevo cbte para las perdidas e igualar importes por cuestion del tipo de cambio
+              #AUTOR:		Maylee Perez Pastor
+              #FECHA:		24-3-2020 00:28:30
+              ***********************************/
+
+              elsif(p_transaccion='CONTA_CBTEPER_IME')then
+
+                  begin
+				      --datos del cbte elegido
+                      select *
+                      into v_reg_cbte
+                      from conta.tint_comprobante ic
+                      where ic.id_int_comprobante = v_parametros.id_int_comprobante;
+
+                     --datos del comprobante de la solicitud
+                     select *
+                     into v_reg_cbte_sol
+                     from conta.tint_comprobante ic
+                     where ic.id_plantilla_comprobante = 19 -- SOLFONDAV
+                     and ic.id_subsistema = v_reg_cbte.id_subsistema
+                     and ic.nro_tramite = v_reg_cbte.nro_tramite
+                     and ic.id_depto  = v_reg_cbte.id_depto;
+
+
+			-- si los tipos de cambio son distintos por cuestion de rendicion con otra fecha, estos variarian su importe
+              IF (v_reg_cbte.tipo_cambio_2 != v_reg_cbte_sol.tipo_cambio_2) THEN
+
+                      --validar que el periodo se encuentre abierto
+                      IF not param.f_periodo_subsistema_abierto(v_reg_cbte.fecha::date, 'CONTA') THEN
+                          raise exception 'El periodo se encuentra cerrado en contabilidad para la fecha:  %',v_reg_cbte.fecha;
+                      END IF;
+
+
+                   /*   select rc.id_tipo_relacion_comprobante
+                      into v_id_tipo_relacion_comprobante
+                      from conta.ttipo_relacion_comprobante rc
+                      where rc.codigo = 'IGUALAR';
+					*/
+
+
+                      select cc.tipo_comprobante, cc.descripcion
+                      into   v_tipo_comprobante, v_clcbt_desc
+                      from conta.tclase_comprobante cc
+                      where cc.id_clase_comprobante = v_reg_cbte.id_clase_comprobante;
+
+
+                      v_id_clase_comprobante = v_reg_cbte.id_clase_comprobante;
+
+
+                      --control de fecha del comprobante
+
+                      v_periodo_fecha_cbte = date_part('month',v_reg_cbte.fecha);
+                      v_periodo_anio_cbte = date_part('year',v_reg_cbte.fecha);
+
+
+                      SELECT ges.id_gestion
+                      INTO v_gestion_cbte
+                      FROM param.tgestion ges
+                      WHERE ges.gestion = v_periodo_anio_cbte;
+
+                      SELECT per.fecha_ini, per.fecha_fin
+                      INTO v_fecha_ini,v_fecha_fin
+                      FROM param.tperiodo per
+                      WHERE per.periodo = v_periodo_fecha_cbte
+                      and per.id_gestion = v_gestion_cbte;
+
+                      v_periodo_mes_now = date_part('month',now());
+                      v_periodo_anio_now = date_part('year',now());
+
+                      IF (v_periodo_fecha_cbte != v_periodo_mes_now and v_periodo_anio_cbte != v_periodo_anio_now ) THEN
+                            IF (v_reg_cbte.fecha < now()::date and v_reg_cbte.fecha > v_fecha_ini and (v_reg_cbte.fecha < v_fecha_fin or v_reg_cbte.fecha = v_fecha_fin)) THEN
+
+                                  v_fecha  = v_fecha_fin;
+                            ELSIF (v_reg_cbte.fecha < now()::date and v_reg_cbte.fecha> now()::date and v_reg_cbte.fecha > v_fecha_ini and (v_reg_cbte.fecha < v_fecha_fin or v_reg_cbte.fecha = v_fecha_fin)) THEN
+
+                                  v_fecha = now()::date;
+
+                            ELSIF (v_reg_cbte.fecha = now()::date and v_reg_cbte.fecha > v_fecha_ini and (v_reg_cbte.fecha < v_fecha_fin or v_reg_cbte.fecha = v_fecha_fin)) THEN
+
+                                  v_fecha = now()::date;
+
+                            ELSIF (v_reg_cbte.fecha > now()::date and v_reg_cbte.fecha > v_fecha_ini and (v_reg_cbte.fecha < v_fecha_fin or v_reg_cbte.fecha = v_fecha_fin)) THEN
+
+                                  v_fecha = now()::date;
+
+                            ELSE
+                                  raise exception 'verificar fechas cbtes';
+
+                            END IF;
+                      ELSE
+                            IF (v_reg_cbte.fecha < now()::date and v_reg_cbte.fecha > v_fecha_ini and (v_reg_cbte.fecha < v_fecha_fin or v_reg_cbte.fecha = v_fecha_fin)) THEN
+
+                                  v_fecha  = now();
+                            ELSIF (v_reg_cbte.fecha < now()::date and v_reg_cbte.fecha> now()::date and v_reg_cbte.fecha > v_fecha_ini and (v_reg_cbte.fecha < v_fecha_fin or v_reg_cbte.fecha = v_fecha_fin)) THEN
+
+                                  v_fecha = now()::date;
+
+                            ELSIF (v_reg_cbte.fecha = now()::date and v_reg_cbte.fecha > v_fecha_ini and (v_reg_cbte.fecha < v_fecha_fin or v_reg_cbte.fecha = v_fecha_fin)) THEN
+
+                                  v_fecha = now()::date;
+
+                            ELSIF (v_reg_cbte.fecha > now()::date and v_reg_cbte.fecha > v_fecha_ini and (v_reg_cbte.fecha < v_fecha_fin or v_reg_cbte.fecha = v_fecha_fin)) THEN
+
+                                  v_fecha = now()::date;
+
+                            ELSE
+                                  raise exception 'verificar fechas cbtes';
+
+                            END IF;
+                      END IF;
+
+                       --raise exception 'llega % < % and % > % and %<%',v_reg_cbte.fecha,  now()::date, v_reg_cbte.fecha, v_fecha_ini,v_reg_cbte.fecha,v_fecha_fin ;
+
+                      --
+
+                    --  inicia tramite nuevo
+                    v_codigo_proceso_macro = pxp.f_get_variable_global('conta_codigo_macro_wf_cbte');
+
+                    --obtener id del proceso macro
+                    select
+                     pm.id_proceso_macro
+                    into
+                     v_id_proceso_macro
+                    from wf.tproceso_macro pm
+                    where pm.codigo = v_codigo_proceso_macro;
+
+                    If v_id_proceso_macro is NULL THEN
+                      raise exception 'El proceso macro  de codigo % no esta configurado en el sistema WF',v_codigo_proceso_macro;
+                    END IF;
+
+                   --   obtener el codigo del tipo_proceso
+                    select   tp.codigo
+                     into v_codigo_tipo_proceso
+                    from  wf.ttipo_proceso tp
+                    where   tp.id_proceso_macro = v_id_proceso_macro
+                          and tp.estado_reg = 'activo' and tp.inicio = 'si';
+
+                    IF v_codigo_tipo_proceso is NULL THEN
+                     raise exception 'No existe un proceso inicial para el proceso macro indicado % (Revise la configuración)',v_codigo_proceso_macro;
+                    END IF;
+
+                    --PERIODO  Obtiene el periodo a partir de la fecha
+        			v_rec = param.f_get_periodo_gestion(v_fecha);
+
+
+                  -- inciar el tramite en el sistema de WF
+                    SELECT
+                       ps_num_tramite ,
+                       ps_id_proceso_wf ,
+                       ps_id_estado_wf ,
+                       ps_codigo_estado
+                      into
+                       v_num_tramite,
+                       v_id_proceso_wf,
+                       v_id_estado_wf,
+                       v_codigo_estado
+
+                    FROM wf.f_inicia_tramite(
+                       p_id_usuario,
+                       v_parametros._id_usuario_ai,
+                       v_parametros._nombre_usuario_ai,
+                       v_rec.po_id_gestion,
+                       v_codigo_tipo_proceso,
+                       null,--v_parametros.id_funcionario,
+                       4,--v_reg_cbte.id_depto,
+                       'Registro de Cbte manual',
+                       '' );
+
+
+                    IF  v_codigo_estado != 'borrador' THEN
+                      raise exception 'el estado inicial para cbtes debe ser borrador, revise la configuración del WF';
+                    END IF;
+                    --
+
+
+
+                      -----------------------------
+                      --REGISTRO DEL COMPROBANTE
+                      -----------------------------
+                      insert into conta.tint_comprobante(
+                          id_clase_comprobante,
+                          id_subsistema,
+                          id_depto,
+                          id_moneda,
+                          id_periodo,
+                          id_funcionario_firma1,
+                          id_funcionario_firma2,
+                          id_funcionario_firma3,
+                          tipo_cambio,
+                          beneficiario,
+                          estado_reg,
+                          glosa1,
+                          fecha,
+                          glosa2,
+                          --momento,
+                          id_usuario_reg,
+                          fecha_reg,
+                          id_usuario_mod,
+                          fecha_mod,
+                          id_usuario_ai,
+                          usuario_ai,
+                          id_int_comprobante_fks,
+                          cbte_cierre,
+                          cbte_apertura,
+                          cbte_aitb,
+                          manual,
+                          momento_comprometido,
+                          momento_ejecutado,
+                          momento_pagado,
+                          momento,
+                          id_tipo_relacion_comprobante,
+                          fecha_costo_ini,
+                          fecha_costo_fin,
+                          id_config_cambiaria,
+                          tipo_cambio_2,
+                          localidad,
+                          id_moneda_tri,
+                          nro_tramite,
+                          sw_editable,
+                          sw_tipo_cambio,
+                          cbte_reversion,
+                          id_proceso_wf,
+                          id_estado_wf,
+                          forma_cambio,
+                          tipo_cambio_3,
+                          id_moneda_act
+                      ) values(
+                        v_id_clase_comprobante,
+                        10, --v_reg_cbte.id_subsistema, --contabilidad
+                        4, --depto central cochabamba - v_reg_cbte.id_depto,
+                        1, --v_reg_cbte.id_moneda,
+                        v_reg_cbte.id_periodo,
+                        v_reg_cbte.id_funcionario_firma1,
+                        v_reg_cbte.id_funcionario_firma2,
+                        v_reg_cbte.id_funcionario_firma3,
+                        v_reg_cbte.tipo_cambio,
+                        v_reg_cbte.beneficiario,
+                        'borrador',
+                        --'IGUALAR CBTE PERDIDA ('||v_reg_cbte.nro_cbte||',  id:'||v_reg_cbte.id_int_comprobante||' )',
+                        'CBTE POR LA DIFERENCIA DEL TIPO DE CAMBIO ('||v_reg_cbte.nro_cbte||',  id:'||v_reg_cbte.id_int_comprobante||' )',
+                        v_fecha, --v_reg_cbte.fecha,
+                        v_reg_cbte.glosa2,
+                        --v_parametros.momento,
+                        p_id_usuario,
+                        now(),
+                        null,
+                        null,
+                        v_parametros._id_usuario_ai,
+                        v_parametros._nombre_usuario_ai,
+                        (string_to_array(v_parametros.id_int_comprobante::varchar,','))::INTEGER[],
+                        v_reg_cbte.cbte_cierre,
+                        v_reg_cbte.cbte_apertura,
+                        v_reg_cbte.cbte_aitb,
+                        'no',
+                        'no', --v_reg_cbte.momento_comprometido,
+                        'no', --v_reg_cbte.momento_ejecutado,
+                        'no', --v_reg_cbte.momento_pagado,
+                        'presupuestario', --v_reg_cbte.momento,
+                        null, --v_id_tipo_relacion_comprobante,
+                        v_reg_cbte.fecha_costo_ini,
+                        v_reg_cbte.fecha_costo_fin,
+                        v_reg_cbte.id_config_cambiaria,
+                        v_reg_cbte.tipo_cambio_2,
+                        v_reg_cbte.localidad,
+                        v_reg_cbte.id_moneda_tri,
+                        v_num_tramite,
+                        'si',  -- sw_editable
+                        v_reg_cbte.sw_tipo_cambio, -- RAC 05/12/2016 ....  'si', -- sw_tipo_cambio
+                        'si', -- cbte_reversion	, marcamos como cbte de reversion
+                        v_id_proceso_wf,
+                        v_id_estado_wf,
+                        v_reg_cbte.forma_cambio,
+                        v_reg_cbte.tipo_cambio_3,
+                        v_reg_cbte.id_moneda_act
+                      )RETURNING id_int_comprobante into v_id_int_comprobante;
+
+
+                     update wf.tproceso_wf p set
+                      descripcion = descripcion||' ('||v_clcbt_desc||'id:'||v_id_int_comprobante::varchar||')'
+                     where p.id_proceso_wf = v_id_proceso_wf;
+
+
+                     -- insertar las dos transacciones
+
+                     select sum(it.importe_debe_mb)
+                     into v_importe_debe_sol
+                     from conta.tint_transaccion it
+                     where  it.estado_reg = 'activo' and
+                     it.id_int_comprobante = v_reg_cbte_sol.id_int_comprobante;
+
+
+                     select sum(it.importe_debe_mb)
+                     into v_importe_debe
+                     from conta.tint_transaccion it
+                     where  it.estado_reg = 'activo' and
+                     it.id_int_comprobante = v_parametros.id_int_comprobante;
+
+        			--raise exception 'llegasi % - % ',v_importe_debe_sol, v_importe_debe;
+
+        			 IF (v_importe_debe_sol != v_importe_debe) THEN
+                     	v_importe_total_debe = v_importe_debe_sol - v_importe_debe;
+                     END IF;
+
+                     -- importe triangulacion
+                     select tc.oficial
+                     into v_ofi_tri
+                     from param.ttipo_cambio tc
+                     where 	tc.id_moneda = 2
+                     and tc.fecha =  v_fecha;
+
+                     v_mon_tri = v_importe_total_debe / v_ofi_tri;
+
+                     -- importe act
+                     select tc.oficial
+                     into v_ofi_act
+                     from param.ttipo_cambio tc
+                     where 	tc.id_moneda = 3
+                     and tc.fecha =  v_fecha;
+
+                     v_mon_act = v_importe_total_debe / v_ofi_act;
+
+
+                                  ---------------------------------
+                                  --REGISTRO DE LA TRANSACCIÓN DEBE
+                                  ---------------------------------
+
+                                  insert into conta.tint_transaccion(
+                                      id_partida,
+                                      id_centro_costo,
+                                      estado_reg,
+                                      id_cuenta,
+                                      glosa,
+                                      id_int_comprobante,
+                                      id_auxiliar,
+
+                                      importe_debe,
+                                      importe_haber,
+                                      importe_gasto,
+                                      importe_recurso,
+
+                                      id_usuario_reg,
+                                      fecha_reg,
+                                      id_usuario_mod,
+                                      fecha_mod,
+                                      id_orden_trabajo,
+                                      tipo_cambio,
+                                      tipo_cambio_2,
+                                      tipo_cambio_3,
+                                      id_moneda,
+                                      id_moneda_tri,
+                                      id_moneda_act,
+                                      importe_debe_mb,
+                                      importe_haber_mb,
+                                      importe_recurso_mb,
+                                      importe_gasto_mb,
+
+                                      importe_debe_mt,
+                                      importe_haber_mt,
+                                      importe_gasto_mt,
+                                      importe_recurso_mt,
+
+                                      importe_debe_ma,
+                                      importe_haber_ma,
+                                      importe_gasto_ma,
+                                      importe_recurso_ma,
+
+                                      triangulacion ,
+                                      actualizacion,
+                                      id_partida_ejecucion,
+                                      id_partida_ejecucion_dev
+
+                                  ) values(
+                                      11856, --v_registros.id_partida,
+                                      1152, --v_registros.id_centro_costo,
+                                      'activo',
+                                      29210, --v_registros.id_cuenta,
+                                      '',  --v_registros.glosa,
+                                      v_id_int_comprobante,  --referencia del cbte
+                                      2737, --v_registros.id_auxiliar,
+
+                                      0, 					--v_registros.importe_haber,
+                                      v_importe_total_debe, --v_registros.importe_debe,
+                                      0, 					--v_registros.importe_recurso,
+                                      v_importe_total_debe, --v_registros.importe_gasto,
+
+                                      p_id_usuario,
+                                      now(),
+                                      null,
+                                      null,
+                                      28, --v_registros.id_orden_trabajo,
+                                      1,					--v_registros.tipo_cambio, --tipo de cambio 1 porq es de la misma moneda base
+                                      v_ofi_tri,    	    --v_registros.tipo_cambio_2,
+                                      v_mon_act,			--v_registros.tipo_cambio_3,
+                                      1, --v_registros.id_moneda,
+                                      2, --v_registros.id_moneda_tri,
+                                      3, --v_registros.id_moneda_act,
+
+                                      0, 					--v_registros.importe_haber_mb,
+                                      v_importe_total_debe, --v_registros.importe_debe_mb,
+                                      v_importe_total_debe, --v_registros.importe_gasto_mb,
+                                      0, 					--v_registros.importe_recurso_mb,
+
+                                      0, 					--v_registros.importe_haber_mt,
+                                      v_mon_tri,            -- v_registros.importe_debe_mt,
+                                      0, 					--v_registros.importe_recurso_mt,
+                                      v_mon_tri,			--v_registros.importe_gasto_mt,
+
+									  0, 					--v_registros.importe_haber_ma,
+                                      v_mon_act,            -- v_registros.importe_debe_ma,
+                                      0, 					--v_registros.importe_recurso_ma,
+                                      v_mon_act,			--v_registros.importe_gasto_ma,
+
+                                      'no', --v_registros.triangulacion ,
+                                      'no', --v_registros.actualizacion,
+                                      null, --v_id_partida_ejecucion,
+                                      null  --v_registros.id_partida_ejecucion_dev
+
+                                  )RETURNING id_int_transaccion into v_id_int_transaccion;
+
+								  -----------------------------------
+                                  --REGISTRO DE LA TRANSACCIÓN HABER
+                                  -----------------------------------
+          			    		  insert into conta.tint_transaccion(
+                                      id_partida,
+                                      id_centro_costo,
+                                      estado_reg,
+                                      id_cuenta,
+                                      glosa,
+                                      id_int_comprobante,
+                                      id_auxiliar,
+
+                                      importe_debe,
+                                      importe_haber,
+                                      importe_gasto,
+                                      importe_recurso,
+
+                                      id_usuario_reg,
+                                      fecha_reg,
+                                      id_usuario_mod,
+                                      fecha_mod,
+                                      id_orden_trabajo,
+                                      tipo_cambio,
+                                      tipo_cambio_2,
+                                      tipo_cambio_3,
+                                      id_moneda,
+                                      id_moneda_tri,
+                                      id_moneda_act,
+                                      importe_debe_mb,
+                                      importe_haber_mb,
+                                      importe_recurso_mb,
+                                      importe_gasto_mb,
+
+                                      importe_debe_mt,
+                                      importe_haber_mt,
+                                      importe_gasto_mt,
+                                      importe_recurso_mt,
+
+                                      importe_debe_ma,
+                                      importe_haber_ma,
+                                      importe_gasto_ma,
+                                      importe_recurso_ma,
+
+                                      triangulacion ,
+                                      actualizacion,
+                                      id_partida_ejecucion,
+                                      id_partida_ejecucion_dev
+
+                                  ) values(
+                                      12105, --v_registros.id_partida,
+                                      1135, --v_registros.id_centro_costo,
+                                      'activo',
+                                      28991, --v_registros.id_cuenta,
+                                      '',  --v_registros.glosa,
+                                      v_id_int_comprobante,  --referencia del cbte
+                                      1880, --v_registros.id_auxiliar,
+
+                                      v_importe_total_debe, 	--v_registros.importe_haber,
+                                      0,					--v_registros.importe_debe,
+                                      v_importe_total_debe,	--v_registros.importe_recurso,
+                                      0, 					--v_registros.importe_gasto,
+
+                                      p_id_usuario,
+                                      now(),
+                                      null,
+                                      null,
+                                      28, --v_registros.id_orden_trabajo,
+                                      1,					--v_registros.tipo_cambio, --tipo de cambio 1 porq es de la misma moneda base
+                                      v_ofi_tri,    	    --v_registros.tipo_cambio_2,
+                                      v_mon_act,			--v_registros.tipo_cambio_3,
+                                      1, --v_registros.id_moneda,
+                                      2, --v_registros.id_moneda_tri,
+                                      3, --v_registros.id_moneda_act,
+
+                                      v_importe_total_debe, --v_registros.importe_haber_mb,
+                                      0, 					--v_registros.importe_debe_mb,
+                                      0, 					--v_registros.importe_gasto_mb,
+                                      v_importe_total_debe, --v_registros.importe_recurso_mb,
+
+                                      v_mon_tri, 			--v_registros.importe_haber_mt,
+                                      0,            		-- v_registros.importe_debe_mt,
+                                      v_mon_tri, 			--v_registros.importe_recurso_mt,
+                                      0,					--v_registros.importe_gasto_mt,
+
+									  v_mon_act, 			--v_registros.importe_haber_ma,
+                                      0,            		-- v_registros.importe_debe_ma,
+                                      v_mon_act, 			--v_registros.importe_recurso_ma,
+                                      0,					--v_registros.importe_gasto_ma,
+
+                                      'no', --v_registros.triangulacion ,
+                                      'no', --v_registros.actualizacion,
+                                      null, --v_id_partida_ejecucion,
+                                      null  --v_registros.id_partida_ejecucion_dev
+
+                                  )RETURNING id_int_transaccion into v_id_int_transaccion;
+
+
+
+           ELSE
+                  		raise exception 'El Tipo de Cambio no varia de los comprobantes, (%).', v_reg_cbte.nro_tramite;
+
+              END IF;
+
+                      --Definicion de la respuesta
+
+                      v_resp = pxp.f_agrega_clave(v_resp,'id_int_comprobante',v_parametros.id_int_comprobante::varchar);
+
+                      --Devuelve la respuesta
+                      return v_resp;
+
+                  end;
+
+
+                  /*********************************
+                  #TRANSACCION:  'CONTA_CBTEINCR_IME'
+                  #DESCRIPCION:	Genera nuevo cbte para los incrementos e igualar importes por cuestion del tipo de cambio
+                  #AUTOR:		Maylee Perez Pastor
+                  #FECHA:		24-3-2020 00:28:30
+                  ***********************************/
+
+                  elsif(p_transaccion='CONTA_CBTEINCR_IME')then
+
+                      begin
+
+                      raise exception 'No puede generar el nuevo comprobante';
+
+                      end;
 
 
     else

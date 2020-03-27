@@ -64,8 +64,105 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: '<b>Crear Entregas </b><p>Las entregas permiten asociar con cbte en otros subsistema (por ejemplo SIGMA o SIGEP)</p>'
             });
 
+            this.addBotonesAjusteIgualar();
+
             this.init();
 
+        },
+
+        //may
+        cbtePerdida: function (sw_validar) {
+
+            if (confirm("Esta seguro de generar un nuevo comprobante, este proceso iguala importes por cuestion del Tipo de Cambio en distintas fechas  ")) {
+                if (confirm("¿Esta realmente seguro?")) {
+                    var rec = this.sm.getSelected().data;
+                    Phx.CP.loadingShow();
+                    Ext.Ajax.request({
+                        url: '../../sis_contabilidad/control/IntComprobante/cbtePerdidaCbte',
+                        params: {
+                            id_int_comprobante: rec.id_int_comprobante,
+                            sw_validar: (sw_validar == 'si') ? 'si' : 'no'
+                        },
+                        success: function (resp) {
+                            Phx.CP.loadingHide();
+                            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                            if (reg.ROOT.error) {
+                                Ext.Msg.alert('Error', 'Al generar el cbte: ' + reg.ROOT.error)
+                            } else {
+                                this.reload()
+                            }
+                        },
+                        failure: this.conexionFailure,
+                        timeout: this.timeout,
+                        scope: this
+                    });
+                }
+            }
+
+        },
+        //may
+        cbteIncremento: function (sw_validar) {
+
+            if (confirm("Esta seguro de generar un nuevo comprobante, este proceso iguala importes por cuestion del Tipo de Cambio en distintas fechas  ")) {
+                if (confirm("¿Esta realmente seguro?")) {
+                    var rec = this.sm.getSelected().data;
+                    Phx.CP.loadingShow();
+                    Ext.Ajax.request({
+                        url: '../../sis_contabilidad/control/IntComprobante/cbteIncrementoCbte',
+                        params: {
+                            id_int_comprobante: rec.id_int_comprobante,
+                            sw_validar: (sw_validar == 'si') ? 'si' : 'no'
+                        },
+                        success: function (resp) {
+                            Phx.CP.loadingHide();
+                            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                            if (reg.ROOT.error) {
+                                Ext.Msg.alert('Error', 'Al generar el cbte: ' + reg.ROOT.error)
+                            } else {
+                                this.reload()
+                            }
+                        },
+                        failure: this.conexionFailure,
+                        timeout: this.timeout,
+                        scope: this
+                    });
+                }
+            }
+
+        },
+
+
+        addBotonesAjusteIgualar: function () {
+            this.menuAjusteIgualar = new Ext.Toolbar.SplitButton({
+                id: 'b-btnVolcar-' + this.idContenedor,
+                text: 'Generar Cbte. Tipo de Cambio',
+                disabled: true,
+                grupo: [0, 1, 2, 3],
+                iconCls: 'balert',
+                scope: this,
+                menu: {
+                    items: [{
+                        id: 'b-volb-' + this.idContenedor,
+                        text: 'Cbte Pérdida',
+                        tooltip: '<b>Cbte de Perdida para procesos internacionales que no igualan por el tipo de cambio</b>',
+                        handler: function () {
+                            this.cbtePerdida('no')
+                        },
+                        scope: this
+                    }, {
+                        id: 'b-vol-' + this.idContenedor,
+                        //text: 'Reversión Total (Validado)',
+                        text: 'Cbte Incremento',
+                        tooltip: '<b>Cbte de Incremento para procesos internacionales que no igualan por el tipo de cambio</b>',
+                        handler: function () {
+                            this.cbteIncremento('si')
+                        },
+                        scope: this
+                    }
+                    ]
+                }
+            });
+            this.tbar.add(this.menuAjusteIgualar);
         },
 
 
@@ -179,6 +276,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('btnDocCmpVnt').disable();
 
                 this.getBoton('chkEntregas').disable();
+                this.getBoton('btnVolcar').disable();
             } else {
                 if (rec.data.sw_editable == 'no') {
                     this.getBoton('btnSwEditble').setDisabled(false);
@@ -196,6 +294,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('btnObs').enable();
 
                 this.getBoton('chkEntregas').enable();
+                this.getBoton('btnVolcar').enable();
             }
             if (rec.data.momento == 'presupuestario') {
                 this.getBoton('btnDocCmpVnt').enable();
@@ -220,6 +319,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('btnObs').disable()
 
             this.getBoton('chkEntregas').disable()
+            this.getBoton('btnVolcar').disable()
 
 
         },
@@ -407,6 +507,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 alert ('No selecciono ningun comprobante');
             }
         },
+
+
 
         south: {
             url: '../../../sis_contabilidad/vista/int_transaccion/IntTransaccionAux.php',
