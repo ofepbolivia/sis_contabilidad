@@ -281,9 +281,14 @@ BEGIN
         v_importe_ice = v_parametros.importe_excento;
       END IF;
       ----validacion exento mayot monto mmv
-      IF v_parametros.importe_excento > v_parametros.importe_neto THEN
-      raise exception 'El Importe Exento: %, no puede ser mayor al Monto Total: %. Revise los importes.',v_parametros.importe_excento,v_parametros.importe_neto;
-	  END IF;
+
+      --may 27-03-2020 modificacion solo para estacion central Bolivia
+      IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
+          IF v_parametros.importe_excento > v_parametros.importe_neto THEN
+          raise exception 'El Importe Exento: %, no puede ser mayor al Monto Total: %. Revise los importes.',v_parametros.importe_excento,v_parametros.importe_neto;
+          END IF;
+       END IF;
+
 
       select p.sw_nit, p.sw_autorizacion
       into
@@ -589,7 +594,6 @@ ELSE  --(MAY) para las estaciones Internacionales, tienen mas parametros
             percepcion_corrientes,
             otros_impuestos,
             percepcion_neuquen,
-            control,
             id_doc_compra_venta
 
           ) values(
@@ -609,7 +613,6 @@ ELSE  --(MAY) para las estaciones Internacionales, tienen mas parametros
             v_parametros.percepcion_corrientes,
             v_parametros.otros_impuestos,
             v_parametros.percepcion_neuquen,
-            v_parametros.control,
             v_id_doc_compra_venta
 
       )RETURNING id_doc_compra_venta_ext into v_id_doc_compra_venta_ext;
