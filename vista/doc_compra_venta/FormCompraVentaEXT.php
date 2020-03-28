@@ -1550,6 +1550,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         gwidth: 100
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 3,
                     form: true
                 },
@@ -1565,6 +1566,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 3,
                     form: true
                 },
@@ -1580,6 +1582,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 3,
                     form: true
                 },
@@ -1595,6 +1598,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 3,
                     form: true
                 },
@@ -1610,6 +1614,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 3,
                     form: true
                 }, {
@@ -1624,6 +1629,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 3,
                     form: true
                 },
@@ -1639,6 +1645,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 5,
                     form: true
                 },
@@ -1654,6 +1661,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 5,
                     form: true
                 },
@@ -1669,6 +1677,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 5,
                     form: true
                 },
@@ -1685,6 +1694,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 5,
                     form: true
                 },
@@ -1700,6 +1710,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 4,
                     form: true
                 },
@@ -1715,6 +1726,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 4,
                     form: true
                 },
@@ -1730,6 +1742,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 4,
                     form: true
                 },
@@ -1745,6 +1758,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 4,
                     form: true
                 },
@@ -1760,6 +1774,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 4,
                     form: true
                 },
@@ -1775,6 +1790,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 4,
                     form: true
                 },
@@ -1790,6 +1806,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 4,
                     form: true
                 },
@@ -1805,6 +1822,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 4,
                     form: true
                 },
@@ -1820,6 +1838,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1179650
                     },
                     type: 'NumberField',
+                    valorInicial: 0,
                     id_grupo: 4,
                     form: true
                 },
