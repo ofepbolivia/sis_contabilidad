@@ -481,7 +481,7 @@ IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
 
 
 ELSE  --(MAY) para las estaciones Internacionales, tienen mas parametros
---raise exception 'llega2 %',v_i;
+
 --raise exception 'lllega %',v_parametros.base_21;
       --Sentencia de la insercion
       insert into conta.tdoc_compra_venta(
@@ -563,7 +563,7 @@ ELSE  --(MAY) para las estaciones Internacionales, tienen mas parametros
         COALESCE(v_parametros.importe_anticipo,0),
         COALESCE(v_parametros.importe_retgar,0),
         v_parametros.importe_neto,
-        v_id_proveedor,
+        v_parametros.id_proveedor, --v_id_proveedor,
         v_id_cliente,
         v_parametros.id_auxiliar,
         v_id_tipo_doc_compra_venta,
@@ -2091,7 +2091,8 @@ END IF;
         importe_anticipo = COALESCE(v_parametros.importe_anticipo,0),
         importe_retgar = COALESCE(v_parametros.importe_retgar,0),
         importe_neto = v_parametros.importe_neto,
-        id_proveedor = v_id_proveedor,
+        --id_proveedor = v_id_proveedor,
+        id_proveedor = v_parametros.id_proveedor,
         id_cliente = v_id_cliente,
         id_auxiliar = v_parametros.id_auxiliar,
         id_int_comprobante = v_id_int_comprobante,

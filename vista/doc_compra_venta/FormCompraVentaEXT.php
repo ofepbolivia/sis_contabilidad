@@ -1199,7 +1199,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 0,
                     form: true
                 },
-                {
+               /* {
                     config: {
                         name: 'id_proveedor',
                         fieldLabel: 'Proveedor',
@@ -1213,8 +1213,23 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'ComboRec',
                     id_grupo: 0,
                     form: true
+                },*/
+                {
+                    config: {
+                        name: 'id_proveedor',
+                        origen: 'PROVEEDOR',
+                        allowBlank: false,
+                        fieldLabel: 'Proveedor',
+                        gdisplayField: 'desc_proveedor',
+                        anchor: '85%',
+                        tinit: false,
+                        listWidth: '280',
+                        resizable: true
+                    },
+                    type: 'ComboRec',
+                    id_grupo: 0,
+                    form: true
                 },
-
                 {
                     config: {
                         name: 'razon_social',

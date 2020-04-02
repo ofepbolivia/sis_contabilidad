@@ -1168,7 +1168,8 @@ BEGIN
                                     dcvext.percepcion_neuquen,
                           			prov.num_proveedor,
                          			dcv.id_proveedor,
-                                    prov.condicion
+                                    prov.condicion,
+                                    prov.desc_proveedor
 
                                 from conta.tdoc_compra_venta dcv
                                   inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
@@ -1181,7 +1182,7 @@ BEGIN
                                   left join segu.tusuario usu2 on usu2.id_usuario = dcv.id_usuario_mod
 
                                   left join conta.tdoc_compra_venta_ext dcvext on dcvext.id_doc_compra_venta = dcv.id_doc_compra_venta
-                                  left join param.tproveedor prov on prov.id_proveedor = dcv.id_proveedor
+                                  left join param.vproveedor2 prov on prov.id_proveedor = dcv.id_proveedor
 
                                 where ';
 

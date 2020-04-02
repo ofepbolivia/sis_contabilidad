@@ -1949,7 +1949,8 @@ class MODDocCompraVenta extends MODbase
             $this->setParametro('percepcion_corrientes', 'percepcion_corrientes', 'numeric');
             $this->setParametro('otros_impuestos', 'otros_impuestos', 'numeric');
             $this->setParametro('percepcion_neuquen', 'percepcion_neuquen', 'numeric');
-            $this->setParametro('control', 'otros_impuestos', 'numeric');
+            $this->setParametro('id_doc_compra_venta', 'id_doc_compra_venta', 'integer');
+            $this->setParametro('id_proveedor', 'id_proveedor', 'integer');
 
 
             //Ejecuta la instruccion
@@ -2153,6 +2154,7 @@ class MODDocCompraVenta extends MODbase
             $this->setParametro('percepcion_corrientes', 'percepcion_corrientes', 'numeric');
             $this->setParametro('otros_impuestos', 'otros_impuestos', 'numeric');
             $this->setParametro('percepcion_neuquen', 'percepcion_neuquen', 'numeric');
+            $this->setParametro('id_proveedor', 'id_proveedor', 'numeric');
             //$this->setParametro('control', 'control', 'varchar');
 
 
@@ -2423,6 +2425,7 @@ class MODDocCompraVenta extends MODbase
         $this->captura('num_proveedor', 'int4');
         $this->captura('id_proveedor', 'int4');
         $this->captura('condicion', 'varchar');
+        $this->captura('desc_proveedor', 'varchar');
 
 
         //Ejecuta la instruccion
