@@ -1156,7 +1156,63 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: true
                 },
 
+
+               /* {
+                    config: {
+                        name: 'id_proveedor',
+                        fieldLabel: 'Proveedor',
+                        anchor: '85%',
+                        tinit: false,
+                        allowBlank: true,
+                        origen: 'PROVEEDOR',
+                        listWidth: '280',
+                        resizable: true
+                    },
+                    type: 'ComboRec',
+                    id_grupo: 0,
+                    form: true
+                },*/
                 {
+                    config: {
+                        name: 'id_proveedor',
+                        origen: 'PROVEEDOR',
+                        allowBlank: false,
+                        fieldLabel: 'Proveedor',
+                        gdisplayField: 'desc_proveedor',
+                        anchor: '85%',
+                        tinit: false,
+                        listWidth: '280',
+                        resizable: true
+                    },
+                    type: 'ComboRec',
+                    id_grupo: 0,
+                    form: true
+                },
+
+                {
+                    config: {
+                        name: 'razon_social',
+                        fieldLabel: 'Razón Social (Impuestos)',
+                        allowBlank: false,
+                        // maskRe: /[A-Za-z0-9 &-. ñ Ñ]/,
+                        // fieldStyle: 'text-transform:uppercase',
+                        style: 'text-transform:uppercase;',
+                        // listeners:{
+                        //     'change': function(field, newValue, oldValue){
+                        //
+                        //         field.suspendEvents(true);
+                        //         field.setValue(newValue.toUpperCase());
+                        //         field.resumeEvents(true);
+                        //     }
+                        // },
+                        anchor: '85%',
+                        maxLength: 180
+                    },
+                    type: 'TextField',
+                    id_grupo: 0,
+                    form: true
+                },
+                /*  {
                     config: {
                         name: 'nit',
                         fieldLabel: 'NIT',
@@ -1198,58 +1254,19 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'ComboBox',
                     id_grupo: 0,
                     form: true
-                },
-               /* {
-                    config: {
-                        name: 'id_proveedor',
-                        fieldLabel: 'Proveedor',
-                        anchor: '85%',
-                        tinit: false,
-                        allowBlank: true,
-                        origen: 'PROVEEDOR',
-                        listWidth: '280',
-                        resizable: true
-                    },
-                    type: 'ComboRec',
-                    id_grupo: 0,
-                    form: true
                 },*/
                 {
                     config: {
-                        name: 'id_proveedor',
-                        origen: 'PROVEEDOR',
-                        allowBlank: false,
-                        fieldLabel: 'Proveedor',
-                        gdisplayField: 'desc_proveedor',
+                        name: 'nit',
+                        fieldLabel: 'NIT',
+                        qtip: 'Número de indentificación del proveedor',
+                        allowBlank: true,
                         anchor: '85%',
-                        tinit: false,
-                        listWidth: '280',
-                        resizable: true
+                        allowDecimals: false,
+                        maxLength: 100,
+                        readOnly :true
                     },
-                    type: 'ComboRec',
-                    id_grupo: 0,
-                    form: true
-                },
-                {
-                    config: {
-                        name: 'razon_social',
-                        fieldLabel: 'Razón Social (Impuestos)',
-                        allowBlank: false,
-                        // maskRe: /[A-Za-z0-9 &-. ñ Ñ]/,
-                        // fieldStyle: 'text-transform:uppercase',
-                        style: 'text-transform:uppercase;',
-                        // listeners:{
-                        //     'change': function(field, newValue, oldValue){
-                        //
-                        //         field.suspendEvents(true);
-                        //         field.setValue(newValue.toUpperCase());
-                        //         field.resumeEvents(true);
-                        //     }
-                        // },
-                        anchor: '85%',
-                        maxLength: 180
-                    },
-                    type: 'TextField',
+                    type:'TextField',
                     id_grupo: 0,
                     form: true
                 },
@@ -2124,6 +2141,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 console.log('llega',rec )
                 this.Cmp.num_proveedor.setValue(rec.data.num_proveedor);
                 this.Cmp.condicion.setValue(rec.data.condicion);
+                this.Cmp.nit.setValue(rec.data.nit);
             }, this);
             //
             this.Cmp.nit.on('change', function (cmb, newval, oldval) {
@@ -2203,12 +2221,12 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.mostrarComponente(this.Cmp.id_proveedor);
                 }
 
-                if (rec.data.sw_nit == 'si') {
+               // if (rec.data.sw_nit == 'si') {
                     this.mostrarComponente(this.Cmp.nit);
-                }
+                /*}
                 else {
                     this.ocultarComponente(this.Cmp.nit);
-                }
+                }*/
 
                 if (rec.data.sw_qr == 'si' && rec.data.plantilla_qr != '') {
                     this.mostrarComponente(this.Cmp.codigo_qr);
