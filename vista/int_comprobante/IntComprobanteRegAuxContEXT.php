@@ -14,8 +14,8 @@ header("content-type: text/javascript; charset=UTF-8");
     Phx.vista.IntComprobanteRegAuxContEXT = {
         bsave:true,
 
-        require: '../../../sis_contabilidad/vista/int_comprobante/IntComprobante.php',
-        requireclase: 'Phx.vista.IntComprobante',
+        require: '../../../sis_contabilidad/vista/int_comprobante/IntComprobanteIniEXT.php',
+        requireclase: 'Phx.vista.IntComprobanteIniEXT',
         title: 'Libro Diario',
         nombreVista: 'IntComprobanteRegAuxContExt',
 

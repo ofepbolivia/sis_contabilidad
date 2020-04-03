@@ -292,7 +292,28 @@ header("content-type: text/javascript; charset=UTF-8");
                 form: false
             },
 
-
+            {
+                config: {
+                    name: 'id_proveedor',
+                    origen: 'PROVEEDOR',
+                    allowBlank: false,
+                    fieldLabel: 'Proveedor',
+                    gdisplayField: 'desc_proveedor',//mapea al store del grid
+                    gwidth: 120,
+                    width: 250,
+                    renderer: function (value, p, record) {
+                        return String.format('{0}', record.data['desc_proveedor']);
+                    }
+                },
+                type: 'ComboRec',
+                id_grupo: 0,
+                filters: {
+                    pfiltro: 'prov.desc_proveedor',
+                    type: 'string'
+                },
+                grid: true,
+                form: false
+            },
             {
                 config: {
                     name: 'razon_social',
@@ -1174,7 +1195,8 @@ header("content-type: text/javascript; charset=UTF-8");
             'percepcion_neuquen',
             'control',
             'id_proveedor',
-            'condicion'
+            'condicion',
+            'desc_proveedor'
 
 
         ],
