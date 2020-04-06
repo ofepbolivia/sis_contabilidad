@@ -278,7 +278,7 @@ header("content-type: text/javascript; charset=UTF-8");
             {
                 config: {
                     name: 'nit',
-                    fieldLabel: 'NIT',
+                    fieldLabel: 'CUIT',
                     qtip: 'Número de indentificación del proveedor',
                     allowBlank: false,
                     emptyText: 'nit ...',
@@ -330,6 +330,29 @@ header("content-type: text/javascript; charset=UTF-8");
             },
             {
                 config: {
+                    name: 'c_emisor',
+                    fieldLabel: 'C Emisor',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.c_emisor', type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                form: false
+            },
+            {
+                config: {
                     name: 'nro_documento',
                     fieldLabel: 'Nro Doc',
                     allowBlank: false,
@@ -344,6 +367,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 bottom_filter: true,
                 form: false
             },
+
             {
                 config: {
                     name: 'nro_dui',
@@ -357,7 +381,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'TextField',
                 filters: {pfiltro: 'dcv.nro_dui', type: 'string'},
                 id_grupo: 0,
-                grid: true,
+                grid: false,
                 form: false
             },
             // {
@@ -418,7 +442,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_descuento', type: 'numeric'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -433,7 +457,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_doc', type: 'numeric'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -452,6 +476,29 @@ header("content-type: text/javascript; charset=UTF-8");
             },
             {
                 config: {
+                    name: 'no_gravado',
+                    fieldLabel: 'No Gravado',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.no_gravado', type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                form: false
+            },
+            {
+                config: {
                     name: 'importe_pendiente',
                     fieldLabel: 'Cuenta Pendiente',
                     qtip: 'Usualmente una cuenta pendiente de  cobrar o  pagar (dependiendo si es compra o venta), posterior a la emisión del documento',
@@ -462,7 +509,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_pendiente', type: 'numeric'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -477,7 +524,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_anticipo', type: 'numeric'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -492,7 +539,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_retgar', type: 'numeric'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -507,7 +554,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_descuento_ley', type: 'numeric'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -521,7 +568,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_ice', type: 'numeric'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -536,7 +583,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_iva', type: 'numeric'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -551,7 +598,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_it', type: 'numeric'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
 
@@ -898,52 +945,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid:false,
                 form:true
             },
-            {
-                config: {
-                    name: 'c_emisor',
-                    fieldLabel: 'C Emisor',
-                    allowBlank: true,
-                    anchor: '80%',
-                    gwidth: 100,
-                    galign: 'right ',
-                    renderer: function (value, p, record) {
-                        if (record.data.tipo_reg != 'summary') {
-                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
-                        }
-                        else {
-                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
-                        }
-                    }
-                },
-                type: 'NumberField',
-                filters: {pfiltro: 'dcvext.c_emisor', type: 'numeric'},
-                id_grupo: 1,
-                grid: true,
-                form: false
-            },
-            {
-                config: {
-                    name: 'no_gravado',
-                    fieldLabel: 'No Gravado',
-                    allowBlank: true,
-                    anchor: '80%',
-                    gwidth: 100,
-                    galign: 'right ',
-                    renderer: function (value, p, record) {
-                        if (record.data.tipo_reg != 'summary') {
-                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
-                        }
-                        else {
-                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
-                        }
-                    }
-                },
-                type: 'NumberField',
-                filters: {pfiltro: 'dcvext.no_gravado', type: 'numeric'},
-                id_grupo: 1,
-                grid: true,
-                form: false
-            },
 
             {
                 config: {
@@ -988,7 +989,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'TextField',
                 filters: {pfiltro: 'dcv.sw_contabilizar', type: 'string'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -1009,7 +1010,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'TextField',
                 filters: {pfiltro: 'aux.codigo_auxiliar#aux.nombre_auxiliar', type: 'string'},
                 id_grupo: 0,
-                grid: true,
+                grid: false,
                 bottom_filter: true,
                 form: false
             },

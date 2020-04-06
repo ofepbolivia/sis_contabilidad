@@ -1258,7 +1258,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     config: {
                         name: 'nit',
-                        fieldLabel: 'NIT',
+                        fieldLabel: 'CUIT',
                         qtip: 'Número de indentificación del proveedor',
                         allowBlank: true,
                         anchor: '85%',
@@ -2296,6 +2296,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     }
                 }, this);
 
+
+
             }, this);
 
             this.Cmp.importe_doc.on('change', this.calculaMontoPago, this);
@@ -2672,6 +2674,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.ocultarComponente(this.Cmp.estacion);
             this.ocultarComponente(this.Cmp.id_punto_venta);
             this.ocultarComponente(this.Cmp.id_agencia);
+
+            this.ocultarComponente(this.Cmp.nro_dui);
         },
         disableComponentes: function () {
             //03-01-2020 (may) modificacion porque mostraba a todos su codigo de control
@@ -2708,6 +2712,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.obs.setDisabled(true);
                         this.Cmp.importe_doc.setDisabled(true);
 
+
                         if (this.data.datosOriginales.data.id_moneda == 2) {
                             this.mostrarComponente(this.Cmp.tipo_cambio);
                         }
@@ -2729,6 +2734,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.importe_pago_liquido.setDisabled(true);
 
                         this.Cmp.iva_21.setDisabled(true);
+                        this.Cmp.nro_dui.setDisabled(true);
                     }
                     this.Cmp.mod_rev.setValue(this.data.datosOriginales.data.revisado);
                     this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);

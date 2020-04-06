@@ -100,11 +100,14 @@ BEGIN
 	        v_tipo_cambio = null;
         end if;
 
+--03-04-2020(may) control solo para estacion central Bolivia
+IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
     if (pxp.f_existe_parametro(p_tabla,'desc_clase_comprobante')) then
         if(v_parametros.desc_clase_comprobante = 'Comprobante de Pago Contable') then
 			RAISE  EXCEPTION 'Solo puede registar factoras en Comprobante de Pago Presupuestario';
         end if;
       end if;
+END IF;
 
       --  calcula valores pode defecto para el tipo de doc compra venta
 		IF v_parametros.id_moneda is null THEN
@@ -381,8 +384,14 @@ BEGIN
         --IF (v_parametros.id_int_comprobante is Null) THEN
         IF (v_id_int_comprobante is Null) THEN
         	v_plan_pago = v_id_plan_pago;
+
         ELSE
         	v_plan_pago = v_id_plan_pago_dcv;
+
+            IF (v_plan_pago is null) THEN
+        			v_plan_pago = v_parametros.id_plan_pago;
+       		END IF;
+
         END IF;
 
 IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
