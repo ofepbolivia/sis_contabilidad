@@ -2576,6 +2576,22 @@ header("content-type: text/javascript; charset=UTF-8");
                var total_iva_2_5 = (this.Cmp.base_2_5.getValue() * 0.025 );
                this.Cmp.iva_2_5.setValue(total_iva_2_5 > 0 ? total_iva_2_5 : 0);
 
+            this.Cmp.base_21.setValue(this.Cmp.base_21.getValue() > 0 ? this.Cmp.base_21.getValue() : 0);
+            this.Cmp.base_27.setValue(this.Cmp.base_27.getValue() > 0 ? this.Cmp.base_27.getValue() : 0);
+            this.Cmp.base_10_5.setValue(this.Cmp.base_10_5.getValue() > 0 ? this.Cmp.base_10_5.getValue() : 0);
+            this.Cmp.base_2_5.setValue(this.Cmp.base_2_5.getValue() > 0 ? this.Cmp.base_2_5.getValue() : 0);
+
+            this.Cmp.no_gravado.setValue(this.Cmp.no_gravado.getValue() > 0 ? this.Cmp.no_gravado.getValue() : 0);
+            this.Cmp.percepcion_caba.setValue(this.Cmp.percepcion_caba.getValue() > 0 ? this.Cmp.percepcion_caba.getValue() : 0);
+            this.Cmp.percepcion_bue.setValue(this.Cmp.percepcion_bue.getValue() > 0 ? this.Cmp.percepcion_bue.getValue() : 0);
+            this.Cmp.percepcion_iva.setValue(this.Cmp.percepcion_iva.getValue() > 0 ? this.Cmp.percepcion_iva.getValue() : 0);
+            this.Cmp.percepcion_salta.setValue(this.Cmp.percepcion_salta.getValue() > 0 ? this.Cmp.percepcion_salta.getValue() : 0);
+            this.Cmp.imp_internos.setValue(this.Cmp.imp_internos.getValue() > 0 ? this.Cmp.imp_internos.getValue() : 0);
+            this.Cmp.percepcion_tucuman.setValue(this.Cmp.percepcion_tucuman.getValue() > 0 ? this.Cmp.percepcion_tucuman.getValue() : 0);
+            this.Cmp.percepcion_corrientes.setValue(this.Cmp.percepcion_corrientes.getValue() > 0 ? this.Cmp.percepcion_corrientes.getValue() : 0);
+            this.Cmp.percepcion_neuquen.setValue(this.Cmp.percepcion_neuquen.getValue() > 0 ? this.Cmp.percepcion_neuquen.getValue() : 0);
+            this.Cmp.otros_impuestos.setValue(this.Cmp.otros_impuestos.getValue() > 0 ? this.Cmp.otros_impuestos.getValue() : 0);
+
 
 
                 //this.Cmp.importe_doc.setValue(total_iva_21 > 0 ? total_iva_21 : 0);
