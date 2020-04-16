@@ -225,6 +225,7 @@ END IF;
       where pla.id_plantilla = v_parametros.id_plantilla;
 
       --PARA COMPRAS
+
       IF v_parametros.tipo = 'compra' THEN
 
         	select per.nombre_completo1
@@ -387,10 +388,12 @@ END IF;
 
         ELSE
         	v_plan_pago = v_id_plan_pago_dcv;
-
-            IF (v_plan_pago is null) THEN
-        			v_plan_pago = v_parametros.id_plan_pago;
-       		END IF;
+      		--solo estacion internacionales se relaciona una cuota con sus documentos compra y venta
+      	    IF pxp.f_get_variable_global('ESTACION_inicio') !='BOL' THEN
+              IF (v_plan_pago is null) THEN
+                      v_plan_pago = v_parametros.id_plan_pago;
+              END IF;
+            END IF;
 
         END IF;
 
