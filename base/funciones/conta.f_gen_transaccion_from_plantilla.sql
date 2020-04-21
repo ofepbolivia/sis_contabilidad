@@ -694,7 +694,23 @@ BEGIN
                               --raise exception 'monto %',v_this_hstore->'campo_monto';
                             	IF v_moneda_record.id_moneda_op != v_moneda_record.id_moneda_cb
                                 then
-                                	if v_moneda_record.id_moneda_op::integer>v_moneda_record.id_moneda_cb::integer then
+
+                                    select top.id_moneda as id_moneda_op, tcb.id_moneda as id_moneda_cb, tp.monto
+                                            into v_moneda_record
+                                    from tes.tplan_pago tp
+                                    inner join tes.tobligacion_pago top on top.id_obligacion_pago = tp.id_obligacion_pago
+                                    inner join tes.tcuenta_bancaria tcb on tcb.id_cuenta_bancaria = tp.id_cuenta_bancaria
+                                    where tp.id_plan_pago = p_id_tabla_padre_valor;
+
+                                	  select tipo_moneda into v_moneda_ob
+                                    from param.tmoneda
+                                    where id_moneda=v_moneda_record.id_moneda_op;
+
+                                    select tipo_moneda into v_moneda_cb
+                                    from param.tmoneda
+                                    where id_moneda=v_moneda_record.id_moneda_cb;
+                                	--if v_moneda_record.id_moneda_op::integer>v_moneda_record.id_moneda_cb::integer then
+                                    if v_moneda_ob='ref' and v_moneda_cb='base' then
                                     	--mod 11/11/2019 Alan
                                     	--v_monto_gen=(p_super->'columna_tipo_cambio')::numeric * v_moneda_record.monto::numeric;
                                        v_monto_gen=(p_super->'columna_tipo_cambio')::numeric * (v_this_hstore->'campo_monto')::numeric;

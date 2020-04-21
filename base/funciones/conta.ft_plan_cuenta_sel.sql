@@ -44,16 +44,19 @@ BEGIN
 						ipc.estado_reg,
 						ipc.nombre,
 						ipc.estado,
+                        ipc.id_gestion,
 						ipc.id_usuario_reg,
 						ipc.fecha_reg,
 						ipc.id_usuario_ai,
 						ipc.usuario_ai,
 						ipc.id_usuario_mod,
 						ipc.fecha_mod,
+                        ges.gestion as desc_gestion,
 						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod	
+						usu2.cuenta as usr_mod
 						from conta.tplan_cuenta ipc
 						inner join segu.tusuario usu1 on usu1.id_usuario = ipc.id_usuario_reg
+                        inner join param.tgestion ges on ges.id_gestion = ipc.id_gestion
 						left join segu.tusuario usu2 on usu2.id_usuario = ipc.id_usuario_mod
 				        where  ';
 			

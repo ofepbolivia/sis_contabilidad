@@ -85,7 +85,7 @@ class ACTArchivoAirbp extends ACTbase{
 					$importeIva = 0;
 					$importeDescuento = 0;
 					$importeDescuentoLey = 0;
-					$importePagoLiquido = 0;
+					$importePagoLiquido = 1;
 					$importeDoc = 0;
 					$importeIt = 0;
 					$importeNeto = 0;
@@ -257,7 +257,7 @@ class ACTArchivoAirbp extends ACTbase{
                 $importeIva = 0;
                 $importeDescuento = 0;
                 $importeDescuentoLey = 0;
-                $importePagoLiquido = 0;
+                $importePagoLiquido = 1;
                 $importeDoc = 0;
                 $importeIt = 0;
                 $importeNeto = 0;

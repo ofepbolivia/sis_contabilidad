@@ -17,7 +17,6 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		this.initButtons=[this.cmbGestion];
     	//llama al constructor de la clase padre
 		Phx.vista.PeriodoCompraVenta.superclass.constructor.call(this,config);
-		
 		this.bloquearOrdenamientoGrid();
 		this.cmbGestion.on('select', function(){
 		    if(this.validarFiltros()){
@@ -27,7 +26,7 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		
 		
 		this.init();
-		
+        this.iniciarEventos();
 		this.addButton('btnGenPer',
             {
                 text: 'Generar Periodos',
@@ -61,6 +60,14 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 				handler : this.onAbrirPeriodo,
 				tooltip : '<b>Abrir</b>Abrir periodo para permitir registros de documentos'
 			});	
+
+        this.addButton('btnLogPeriodo', {
+            text : 'Historial de cambios.',
+            iconCls : 'blist',
+            disabled : true,
+            handler : this.logPeriodo,
+            tooltip : '<b>Historial</b> de cierre, apertura y apertura temporal del periodo.'
+        });	        
 		
 		this.bloquearMenus();
 		//this.load({params:{start:0, limit:this.tam_pag}})
@@ -81,7 +88,7 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 					root: 'datos',
 					sortInfo:{
 						field: 'gestion',
-						direction: 'ASC'
+						direction: 'DESC'
 					},
 					totalProperty: 'total',
 					fields: ['id_gestion','gestion'],
@@ -94,9 +101,9 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 				displayField: 'gestion',
 			    hiddenName: 'id_gestion',
     			mode:'remote',
-				pageSize:50,
+				pageSize:5,
 				queryDelay:500,
-				listWidth:'280',
+				listWidth:'250',
 				width:80
 			}),
 			
@@ -133,12 +140,14 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
-				name: 'periodo',
+				name: 'mes',
 				fieldLabel: 'Periodo',
 				allowBlank: false,
 				anchor: '80%',
 				gwidth: 100,
-				maxLength:20
+				renderer:function(value, cmb, i){
+                    return String.format('<b>{0}</b>',value);
+                }
 			},
 				type:'TextField',
 				filters:{pfiltro:'per.periodo',type:'numeric'},
@@ -153,7 +162,20 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: false,
 				anchor: '80%',
 				gwidth: 100,
-				maxLength:20
+				maxLength:20,
+                //breydi.vasquez 10/12/2019
+                renderer:function (value, rec, i ){
+                        var llave = '';
+                        switch(value){
+                            case 'cerrado': llave = 'Cerrado' 
+                            break;
+                            case 'abierto': llave = 'Abierto'
+                            break;
+                            case 'cerrado_parcial': llave = 'Cierre Parcial'
+                            break;
+                        }                        
+                        return String.format('<b>{0}</b>', llave);
+                    }                 
 			},
 				type:'TextField',
 				filters:{pfiltro:'pcv.estado',type:'string'},
@@ -193,22 +215,54 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:false
 		},
-		
 		{
 			config:{
-				name: 'estado_reg',
-				fieldLabel: 'Estado Reg.',
-				allowBlank: true,
+				name: 'cantidad_cerrado',
+				fieldLabel: 'Cant Cerrados',
+				allowBlank: false,
 				anchor: '80%',
-				gwidth: 100,
-				maxLength:10
+				gwidth: 110,
+                renderer: function(value, rec, i){
+                    return String.format('<div style="text-align: center; font-size:12px; font-weight:bold;">{0}</div>', value);
+                }                    
 			},
-				type:'TextField',
-				filters:{pfiltro:'pcv.estado_reg',type:'string'},
+				type:'NumberField',				
+				id_grupo:1,
+				grid:true,
+				form:false
+		}, 
+		{
+			config:{
+				name: 'cantidad_abierto',
+				fieldLabel: 'Cant. Abiertos',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 110,
+                renderer: function(value, rec, i){
+                    return String.format('<div style="text-align: center; font-size:12px; font-weight:bold;">{0}</div>', value);
+                }                                    
+			},
+				type:'NumberField',				
 				id_grupo:1,
 				grid:true,
 				form:false
 		},
+		{
+			config:{
+				name: 'cantidad_cerrado_parcial',
+				fieldLabel: 'Cant. Cerrados Parcial',
+				allowBlank: false,
+				anchor: '100%',
+				gwidth: 110,          
+                renderer: function(value, rec, i){
+                    return String.format('<div style="text-align: center; font-size:12px; font-weight:bold;">{0}</div>', value);
+                }                                                    
+			},
+				type:'NumberField',				
+				id_grupo:1,
+				grid:true,
+				form:false
+		},                       		
 		{
 			config:{
 				name: 'fecha_reg',
@@ -242,6 +296,21 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
+				name: 'estado_reg',
+				fieldLabel: 'Estado Reg.',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:10
+			},
+				type:'TextField',
+				filters:{pfiltro:'pcv.estado_reg',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:false
+		},        
+		{
+			config:{
 				name: 'usr_mod',
 				fieldLabel: 'Modificado por',
 				allowBlank: true,
@@ -262,8 +331,8 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
-							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+                format: 'd/m/Y', 
+                renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 				type:'DateField',
 				filters:{pfiltro:'pcv.fecha_mod',type:'date'},
@@ -324,8 +393,11 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},'periodo','id_gestion',
 		{name:'fecha_ini', type: 'date',dateFormat:'Y-m-d'},
-		{name:'fecha_fin', type: 'date',dateFormat:'Y-m-d'}
-		
+		{name:'fecha_fin', type: 'date',dateFormat:'Y-m-d'},
+        {name:'mes', type:'string'},
+        {name:'cantidad_cerrado', type:'string'},
+		{name:'cantidad_abierto', type:'string'},
+        {name:'cantidad_cerrado_parcial', type:'string'}
 	],
 	sortInfo:{
 		field: 'per.periodo',
@@ -349,7 +421,8 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
             
         
     },
-    onButtonAct:function(){
+    onButtonAct:function(){        
+        
         if(!this.validarFiltros()){
             alert('Especifique el año antes')
          }
@@ -360,15 +433,30 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
     },
 	
 	onReloadPage:function(m){
+        
 		this.maestro=m;
 		this.store.baseParams={id_depto: this.maestro.id_depto};
-		if(!this.validarFiltros()){
+        Ext.Ajax.request({
+                    url:'../../sis_parametros/control/Gestion/obtenerGestionByFecha',
+                    params:{fecha:new Date()},
+                    success:function(resp){
+                        var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
+                        this.cmbGestion.setValue(reg.ROOT.datos.id_gestion);
+                        this.cmbGestion.setRawValue(reg.ROOT.datos.anho);
+                        this.store.baseParams.id_gestion=reg.ROOT.datos.id_gestion;
+                        this.load({params:{start:0, limit:this.tam_pag}});
+                    },
+                    failure: this.conexionFailure,
+                    timeout:this.timeout,
+                    scope:this
+                });        
+		/*if(!this.validarFiltros()){
             alert('Especifique el año antes')
          }
-        else{
+        else{*/
            this.store.baseParams.id_gestion=this.cmbGestion.getValue();
            this.load({params:{start:0, limit:50}})
-        }
+        //}
 		
 	},
 	
@@ -444,26 +532,62 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 	
 	preparaMenu: function(n) {
 		var tb = Phx.vista.PeriodoCompraVenta.superclass.preparaMenu.call(this);
-	   	this.getBoton('btnCerrarParPeriodo').setDisabled(false);
-	   	this.getBoton('btnCerrarPeriodo').setDisabled(false);
-	   	this.getBoton('btnAbrirPeriodo').setDisabled(false);
-	   	
+        // modificado breydi.vasquez 10/12/2019
+        var rec = this.getSelectedData();
+
+        switch (rec.estado) {
+            case 'cerrado':
+                this.getBoton('btnCerrarPeriodo').setDisabled(true);
+                this.getBoton('btnCerrarParPeriodo').setDisabled(false);
+                this.getBoton('btnAbrirPeriodo').setDisabled(false);                
+                break;
+            case 'abierto':
+                this.getBoton('btnCerrarPeriodo').setDisabled(false);
+                this.getBoton('btnCerrarParPeriodo').setDisabled(false);
+                this.getBoton('btnAbrirPeriodo').setDisabled(true);                  
+                break;
+            case 'cerrado_parcial':
+                this.getBoton('btnCerrarPeriodo').setDisabled(false);
+                this.getBoton('btnCerrarParPeriodo').setDisabled(true);
+                this.getBoton('btnAbrirPeriodo').setDisabled(false);                  
+                break;
+        }
+	   	this.getBoton('btnLogPeriodo').setDisabled(false);
 	   	
   		return tb;
 	},
 	liberaMenu: function() {
-		var tb = Phx.vista.PeriodoCompraVenta.superclass.liberaMenu.call(this);
+		var tb = Phx.vista.PeriodoCompraVenta.superclass.liberaMenu.call(this);        
 		this.getBoton('btnCerrarParPeriodo').setDisabled(true);
 	   	this.getBoton('btnCerrarPeriodo').setDisabled(true);
 	   	this.getBoton('btnAbrirPeriodo').setDisabled(true)
+        this.getBoton('btnLogPeriodo').setDisabled(true)
 	},
+    
 	
 	bdel: false,
 	bsave: false,
 	bnew:  false,
-	bedit:  false
-	}
-)
+	bedit:  false,
+
+    //ini: add breydi.vasquez 10/12/2019, log de cambios de estado.
+
+    logPeriodo: function(){        
+            var rec = this.getSelectedData();            
+            var NumSelect=this.sm.getCount();            
+            if (NumSelect != 0 ){
+                Phx.CP.loadWindows('../../../sis_contabilidad/vista/periodo_compra_venta/LogPeriodoCompraMod.php',
+                    `<h4 style="font-weight:bold;font-size:15;color:#15428b;">DETALLE MODIFICACIONES: ${rec.mes.toLocaleUpperCase()}</h4>`,
+                    {
+                        width: '70%',
+                        height: '70%'
+                    }, rec, this.idContenedor, 'LogPeriodoCompraMod');
+            }else{
+                Ext.MessageBox.alert('Alerta', 'Antes debe seleccionar un item.');
+            }
+    }
+    //fin 
+})
 </script>
 		
 		

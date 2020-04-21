@@ -776,7 +776,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 id_grupo: 0,
                 bottom_filtro: true,
-                egrid: true,
+                //egrid: true,
                 grid: true,
                 form: true
             }, {
@@ -907,7 +907,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 valorInicial: 'no',
                 id_grupo: 0,
                 grid: true,
-                egrid: true,
+                //egrid: true,
                 form: true
             }, {
                 config: {
@@ -931,7 +931,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 valorInicial: 'no',
                 id_grupo: 0,
                 grid: true,
-                egrid: true,
+                //egrid: true,
                 form: true
             }, {
                 config: {
@@ -955,7 +955,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 valorInicial: 'no',
                 id_grupo: 0,
                 grid: true,
-                egrid: true,
+                //egrid: true,
                 form: true
             }, {
                 config: {
@@ -975,7 +975,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'date'
                 },
                 id_grupo: 3,
-                egrid: true,
+                //egrid: true,
                 grid: true,
                 form: true
             }, {
@@ -996,7 +996,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'date'
                 },
                 id_grupo: 3,
-                egrid: true,
+                //egrid: true,
                 grid: true,
                 form: true
             }, {

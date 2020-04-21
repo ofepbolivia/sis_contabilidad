@@ -18,9 +18,9 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION:	aumento de controles para cierre y apertura de periodo de compra venta
+ AUTOR:			breydi vasquez
+ FECHA:		    06/12/2019
 ***************************************************************************/
 
 DECLARE
@@ -35,7 +35,14 @@ DECLARE
     v_registros					record;
     v_fecha_fin					date;
     v_estado					varchar;
-			    
+	v_perido_compra_venta			record;
+    v_id_periodo					int4;
+    v_id_gestion					int4;
+    v_estado_actualizado			varchar;		    
+	v_periodos_permitidos			varchar;
+	v_fecha_permitida				date;
+	v_fecha_cerrado_parcial 		varchar;
+	v_fecha_cerrado				varchar;
 BEGIN
 
     v_nombre_funcion = 'conta.ft_periodo_compra_venta_ime';
@@ -107,9 +114,9 @@ BEGIN
 	elsif(p_transaccion='CONTA_ABRCERPER_IME')then
 
 		begin
-			
-        --raise exception 'sssss   sss %', v_parametros;
-        
+			v_periodos_permitidos = pxp.f_get_variable_global('conta_periodos_mod_mes');
+           select (date_trunc('month', now()) + interval '1 month' - interval '1 day')::date-(v_periodos_permitidos||' month')::interval
+           into v_fecha_permitida;
            select 
              per.fecha_fin
            into
@@ -124,6 +131,9 @@ BEGIN
               raise exception 'El periodo se encuentra cerrado en contabilidad';
             END IF;
             
+			IF v_fecha_fin <= v_fecha_permitida THEN
+              raise exception 'No se puede abrir periodos que ya cumplieron mas de % meses de antiguedad.', v_periodos_permitidos;
+            END IF;
             
             IF  v_parametros.tipo = 'cerrar' THEN
              v_estado = 'cerrado';
@@ -133,10 +143,36 @@ BEGIN
              v_estado = 'abierto';
             END IF;
             
+            -- modificado (breydi.vasquez) incremento de columans no registradas y 
+            -- control de veces que fueron cerradas y abiertas los periodos 
+
+
             update conta.tperiodo_compra_venta pcv set
-              estado = v_estado
+              estado = v_estado,
+			  id_usuario_mod = p_id_usuario,
+              fecha_mod = now(),
+              id_usuario_ai = v_parametros._id_usuario_ai,
+              usuario_ai = v_parametros._nombre_usuario_ai              
             where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta; 
         	
+            -- registro log de cambios de periodos de compra contabilidad 
+            insert into conta.tlog_periodo_compra 
+                        (
+                          id_usuario_reg,
+                          fecha_reg,
+                          estado_reg,
+                          id_periodo_compra_venta,
+                          estado,
+                          id_usuario_ai
+                        )
+                        VALUES (
+                           p_id_usuario,
+                           now(),
+                          'activo',
+                          v_parametros.id_periodo_compra_venta,
+                          v_estado,
+                          v_parametros._id_usuario_ai
+                        );            
                
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','periodo de libro de compra y ventas pasa al estado: ' || v_estado); 
@@ -147,7 +183,89 @@ BEGIN
 
 		end;  
         
-        
+	/*********************************    
+ 	#TRANSACCION:  'CONTA_ABRCERAUT_IME'
+ 	#DESCRIPCION:	action cierra los periodos de libro de compras y ventas
+ 	#AUTOR:		    yamil.medina
+ 	#FECHA:			24-12-2019 
+	***********************************/
+
+	elsif(p_transaccion='CONTA_ABRCERAUT_IME')then
+
+		begin
+			v_fecha_cerrado_parcial = pxp.f_get_variable_global('conta_periodo_cerrado_parcial');
+            v_fecha_cerrado = pxp.f_get_variable_global('conta_periodo_cerrado');
+           
+        	if date_part('day',now())::integer in (v_fecha_cerrado::integer,v_fecha_cerrado_parcial::integer) then 
+        		
+                select id_periodo, 
+                        id_gestion
+                    into v_id_periodo,
+                         v_id_gestion
+                  from param.tperiodo per
+                       where per.fecha_ini <= now()::date-'1 month'::interval
+                         and per.fecha_fin >= now()::date-'1 month'::interval
+                         and per.id_gestion is not null
+                         limit 1 offset 0;
+        		
+                if(v_id_periodo is null)then
+                    raise exception 'No existe periodo para la fecha %', g_fecha;
+                end if; 
+                
+                if date_part('day',now())::integer in (v_fecha_cerrado::integer) then
+                    v_estado_actualizado = 'cerrado';
+                elsif date_part('day',now())::integer in (v_fecha_cerrado_parcial::integer) then
+                    v_estado_actualizado = 'cerrado_parcial';
+                end if;
+                
+                for v_registros in select depto.id_depto        						   
+                                    from param.tdepto depto
+                                    inner join segu.tsubsistema subsis on subsis.id_subsistema=depto.id_subsistema
+                                    where depto.estado_reg ='activo'
+                                    and subsis.codigo = 'CONTA'               
+                  loop
+                  
+                        select pcv.id_periodo_compra_venta,
+                               pcv.estado,
+                               per.fecha_fin
+                        into  v_perido_compra_venta 
+                        from conta.tperiodo_compra_venta pcv
+                        inner join param.tperiodo per on per.id_periodo = pcv.id_periodo
+                        where  per.id_gestion = v_id_gestion
+                        and pcv.id_depto = v_registros.id_depto
+                        and pcv.id_periodo = v_id_periodo;
+                        
+                        if  (v_perido_compra_venta.estado = 'abierto')then 
+                        	
+                            update conta.tperiodo_compra_venta set
+                            estado = v_estado_actualizado,
+                            id_usuario_mod = 1,
+                            fecha_mod = now()                   
+                            where id_periodo_compra_venta = v_perido_compra_venta.id_periodo_compra_venta;
+                            
+                            insert into conta.tlog_periodo_compra 
+                                ( id_usuario_reg,
+                                  fecha_reg,
+                                  estado_reg,
+                                  id_periodo_compra_venta,
+                                  estado,
+                                  id_usuario_ai)
+                                VALUES (
+                                   1,
+                                   now(),
+                                  'activo',
+                                  v_perido_compra_venta.id_periodo_compra_venta,
+                                  v_estado_actualizado,
+                                  null);
+                        end if;
+                  	
+                end loop;
+                  
+            end if;
+			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Proceso ejecutao con exito');
+            --Devuelve la respuesta
+            return v_resp;	  
+        end; 
          
 	else
      

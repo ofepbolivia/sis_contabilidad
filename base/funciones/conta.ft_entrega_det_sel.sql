@@ -64,7 +64,8 @@ BEGIN
                                   cbte.desc_clase_comprobante::varchar,
                                   cbte.glosa1::varchar,
                                   cbte.desc_moneda::varchar,
-                                  pp.monto
+                                  pp.monto,
+                                  cbte.tipo_cambio_2::numeric as tipo_cambio
 
                               from conta.tentrega_det ende
                               inner join conta.vint_comprobante cbte on cbte.id_int_comprobante = ende.id_int_comprobante

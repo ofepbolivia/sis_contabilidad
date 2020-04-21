@@ -1,5 +1,3 @@
--------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.ft_plantilla_comprobante_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -14,12 +12,12 @@ $body$
  DESCRIPCION:   Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'conta.tplantilla_comprobante'
  AUTOR: 		 (admin)
  FECHA:	        10-06-2013 14:40:00
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION:
+ AUTOR:
+ FECHA:
 ***************************************************************************/
 
 DECLARE
@@ -31,21 +29,21 @@ DECLARE
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
 	v_id_plantilla_comprobante	integer;
-			    
+
 BEGIN
 
     v_nombre_funcion = 'conta.ft_plantilla_comprobante_ime';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'CONTA_CMPB_INS'
  	#DESCRIPCION:	Insercion de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		10-06-2013 14:40:00
 	***********************************/
 
 	if(p_transaccion='CONTA_CMPB_INS')then
-					
+
         begin
         	--Sentencia de la insercion
         	insert into conta.tplantilla_comprobante(
@@ -69,7 +67,7 @@ BEGIN
                 id_usuario_mod,
                 fecha_mod,
                 campo_gestion_relacion	,
-                otros_campos, 
+                otros_campos,
                 momento_comprometido,
                 momento_ejecutado,
                 momento_pagado,
@@ -82,8 +80,9 @@ BEGIN
                 campo_depto_libro,
                 campo_fecha_costo_ini,
                 campo_fecha_costo_fin,
-                funcion_comprobante_editado
-             
+                funcion_comprobante_editado,
+                desc_plantilla
+
           	) values(
                 v_parametros.codigo,
                 v_parametros.funcion_comprobante_eliminado,
@@ -118,12 +117,13 @@ BEGIN
                 v_parametros.campo_depto_libro,
                 v_parametros.campo_fecha_costo_ini,
                 v_parametros.campo_fecha_costo_fin,
-                v_parametros.funcion_comprobante_editado
-							
+                v_parametros.funcion_comprobante_editado,
+                v_parametros.desc_plantilla
+
 			)RETURNING id_plantilla_comprobante into v_id_plantilla_comprobante;
-			
+
 			--Definicion de la respuesta
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Comprobante almacenado(a) con exito (id_plantilla_comprobante'||v_id_plantilla_comprobante||')'); 
+			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Comprobante almacenado(a) con exito (id_plantilla_comprobante'||v_id_plantilla_comprobante||')');
             v_resp = pxp.f_agrega_clave(v_resp,'id_plantilla_comprobante',v_id_plantilla_comprobante::varchar);
 
             --Devuelve la respuesta
@@ -131,10 +131,10 @@ BEGIN
 
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'CONTA_CMPB_MOD'
  	#DESCRIPCION:	Modificacion de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		10-06-2013 14:40:00
 	***********************************/
 
@@ -173,22 +173,23 @@ BEGIN
               campo_depto_libro = v_parametros.campo_depto_libro,
               campo_fecha_costo_ini = v_parametros.campo_fecha_costo_ini,
               campo_fecha_costo_fin = v_parametros.campo_fecha_costo_fin,
-              funcion_comprobante_editado = v_parametros.funcion_comprobante_editado
+              funcion_comprobante_editado = v_parametros.funcion_comprobante_editado,
+              desc_plantilla = v_parametros.desc_plantilla
 			where id_plantilla_comprobante=v_parametros.id_plantilla_comprobante;
-               
+
 			--Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Comprobante modificado(a)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Comprobante modificado(a)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_plantilla_comprobante',v_parametros.id_plantilla_comprobante::varchar);
-               
+
             --Devuelve la respuesta
             return v_resp;
-            
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'CONTA_CMPB_ELI'
  	#DESCRIPCION:	Eliminacion de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		10-06-2013 14:40:00
 	***********************************/
 
@@ -198,35 +199,35 @@ BEGIN
 			--Sentencia de la eliminacion
 			delete from conta.tplantilla_comprobante
             where id_plantilla_comprobante=v_parametros.id_plantilla_comprobante;
-               
+
             --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Comprobante eliminado(a)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Comprobante eliminado(a)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_plantilla_comprobante',v_parametros.id_plantilla_comprobante::varchar);
-              
+
             --Devuelve la respuesta
             return v_resp;
 
 		end;
-         
+
 	else
-     
+
     	raise exception 'Transaccion inexistente: %',p_transaccion;
 
 	end if;
 
 EXCEPTION
-				
+
 	WHEN OTHERS THEN
 		v_resp='';
 		v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
 		v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
 		v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 		raise exception '%',v_resp;
-				        
+
 END;
 $body$
 LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
-COST 100
+COST 100;

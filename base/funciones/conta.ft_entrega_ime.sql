@@ -77,6 +77,16 @@ DECLARE
      v_estado_wf_com    integer;
 
      v_reg_cbte record;
+     v_ids_entregas			integer[];
+	 v_entg					integer;
+     v_is_presupuestaria	integer;
+	 v_par_pre				integer := 0;
+     v_par_flu				integer := 0;
+
+     v_registros_int_cbte	record;
+     v_prioridad_cbte		integer;
+
+     v_fecha_cbte			date;
 
 BEGIN
 
@@ -146,7 +156,48 @@ BEGIN
 	elsif(p_transaccion='CONTA_CRENT_INS')then
 
 		begin
+        	--verificar que el comprobante este asociado a una partida presupuestaria
+        	v_ids_entregas = string_to_array(v_parametros.id_int_comprobantes,',');
 
+           FOREACH v_entg IN ARRAY v_ids_entregas
+           LOOP
+             select count(comprobantes.*)
+              into v_is_presupuestaria
+              from (
+              SELECT inc.id_int_comprobante
+              FROM   conta.vint_comprobante inc
+                     inner join param.tmoneda mon ON mon.id_moneda = inc.id_moneda
+                     inner join param.tperiodo per ON per.id_periodo = inc.id_periodo
+                     inner join conta.tclase_comprobante cc ON cc.id_clase_comprobante = inc.id_clase_comprobante
+                     join conta.tint_comprobante cbt ON cbt.id_int_comprobante = inc.id_int_comprobante
+                     join conta.tint_transaccion trp ON trp.id_int_comprobante = cbt.id_int_comprobante
+                     join pre.tpartida par ON par.id_partida = trp.id_partida
+              WHERE  inc.id_int_comprobante = v_entg
+                     AND par.sw_movimiento = 'presupuestaria'
+              UNION
+              SELECT inc.id_int_comprobante
+              FROM   conta.vint_comprobante inc
+                     inner join param.tmoneda mon ON mon.id_moneda = inc.id_moneda
+                     inner join param.tperiodo per ON per.id_periodo = inc.id_periodo
+                     inner join conta.tclase_comprobante cc ON cc.id_clase_comprobante = inc.id_clase_comprobante
+                     join conta.tint_comprobante cbt ON cbt.id_int_comprobante = inc.id_int_comprobante
+                     join tes.tplan_pago pg  ON pg.id_int_comprobante = cbt.id_int_comprobante
+                     join tes.tplan_pago dev ON dev.id_plan_pago = pg.id_plan_pago_fk
+                     join conta.tint_transaccion trd ON trd.id_int_comprobante = dev.id_int_comprobante
+                     join pre.tpartida par ON par.id_partida = trd.id_partida
+              WHERE  inc.id_int_comprobante = v_entg
+                     AND par.sw_movimiento = 'presupuestaria') comprobantes;
+
+              IF v_is_presupuestaria<=0 THEN
+              	v_par_flu := v_par_flu + 1;
+              ELSE
+              	v_par_pre := v_par_pre + 1;
+              END IF;
+           END LOOP;
+
+		   if v_par_pre > 0 and v_par_flu > 0 then
+             raise exception 'Error no es posible mezclar comprobantes que no ejecutan presupuesto con los que si ejecutan.';
+           end if;
            select tp.codigo, pm.id_proceso_macro
            into   v_codigo_tipo_proceso, v_id_proceso_macro
            from  wf.tproceso_macro pm
@@ -192,6 +243,16 @@ BEGIN
                 raise exception 'No tiene comprobantes para entregar';
              end if;
 
+
+
+             v_ids = string_to_array(v_parametros.id_int_comprobantes,',');
+             v_i = 1;
+
+            SELECT cbte.fecha
+            INTO	v_fecha_cbte
+            FROM  conta.tint_comprobante cbte
+            WHERE cbte.id_int_comprobante::integer = v_ids[v_i]::integer;
+
            insert into conta.tentrega(
                       fecha_c31,
                       c31,
@@ -207,7 +268,9 @@ BEGIN
                       id_proceso_wf,
 					  id_estado_wf
                   ) values(
-                      now(),
+                      --17-03-2020 (may) modificacion para que inserte con la fecha de los cbtes
+                      --now(),
+                      v_fecha_cbte,
                       '',
                       v_codigo_estado, --> estado de la entrega
                       'activo',
@@ -222,8 +285,7 @@ BEGIN
                       v_id_estado_wf
 			)RETURNING id_entrega into v_id_entrega;
             --
-            v_ids = string_to_array(v_parametros.id_int_comprobantes,',');
-            v_i = 1;
+
 
             WHILE v_i <= v_parametros.total_cbte LOOP
 
@@ -297,7 +359,7 @@ BEGIN
 
 			if(v_parametros.id_tipo_relacion_comprobante is null or v_parametros.id_tipo_relacion_comprobante = 0)then
               raise exception 'El campo "Incluir Relación" no puede ser nulo, por favor elegir una opción';
-            end if;	
+            end if;
             --  verificar que la estrega este en estado  borrador
             select
               *
@@ -332,6 +394,7 @@ BEGIN
                                  ) LOOP
                   --  actulizar los combronbastes relacionados
 
+
                   --  temporalmente marca el cbte relacionado a la entrega
                   update conta.tint_comprobante  set
                       c31 =  v_parametros.c31,
@@ -347,6 +410,8 @@ BEGIN
                                                   cbte.c31
                                               from conta.tint_comprobante cbte
                                               where cbte.id_int_comprobante = ANY(v_registros_ent.id_int_comprobante_fks)) LOOP
+
+
 
                                 --actulizamos solo si no tiene un C31 relacionado
                                 IF (v_registros_aux.c31 is null or trim(v_registros_aux.c31) = '') THEN
@@ -451,9 +516,41 @@ BEGIN
              v_tipo_noti = 'notificacion';
              v_titulo  = 'Entrega';
 
+          --10-03-2020 (may) modificacion para entregas , cuando este este finalizado los de prioridad 3 (internacionales), se validen automaticamente cada una.
+          select de.prioridad
+          into v_prioridad_cbte
+          from conta.tentrega_det ed
+          inner join conta.tentrega ent on ent.id_entrega = ed.id_entrega
+          inner join conta.tint_comprobante cbte on cbte.id_int_comprobante = ed.id_int_comprobante
+          JOIN param.tdepto de ON de.id_depto = ent.id_depto_conta
+          where ed.id_entrega =  v_entrega.id_entrega;
+
+
             IF v_codigo_estado_siguiente = 'finalizado' and v_entrega.c31 = '' THEN
+
             	raise exception 'Debe ingresar numero de c31 antes de finalizar la entrega';
-            END IF;
+
+            ELSIF (v_prioridad_cbte = 3) THEN --10-03-2020 (may) prioridad 3 para las internacionales, se valida cbte cuando la entrega finaliza
+
+                FOR v_registros_int_cbte in ( select ed.id_entrega,
+                                                     cbte.id_int_comprobante,
+                                                     de.prioridad
+                                              from conta.tentrega_det ed
+                                              inner join conta.tentrega ent on ent.id_entrega = ed.id_entrega
+                                              inner join conta.tint_comprobante cbte on cbte.id_int_comprobante = ed.id_int_comprobante
+                                              JOIN param.tdepto de ON de.id_depto = ent.id_depto_conta
+                                              where ed.id_entrega =  v_entrega.id_entrega
+                                             ) LOOP
+                 --raise exception 'llega %',v_registros_int_cbte.id_int_comprobante;
+                                 v_resp = conta.f_validar_cbte(p_id_usuario,
+                                                               v_parametros._id_usuario_ai,
+                                                               v_parametros._nombre_usuario_ai,
+                                                               v_registros_int_cbte.id_int_comprobante,
+                                                               'si');
+
+                END LOOP;
+
+           END IF;
 
             IF   v_codigo_estado_siguiente not in('borrador','supconta','vbconta','finalizado')THEN
 
@@ -464,6 +561,7 @@ BEGIN
                   v_tipo_noti = 'notificacion';
                   v_titulo  = 'Notificacion';
              END IF;
+
 
              -- hay que recuperar el supervidor que seria el estado inmediato...
             	v_id_estado_actual =  wf.f_registra_estado_wf(v_parametros.id_tipo_estado,
@@ -492,6 +590,7 @@ BEGIN
          			RAISE NOTICE 'PASANDO DE ESTADO';
 
           		END IF;
+
 
 
           --------------------------------------

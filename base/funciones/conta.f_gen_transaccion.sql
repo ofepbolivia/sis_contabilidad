@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.f_gen_transaccion (
   p_super public.hstore,
   p_tabla_padre public.hstore,
@@ -15,7 +13,7 @@ $body$
 /*
 Autor:  Rensi Arteaga Copari
 Fecha 27/08/2013
-Descripcion:     Esta funciona inicia la generacion de las transacciones del 
+Descripcion:     Esta funciona inicia la generacion de las transacciones del
 				comprobantes segun la definicion de la planilla
 
 
@@ -35,28 +33,28 @@ DECLARE
     v_columna_requerida	varchar;
     r 						      record;  --  esta variable no se usa
     v_valor					    varchar;
-    
+
     v_id_int_comprobante    integer;
     v_plantilla_det_sec     record;
     resp_det                varchar;
 BEGIN
-	
+
     v_nombre_funcion:='conta.f_gen_transaccion';
-    
+
     --  FOR leer la plantillas de transaccion primarias
-   
-    
+
+
  	IF p_primario = 'si' THEN
-     
-            FOR v_plantilla_det in (Select * 
-                                    from conta.tdetalle_plantilla_comprobante dpc 
-                                    where  dpc.id_plantilla_comprobante =  
+
+            FOR v_plantilla_det in (Select *
+                                    from conta.tdetalle_plantilla_comprobante dpc
+                                    where  dpc.id_plantilla_comprobante =
                                            (p_plantilla_comprobante->'id_plantilla_comprobante')::integer  and
                                            dpc.primaria = 'si') LOOP
-            
-                 --       generar trasaccion unitaria 
+
+                 --       generar trasaccion unitaria
                   v_resp = conta.f_gen_transaccion_unitaria(
-                                                          p_super, 
+                                                          p_super,
                                                           p_tabla_padre,
                                                           hstore(v_plantilla_det),
                                                           p_plantilla_comprobante,
@@ -64,9 +62,9 @@ BEGIN
                                                           p_id_int_comprobante,
                                                           p_id_usuario
                                                           );
-               
-                 -- llamada recursiva 
-                 
+
+                 -- llamada recursiva
+
                    resp_det =  conta.f_gen_transaccion( p_super,
                                                         p_tabla_padre,
                                                         p_plantilla_comprobante,
@@ -76,16 +74,17 @@ BEGIN
                                                         'no',
                                                         v_plantilla_det.id_detalle_plantilla_comprobante
                                                        );
-            
-            
-            
-            
-            
-             
-            
+
+
+
+
+
+
+
             END LOOP;
 
-            --creacion de las transacciones notas de credito/debito Alan 13/11/2019
+            --24-01-2020 (may) se comenta porque se duplica el comprobante de nota de credito
+            /*--creacion de las transacciones notas de credito/debito Alan 13/11/2019
                 if(pxp.f_get_variable_global('ESTACION_inicio') != 'BOL') then
      					Select *
                         into v_tabla
@@ -102,23 +101,24 @@ BEGIN
                                   p_id_usuario
                                   );
                 end if;
+                */
 
    ELSE
-   
+
            -------------------------------------------------------
            --   IF procesar la transacciones secundarias si existen
            ------------------------------------------------------
            FOR v_plantilla_det_sec in (
-                          Select * 
-                            from conta.tdetalle_plantilla_comprobante dpc 
-                            where  dpc.id_plantilla_comprobante =  
+                          Select *
+                            from conta.tdetalle_plantilla_comprobante dpc
+                            where  dpc.id_plantilla_comprobante =
                                    (p_plantilla_comprobante->'id_plantilla_comprobante')::integer  and
-                                   dpc.primaria = 'no'  and dpc.estado_reg='activo' 
+                                   dpc.primaria = 'no'  and dpc.estado_reg='activo'
                                    and dpc.id_detalle_plantilla_fk = p_id_detalle_plantilla_fk) LOOP
-                                   
+
                    -- obtiene el record de la transaccion secundaria
-                   -- llamada recursica  a esta misma funcion con la bandera  activada 
-          
+                   -- llamada recursica  a esta misma funcion con la bandera  activada
+
                             v_resp = conta.f_gen_transaccion_unitaria(
                                               p_super, --p_super
                                               p_tabla_padre,--p_tabla_padre
@@ -128,11 +128,11 @@ BEGIN
                                               p_id_int_comprobante,--p_id_int_comprobante
                                               p_id_usuario--p_id_usuario
                                               );
-                                              
-                                              
-                                              
-                        -- llamada recursiva 
-                 
+
+
+
+                        -- llamada recursiva
+
                        resp_det =  conta.f_gen_transaccion( p_super,
                                                             p_tabla_padre,
                                                             p_plantilla_comprobante,
@@ -141,18 +141,18 @@ BEGIN
                                                             p_id_usuario,
                                                             'no',
                                                             v_plantilla_det_sec.id_detalle_plantilla_comprobante
-                                                           );                       
-                                           
-           
-           
+                                                           );
+
+
+
            END LOOP;
-   
-   
+
+
    END IF;
-       
-    
+
+
     return v_resp;
-    
+
 EXCEPTION
 WHEN OTHERS THEN
 			v_resp='';

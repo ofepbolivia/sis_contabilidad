@@ -18,9 +18,9 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION:	aumento de controles para cierre y apertura de periodo de compra venta
+ AUTOR:			breydi vasquez
+ FECHA:		    06/12/2019
 ***************************************************************************/
 
 DECLARE
@@ -63,7 +63,21 @@ BEGIN
                           per.id_gestion,
                           per.fecha_ini,
                           per.fecha_fin,
- 						  per.periodo
+ 						  per.periodo,
+                          --(breydi.vasquez)
+	                      param.f_literal_periodo(per.id_periodo)  as mes,
+                          (select count(lo.id_periodo_compra_venta)
+                              from conta.tlog_periodo_compra lo
+                              where lo.id_periodo_compra_venta = pcv.id_periodo_compra_venta
+                              and lo.estado = ''cerrado'')::int4 as cantidad_cerrado,
+                          (select count(lo.id_periodo_compra_venta) 
+                              from conta.tlog_periodo_compra lo
+                              where lo.id_periodo_compra_venta = pcv.id_periodo_compra_venta
+                              and lo.estado = ''abierto'')::int4 as cantidad_abierto,
+                          (select count(lo.id_periodo_compra_venta)
+                              from conta.tlog_periodo_compra lo
+                              where lo.id_periodo_compra_venta = pcv.id_periodo_compra_venta
+                              and lo.estado = ''cerrado_parcial'')::int4 as cantidad_cerrado_parcial                           
                           from conta.tperiodo_compra_venta pcv
                           inner join segu.tusuario usu1 on usu1.id_usuario = pcv.id_usuario_reg
                           inner join param.tperiodo per on per.id_periodo = pcv.id_periodo
@@ -104,6 +118,73 @@ BEGIN
 			return v_consulta;
 
 		end;
+
+
+	/*********************************    
+ 	#TRANSACCION:  'CONTA_LOGPECOM_SEL'
+ 	#DESCRIPCION:	Consulta logs de cambios de estado de periodo compra venta.
+ 	#AUTOR:		breydi.vasquez 
+ 	#FECHA:		10-12-2019
+	***********************************/
+
+	elsif(p_transaccion='CONTA_LOGPECOM_SEL')then
+
+		begin
+			--Sentencia de la consulta de conteo de registros
+			v_consulta:='select 
+            				  lgp.id_log_periodo_compra,
+                              lgp.id_periodo_compra_venta,
+                              lgp.estado,
+                              lgp.estado_reg,
+                              lgp.id_usuario_ai,
+                              lgp.fecha_reg,
+                              lgp.fecha_mod,                              
+                              lgp.usuario_ai,
+                              lgp.id_usuario_reg,
+                              lgp.id_usuario_mod,
+                              usu1.cuenta as usr_reg,
+                              usu2.cuenta as usr_mod,
+                              usu1.desc_persona as persona_reg,
+                              usu2.desc_persona as persona_mod
+					    from conta.tlog_periodo_compra lgp
+                          inner join segu.vusuario usu1 on usu1.id_usuario = lgp.id_usuario_reg
+                          left join segu.vusuario usu2 on usu2.id_usuario = lgp.id_usuario_mod
+                         WHERE ';
+			
+			--Definicion de la respuesta		    
+			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+			raise notice '%',v_consulta;
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+        
+                
+	/*********************************    
+ 	#TRANSACCION:  'CONTA_LOGPECOM_CONT'
+ 	#DESCRIPCION:	Conteo de registros
+ 	#AUTOR:		breydi.vasquez 
+ 	#FECHA:		10-12-2019
+	***********************************/
+
+	elsif(p_transaccion='CONTA_LOGPECOM_CONT')then
+
+		begin
+			--Sentencia de la consulta de conteo de registros
+			v_consulta:='select count(lgp.id_log_periodo_compra)
+					    from conta.tlog_periodo_compra lgp
+                          inner join segu.vusuario usu1 on usu1.id_usuario = lgp.id_usuario_reg
+                          left join segu.vusuario usu2 on usu2.id_usuario = lgp.id_usuario_mod
+                         WHERE ';
+			
+			--Definicion de la respuesta		    
+			v_consulta:=v_consulta||v_parametros.filtro;
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;         
 					
 	else
 					     

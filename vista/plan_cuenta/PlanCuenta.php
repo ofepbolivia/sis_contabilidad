@@ -35,7 +35,7 @@ Phx.vista.PlanCuenta=Ext.extend(Phx.gridInterfaz,{
                 iconCls: 'bchecklist',
                 disabled: true,
                 handler: this.onButtonCargar,
-                tooltip: '<b>Generar Plan de Cuentas</b><br/>Genera un plan de pagos a partir del detalle de plan de cuentas.'
+                tooltip: '<b>Generar Plan de Cuentas</b><br/>Genera un plan de cuentas a partir del detalle de plan de cuentas.'
             }
         );
         this.addButton('btnregresar_estado',
@@ -168,7 +168,55 @@ Phx.vista.PlanCuenta=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
-		{
+
+
+        {
+            config: {
+                name: 'id_gestion',
+                fieldLabel: 'Gestion Destino',
+                allowBlank: true,
+                emptyText: 'Gestion',
+                store: new Ext.data.JsonStore({
+                    url: '../../sis_parametros/control/Gestion/listarGestion',
+                    id: 'id_gestion',
+                    root: 'datos',
+                    sortInfo: {
+                        field: 'gestion',
+                        direction: 'ASC'
+                    },
+                    totalProperty: 'total',
+                    fields: ['id_gestion', 'gestion'],
+                    remoteSort: true,
+                    baseParams: {par_filtro: 'ipc.id_gestion'}
+                }),
+                valueField: 'id_gestion',
+                displayField: 'gestion',
+                gdisplayField: 'desc_gestion',
+                hiddenName: 'id_gestion',
+                forceSelection: true,
+                typeAhead: false,
+                triggerAction: 'all',
+                lazyRender: true,
+                mode: 'remote',
+                pageSize: 15,
+                queryDelay: 1000,
+                anchor: '100%',
+                gwidth: 150,
+                minChars: 2,
+                renderer : function(value, p, record) {
+                    return String.format('{0}', record.data['desc_gestion']);
+                }
+            },
+            type: 'ComboBox',
+            id_grupo: 0,
+            filters: {pfiltro: 'ipc.id_gestion',type: 'numeric'},
+            grid: true,
+            form: true
+        },
+
+
+
+        {
 			config:{
 				name: 'estado',
 				fieldLabel: 'estado',
@@ -293,8 +341,10 @@ Phx.vista.PlanCuenta=Ext.extend(Phx.gridInterfaz,{
 		{name:'usuario_ai', type: 'string'},
 		{name:'id_usuario_mod', type: 'numeric'},
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
+        {name:'id_gestion', type:'numeric'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
+        {name:'desc_gestion', type:'numeric'},
 		
 	],
 	sortInfo:{

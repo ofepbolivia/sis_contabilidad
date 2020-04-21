@@ -26,6 +26,10 @@ DECLARE
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
 	v_id_plan_cuenta	integer;
+
+
+    v_estado				varchar;
+    v_nombre				varchar;
 			    
 BEGIN
 
@@ -43,26 +47,29 @@ BEGIN
 					
         begin
         	--Sentencia de la insercion
-        	insert into conta.tplan_cuenta(
-			estado_reg,
-			nombre,
-			estado,
-			id_usuario_reg,
-			fecha_reg,
-			id_usuario_ai,
-			usuario_ai,
-			id_usuario_mod,
-			fecha_mod
-          	) values(
-			'activo',
-			v_parametros.nombre,
-			v_parametros.estado,
-			p_id_usuario,
-			now(),
-			v_parametros._id_usuario_ai,
-			v_parametros._nombre_usuario_ai,
-			null,
-			null
+        insert into conta.tplan_cuenta(
+        estado_reg,
+        nombre,
+        estado,
+              id_gestion,
+        id_usuario_reg,
+        fecha_reg,
+        id_usuario_ai,
+        usuario_ai,
+        id_usuario_mod,
+        fecha_mod
+              ) values(
+        'activo',
+        v_parametros.nombre,
+        --v_parametros.estado,/26/11/2019 Alan
+              'borrador',
+              v_parametros.id_gestion,
+        p_id_usuario,
+        now(),
+        v_parametros._id_usuario_ai,
+        v_parametros._nombre_usuario_ai,
+        null,
+        null
 							
 			
 			
@@ -91,6 +98,7 @@ BEGIN
 			update conta.tplan_cuenta set
 			nombre = v_parametros.nombre,
 			estado = v_parametros.estado,
+            id_gestion = v_parametros.id_gestion,
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
 			id_usuario_ai = v_parametros._id_usuario_ai,
@@ -105,7 +113,58 @@ BEGIN
             return v_resp;
             
 		end;
+  /*********************************
+ 	#TRANSACCION:  'CONTA_ACT_EST'
+ 	#DESCRIPCION:	Actualiza el estado del registro de plan de cuentas
+ 	#AUTOR:		alan.felipez
+ 	#FECHA:		27-11-2019 22:15:53
+	***********************************/
 
+	elsif(p_transaccion='CONTA_ACT_EST')then
+
+		begin
+        	--seleccionamos el estado actual del registro
+        	select estado, nombre
+            into v_estado, v_nombre
+            from conta.tplan_cuenta
+            where id_plan_cuenta=v_parametros.id_plan_cuenta;
+            --vemos el procedimiento a seguir
+        	if (v_parametros.estado='siguiente_estado')then
+        		IF v_estado='borrador' THEN
+                	v_estado='registrado';
+                elsif v_estado='registrado' then
+                	v_estado='finalizado';
+                else
+                	--raise exception 'no existe un siguiente estado para el plan de cuentas: %',v_nombre;
+                end if;
+            else
+            	IF v_estado='registrado' THEN
+                	v_estado='borrador';
+                    delete from conta.tplan_cuenta_det
+            		where id_plan_cuenta=v_parametros.id_plan_cuenta;
+                elsif v_estado='finalizado' then
+                	v_estado='registrado';
+                else
+                	raise exception 'no existe un anterior estado para el plan de cuentas: %',v_nombre;
+                end if;
+        	end if;
+			--Sentencia de la modificacion
+			update conta.tplan_cuenta set
+			estado = v_estado,
+			id_usuario_mod = p_id_usuario,
+			fecha_mod = now(),
+			id_usuario_ai = v_parametros._id_usuario_ai,
+			usuario_ai = v_parametros._nombre_usuario_ai
+			where id_plan_cuenta=v_parametros.id_plan_cuenta;
+
+			--Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','ImportarPlanCuenta modificado(a)');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_plan_cuenta',v_parametros.id_plan_cuenta::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
 	/*********************************    
  	#TRANSACCION:  'CONTA_IPC_ELI'
  	#DESCRIPCION:	Eliminacion de registros

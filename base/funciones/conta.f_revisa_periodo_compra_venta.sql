@@ -64,9 +64,9 @@ BEGIN
       --TODO verifica si el usuario tiene permisos,
         -- puede crearce una tabla espcifica para otorgar permisos a los usuario por depto de conta
         -- puede ser tambien la tabla de usuarios del depto
-
+		--SE QUEMO AL DEPARTAMENTO 4 CENTRAL CON POR Q SOLO ESTOS USUARIOS TIENE PERMISO
         IF exists (select 1 from param.tdepto_usuario du
-                  where du.id_depto = p_id_depto_conta
+                  where du.id_depto = 4
                   and du.id_usuario = p_id_usuario
                   and du.estado_reg = 'activo')  THEN
 

@@ -79,6 +79,7 @@ DECLARE
     v_resp_val_doc					varchar[];
     v_tes_integrar_lb_pagado		varchar;
 
+    v_fecha_fin_periodo				date;
 
 BEGIN
 
@@ -409,7 +410,8 @@ BEGIN
 
                 --  validamos que la numeracion sea coherente con la fecha y correlativo
                  IF  v_rec_cbte.cbte_apertura = 'no' then
-                      IF exists (select
+                      --(may)10-12-2019 condicion momentania para que no controle los cbtes y se habilita para Lobaton 22 y Shirley torrez 38
+                      /*IF exists (select
                                         1
                                   from conta.tint_comprobante c
                                   inner join conta.tclase_comprobante cc on cc.id_clase_comprobante = c.id_clase_comprobante
@@ -421,7 +423,51 @@ BEGIN
                                         and (c.nro_cbte is not null or v_rec_cbte.nro_cbte  != '') ) THEN
 
                                 raise exception 'Existen comprobantes validados con fecha superior al % para este periodo, cambie la fecha', v_rec_cbte.fecha;
-                       END IF;
+                       END IF;*/
+
+                       --(may)09-03-2020 modificacion para el control de fechas que tienen que estar en el mismo periodo y ser el mismo seguimiento de tramite
+                       SELECT  per.fecha_fin
+                       INTO v_fecha_fin_periodo
+                       FROM param.tperiodo per
+                       WHERE per.id_periodo = v_id_periodo;
+
+                 	 IF (p_id_usuario not in  (22,38) )THEN
+                     --raise exception 'llleagh % > %',v_rec_cbte.fecha, v_fecha_fin_periodo;
+                    	 IF (v_rec_cbte.fecha > v_fecha_fin_periodo and v_rec_cbte.fecha != v_fecha_fin_periodo) THEN
+
+                              IF exists (select
+                                                1
+                                          from conta.tint_comprobante c
+                                          inner join conta.tclase_comprobante cc on cc.id_clase_comprobante = c.id_clase_comprobante
+                                          where c.id_depto = v_rec_cbte.id_depto
+                                                and c.id_clase_comprobante = v_rec_cbte.id_clase_comprobante
+                                                and  cc.id_documento = v_rec_cbte.id_documento
+                                                and c.id_periodo = v_rec_cbte.id_periodo
+                                                --and c.fecha > v_rec_cbte.fecha
+                                                and (c.nro_cbte is not null or v_rec_cbte.nro_cbte  != '') ) THEN
+
+                                        raise exception 'Existen comprobantes validados con fecha superior al % para este periodo, cambie la fecha. ', to_char(v_rec_cbte.fecha, 'DD/MM/YYYY');
+                               END IF;
+                          ELSIF (v_rec_cbte.fecha != v_fecha_fin_periodo) THEN
+
+                          		IF exists (select
+                                                1
+                                          from conta.tint_comprobante c
+                                          inner join conta.tclase_comprobante cc on cc.id_clase_comprobante = c.id_clase_comprobante
+                                          where c.id_depto = v_rec_cbte.id_depto
+                                                and c.id_clase_comprobante = v_rec_cbte.id_clase_comprobante
+                                                and  cc.id_documento = v_rec_cbte.id_documento
+                                                and c.id_periodo = v_rec_cbte.id_periodo
+                                                and c.fecha > v_rec_cbte.fecha
+                                                and (c.nro_cbte is not null or v_rec_cbte.nro_cbte  != '') ) THEN
+
+                                        raise exception 'Existen2 comprobantes validados con fecha superior al % para este periodo, cambie la fecha. ', to_char(v_rec_cbte.fecha, 'DD/MM/YYYY');
+                               END IF;
+                          END IF;
+
+
+               		END IF;
+
                  else
                    -- si un comprobante de apertura
                    if   to_char(v_rec_cbte.fecha::date, 'MM')::varchar != '01'  then

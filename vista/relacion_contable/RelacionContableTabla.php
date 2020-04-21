@@ -44,9 +44,11 @@ header("content-type: text/javascript; charset=UTF-8");
                         // turn on remote sorting
                         remoteSort: true,
                         baseParams:{par_filtro:'codigo_tipo_relacion#nombre_tipo_relacion'}
+
                     }),
                     valueField: 'id_tipo_relacion_contable',
                     displayField: 'nombre_tipo_relacion',
+                    tpl: '<tpl for="."><div class="x-combo-list-item"><p><font color="green"><b>{codigo_tipo_relacion}</b></font></p><p>Desc.:<b>{nombre_tipo_relacion}</b></p></div></tpl>',
                     gdisplayField: 'nombre_tipo_relacion',
                     hiddenName: 'id_tipo_relacion_contable',
                     triggerAction: 'all',
@@ -55,6 +57,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     forceSelection: true,
                     typeAhead: true,
                     allowBlank: false,
+                    resizable: true,
                     anchor: '80%',
                     gwidth: 150,
                     mode: 'remote'

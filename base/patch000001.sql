@@ -4903,3 +4903,247 @@ ALTER TABLE conta.tdoc_compra_venta
 ALTER TABLE conta.tint_transaccion
   ADD COLUMN id_concepto_ingas INTEGER;
 /***********************************F-SCP-MAY-CONTA-0-01/10/2019****************************************/
+
+/***********************************I-SCP-IRVA-CONTA-0-03/12/2019****************************************/
+CREATE TABLE conta.ttipo_cambio_pais_log (
+  id_log SERIAL,
+  id_tipo_cambio_pais INTEGER NOT NULL,
+  fecha DATE NOT NULL,
+  oficial NUMERIC(18,7) NOT NULL,
+  compra NUMERIC(18,7) NOT NULL,
+  venta NUMERIC(18,7) NOT NULL,
+  id_moneda_pais INTEGER NOT NULL,
+  observacion VARCHAR(300),
+  descripcion TEXT,
+  CONSTRAINT ttipo_cambio_pais_log_pkey PRIMARY KEY(id_log)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+COMMENT ON TABLE conta.ttipo_cambio_pais_log
+IS 'Tabla donde se guardaran los datos de la tabla conta.ttipo_cambio_pais
+si existe alguna diferencia con los datos registrados al momento de
+replicarlo.';
+
+COMMENT ON COLUMN conta.ttipo_cambio_pais_log.id_tipo_cambio_pais
+IS 'id_tipo_cambio_pais sirve como referencia para modificar por base de datos a las base de datos sqlServer, Informix y consultar con la tabla conta.ttipo_cambio_pais';
+
+COMMENT ON COLUMN conta.ttipo_cambio_pais_log.fecha
+IS 'dato respaldo';
+
+COMMENT ON COLUMN conta.ttipo_cambio_pais_log.oficial
+IS 'dato resplado';
+
+COMMENT ON COLUMN conta.ttipo_cambio_pais_log.compra
+IS 'dato resplado';
+
+COMMENT ON COLUMN conta.ttipo_cambio_pais_log.venta
+IS 'dato resplado';
+
+COMMENT ON COLUMN conta.ttipo_cambio_pais_log.id_moneda_pais
+IS 'campo para hacer referencia a que pais y que tipo de moneda pertenece el tipo de cambio';
+
+COMMENT ON COLUMN conta.ttipo_cambio_pais_log.descripcion
+IS 'Poner la descripcion que existe diferencia con el registro.';
+
+ALTER TABLE conta.ttipo_cambio_pais_log
+  OWNER TO postgres;
+/***********************************F-SCP-IRVA-CONTA-0-03/12/2019****************************************/
+
+/***********************************I-SCP-BVP-CONTA-0-10/12/2019****************************************/
+CREATE TABLE conta.tlog_periodo_compra (
+  id_log_periodo_compra SERIAL,
+  id_periodo_compra_venta INTEGER NOT NULL,
+  estado VARCHAR(20),
+  CONSTRAINT tlog_periodo_compra_pkey PRIMARY KEY(id_log_periodo_compra)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE conta.tlog_periodo_compra
+  ALTER COLUMN id_log_periodo_compra SET STATISTICS 0;
+
+COMMENT ON TABLE conta.tlog_periodo_compra
+IS 'Log de estado registrado de los cambios ejecutados (abierto, cerrado, cerrado parcial) en el control 
+de periodos del sistema de contabilidad. ';
+
+COMMENT ON COLUMN conta.tlog_periodo_compra.estado
+IS 'Estado de periodo de libro de bancos, cerrado, cerrado_parcial, abierto.';
+
+ALTER TABLE conta.tlog_periodo_compra
+  OWNER TO postgres;
+/***********************************F-SCP-BVP-CONTA-0-10/12/2019****************************************/
+
+/***********************************I-SCP-AKFG-CONTA-0-13/12/2019****************************************/
+CREATE TABLE conta.tplan_cuenta (
+  id_plan_cuenta SERIAL,
+  nombre VARCHAR(300),
+  estado VARCHAR(20),
+  CONSTRAINT tplan_cuenta_pkey PRIMARY KEY(id_plan_cuenta)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+COMMENT ON COLUMN conta.tplan_cuenta.nombre
+IS 'nombre del plan de cuentas';
+
+COMMENT ON COLUMN conta.tplan_cuenta.estado
+IS 'estado del plan de cuentas';
+
+ALTER TABLE conta.tplan_cuenta
+  OWNER TO postgres;
+
+
+
+  CREATE TABLE conta.tplan_cuenta_det (
+  id_plan_cuenta_det SERIAL,
+  id_plan_cuenta INTEGER,
+  nivel VARCHAR(50),
+  rubro VARCHAR(50),
+  grupo VARCHAR(50),
+  sub_grupo VARCHAR(20),
+  cuenta VARCHAR(50),
+  codigo_cuenta VARCHAR(50),
+  sub_cuenta VARCHAR(50),
+  auxiliar VARCHAR(50),
+  nombre_cuenta VARCHAR(150),
+  ajuste VARCHAR(20),
+  moneda_ajuste VARCHAR(20),
+  tipo_cuenta VARCHAR(50),
+  moneda VARCHAR(20),
+  tip_cuenta VARCHAR(50),
+  permite_auxiliar VARCHAR(20),
+  cuenta_sigep INTEGER,
+  partida_sigep_debe VARCHAR(150),
+  partida_sigep_haber VARCHAR(200),
+  observaciones VARCHAR(200),
+  sub_sub_cuenta VARCHAR(60),
+  numero INTEGER,
+  CONSTRAINT tplan_cuenta_det_pkey PRIMARY KEY(id_plan_cuenta_det),
+  CONSTRAINT tplan_cuenta_det_fk FOREIGN KEY (id_plan_cuenta)
+    REFERENCES conta.tplan_cuenta(id_plan_cuenta)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+COMMENT ON COLUMN conta.tplan_cuenta_det.numero
+IS 'numero de la fila del documento excel';
+
+ALTER TABLE conta.tplan_cuenta_det
+  OWNER TO postgres;
+/***********************************F-SCP-AKFG-CONTA-0-13/12/2019****************************************/
+
+
+/***********************************I-SCP-AKFG-CONTA-0-27/12/2019****************************************/
+ALTER TABLE conta.tplan_cuenta
+  ADD COLUMN id_gestion INTEGER;
+
+COMMENT ON COLUMN conta.tplan_cuenta.id_gestion
+IS 'id de la gestion destino para la creacion del plan de cuentas';
+
+ALTER TABLE conta.tplan_cuenta_det
+  ADD COLUMN id_cuenta_asociada INTEGER;
+
+COMMENT ON COLUMN conta.tplan_cuenta_det.id_cuenta_asociada
+IS 'asocia el id de la cuenta creada a partir del registro';
+
+ALTER TABLE conta.tplan_cuenta_det
+  ADD COLUMN relacion_cuenta INTEGER;
+
+COMMENT ON COLUMN conta.tplan_cuenta_det.relacion_cuenta
+IS 'contiene informacion de la relacion de cuentas de la anterior gestion';
+
+
+/***********************************F-SCP-AKFG-CONTA-0-27/12/2019****************************************/
+
+/***********************************I-SCP-AKFG-CONTA-0-30/12/2019****************************************/
+ALTER TABLE conta.tplan_cuenta_det ALTER COLUMN relacion_cuenta SET DATA TYPE varchar(250);
+
+ALTER TABLE conta.tplan_cuenta_det
+  ADD COLUMN sub_sub_sub_cuenta varchar(200);
+  COMMENT ON COLUMN conta.tplan_cuenta_det.sub_sub_sub_cuenta
+IS 'informacion de la cuenta de nivel 7';
+/***********************************F-SCP-AKFG-CONTA-0-30/12/2019****************************************/
+
+/***********************************I-SCP-MAY-CONTA-0-21/01/2020****************************************/
+COMMENT ON COLUMN conta.tdoc_compra_venta.importe_pago_liquido
+IS 'el importe liquido pagable nunca debe ser null ni 0';
+
+ALTER TABLE conta.tdoc_compra_venta
+  ALTER COLUMN importe_pago_liquido SET NOT NULL;
+/***********************************F-SCP-MAY-CONTA-0-21/01/2020****************************************/
+
+/***********************************I-SCP-MAY-CONTA-0-28/02/2020****************************************/
+CREATE TABLE conta.tdoc_compra_venta_ext (
+  id_doc_compra_venta_ext SERIAL NOT NULL,
+  id_doc_compra_venta INTEGER,
+  costo_directo VARCHAR(30),
+  c_emisor VARCHAR(50),
+  no_gravado NUMERIC(19,2),
+  base_21 NUMERIC(19,2),
+  base_27 NUMERIC(19,2),
+  base_10_5 NUMERIC(19,2),
+  base_2_5 NUMERIC(19,2),
+  percepcion_caba NUMERIC(19,2),
+  percepcion_bue NUMERIC(19,2),
+  percepcion_iva NUMERIC(19,2),
+  percepcion_salta NUMERIC(19,2),
+  imp_internos NUMERIC(19,2),
+  percepcion_tucuman NUMERIC(19,2),
+  percepcion_corrientes NUMERIC(19,2),
+  otros_impuestos NUMERIC(19,2),
+  percepcion_neuquen NUMERIC(19,2),
+  PRIMARY KEY(id_doc_compra_venta_ext)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE conta.tdoc_compra_venta_ext
+  OWNER TO postgres;
+
+COMMENT ON TABLE conta.tdoc_compra_venta_ext
+IS 'complemento para los datos de doc_compra_venta para las internacionales';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.id_doc_compra_venta_ext
+IS 'complemento para los datos de doc_compra_venta para las internacionales';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.id_doc_compra_venta
+IS 'para que se enlace con la cabecera tdoc_compra_venta';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.costo_directo
+IS 'si / no';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.base_21
+IS 'base 21%';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.base_27
+IS 'base 27%';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.base_10_5
+IS 'base 10,5%';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.base_2_5
+IS 'base 2,5%';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_caba
+IS 'percepcion IIBB CABA';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_bue
+IS 'percepcion IIBB BUE';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_iva
+IS 'percepcion IVA';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_salta
+IS 'percepcion IIBB SALTA';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_tucuman
+IS 'percepcion IIBB TUCUMAN';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_corrientes
+IS 'percepcion IIBB CORRIENTES';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.otros_impuestos
+IS 'otros impuestos';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_neuquen
+IS 'percepcion IIBB NEUQUEN';
+/***********************************F-SCP-MAY-CONTA-0-28/02/2020****************************************/

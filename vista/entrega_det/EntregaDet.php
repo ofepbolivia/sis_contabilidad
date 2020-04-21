@@ -69,7 +69,7 @@ Phx.vista.EntregaDet=Ext.extend(Phx.gridInterfaz,{
 						par_filtro : 'inc.id_int_comprobante#inc.nro_cbte#inc.fecha#inc.glosa1#inc.glosa2#inc.nro_tramite'
 					}
 				}),
-				tpl : new Ext.XTemplate('<tpl for="."><div class="awesomecombo-5item {checked}">', '<p>(ID: {id_int_comprobante}), Nro: {nro_cbte}</p>', '<p>Fecha: <strong>{fecha}</strong></p>', '<p>TR: {nro_tramite}</p>', '<p>GLS: {glosa1}</p>', '</div></tpl>'),
+				tpl : new Ext.XTemplate('<tpl for="."><div class="awesomecombo-5item {checked}">', '<p><b style="color:#0A5F2F";>ID: {id_int_comprobante}</b>, Nro: {nro_cbte}</p>', '<p>Fecha: <strong>{fecha}</strong></p>', '<p><b>TR: {nro_tramite}</b></p>', '<p>GLS: {glosa1}</p>', '</div></tpl>'),
 				itemSelector : 'div.awesomecombo-5item',
 
 				valueField : 'id_int_comprobante',
@@ -185,6 +185,27 @@ Phx.vista.EntregaDet=Ext.extend(Phx.gridInterfaz,{
             id_grupo:1,
             grid:true,
             form:false
+        },
+
+        {
+            config: {
+                name: 'tipo_cambio',
+                fieldLabel: 'Tipo de Cambio',
+                allowBlank: false,
+                readOnly: true,
+                anchor: '80%',
+                gwidth: 90,
+                maxLength: 20,
+                decimalPrecision: 6
+            },
+            type: 'NumberField',
+            filters: {
+                pfiltro: 'cbte.tipo_cambio_2',
+                type: 'numeric'
+            },
+            id_grupo: 2,
+            grid: true,
+            form: true
         },
 		
 		
@@ -317,7 +338,8 @@ Phx.vista.EntregaDet=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
-		'nro_cbte','nro_tramite', 'beneficiario','desc_clase_comprobante','glosa1', 'desc_moneda', 'monto'
+		'nro_cbte','nro_tramite', 'beneficiario','desc_clase_comprobante','glosa1', 'desc_moneda', 'monto',
+        'tipo_cambio'
 		
 	],
 	sortInfo:{

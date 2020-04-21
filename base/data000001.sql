@@ -1382,4 +1382,10 @@ select pxp.f_insert_tgui ('Comprobante ERP BOA - SIGEP', 'Reporte Documento Comp
 select pxp.f_insert_tgui ('Estado de Cuenta (Detallado)', 'Estado de Cuenta (Detallado)', 'ESCUDE', 'si', 3, 'sis_contabilidad/vista/int_transaccion/FormFiltroEstadoCuentaDetallado.php', 3, '', 'FormFiltroEstadoCuentaDetallado', 'CONTA');
 
 /***********************************F-DAT-MAY-CONTA-0-05/06/2018*****************************************/
-
+/***********************************I-DAT-YMR-CONTA-0-12/12/2019*****************************************/
+INSERT INTO pxp.variable_global(variable, valor, descripcion)
+VALUES ('conta_periodos_mod_mes', '6', 'describe la cantidad de periodos anteriores al actual que pueden ser abiertos'),
+	   ('conta_periodo_cerrado', '21', 'describe el dia en el cual se ejecutara el cierre automatico de los periodos correspondientes al mes anterior'),
+       ('conta_periodo_cerrado_parcial', '15', 'describe el dia en el cual se ejecutara el cierre parcial automatico de los periodos correspondientes al mes anterior');
+     
+/***********************************F-DAT-YMR-CONTA-0-12/12/2019*****************************************/

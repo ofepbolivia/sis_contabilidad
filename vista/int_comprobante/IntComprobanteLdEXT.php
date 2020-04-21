@@ -1,9 +1,9 @@
 <?php
 /**
  * @package pXP
- * @file gen-SistemaDist.php
- * @author  (fprudencio)
- * @date 20-09-2011 10:22:05
+ * @file gen-IntComprobanteLdEXT.php
+ * @author  Maylee Perez Pastor
+ * @date 2-04-2020 10:22:05
  * @description Archivo con la interfaz de usuario que permite
  *dar el visto a solicitudes de compra
  *
@@ -11,18 +11,18 @@
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-    Phx.vista.IntComprobanteLd = {
+    Phx.vista.IntComprobanteLdEXT = {
         bedit: false,
         bnew: false,
         bsave: false,
         bdel: true,
-        require: '../../../sis_contabilidad/vista/int_comprobante/IntComprobante.php',
-        requireclase: 'Phx.vista.IntComprobante',
+        require: '../../../sis_contabilidad/vista/int_comprobante/IntComprobanteIniEXT.php',
+        requireclase: 'Phx.vista.IntComprobanteIniEXT',
         title: 'Libro Diario',
         nombreVista: 'IntComprobanteLd',
         ActSave: '../../sis_contabilidad/control/IntComprobante/modificarFechasCostosCbte',
         constructor: function (config) {
-            Phx.vista.IntComprobanteLd.superclass.constructor.call(this, config);
+            Phx.vista.IntComprobanteLdEXT.superclass.constructor.call(this, config);
 
             this.addBotonesVolcar();
             this.addBotonesClonar();
@@ -150,7 +150,7 @@ header("content-type: text/javascript; charset=UTF-8");
             cls: 'IntTransaccionLd'
         },
         preparaMenu: function (n) {
-            var tb = Phx.vista.IntComprobanteLd.superclass.preparaMenu.call(this);
+            var tb = Phx.vista.IntComprobanteLdEXT.superclass.preparaMenu.call(this);
             var rec = this.sm.getSelected();
             this.getBoton('btnImprimir').enable();
             this.getBoton('btnRelDev').enable();
@@ -177,7 +177,7 @@ header("content-type: text/javascript; charset=UTF-8");
             return tb;
         },
         liberaMenu: function () {
-            var tb = Phx.vista.IntComprobanteLd.superclass.liberaMenu.call(this);
+            var tb = Phx.vista.IntComprobanteLdEXT.superclass.liberaMenu.call(this);
             this.getBoton('btnImprimir').disable();
             this.getBoton('btnRelDev').disable();
             //this.getBoton('btnDocCmpVnt').disable();

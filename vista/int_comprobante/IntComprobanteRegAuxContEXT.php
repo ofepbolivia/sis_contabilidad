@@ -14,8 +14,8 @@ header("content-type: text/javascript; charset=UTF-8");
     Phx.vista.IntComprobanteRegAuxContEXT = {
         bsave:true,
 
-        require: '../../../sis_contabilidad/vista/int_comprobante/IntComprobante.php',
-        requireclase: 'Phx.vista.IntComprobante',
+        require: '../../../sis_contabilidad/vista/int_comprobante/IntComprobanteIniEXT.php',
+        requireclase: 'Phx.vista.IntComprobanteIniEXT',
         title: 'Libro Diario',
         nombreVista: 'IntComprobanteRegAuxContExt',
 
@@ -61,7 +61,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             this.cmpFecha.enable();
 
-            Phx.vista.IntComprobanteRegAux.superclass.onButtonEdit.call(this);
+            Phx.vista.IntComprobanteRegAuxContEXT.superclass.onButtonEdit.call(this);
             this.Cmp.id_clase_comprobante.store.baseParams.tipo='diario';
             this.Cmp.id_moneda.setReadOnly(true);
             if(rec.localidad == 'internacional'){
@@ -94,7 +94,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             this.Cmp.id_clase_comprobante.store.baseParams.tipo = 'diario';
 
-            Phx.vista.IntComprobanteRegAux.superclass.onButtonNew.call(this);
+            Phx.vista.IntComprobanteRegAuxContEXT.superclass.onButtonNew.call(this);
             this.Cmp.id_moneda.setReadOnly(false);
             //this.Cmp.fecha.setReadOnly(false);
             this.cmpFecha.enable();
@@ -157,11 +157,12 @@ header("content-type: text/javascript; charset=UTF-8");
             });
         },
         preparaMenu : function(n) {
-            var tb = Phx.vista.IntComprobanteRegAux.superclass.preparaMenu.call(this);
+            var tb = Phx.vista.IntComprobanteRegAuxContEXT.superclass.preparaMenu.call(this);
             var rec = this.sm.getSelected();
+            this.getBoton('sig_estado').enable();
             if(rec.data.tipo_reg == 'summary'){
                 this.getBoton('btnSwEditble').disable();
-                this.getBoton('sig_estado').disable();
+                //this.getBoton('sig_estado').disable();
                 this.getBoton('btnImprimir').disable();
                 this.getBoton('btnRelDev').disable();
                 this.getBoton('btnIgualarCbte').disable();
@@ -174,7 +175,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 else{
                     this.getBoton('btnSwEditble').setDisabled(true);
                 }
-                this.getBoton('sig_estado').enable();
+                //this.getBoton('sig_estado').enable();
                 this.getBoton('btnImprimir').enable();
                 this.getBoton('btnRelDev').enable();
                 this.getBoton('btnIgualarCbte').enable();
@@ -192,7 +193,8 @@ header("content-type: text/javascript; charset=UTF-8");
 
             //para bloquear estadosvbconta y vbfin solo para el visto bueno
             if (rec.data.estado_reg == 'vbconta' || rec.data.estado_reg =='vbfin') {
-                this.getBoton('sig_estado').disable();
+                //this.getBoton('sig_estado').disable();
+
             }
             //
 
@@ -201,7 +203,7 @@ header("content-type: text/javascript; charset=UTF-8");
             return tb;
         },
         liberaMenu : function() {
-            var tb = Phx.vista.IntComprobanteRegAux.superclass.liberaMenu.call(this);
+            var tb = Phx.vista.IntComprobanteRegAuxContEXT.superclass.liberaMenu.call(this);
 
             this.getBoton('sig_estado').disable();
             this.getBoton('btnImprimir').disable();

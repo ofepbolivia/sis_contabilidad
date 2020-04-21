@@ -234,7 +234,22 @@ Phx.vista.PlanCuentaDet=Ext.extend(Phx.gridInterfaz,{
                 maxLength:50
             },
             type:'TextField',
-            filters:{pfiltro:'ipcd.sub__sub_cuenta',type:'string'},
+            filters:{pfiltro:'ipcd.sub_sub_cuenta',type:'string'},
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
+        {
+            config:{
+                name: 'sub_sub_sub_cuenta',
+                fieldLabel: 'Sub-Sub-Sub Cuenta',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:50
+            },
+            type:'TextField',
+            filters:{pfiltro:'ipcd.sub_sub_sub_cuenta',type:'string'},
             id_grupo:1,
             grid:true,
             form:true
@@ -531,6 +546,7 @@ Phx.vista.PlanCuentaDet=Ext.extend(Phx.gridInterfaz,{
         {name:'codigo_cuenta', type: 'string'},
 		{name:'sub_cuenta', type: 'string'},
         {name:'sub_sub_cuenta', type: 'string'},
+        {name:'sub_sub_sub_cuenta', type: 'string'},
 		{name:'auxiliar', type: 'string'},
 		{name:'nombre_cuenta', type: 'string'},
 		{name:'ajuste', type: 'string'},

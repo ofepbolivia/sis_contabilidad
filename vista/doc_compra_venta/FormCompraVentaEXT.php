@@ -1,16 +1,16 @@
 <?php
 /**
  * @package pXP
- * @file    FormCompraVenta.php
- * @author  Rensi Arteaga Copari
- * @date    30-01-2014
- * @description permites subir archivos a la tabla de documento_sol
+ * @file    FormCompraVentaEXT.php
+ * @author  Maylee Perez Pastor
+ * @date    11-03-2020
+ * @description permites subir archivos a la tabla
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-    Phx.vista.FormCompraVenta = Ext.extend(Phx.frmInterfaz, {
-        ActSave: '../../sis_contabilidad/control/DocCompraVenta/insertarDocCompleto',
+    Phx.vista.FormCompraVentaEXT = Ext.extend(Phx.frmInterfaz, {
+        ActSave: '../../sis_contabilidad/control/DocCompraVenta/insertarDocCompletoEXT',
         tam_pag: 10,
         tabEnter: true,
         codigoSistema: 'ADQ',
@@ -34,8 +34,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.addEvents('successsave');
             if (config.data.mostrarFormaPago === false) {
                 this.mostrarFormaPago = config.data.mostrarFormaPago;
-            }                        
-            
+            }
+
             Ext.apply(this, config);
             this.obtenerVariableGlobal(config);
             this.generarAtributos();
@@ -51,7 +51,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.buildGrupos();
 
 
-            Phx.vista.FormCompraVenta.superclass.constructor.call(this, config);
+            Phx.vista.FormCompraVentaEXT.superclass.constructor.call(this, config);
 
             this.init();
 
@@ -666,7 +666,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                         xtype: 'fieldset',
                                         frame: true,
                                         layout: 'form',
-                                        title: ' Datos básicos ',
+                                        title: ' Datos base ',
                                         width: '100%',
                                         border: false,
                                         //margins: '0 0 0 5',
@@ -715,74 +715,154 @@ header("content-type: text/javascript; charset=UTF-8");
                     padding: '0 0 0 10',
                     items: [
                         {
-                            bodyStyle: 'padding-right:5px;',
-                            width: '33%',
-                            autoHeight: true,
-                            border: true,
                             items: [
                                 {
-                                    xtype: 'fieldset',
-                                    frame: true,
-                                    border: false,
-                                    layout: 'form',
-                                    title: 'Tipo',
+                                    bodyStyle: 'padding-right:5px;',
                                     width: '100%',
+                                    autoHeight: true,
+                                    border: true,
+                                    items: [
+                                        {
+                                            xtype: 'fieldset',
+                                            frame: true,
+                                            border: false,
+                                            layout: 'form',
+                                            title: 'Tipo',
+                                            width: '50%',
 
-                                    //margins: '0 0 0 5',
-                                    padding: '0 0 0 10',
-                                    bodyStyle: 'padding-left:5px;',
-                                    id_grupo: 0,
-                                    items: [],
-                                }]
+                                            //margins: '0 0 0 5',
+                                            padding: '0 0 0 10',
+                                            bodyStyle: 'padding-left:5px;',
+                                            id_grupo: 0,
+                                            items: [],
+
+
+                                        }]
+                                },
+
+                                {
+                                    bodyStyle: 'padding-right:5px;',
+                                    width: '100%',
+                                    border: true,
+                                    autoHeight: true,
+                                    items: [{
+                                        xtype: 'fieldset',
+                                        frame: true,
+                                        layout: 'form',
+                                        title: ' Datos Básicos ',
+                                        width: '100%',
+                                        border: false,
+                                        //margins: '0 0 0 5',
+                                        padding: '0 0 0 10',
+                                        bodyStyle: 'padding-left:5px;',
+                                        id_grupo: 1,
+                                        items: [],
+                                    }]
+
+                                }
+                            ]
                         },
+
                         {
-                            bodyStyle: 'padding-right:5px;',
-                            width: '33%',
-                            border: true,
-                            autoHeight: true,
-                            items: [{
-                                xtype: 'fieldset',
-                                frame: true,
-                                layout: 'form',
-                                title: ' Datos básicos ',
-                                width: '100%',
-                                border: false,
-                                //margins: '0 0 0 5',
-                                padding: '0 0 0 10',
-                                bodyStyle: 'padding-left:5px;',
-                                id_grupo: 1,
-                                items: [],
-                            }]
+                            items: [
+                                {
+                                    bodyStyle: 'padding-right:5px;',
+                                    width: '115%',
+                                    border: true,
+                                    autoHeight: true,
+                                    items: [{
+                                        xtype: 'fieldset',
+                                        frame: true,
+                                        layout: 'form',
+                                        title: 'Importes Base',
+                                        width: '100%',
+                                        border: false,
+                                        //margins: '0 0 0 5',
+                                        padding: '0 0 0 10',
+                                        bodyStyle: 'padding-left:5px;',
+                                        id_grupo: 3,
+                                        items: [],
+                                    }]
+                                },
+
+                                {
+                                    bodyStyle: 'padding-right:2px;',
+                                    width: '115%',
+                                    border: true,
+                                    autoHeight: true,
+                                    items: [{
+                                        xtype: 'fieldset',
+                                        frame: true,
+                                        layout: 'form',
+                                        title: ' Importes IVA',
+                                        width: '100%',
+                                        border: false,
+                                        //margins: '0 0 0 5',
+                                        padding: '0 0 0 10',
+                                        bodyStyle: 'padding-left:2px;',
+                                        id_grupo: 5,
+                                        items: [],
+                                    }]
+                                }
+                            ]
+
                         },
+
                         {
-                            bodyStyle: 'padding-right:2px;',
-                            width: '33%',
-                            border: true,
-                            autoHeight: true,
-                            items: [{
-                                xtype: 'fieldset',
-                                frame: true,
-                                layout: 'form',
-                                title: 'Detalle de pago',
-                                width: '100%',
-                                border: false,
-                                //margins: '0 0 0 5',
-                                padding: '0 0 0 10',
-                                bodyStyle: 'padding-left:2px;',
-                                id_grupo: 2,
-                                items: [],
-                            }]
+                            items: [
+                                {
+                                    bodyStyle: 'padding-right:5px;',
+                                    width: '100%',
+                                    border: true,
+                                    autoHeight: true,
+                                    items: [{
+                                        xtype: 'fieldset',
+                                        frame: true,
+                                        layout: 'form',
+                                        title: ' Importes Percepción ',
+                                        width: '100%',
+                                        border: false,
+                                        //margins: '0 0 0 5',
+                                        padding: '0 0 0 10',
+                                        bodyStyle: 'padding-left:5px;',
+                                        id_grupo: 4,
+                                        items: [],
+                                    }]
+                                },
+
+                                {
+                                    bodyStyle: 'padding-right:2px;',
+                                    width: '100%',
+                                    border: true,
+                                    autoHeight: true,
+                                    items: [{
+                                        xtype: 'fieldset',
+                                        frame: true,
+                                        layout: 'form',
+                                        title: 'Detalle de Pago',
+                                        width: '100%',
+                                        border: false,
+                                        //margins: '0 0 0 5',
+                                        padding: '0 0 0 10',
+                                        bodyStyle: 'padding-left:2px;',
+                                        id_grupo: 2,
+                                        items: [],
+                                    }]
+                                }
+                            ]
+
                         }
+
+
                     ]
-                }];
-            }
+            }]}
 
 
         },
 
         loadValoresIniciales: function () {
 
-            Phx.vista.FormCompraVenta.superclass.loadValoresIniciales.call(this);
+            Phx.vista.FormCompraVentaEXT.superclass.loadValoresIniciales.call(this);
 
 
         },
@@ -1076,7 +1156,63 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: true
                 },
 
+
+               /* {
+                    config: {
+                        name: 'id_proveedor',
+                        fieldLabel: 'Proveedor',
+                        anchor: '85%',
+                        tinit: false,
+                        allowBlank: true,
+                        origen: 'PROVEEDOR',
+                        listWidth: '280',
+                        resizable: true
+                    },
+                    type: 'ComboRec',
+                    id_grupo: 0,
+                    form: true
+                },*/
                 {
+                    config: {
+                        name: 'id_proveedor',
+                        origen: 'PROVEEDOR',
+                        allowBlank: false,
+                        fieldLabel: 'Proveedor',
+                        gdisplayField: 'desc_proveedor',
+                        anchor: '85%',
+                        tinit: false,
+                        listWidth: '280',
+                        resizable: true
+                    },
+                    type: 'ComboRec',
+                    id_grupo: 0,
+                    form: true
+                },
+
+                {
+                    config: {
+                        name: 'razon_social',
+                        fieldLabel: 'Razón Social (Impuestos)',
+                        allowBlank: false,
+                        // maskRe: /[A-Za-z0-9 &-. ñ Ñ]/,
+                        // fieldStyle: 'text-transform:uppercase',
+                        style: 'text-transform:uppercase;',
+                        // listeners:{
+                        //     'change': function(field, newValue, oldValue){
+                        //
+                        //         field.suspendEvents(true);
+                        //         field.setValue(newValue.toUpperCase());
+                        //         field.resumeEvents(true);
+                        //     }
+                        // },
+                        anchor: '85%',
+                        maxLength: 180
+                    },
+                    type: 'TextField',
+                    id_grupo: 0,
+                    form: true
+                },
+                /*  {
                     config: {
                         name: 'nit',
                         fieldLabel: 'NIT',
@@ -1118,44 +1254,73 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'ComboBox',
                     id_grupo: 0,
                     form: true
-                },
+                },*/
                 {
                     config: {
-                        name: 'id_proveedor',
-                        fieldLabel: 'Proveedor',
-                        anchor: '85%',
-                        tinit: false,
+                        name: 'nit',
+                        fieldLabel: 'CUIT',
+                        qtip: 'Número de indentificación del proveedor',
                         allowBlank: true,
-                        origen: 'PROVEEDOR',
-                        listWidth: '280',
-                        resizable: true
+                        anchor: '85%',
+                        allowDecimals: false,
+                        maxLength: 100,
+                        readOnly :true
                     },
-                    type: 'ComboRec',
+                    type:'TextField',
                     id_grupo: 0,
                     form: true
                 },
 
                 {
                     config: {
-                        name: 'razon_social',
-                        fieldLabel: 'Razón Social (Impuestos)',
-                        allowBlank: false,
-                        // maskRe: /[A-Za-z0-9 &-. ñ Ñ]/,
-                        // fieldStyle: 'text-transform:uppercase',
-                        style: 'text-transform:uppercase;',
-                        // listeners:{
-                        //     'change': function(field, newValue, oldValue){
-                        //
-                        //         field.suspendEvents(true);
-                        //         field.setValue(newValue.toUpperCase());
-                        //         field.resumeEvents(true);
-                        //     }
-                        // },
+                        name: 'num_proveedor',
+                        fieldLabel: 'Nro Proveedor',
+                        allowBlank: true,
                         anchor: '85%',
-                        maxLength: 180
+                        allowDecimals: false,
+                        maxLength: 100,
+                        readOnly :true
+
+                        // maskRe: /[0-9/-]+/i,
+                        // regex: /[0-9/-]+/i
+
+
+                    },
+                    type:'NumberField',
+                    id_grupo: 0,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'condicion',
+                        fieldLabel: 'Condición Prov.',
+                        allowBlank: true,
+                        qtip: 'Punto de Venta',
+                        anchor: '85%',
+                        gwidth: 100,
+                        readOnly :true
                     },
                     type: 'TextField',
+                    //type: 'NumberField',
                     id_grupo: 0,
+                    form: true
+                },
+
+                {
+                    config: {
+                        name: 'c_emisor',
+                        fieldLabel: 'C Emisor',
+                        allowBlank: true,
+                        allowNegative: false,
+                        qtip: 'Punto de Venta',
+                        anchor: '85%',
+                        gwidth: 100,
+                        allowDecimals: false
+                        //maxLength: 1179650
+                    },
+                    type: 'TextField',
+                    //type: 'NumberField',
+                    id_grupo: 1,
                     form: true
                 },
                 {
@@ -1164,6 +1329,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'Nro Factura / Doc',
                         allowBlank: false,
                         anchor: '85%',
+                        qtip: 'Parte Cbte',
                         allowDecimals: false,
                         maxLength: 100
                         // maskRe: /[0-9/-]+/i,
@@ -1388,6 +1554,328 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: true
                 },
                 {
+                    config:{
+                        name: 'costo_directo',
+                        fieldLabel: 'Costo Directo',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        typeAhead:true,
+                        triggerAction:'all',
+                        mode:'local',
+                        store:['si', 'no']
+                    },
+                    type:'ComboBox',
+                    filters:{pfiltro:'actividad',type:'string'},
+                    id_grupo:1,
+                    grid:false,
+                    form:true
+                },
+                {
+                    config: {
+                        name: 'importe_excento',
+                        qtip: 'sobre el importe ento, ¿que monto es exento de impuestos?',
+                        fieldLabel: 'Exento',
+                        allowNegative: false,
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 3,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'no_gravado',
+                        fieldLabel: 'No Gravado',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 3,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'base_21',
+                        fieldLabel: 'Base 21%',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 3,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'base_27',
+                        fieldLabel: 'Base 27%',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 3,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'base_10_5',
+                        fieldLabel: 'Base 10,5%',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 3,
+                    form: true
+                }, {
+                    config: {
+                        name: 'base_2_5',
+                        fieldLabel: 'Base 2,5%',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 3,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'iva_21',
+                        fieldLabel: 'Iva 21%',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 5,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'iva_27',
+                        fieldLabel: 'Iva 27%',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 5,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'iva_10_5',
+                        fieldLabel: 'Iva 10,5%',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 5,
+                    form: true
+                },
+
+                {
+                    config: {
+                        name: 'iva_2_5',
+                        fieldLabel: 'Iva 2,5%',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 5,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'percepcion_caba',
+                        fieldLabel: 'Percepción IIBB CABA',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 4,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'percepcion_bue',
+                        fieldLabel: 'Percepción IIBB BUE',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 4,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'percepcion_iva',
+                        fieldLabel: 'Percepción IVA',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 4,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'percepcion_salta',
+                        fieldLabel: 'Percepción IIBB SALTA',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 4,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'percepcion_tucuman',
+                        fieldLabel: 'Percepción IIBB TUCUMAN',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 4,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'percepcion_corrientes',
+                        fieldLabel: 'Percepción IIBB CORRIENTE',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 4,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'percepcion_neuquen',
+                        fieldLabel: 'Percepción IIBB NEUQUEN',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 4,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'imp_internos',
+                        fieldLabel: 'Imp. Internos',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 4,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'otros_impuestos',
+                        fieldLabel: 'Otros Impuestos',
+                        allowBlank: true,
+                        allowNegative: false,
+
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    valorInicial: 0,
+                    id_grupo: 4,
+                    form: true
+                },
+
+                {
                     config: {
                         name: 'importe_doc',
                         fieldLabel: 'Monto',
@@ -1446,20 +1934,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 2,
                     form: true
                 },
-                {
-                    config: {
-                        name: 'importe_excento',
-                        qtip: 'sobre el importe ento, ¿que monto es exento de impuestos?',
-                        fieldLabel: 'Exento',
-                        allowNegative: false,
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100
-                    },
-                    type: 'NumberField',
-                    id_grupo: 2,
-                    form: true
-                },
+
                 {
                     config: {
                         name: 'importe_pendiente',
@@ -1588,7 +2063,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'NumberField',
                     id_grupo: 2,
                     form: true
-				},
+                },
                 {
                     config: {
                         labelSeparator: '',
@@ -1598,24 +2073,24 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'Field',
                     form: true
                 },
-                 {
-                     config: {
-                         labelSeparator: '',
-                         inputType: 'hidden',
-                         name: 'boton_rendicion'
-                     },
-                     type: 'Field',
-                     form: true
-                 },
-                  {
-                     config: {
-                         labelSeparator: '',
-                         inputType: 'hidden',
-                         name: 'mod_rev'
-                     },
-                     type: 'Field',
-                     form: true
-                 }
+                {
+                    config: {
+                        labelSeparator: '',
+                        inputType: 'hidden',
+                        name: 'boton_rendicion'
+                    },
+                    type: 'Field',
+                    form: true
+                },
+                {
+                    config: {
+                        labelSeparator: '',
+                        inputType: 'hidden',
+                        name: 'mod_rev'
+                    },
+                    type: 'Field',
+                    form: true
+                }
 
             ];
 
@@ -1652,7 +2127,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.razon_social.reset();
                     }
                 }
-				this.disableComponentes();
+                this.disableComponentes();
             }, this);
 
 
@@ -1663,6 +2138,10 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.id_proveedor.on('select', function (cmb, rec, i) {
                 // this.Cmp.razon_social.setValue(rec.data.desc_proveedor);
                 this.Cmp.razon_social.setValue(rec.data.rotulo_comercial);
+                console.log('llega',rec )
+                this.Cmp.num_proveedor.setValue(rec.data.num_proveedor);
+                this.Cmp.condicion.setValue(rec.data.condicion);
+                this.Cmp.nit.setValue(rec.data.nit);
             }, this);
             //
             this.Cmp.nit.on('change', function (cmb, newval, oldval) {
@@ -1699,7 +2178,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 }
 
                 this.getDetallePorAplicar(rec.data.id_plantilla);
-                if (rec.data.sw_monto_excento == 'si') {
+               /* if (rec.data.sw_monto_excento == 'si') {
                     this.mostrarComponente(this.Cmp.importe_excento);
                     this.Cmp.tipo_excento.setValue(rec.data.tipo_excento);
                     this.Cmp.valor_excento.setValue(rec.data.valor_excento);
@@ -1711,13 +2190,13 @@ header("content-type: text/javascript; charset=UTF-8");
 
                 }
                 else {
-                    this.ocultarComponente(this.Cmp.importe_excento);
+                    //this.ocultarComponente(this.Cmp.importe_excento);
                     this.Cmp.importe_excento.setReadOnly(false);
                     this.Cmp.tipo_excento.setValue('variable');
                     this.Cmp.importe_excento.setValue(0);
                     this.Cmp.valor_excento.setValue(0);
 
-                }
+                }*/
 
                 if (rec.data.sw_descuento == 'si') {
                     this.mostrarComponente(this.Cmp.importe_descuento);
@@ -1742,12 +2221,12 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.mostrarComponente(this.Cmp.id_proveedor);
                 }
 
-                if (rec.data.sw_nit == 'si') {
+               // if (rec.data.sw_nit == 'si') {
                     this.mostrarComponente(this.Cmp.nit);
-                }
+                /*}
                 else {
                     this.ocultarComponente(this.Cmp.nit);
-                }
+                }*/
 
                 if (rec.data.sw_qr == 'si' && rec.data.plantilla_qr != '') {
                     this.mostrarComponente(this.Cmp.codigo_qr);
@@ -1801,6 +2280,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 if (rec.data.desc_plantilla == 'Póliza de Importación - DUI') {
                     this.Cmp.importe_doc.on('change', this.calcularDuis, this);
                     this.aux = 'Póliza de Importación - DUI';
+
+
                 }
 
                 //(may) tipo de cambio solo muestre para la moneda en dolares
@@ -1813,7 +2294,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.tipo_cambio.reset();
                         //this.Cmp.tipo_cambio.reset();
                     }
-                }, this);						  
+                }, this);
+
+
 
             }, this);
 
@@ -1822,11 +2305,35 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.importe_descuento.on('change', this.calculaMontoPago, this);
             this.Cmp.importe_descuento_ley.on('change', this.calculaMontoPago, this);
 
-            this.Cmp.importe_pendiente.on('change', this.calculaMontoPago, this);
-            this.Cmp.importe_anticipo.on('change', this.calculaMontoPago, this);
-            this.Cmp.importe_retgar.on('change', this.calculaMontoPago, this);
+            //this.Cmp.importe_pendiente.on('change', this.calculaMontoPago, this);
+            //this.Cmp.importe_anticipo.on('change', this.calculaMontoPago, this);
+            //this.Cmp.importe_retgar.on('change', this.calculaMontoPago, this);
 
             this.Cmp.tipo_cambio.on('change', this.calculaMontoPago, this);
+
+            //(may)
+            this.Cmp.no_gravado.on('change', this.calculaMontoPago, this);
+
+            this.Cmp.base_21.on('change', this.calculaMontoPago, this);
+            this.Cmp.base_27.on('change', this.calculaMontoPago, this);
+            this.Cmp.base_10_5.on('change', this.calculaMontoPago, this);
+            this.Cmp.base_2_5.on('change', this.calculaMontoPago, this);
+
+            this.Cmp.iva_21.on('change', this.calculaMontoPago, this);
+            this.Cmp.iva_27.on('change', this.calculaMontoPago, this);
+            this.Cmp.iva_10_5.on('change', this.calculaMontoPago, this);
+            this.Cmp.iva_2_5.on('change', this.calculaMontoPago, this);
+
+            this.Cmp.percepcion_caba.on('change', this.calculaMontoPago, this);
+            this.Cmp.percepcion_bue.on('change', this.calculaMontoPago, this);
+            this.Cmp.percepcion_iva.on('change', this.calculaMontoPago, this);
+            this.Cmp.percepcion_salta.on('change', this.calculaMontoPago, this);
+            this.Cmp.imp_internos.on('change', this.calculaMontoPago, this);
+            this.Cmp.percepcion_tucuman.on('change', this.calculaMontoPago, this);
+            this.Cmp.percepcion_corrientes.on('change', this.calculaMontoPago, this);
+            this.Cmp.percepcion_neuquen.on('change', this.calculaMontoPago, this);
+            this.Cmp.otros_impuestos.on('change', this.calculaMontoPago, this);
+            //
 
 
             this.Cmp.nro_autorizacion.on('change', function (fild, newValue, oldValue) {
@@ -1841,7 +2348,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
                 }
                 ;
-				this.disableComponentes();
+                this.disableComponentes();
             }, this);
 
             this.Cmp.codigo_control.on('keyup', function (cmp, e) {
@@ -1933,13 +2440,19 @@ header("content-type: text/javascript; charset=UTF-8");
 
             }, this);
 
-            this.Cmp.fecha_vencimiento.setReadOnly(false);				  
+            this.Cmp.fecha_vencimiento.setReadOnly(false);
         },
 
         resetearMontos: function () {
             this.Cmp.importe_doc.setValue(0);
             this.Cmp.importe_neto.setValue(0);
             this.Cmp.importe_pago_liquido.setValue(0);
+
+            this.Cmp.iva_21.setValue(0);
+            this.Cmp.iva_27.setValue(0);
+            this.Cmp.iva_10_5.setValue(0);
+            this.Cmp.iva_3.setValue(0);
+            this.Cmp.iva_2_5.setValue(0);
             this.iniciarImportes();
         },
 
@@ -2031,8 +2544,8 @@ header("content-type: text/javascript; charset=UTF-8");
             else {
                 this.Cmp.importe_iva.setValue(0);
             }
-			this.disableComponentes();
-            if (this.mostrarFormaPago) {
+            this.disableComponentes();
+           /* if (this.mostrarFormaPago) {
                 if (this.Cmp.importe_retgar.getValue() > 0 || this.Cmp.importe_anticipo.getValue() > 0 || this.Cmp.importe_pendiente.getValue() > 0) {
                     this.Cmp.id_auxiliar.allowBlank = false;
                     this.Cmp.id_auxiliar.setReadOnly(false);
@@ -2043,11 +2556,60 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.id_auxiliar.reset();
                 }
                 this.Cmp.id_auxiliar.validate();
-            }
-            if (this.aux != 'Póliza de Importación - DUI') {
-                var liquido = this.Cmp.importe_neto.getValue() - this.Cmp.importe_retgar.getValue() - this.Cmp.importe_anticipo.getValue() - this.Cmp.importe_pendiente.getValue() - this.Cmp.importe_descuento_ley.getValue();
+            }*/
+           // if (this.aux != 'Póliza de Importación - DUI') {
+             /*   var liquido = this.Cmp.importe_neto.getValue() - this.Cmp.importe_retgar.getValue() - this.Cmp.importe_anticipo.getValue() - this.Cmp.importe_pendiente.getValue() - this.Cmp.importe_descuento_ley.getValue();
+                this.Cmp.importe_pago_liquido.setValue(liquido > 0 ? liquido : 0);*/
+               // (may)
+            //console.log('llegam231', this.Cmp.base_21.getValue());
+            //console.log('llegam232', this.Cmp.importe_doc.getValue());
+
+               var total_iva_21 = (this.Cmp.base_21.getValue() * 0.21 );
+               this.Cmp.iva_21.setValue(total_iva_21 > 0 ? total_iva_21 : 0);
+
+               var total_iva_27 = (this.Cmp.base_27.getValue() * 0.27 );
+               this.Cmp.iva_27.setValue(total_iva_27 > 0 ? total_iva_27 : 0);
+
+               var total_iva_10_5 = (this.Cmp.base_10_5.getValue() * 0.105 );
+               this.Cmp.iva_10_5.setValue(total_iva_10_5 > 0 ? total_iva_10_5 : 0)
+
+               var total_iva_2_5 = (this.Cmp.base_2_5.getValue() * 0.025 );
+               this.Cmp.iva_2_5.setValue(total_iva_2_5 > 0 ? total_iva_2_5 : 0);
+
+            this.Cmp.base_21.setValue(this.Cmp.base_21.getValue() > 0 ? this.Cmp.base_21.getValue() : 0);
+            this.Cmp.base_27.setValue(this.Cmp.base_27.getValue() > 0 ? this.Cmp.base_27.getValue() : 0);
+            this.Cmp.base_10_5.setValue(this.Cmp.base_10_5.getValue() > 0 ? this.Cmp.base_10_5.getValue() : 0);
+            this.Cmp.base_2_5.setValue(this.Cmp.base_2_5.getValue() > 0 ? this.Cmp.base_2_5.getValue() : 0);
+
+            this.Cmp.no_gravado.setValue(this.Cmp.no_gravado.getValue() > 0 ? this.Cmp.no_gravado.getValue() : 0);
+            this.Cmp.percepcion_caba.setValue(this.Cmp.percepcion_caba.getValue() > 0 ? this.Cmp.percepcion_caba.getValue() : 0);
+            this.Cmp.percepcion_bue.setValue(this.Cmp.percepcion_bue.getValue() > 0 ? this.Cmp.percepcion_bue.getValue() : 0);
+            this.Cmp.percepcion_iva.setValue(this.Cmp.percepcion_iva.getValue() > 0 ? this.Cmp.percepcion_iva.getValue() : 0);
+            this.Cmp.percepcion_salta.setValue(this.Cmp.percepcion_salta.getValue() > 0 ? this.Cmp.percepcion_salta.getValue() : 0);
+            this.Cmp.imp_internos.setValue(this.Cmp.imp_internos.getValue() > 0 ? this.Cmp.imp_internos.getValue() : 0);
+            this.Cmp.percepcion_tucuman.setValue(this.Cmp.percepcion_tucuman.getValue() > 0 ? this.Cmp.percepcion_tucuman.getValue() : 0);
+            this.Cmp.percepcion_corrientes.setValue(this.Cmp.percepcion_corrientes.getValue() > 0 ? this.Cmp.percepcion_corrientes.getValue() : 0);
+            this.Cmp.percepcion_neuquen.setValue(this.Cmp.percepcion_neuquen.getValue() > 0 ? this.Cmp.percepcion_neuquen.getValue() : 0);
+            this.Cmp.otros_impuestos.setValue(this.Cmp.otros_impuestos.getValue() > 0 ? this.Cmp.otros_impuestos.getValue() : 0);
+
+
+
+                //this.Cmp.importe_doc.setValue(total_iva_21 > 0 ? total_iva_21 : 0);
+
+                var liquido = this.Cmp.importe_excento.getValue() + this.Cmp.no_gravado.getValue() + total_iva_21 + total_iva_27 + total_iva_10_5  + total_iva_2_5 +
+                              this.Cmp.base_21.getValue() + this.Cmp.base_27.getValue() + this.Cmp.base_10_5.getValue() + this.Cmp.base_2_5.getValue() +
+                              this.Cmp.percepcion_caba.getValue() + this.Cmp.percepcion_bue.getValue() + this.Cmp.percepcion_iva.getValue() + this.Cmp.percepcion_salta.getValue() +
+                              this.Cmp.imp_internos.getValue() + this.Cmp.percepcion_tucuman.getValue() + this.Cmp.percepcion_corrientes.getValue() + this.Cmp.percepcion_neuquen.getValue() +
+                              this.Cmp.otros_impuestos.getValue() ;
+
+                this.Cmp.importe_doc.setValue(liquido > 0 ? liquido : 0);
                 this.Cmp.importe_pago_liquido.setValue(liquido > 0 ? liquido : 0);
-            }
+           // }
+
+           /* if (this.aux != 'Póliza de Importación - DUI') {
+                var liquido = this.Cmp.base_21.getValue() * 0.21 ;
+                this.Cmp.iva_21.setValue(liquido > 0 ? liquido : 0);
+            }*/
 
 
         },
@@ -2055,13 +2617,19 @@ header("content-type: text/javascript; charset=UTF-8");
         calcularDuis: function () {
 
             var liquido;
-            if (this.Cmp.porc_iva_cf.getValue() > 0) {
+          /*  if (this.Cmp.porc_iva_cf.getValue() > 0) {
                 liquido = this.Cmp.porc_iva_cf.getValue() * this.Cmp.importe_doc.getValue();
             }
             else {
                 liquido = this.Cmp.porc_iva_df.getValue() * this.Cmp.importe_doc.getValue();
             }
-            this.Cmp.importe_pago_liquido.setValue(liquido > 0 ? liquido : 0);
+            this.Cmp.importe_pago_liquido.setValue(liquido > 0 ? liquido : 0);*/
+
+
+            if (this.Cmp.porc_iva_cf.getValue() > 0) {
+                liquido = this.Cmp.base_21.getValue() * 0.21;
+            }
+            this.Cmp.iva_21.setValue(liquido > 0 ? liquido : 0);
         },
 
         getDetallePorAplicar: function (id_plantilla) {
@@ -2109,7 +2677,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.ocultarComponente(this.Cmp.importe_neto);
             this.ocultarComponente(this.Cmp.nro_autorizacion);
             this.ocultarComponente(this.Cmp.codigo_control);
-            this.ocultarComponente(this.Cmp.importe_excento);
+           // this.ocultarComponente(this.Cmp.importe_excento);
             this.ocultarComponente(this.Cmp.importe_iva);
             this.ocultarComponente(this.Cmp.importe_it);
             this.ocultarComponente(this.Cmp.importe_ice);
@@ -2122,18 +2690,20 @@ header("content-type: text/javascript; charset=UTF-8");
             this.ocultarComponente(this.Cmp.estacion);
             this.ocultarComponente(this.Cmp.id_punto_venta);
             this.ocultarComponente(this.Cmp.id_agencia);
+
+            this.ocultarComponente(this.Cmp.nro_dui);
         },
-		disableComponentes: function () {
+        disableComponentes: function () {
             //03-01-2020 (may) modificacion porque mostraba a todos su codigo de control
-            //if(this.data.datosOriginales.data.isNewRelationEditable){            
-            
+            //if(this.data.datosOriginales.data.isNewRelationEditable){
+
             if(this.data.tipo_form != 'new' ){
                 //08-01-2020 (may) modificacion para que solo tenga bloqueado los campos de la factura en fondos en avance
                 //console.log('llegam',this.data );
                 //console.log('llegam22',this.data.objPadre.mycls );
                 //console.log('llegam233',this.mycls);
                 if (this.data.objPadre.mycls == 'RendicionDetReg' && this.mycls == 'FormRendicionCD'){
-                    
+
                     if (this.data.datosOriginales.data.revisado == 'si' || this.data.boton_rendicion=='readOnly') {
                         this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
                         this.Cmp.mod_rev.setValue(this.data.datosOriginales.data.revisado);
@@ -2158,8 +2728,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.obs.setDisabled(true);
                         this.Cmp.importe_doc.setDisabled(true);
 
+
                         if (this.data.datosOriginales.data.id_moneda == 2) {
-                            this.mostrarComponente(this.Cmp.tipo_cambio);                            
+                            this.mostrarComponente(this.Cmp.tipo_cambio);
                         }
                         else {
                             this.ocultarComponente(this.Cmp.tipo_cambio);
@@ -2167,8 +2738,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.tipo_cambio.setDisabled(true);
                         this.Cmp.importe_descuento.setDisabled(true);
                         this.Cmp.importe_neto.setDisabled(true);
-                        this.Cmp.importe_excento.setDisabled(true);
-                        this.Cmp.importe_pendiente.setDisabled(true);
+                        //this.Cmp.importe_excento.setDisabled(true);
+                        //this.Cmp.importe_pendiente.setDisabled(true);
                         this.Cmp.importe_anticipo.setDisabled(true);
                         this.Cmp.importe_retgar.setDisabled(true);
                         this.Cmp.id_auxiliar.setDisabled(true);
@@ -2177,15 +2748,18 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.importe_iva.setDisabled(true);
                         this.Cmp.importe_it.setDisabled(true);
                         this.Cmp.importe_pago_liquido.setDisabled(true);
+
+                        this.Cmp.iva_21.setDisabled(true);
+                        this.Cmp.nro_dui.setDisabled(true);
                     }
                     this.Cmp.mod_rev.setValue(this.data.datosOriginales.data.revisado);
                     this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
                     if (this.data.datosOriginales.data.id_moneda == 2) {
-                        this.mostrarComponente(this.Cmp.tipo_cambio);                            
+                        this.mostrarComponente(this.Cmp.tipo_cambio);
                     }
                     else {
                         this.ocultarComponente(this.Cmp.tipo_cambio);
-                    }                                        
+                    }
                 }
             }
         },
@@ -2197,9 +2771,24 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.importe_descuento_ley.setValue(0);
             this.Cmp.importe_descuento.setValue(0);
 
-            this.Cmp.importe_pendiente.setValue(0);
-            this.Cmp.importe_anticipo.setValue(0);
-            this.Cmp.importe_retgar.setValue(0);
+            //this.Cmp.importe_pendiente.setValue(0);
+            //this.Cmp.importe_anticipo.setValue(0);
+            //this.Cmp.importe_retgar.setValue(0);
+
+            this.Cmp.no_gravado.setValue(0);
+            this.Cmp.base_21.setValue(0);
+            this.Cmp.base_27.setValue(0);
+            this.Cmp.base_10_5.setValue(0);
+            this.Cmp.base_2_5.setValue(0);
+            this.Cmp.percepcion_caba.setValue(0);
+            this.Cmp.percepcion_bue.setValue(0);
+            this.Cmp.percepcion_iva.setValue(0);
+            this.Cmp.percepcion_salta.setValue(0);
+            this.Cmp.imp_internos.setValue(0);
+            this.Cmp.percepcion_tucuman.setValue(0);
+            this.Cmp.percepcion_corrientes.setValue(0);
+            this.Cmp.otros_impuestos.setValue(0);
+            this.Cmp.percepcion_neuquen.setValue(0);
         },
 
         mostrarImportes: function (datos) {
@@ -2221,10 +2810,10 @@ header("content-type: text/javascript; charset=UTF-8");
             }
             //puntero
             if (this.mostrarFormaPago) {
-                this.mostrarComponente(this.Cmp.importe_pendiente);
-                this.mostrarComponente(this.Cmp.importe_anticipo);
-                this.mostrarComponente(this.Cmp.importe_retgar);
-                this.mostrarComponente(this.Cmp.id_auxiliar);
+                //this.mostrarComponente(this.Cmp.importe_pendiente);
+                //this.mostrarComponente(this.Cmp.importe_anticipo);
+                //this.mostrarComponente(this.Cmp.importe_retgar);
+                //this.mostrarComponente(this.Cmp.id_auxiliar);
             }
 
 
@@ -2257,7 +2846,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.mestore.load()
             }
 
-			this.disableComponentes();
+            this.disableComponentes();
 
 
         },
@@ -2307,18 +2896,22 @@ header("content-type: text/javascript; charset=UTF-8");
 
                     if (this.aux != 'Póliza de Importación - DUI') {
                         // importe_pago_liquido
+
                         if ((total_det.toFixed(2) * 1) == this.Cmp.importe_doc.getValue()) {
-                            Phx.vista.FormCompraVenta.superclass.onSubmit.call(this, o, undefined, true);
+                            Phx.vista.FormCompraVentaEXT.superclass.onSubmit.call(this, o, undefined, true);
                         }
                         else {
                             alert('El total del detalle no cuadra con el total del documento');
                         }
+                      /*  if (this.Cmp.iva_21.getValue() * 0.21) == this.Cmp.iva_21.getValue()) {
+                            Phx.vista.FormCompraVentaEXT.superclass.onSubmit.call(this, o, undefined, true);
+                        }*/
 
                     } else {
 
 
                         if ((total_det.toFixed(2) * 1) == this.Cmp.importe_pago_liquido.getValue()) {
-                            Phx.vista.FormCompraVenta.superclass.onSubmit.call(this, o, undefined, true);
+                            Phx.vista.FormCompraVentaEXT.superclass.onSubmit.call(this, o, undefined, true);
                         }
                         else {
                             alert('El total del detalle no cuadra con el Liquido Pagado');
@@ -2332,7 +2925,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }
             else {
                 me.argumentExtraSubmit = {'regitrarDetalle': me.regitrarDetalle};
-                Phx.vista.FormCompraVenta.superclass.onSubmit.call(this, o, undefined, true);
+                Phx.vista.FormCompraVentaEXT.superclass.onSubmit.call(this, o, undefined, true);
             }
         },
 
