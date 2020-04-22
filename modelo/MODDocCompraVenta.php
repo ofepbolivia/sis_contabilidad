@@ -1837,6 +1837,7 @@ class MODDocCompraVenta extends MODbase
         $this->captura('codigo', 'varchar');
         $this->captura('letra_tipo_plantilla', 'varchar');
         $this->captura('c_emisor', 'varchar');
+        $this->captura('nro_documento', 'varchar');
         $this->captura('id_int_comprobante', 'int4');
         $this->captura('importe_excento', 'numeric');
         $this->captura('no_gravado', 'numeric');
@@ -1863,7 +1864,7 @@ class MODDocCompraVenta extends MODbase
         $this->armarConsulta();
         //echo $this->consulta;exit;
         $this->ejecutarConsulta();
-        //var_dump('llega',$this->respuest );exit;
+        //var_dump('llega',$this->respuesta );exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }

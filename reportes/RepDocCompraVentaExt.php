@@ -86,11 +86,11 @@ class RepDocCompraVentaExt
         //titulos
 
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, 2, 'PLANILLA MENSUAL');
-        $this->docexcel->getActiveSheet()->getStyle('A2:AH2')->applyFromArray($styleTitulos1);
-        $this->docexcel->getActiveSheet()->mergeCells('A2:AH2');
+        $this->docexcel->getActiveSheet()->getStyle('A2:AI2')->applyFromArray($styleTitulos1);
+        $this->docexcel->getActiveSheet()->mergeCells('A2:AI2');
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, 3, 'Del: ' . $this->objParam->getParametro('fecha_ini') . '   Al: ' . $this->objParam->getParametro('fecha_fin'));
-        $this->docexcel->getActiveSheet()->getStyle('A3:AH3')->applyFromArray($styleTitulos3);
-        $this->docexcel->getActiveSheet()->mergeCells('A3:AH3');
+        $this->docexcel->getActiveSheet()->getStyle('A3:AI3')->applyFromArray($styleTitulos3);
+        $this->docexcel->getActiveSheet()->mergeCells('A3:AI3');
 
         //*************************************FIN TITULO*****************************************
 
@@ -108,8 +108,8 @@ class RepDocCompraVentaExt
         $this->docexcel->getActiveSheet()->getColumnDimension('K')->setWidth(10);
         $this->docexcel->getActiveSheet()->getColumnDimension('L')->setWidth(10);
         $this->docexcel->getActiveSheet()->getColumnDimension('M')->setWidth(18);
-        $this->docexcel->getActiveSheet()->getColumnDimension('N')->setWidth(20);
-        $this->docexcel->getActiveSheet()->getColumnDimension('O')->setWidth(18);
+        $this->docexcel->getActiveSheet()->getColumnDimension('N')->setWidth(18);
+        $this->docexcel->getActiveSheet()->getColumnDimension('O')->setWidth(20);
         $this->docexcel->getActiveSheet()->getColumnDimension('P')->setWidth(18);
         $this->docexcel->getActiveSheet()->getColumnDimension('Q')->setWidth(18);
         $this->docexcel->getActiveSheet()->getColumnDimension('R')->setWidth(18);
@@ -128,7 +128,8 @@ class RepDocCompraVentaExt
         $this->docexcel->getActiveSheet()->getColumnDimension('AE')->setWidth(18);
         $this->docexcel->getActiveSheet()->getColumnDimension('AF')->setWidth(18);
         $this->docexcel->getActiveSheet()->getColumnDimension('AG')->setWidth(18);
-        $this->docexcel->getActiveSheet()->getColumnDimension('AH')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('AH')->setWidth(18);
+        $this->docexcel->getActiveSheet()->getColumnDimension('AI')->setWidth(25);
 
 
         $styleTitulos = array(
@@ -177,13 +178,13 @@ class RepDocCompraVentaExt
                     'style' => PHPExcel_Style_Border::BORDER_THIN
                 )
             ));
-        $this->docexcel->getActiveSheet()->getStyle('A4:AH4')->getAlignment()->setWrapText(true);
+        $this->docexcel->getActiveSheet()->getStyle('A4:AI4')->getAlignment()->setWrapText(true);
 
-        $this->docexcel->getActiveSheet()->getStyle('A4:AH4')->applyFromArray($styleTitulos);
+        $this->docexcel->getActiveSheet()->getStyle('A4:AI4')->applyFromArray($styleTitulos);
 
         $this->docexcel->getActiveSheet()->getStyle('A4')->applyFromArray($styleTitulosRed);
-        $this->docexcel->getActiveSheet()->getStyle('H4:T4')->applyFromArray($styleTitulosRed);
-        $this->docexcel->getActiveSheet()->getStyle('Y4:AG4')->applyFromArray($styleTitulosRed);
+        $this->docexcel->getActiveSheet()->getStyle('H4:U4')->applyFromArray($styleTitulosRed);
+        $this->docexcel->getActiveSheet()->getStyle('Z4:AH4')->applyFromArray($styleTitulosRed);
 
         //*************************************Cabecera*****************************************
         $this->docexcel->getActiveSheet()->setCellValue('A4','NRO PROVEEDOR');
@@ -199,27 +200,28 @@ class RepDocCompraVentaExt
         $this->docexcel->getActiveSheet()->setCellValue('K4','TIPO');
         $this->docexcel->getActiveSheet()->setCellValue('L4','LETRA');
         $this->docexcel->getActiveSheet()->setCellValue('M4','C. EMISOR');
-        $this->docexcel->getActiveSheet()->setCellValue('N4','NRO COMPROBANTE');
-        $this->docexcel->getActiveSheet()->setCellValue('O4','EXENTO');
-        $this->docexcel->getActiveSheet()->setCellValue('P4','NO GRAVADO');
-        $this->docexcel->getActiveSheet()->setCellValue('Q4','BASE 21%');
-        $this->docexcel->getActiveSheet()->setCellValue('R4','BASE 27%');
-        $this->docexcel->getActiveSheet()->setCellValue('S4','BASE 10,5%');
-        $this->docexcel->getActiveSheet()->setCellValue('T4','BASE 2,5%');
-        $this->docexcel->getActiveSheet()->setCellValue('U4','IVA 21%');
-        $this->docexcel->getActiveSheet()->setCellValue('V4','IVA 27%');
-        $this->docexcel->getActiveSheet()->setCellValue('W4','IVA 10,5%');
-        $this->docexcel->getActiveSheet()->setCellValue('X4','IVA 2,5%');
-        $this->docexcel->getActiveSheet()->setCellValue('Y4','PERCEPCION IIBB CABA');
-        $this->docexcel->getActiveSheet()->setCellValue('Z4','PERCEPCION IIBB BUE');
-        $this->docexcel->getActiveSheet()->setCellValue('AA4','PERCEPCION IIBB IVA');
-        $this->docexcel->getActiveSheet()->setCellValue('AB4','PERCEPCION IIBB SALTA');
-        $this->docexcel->getActiveSheet()->setCellValue('AC4','IMP. INTERNOS');
-        $this->docexcel->getActiveSheet()->setCellValue('AD4','PERCEPCION IIBB TUCUMAN');
-        $this->docexcel->getActiveSheet()->setCellValue('AE4','PERCEPCION IIBB CORRIENTES');
-        $this->docexcel->getActiveSheet()->setCellValue('AF4','OTROS IMPUESTOS');
-        $this->docexcel->getActiveSheet()->setCellValue('AG4','PERCEPCION IIBB NEUQUEN');
-        $this->docexcel->getActiveSheet()->setCellValue('AH4','TOTAL');
+        $this->docexcel->getActiveSheet()->setCellValue('N4','NRO FACTURA');
+        $this->docexcel->getActiveSheet()->setCellValue('O4','NRO COMPROBANTE');
+        $this->docexcel->getActiveSheet()->setCellValue('P4','EXENTO');
+        $this->docexcel->getActiveSheet()->setCellValue('Q4','NO GRAVADO');
+        $this->docexcel->getActiveSheet()->setCellValue('R4','BASE 21%');
+        $this->docexcel->getActiveSheet()->setCellValue('S4','BASE 27%');
+        $this->docexcel->getActiveSheet()->setCellValue('T4','BASE 10,5%');
+        $this->docexcel->getActiveSheet()->setCellValue('U4','BASE 2,5%');
+        $this->docexcel->getActiveSheet()->setCellValue('V4','IVA 21%');
+        $this->docexcel->getActiveSheet()->setCellValue('W4','IVA 27%');
+        $this->docexcel->getActiveSheet()->setCellValue('X4','IVA 10,5%');
+        $this->docexcel->getActiveSheet()->setCellValue('Y4','IVA 2,5%');
+        $this->docexcel->getActiveSheet()->setCellValue('Z4','PERCEPCION IIBB CABA');
+        $this->docexcel->getActiveSheet()->setCellValue('AA4','PERCEPCION IIBB BUE');
+        $this->docexcel->getActiveSheet()->setCellValue('AB4','PERCEPCION IIBB IVA');
+        $this->docexcel->getActiveSheet()->setCellValue('AC4','PERCEPCION IIBB SALTA');
+        $this->docexcel->getActiveSheet()->setCellValue('AD4','IMP. INTERNOS');
+        $this->docexcel->getActiveSheet()->setCellValue('AE4','PERCEPCION IIBB TUCUMAN');
+        $this->docexcel->getActiveSheet()->setCellValue('AF4','PERCEPCION IIBB CORRIENTES');
+        $this->docexcel->getActiveSheet()->setCellValue('AG4','OTROS IMPUESTOS');
+        $this->docexcel->getActiveSheet()->setCellValue('AH4','PERCEPCION IIBB NEUQUEN');
+        $this->docexcel->getActiveSheet()->setCellValue('AI4','TOTAL');
 
 
     }
