@@ -1020,6 +1020,7 @@ BEGIN
         elsif(p_transaccion='CONTA_REPDCVEXT_SEL')then
 
             begin
+                --dcv.id_plantilla = 41 nota de credito
 
                 v_consulta = ' select   prov.num_proveedor::varchar,
                                         dcv.razon_social::varchar,
@@ -1037,107 +1038,165 @@ BEGIN
                                         dcv.nro_documento::varchar,
                                         cbte.id_int_comprobante::integer,
 
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.importe_excento, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE(dcv.importe_excento, 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.importe_excento, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.importe_excento, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE(dcv.importe_excento, 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE(dcv.importe_excento, 0))::numeric
                                         END))::numeric as importe_excento,
 
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.no_gravado, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE(dcv.no_gravado, 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.no_gravado, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.no_gravado, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE(dcv.no_gravado, 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE(dcv.no_gravado, 0))::numeric
                                         END))::numeric as no_gravado,
 
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.base_21, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE(dcv.base_21, 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.base_21, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.base_21, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE(dcv.base_21, 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE(dcv.base_21, 0))::numeric
                                         END))::numeric as base_21,
 
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.base_27, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE(dcv.base_27, 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.base_27, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.base_27, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE(dcv.base_27, 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE(dcv.base_27, 0))::numeric
                                         END))::numeric as base_27,
 
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.base_10_5, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE(dcv.base_10_5, 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.base_10_5, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.base_10_5, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE(dcv.base_10_5, 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE(dcv.base_10_5, 0))::numeric
                                         END))::numeric as base_10_5,
 
-
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.base_2_5, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE(dcv.base_2_5, 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.base_2_5, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.base_2_5, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE(dcv.base_2_5, 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE(dcv.base_2_5, 0))::numeric
                                         END))::numeric as base_2_5,
 
-
-                						(COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.base_21 * 0.21, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE((dcv.base_21 * 0.21), 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.base_21 * 0.21, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.base_21 * 0.21, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE((dcv.base_21 * 0.21), 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE((dcv.base_21 * 0.21), 0))::numeric
                                         END))::numeric as impor_base_21,
 
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.base_27 * 0.27, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE((dcv.base_27 * 0.27), 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.base_27 * 0.27, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.base_27 * 0.27, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE((dcv.base_27 * 0.27), 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE((dcv.base_27 * 0.27), 0))::numeric
                                         END))::numeric as impor_base_27,
 
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.base_10_5 * 0.105, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE((dcv.base_10_5 * 0.105), 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.base_10_5 * 0.105, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.base_10_5 * 0.105, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE((dcv.base_10_5 * 0.105), 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE((dcv.base_10_5 * 0.105), 0))::numeric
                                         END))::numeric as impor_base_10_5,
 
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.base_2_5 * 0.025, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE((dcv.base_2_5 * 0.025 ), 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.base_2_5 * 0.025, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.base_2_5 * 0.025, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE((dcv.base_2_5 * 0.025), 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE((dcv.base_2_5 * 0.025), 0))::numeric
                                         END))::numeric as impor_base_2_5,
 
-
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.percepcion_caba, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE(dcv.percepcion_caba, 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.percepcion_caba, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.percepcion_caba, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE(dcv.percepcion_caba, 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE(dcv.percepcion_caba, 0))::numeric
                                         END))::numeric as percepcion_caba,
 
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.percepcion_bue, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE(dcv.percepcion_bue, 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.percepcion_bue, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.percepcion_bue, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE(dcv.percepcion_bue, 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE(dcv.percepcion_bue, 0))::numeric
                                         END))::numeric as percepcion_bue,
 
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.percepcion_iva, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE(dcv.percepcion_iva, 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.percepcion_iva, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.percepcion_iva, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE(dcv.percepcion_iva, 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE(dcv.percepcion_iva, 0))::numeric
                                         END))::numeric as percepcion_iva,
 
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.percepcion_salta, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE(dcv.percepcion_salta, 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.percepcion_salta, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.percepcion_salta, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE(dcv.percepcion_salta, 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE(dcv.percepcion_salta, 0))::numeric
                                         END))::numeric as percepcion_salta,
 
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.imp_internos, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE(dcv.imp_internos, 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.imp_internos, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.imp_internos, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE(dcv.imp_internos, 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE(dcv.imp_internos, 0))::numeric
                                         END))::numeric as imp_internos,
 
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.percepcion_tucuman, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE(dcv.percepcion_tucuman, 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.percepcion_tucuman, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.percepcion_tucuman, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE(dcv.percepcion_tucuman, 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE(dcv.percepcion_tucuman, 0))::numeric
                                         END))::numeric as percepcion_tucuman,
 
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.percepcion_corrientes, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE(dcv.percepcion_corrientes, 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.percepcion_corrientes, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.percepcion_corrientes, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE(dcv.percepcion_corrientes, 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE(dcv.percepcion_corrientes, 0))::numeric
                                         END))::numeric as percepcion_corrientes,
 
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.otros_impuestos, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE(dcv.otros_impuestos, 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.otros_impuestos, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.otros_impuestos, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE(dcv.otros_impuestos, 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE(dcv.otros_impuestos, 0))::numeric
                                         END))::numeric as otros_impuestos,
 
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE (dcv.percepcion_neuquen, 0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	 ELSE (COALESCE(dcv.percepcion_neuquen, 0))::numeric
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE (dcv.percepcion_neuquen, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE (dcv.percepcion_neuquen, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE(dcv.percepcion_neuquen, 0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE(dcv.percepcion_neuquen, 0))::numeric
                                         END))::numeric as percepcion_neuquen,
 
-                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 THEN (COALESCE((COALESCE(dcv.importe_excento, 0) + COALESCE(dcv.no_gravado, 0) +
-                                        COALESCE(dcv.base_21, 0) + COALESCE(dcv.base_27, 0) +
-                                        COALESCE(dcv.base_10_5, 0) + COALESCE(dcv.base_2_5, 0) +
-                                        COALESCE((dcv.base_21 * 0.21), 0) + COALESCE((dcv.base_27 * 0.27), 0) +
-                                        COALESCE((dcv.base_10_5 * 0.105), 0) +  COALESCE((dcv.base_2_5 *  0.025 ), 0) +
-                                        COALESCE( dcv.percepcion_caba, 0) + COALESCE( dcv.percepcion_bue, 0) +
-                                        COALESCE(dcv.percepcion_iva, 0) + COALESCE(dcv.percepcion_salta, 0) +
-                                        COALESCE(dcv.imp_internos, 0) + COALESCE(dcv.percepcion_tucuman, 0) +
-                                        COALESCE(dcv.percepcion_corrientes, 0) + COALESCE(dcv.otros_impuestos, 0) +
-                                        COALESCE(dcv.percepcion_neuquen, 0)
-                                        ),0) * COALESCE (dcv.tipo_cambio, 0))
-                                        	    ELSE (COALESCE((COALESCE(dcv.importe_excento, 0) + COALESCE(dcv.no_gravado, 0) +
-                                                      COALESCE(dcv.base_21, 0) + COALESCE(dcv.base_27, 0) +
-                                                      COALESCE(dcv.base_10_5, 0) + COALESCE(dcv.base_2_5, 0) +
-                                                      COALESCE((dcv.base_21 * 0.21), 0) + COALESCE((dcv.base_27 * 0.27), 0) +
-                                                      COALESCE((dcv.base_10_5 * 0.105), 0) +  COALESCE((dcv.base_2_5 *  0.025 ), 0) +
-                                                      COALESCE( dcv.percepcion_caba, 0) + COALESCE( dcv.percepcion_bue, 0) +
-                                                      COALESCE(dcv.percepcion_iva, 0) + COALESCE(dcv.percepcion_salta, 0) +
-                                                      COALESCE(dcv.imp_internos, 0) + COALESCE(dcv.percepcion_tucuman, 0) +
-                                                      COALESCE(dcv.percepcion_corrientes, 0) + COALESCE(dcv.otros_impuestos, 0) +
-                                                      COALESCE(dcv.percepcion_neuquen, 0)
-                                        ),0))::numeric
+
+
+                                        (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE((COALESCE(dcv.importe_excento, 0) + COALESCE(dcv.no_gravado, 0) +
+                                                                                                                COALESCE(dcv.base_21, 0) + COALESCE(dcv.base_27, 0) +
+                                                                                                                COALESCE(dcv.base_10_5, 0) + COALESCE(dcv.base_2_5, 0) +
+                                                                                                                COALESCE((dcv.base_21 * 0.21), 0) + COALESCE((dcv.base_27 * 0.27), 0) +
+                                                                                                                COALESCE((dcv.base_10_5 * 0.105), 0) +  COALESCE((dcv.base_2_5 *  0.025 ), 0) +
+                                                                                                                COALESCE( dcv.percepcion_caba, 0) + COALESCE( dcv.percepcion_bue, 0) +
+                                                                                                                COALESCE(dcv.percepcion_iva, 0) + COALESCE(dcv.percepcion_salta, 0) +
+                                                                                                                COALESCE(dcv.imp_internos, 0) + COALESCE(dcv.percepcion_tucuman, 0) +
+                                                                                                                COALESCE(dcv.percepcion_corrientes, 0) + COALESCE(dcv.otros_impuestos, 0) +
+                                                                                                                COALESCE(dcv.percepcion_neuquen, 0)
+                                                                                                                ),0) * COALESCE (dcv.tipo_cambio, 0))
+                                                       WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE((COALESCE(dcv.importe_excento, 0) + COALESCE(dcv.no_gravado, 0) +
+                                                                                                                COALESCE(dcv.base_21, 0) + COALESCE(dcv.base_27, 0) +
+                                                                                                                COALESCE(dcv.base_10_5, 0) + COALESCE(dcv.base_2_5, 0) +
+                                                                                                                COALESCE((dcv.base_21 * 0.21), 0) + COALESCE((dcv.base_27 * 0.27), 0) +
+                                                                                                                COALESCE((dcv.base_10_5 * 0.105), 0) +  COALESCE((dcv.base_2_5 *  0.025 ), 0) +
+                                                                                                                COALESCE( dcv.percepcion_caba, 0) + COALESCE( dcv.percepcion_bue, 0) +
+                                                                                                                COALESCE(dcv.percepcion_iva, 0) + COALESCE(dcv.percepcion_salta, 0) +
+                                                                                                                COALESCE(dcv.imp_internos, 0) + COALESCE(dcv.percepcion_tucuman, 0) +
+                                                                                                                COALESCE(dcv.percepcion_corrientes, 0) + COALESCE(dcv.otros_impuestos, 0) +
+                                                                                                                COALESCE(dcv.percepcion_neuquen, 0)
+                                                                                                                ),0) * COALESCE (dcv.tipo_cambio, 0))
+
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE((COALESCE(dcv.importe_excento, 0) + COALESCE(dcv.no_gravado, 0) +
+                                                                                                                COALESCE(dcv.base_21, 0) + COALESCE(dcv.base_27, 0) +
+                                                                                                                COALESCE(dcv.base_10_5, 0) + COALESCE(dcv.base_2_5, 0) +
+                                                                                                                COALESCE((dcv.base_21 * 0.21), 0) + COALESCE((dcv.base_27 * 0.27), 0) +
+                                                                                                                COALESCE((dcv.base_10_5 * 0.105), 0) +  COALESCE((dcv.base_2_5 *  0.025 ), 0) +
+                                                                                                                COALESCE( dcv.percepcion_caba, 0) + COALESCE( dcv.percepcion_bue, 0) +
+                                                                                                                COALESCE(dcv.percepcion_iva, 0) + COALESCE(dcv.percepcion_salta, 0) +
+                                                                                                                COALESCE(dcv.imp_internos, 0) + COALESCE(dcv.percepcion_tucuman, 0) +
+                                                                                                                COALESCE(dcv.percepcion_corrientes, 0) + COALESCE(dcv.otros_impuestos, 0) +
+                                                                                                                COALESCE(dcv.percepcion_neuquen, 0)),0))::numeric
+                                                       WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE((COALESCE(dcv.importe_excento, 0) + COALESCE(dcv.no_gravado, 0) +
+                                                                                                                COALESCE(dcv.base_21, 0) + COALESCE(dcv.base_27, 0) +
+                                                                                                                COALESCE(dcv.base_10_5, 0) + COALESCE(dcv.base_2_5, 0) +
+                                                                                                                COALESCE((dcv.base_21 * 0.21), 0) + COALESCE((dcv.base_27 * 0.27), 0) +
+                                                                                                                COALESCE((dcv.base_10_5 * 0.105), 0) +  COALESCE((dcv.base_2_5 *  0.025 ), 0) +
+                                                                                                                COALESCE( dcv.percepcion_caba, 0) + COALESCE( dcv.percepcion_bue, 0) +
+                                                                                                                COALESCE(dcv.percepcion_iva, 0) + COALESCE(dcv.percepcion_salta, 0) +
+                                                                                                                COALESCE(dcv.imp_internos, 0) + COALESCE(dcv.percepcion_tucuman, 0) +
+                                                                                                                COALESCE(dcv.percepcion_corrientes, 0) + COALESCE(dcv.otros_impuestos, 0) +
+                                                                                                                COALESCE(dcv.percepcion_neuquen, 0)),0))::numeric
                                         END))::numeric as total
 
 

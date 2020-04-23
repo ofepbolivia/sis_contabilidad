@@ -186,6 +186,8 @@ class RepDocCompraVentaExt
         $this->docexcel->getActiveSheet()->getStyle('H4:U4')->applyFromArray($styleTitulosRed);
         $this->docexcel->getActiveSheet()->getStyle('Z4:AH4')->applyFromArray($styleTitulosRed);
 
+        $this->docexcel->getActiveSheet()->getStyle("P:AI")->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat :: FORMAT_NUMBER_COMMA_SEPARATED1);
+
         //*************************************Cabecera*****************************************
         $this->docexcel->getActiveSheet()->setCellValue('A4','NRO PROVEEDOR');
         $this->docexcel->getActiveSheet()->setCellValue('B4','RAZON SOCIAL');
