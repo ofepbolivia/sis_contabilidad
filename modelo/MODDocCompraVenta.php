@@ -2423,7 +2423,7 @@ class MODDocCompraVenta extends MODbase
         $this->captura('percepcion_corrientes', 'numeric');
         $this->captura('otros_impuestos', 'numeric');
         $this->captura('percepcion_neuquen', 'numeric');
-        $this->captura('num_proveedor', 'int4');
+        $this->captura('num_proveedor', 'varchar');
         $this->captura('id_proveedor', 'int4');
         $this->captura('condicion', 'varchar');
         $this->captura('desc_proveedor', 'varchar');
