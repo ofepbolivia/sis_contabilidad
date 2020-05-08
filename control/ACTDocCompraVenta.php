@@ -876,6 +876,59 @@ class ACTDocCompraVenta extends ACTbase
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 
+    // breydi vasquez 
+    function listarFacturasXFuncionario()
+    {
+        $this->objParam->defecto('ordenacion', 'id_doc_compra_venta');
+        $this->objParam->defecto('dir_ordenacion', 'asc');
+
+        // inicio filtros 
+        if ($this->objParam->getParametro('id_depto') != '') {
+            $this->objParam->getParametro('id_depto') != 0 && $this->objParam->addFiltro("dcv.id_depto_conta = " . $this->objParam->getParametro('id_depto'));
+        }
+
+        $this->objParam->getParametro('id_periodo') != '' && $this->objParam->addFiltro("dcv.id_periodo = " . $this->objParam->getParametro('id_periodo'));
+        $this->objParam->getParametro('tipo') != '' && $this->objParam->addFiltro("dcv.tipo = ''" . $this->objParam->getParametro('tipo') . "''");
+
+        // fin 
+
+        if ($this->objParam->getParametro('tipoReporte') == 'excel_grid' || $this->objParam->getParametro('tipoReporte') == 'pdf_grid') {
+            $this->objReporte = new Reporte($this->objParam, $this);
+            $this->res = $this->objReporte->generarReporteListado('MODDocCompraVenta', 'listarFacturasXFuncionario');
+        } else {
+            $this->objFunc = $this->create('MODDocCompraVenta');
+            $this->res = $this->objFunc->listarFacturasXFuncionario($this->objParam);
+        }
+
+        $datos = Array();
+        $datos['importe_ice'] = $this->res->extraData['total_importe_ice'];
+        $datos['importe_excento'] = $this->res->extraData['total_importe_excento'];
+        $datos['importe_it'] = $this->res->extraData['total_importe_it'];
+        $datos['importe_iva'] = $this->res->extraData['total_importe_iva'];
+        $datos['importe_descuento'] = $this->res->extraData['total_importe_descuento'];
+        $datos['importe_doc'] = $this->res->extraData['total_importe_doc'];
+        $datos['importe_retgar'] = $this->res->extraData['total_importe_retgar'];
+        $datos['importe_anticipo'] = $this->res->extraData['total_importe_anticipo'];
+        $datos['importe_pendiente'] = $this->res->extraData['tota_importe_pendiente'];
+        $datos['importe_neto'] = $this->res->extraData['total_importe_neto'];
+        $datos['importe_descuento_ley'] = $this->res->extraData['total_importe_descuento_ley'];
+        $datos['importe_pago_liquido'] = $this->res->extraData['total_importe_pago_liquido'];
+        $datos['importe_aux_neto'] = $this->res->extraData['total_importe_aux_neto'];
+        $datos['tipo_reg'] = 'summary';
+        $datos['id_doc_compra_venta'] = 0;
+        $this->res->total++;
+        $this->res->addLastRecDatos($datos);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }    
+
+    function listarDeptoFiltradoDeptoUsuarioConta() {
+        // parametros de ordenacion por defecto
+        $this->objParam->defecto('ordenacion', 'depto');
+        $this->objParam->defecto('dir_ordenacion', 'asc');         
+        $this->objFunc = $this->create('MODDocCompraVenta');        
+        $this->res = $this->objFunc->listarDeptoFiltradoDeptoUsuarioConta($this->objParam);        
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 
 }
 
