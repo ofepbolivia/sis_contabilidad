@@ -228,13 +228,6 @@ END IF;
 
       IF v_parametros.tipo = 'compra' THEN
 
-        	select per.nombre_completo1
-            into v_cuenta
-            from conta.tdoc_compra_venta dcv
-            inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
-            inner join segu.vpersona per on per.id_persona = usu1.id_persona
-            where dcv.nro_documento = v_parametros.nro_documento
-            limit 1;
 
       /*  IF EXISTS(select
                     1
@@ -259,6 +252,17 @@ END IF;
                             and dcv.fecha =v_parametros.fecha
                             and dcv.razon_social = trim(v_parametros.razon_social)
                             and dcv.importe_doc = v_parametros.importe_doc)THEN
+                        
+                            select per.nombre_completo1
+                            into v_cuenta
+                            from conta.tdoc_compra_venta dcv
+                            inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
+                            inner join segu.vpersona per on per.id_persona = usu1.id_persona
+                            where dcv.nro_documento = trim(v_parametros.nro_documento)
+                            and dcv.importe_doc = v_parametros.importe_doc
+                            and dcv.razon_social = trim(v_parametros.razon_social)
+                            and dcv.fecha =v_parametros.fecha                            
+                            limit 1;
 
                        raise exception 'Ya existe un Documento/Factura registrado con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
 
@@ -1139,6 +1143,41 @@ END IF;
           IF v_parametros.razon_social is null or v_parametros.razon_social = '' THEN
           	raise exception 'Falta registrar el Razon Social';
           END IF;
+
+	-- breydi vasquez 11/05/2020 control de documento compra venta duplicado por usuario 
+    -- sujeto a futuras modificaciones question por la razon social 
+    
+      IF v_parametros.tipo = 'compra' THEN
+
+        --controles para que no se repita el documento
+        		  --control numero de documento
+             	  IF EXISTS(select 1
+                            from conta.tdoc_compra_venta dcv
+                            inner join param.tplantilla pla on pla.id_plantilla=dcv.id_plantilla
+                            where    dcv.estado_reg = 'activo' and  dcv.nro_documento = trim(v_parametros.nro_documento)
+                            and dcv.fecha =v_parametros.fecha
+                             and dcv.razon_social = trim(v_parametros.razon_social)
+                            and dcv.importe_doc = v_parametros.importe_doc
+                            and dcv.id_doc_compra_venta != v_parametros.id_doc_compra_venta
+                            )THEN
+                            
+                      select per.nombre_completo1
+                      into v_cuenta
+                      from conta.tdoc_compra_venta dcv
+                      inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
+                      inner join segu.vpersona per on per.id_persona = usu1.id_persona
+                      where dcv.nro_documento = trim(v_parametros.nro_documento)
+					  and dcv.importe_doc = v_parametros.importe_doc
+					  and dcv.razon_social = trim(v_parametros.razon_social)
+                      and dcv.fecha =v_parametros.fecha
+                      and dcv.id_doc_compra_venta != v_parametros.id_doc_compra_venta
+                      limit 1;
+
+                       raise exception 'Ya existe un Documento/Factura registrado con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
+
+                  END IF;
+        end if;
+        -- fin control 
 
       --Sentencia de la modificacion
       update conta.tdoc_compra_venta set

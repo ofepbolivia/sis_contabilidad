@@ -1070,22 +1070,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'TextField',
                     id_grupo: 1,
                     form: true
-                },
-                {
-                    config: {
-                        name: 'fecha_vencimiento',
-                        fieldLabel: 'Fecha de Vencimiento de la Deuda',
-                        allowBlank: true,
-                        anchor: '85%',
-                        format: 'd/m/Y',
-                        readOnly: true,
-                        renderer: function (value, p, record) {
-                            return value ? value.dateFormat('d/m/Y') : ''
-                        }
-                    },
-                    type: 'DateField',
-                    id_grupo: 1,
-                    form: true
                 },                
                 {
                     config: {
@@ -1119,6 +1103,22 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 1,
                     form: true
                 },
+                {
+                    config: {
+                        name: 'fecha_vencimiento',
+                        fieldLabel: 'Fecha de Vencimiento de la Deuda',
+                        allowBlank: true,
+                        anchor: '85%',
+                        format: 'd/m/Y',
+                        readOnly: true,
+                        renderer: function (value, p, record) {
+                            return value ? value.dateFormat('d/m/Y') : ''
+                        }
+                    },
+                    type: 'DateField',
+                    id_grupo: 1,
+                    form: true
+                },                
                 {
                     config: {
                         name: 'nro_dui',
