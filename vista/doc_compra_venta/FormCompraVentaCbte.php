@@ -40,11 +40,26 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 type: 'Field',
                 form: true
+            },
+            //08-05-2020 (may)
+            {
+                //configuracion del componente
+                config: {
+                    labelSeparator: '',
+                    inputType: 'hidden',
+                    name: 'id_plan_pago'
+                },
+                type: 'Field',
+                form: true
             }
         ],
 
         onNew: function () {
             Phx.vista.FormCompraVentaCbte.superclass.onNew.call(this);
+
+            ///08-05-2020 (may)
+            this.Cmp.id_plan_pago.setValue(this.data.objPadre.id_plan_pago);
+
             this.Cmp.id_int_comprobante.setValue(this.data.id_int_comprobante);
             this.Cmp.desc_clase_comprobante.setValue(this.data.objPadre.desc_clase_comprobante);
             console.log('datos.....', this.data);
@@ -53,6 +68,10 @@ header("content-type: text/javascript; charset=UTF-8");
         onEdit: function () {
             Phx.vista.FormCompraVentaCbte.superclass.onEdit.call(this);
             this.Cmp.id_int_comprobante.setValue(this.data.id_int_comprobante);
+
+            //08-05-2020 (may)
+            this.Cmp.id_plan_pago.setValue(this.objPadre.getSelected());
+
             this.cargarPeriodo();
         },
 

@@ -135,6 +135,29 @@ header("content-type: text/javascript; charset=UTF-8");
                 form:true
             },
 
+            //08-05-2020 (may)
+            {
+                //configuracion del componente
+                config: {
+                    labelSeparator: '',
+                    inputType: 'hidden',
+                    name: 'id_plan_pago'
+                },
+                type: 'Field',
+                form: true
+            },
+            //08-05-2020 (may)
+            {
+                //configuracion del componente
+                config: {
+                    labelSeparator: '',
+                    inputType: 'hidden',
+                    name: 'id_int_comprobante'
+                },
+                type: 'Field',
+                form: true
+            },
+
 
             {
                 config:{
@@ -711,7 +734,9 @@ header("content-type: text/javascript; charset=UTF-8");
             'desc_depto','desc_plantilla',
             'importe_descuento_ley',
             'importe_pago_liquido','nro_dui','id_moneda','desc_moneda','id_auxiliar','codigo_auxiliar','nombre_auxiliar',
-            'fecha_vencimiento'
+            'fecha_vencimiento',
+            'id_plan_pago',
+            'tipo_cambio'
 
         ],
         sortInfo:{
