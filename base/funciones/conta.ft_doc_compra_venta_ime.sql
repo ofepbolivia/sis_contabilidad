@@ -175,6 +175,7 @@ END IF;
         END IF;
 
      ELSE
+
      	IF v_tipo_informe = 'lcv' THEN
                -- valida que periodO de libro de compras y ventas este abierto
                v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
@@ -333,6 +334,7 @@ END IF;
         end if;*/
 --raise exception 'verificando';
 
+
 		--para actualizar el plan de pago
         if (pxp.f_existe_parametro(p_tabla,'id_plan_pago')) then
             v_id_plan_pago = v_parametros.id_plan_pago;
@@ -392,12 +394,13 @@ END IF;
 
         ELSE
         	v_plan_pago = v_id_plan_pago_dcv;
-      		--solo estacion internacionales se relaciona una cuota con sus documentos compra y venta
-      	    IF pxp.f_get_variable_global('ESTACION_inicio') !='BOL' THEN
+      		--(may)solo estacion internacionales se relaciona una cuota con sus documentos compra y venta
+            --10-05-2020 (may) modificacion para q la central Bolivia se relaciona doc compra y venta con una cuota
+      	    --IF pxp.f_get_variable_global('ESTACION_inicio') !='BOL' THEN
               IF (v_plan_pago is null) THEN
                       v_plan_pago = v_parametros.id_plan_pago;
               END IF;
-            END IF;
+            --END IF;
 
         END IF;
 
