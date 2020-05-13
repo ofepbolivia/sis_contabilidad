@@ -17,7 +17,6 @@ class MODIntComprobante extends MODbase{
         $this->procedimiento='conta.ft_int_comprobante_sel';
         $this->transaccion='CONTA_INCBTE_SEL';
         $this->tipo_procedimiento='SEL';//tipo de transaccion
-
         $this->setParametro('nombreVista','nombreVista','varchar');
 
         //Definicion de la lista del resultado del query
