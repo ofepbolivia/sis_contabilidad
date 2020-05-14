@@ -134,8 +134,10 @@ BEGIN
     ------------------------------------------------------------------------------------------
     --  Verifica si los cbte de diario cuadran con los dosc/fact/recibos/invoices registrados
     -------------------------------------------------------------------------------------------
-
-     v_resp_val_doc =  conta.f_validar_cbte_docs(p_id_int_comprobante, p_validar_doc);
+     --14-05-2020(may) condicion para los cbtes q no sea obligatorio los documentos
+     IF (v_rec_cbte.localidad != 'internacional') THEN
+        v_resp_val_doc =  conta.f_validar_cbte_docs(p_id_int_comprobante, p_validar_doc);
+     END IF;
 
      IF v_resp_val_doc[1] = 'FALSE' THEN
        return v_resp_val_doc[2];
