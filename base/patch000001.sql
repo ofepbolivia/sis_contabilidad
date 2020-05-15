@@ -5147,3 +5147,10 @@ IS 'otros impuestos';
 COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_neuquen
 IS 'percepcion IIBB NEUQUEN';
 /***********************************F-SCP-MAY-CONTA-0-28/02/2020****************************************/
+
+/***********************************I-SCP-BVP-CONTA-0-04/05/2020****************************************/
+
+ALTER TABLE conta.tfactura_airbp_concepto
+  ALTER COLUMN ne TYPE VARCHAR(20) COLLATE pg_catalog."default";
+
+/***********************************F-SCP-BVP-CONTA-0-04/05/2020****************************************/

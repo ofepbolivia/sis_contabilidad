@@ -530,7 +530,7 @@ BEGIN
 
             	raise exception 'Debe ingresar numero de c31 antes de finalizar la entrega';
 
-            ELSIF (v_prioridad_cbte = 3) THEN --10-03-2020 (may) prioridad 3 para las internacionales, se valida cbte cuando la entrega finaliza
+            ELSIF (v_codigo_estado_siguiente = 'finalizado' and v_prioridad_cbte = 3) THEN --10-03-2020 (may) prioridad 3 para las internacionales, se valida cbte cuando la entrega finaliza
 
                 FOR v_registros_int_cbte in ( select ed.id_entrega,
                                                      cbte.id_int_comprobante,

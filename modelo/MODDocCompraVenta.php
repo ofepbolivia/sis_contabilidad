@@ -1837,6 +1837,7 @@ class MODDocCompraVenta extends MODbase
         $this->captura('codigo', 'varchar');
         $this->captura('letra_tipo_plantilla', 'varchar');
         $this->captura('c_emisor', 'varchar');
+        $this->captura('nro_documento', 'varchar');
         $this->captura('id_int_comprobante', 'int4');
         $this->captura('importe_excento', 'numeric');
         $this->captura('no_gravado', 'numeric');
@@ -1863,7 +1864,7 @@ class MODDocCompraVenta extends MODbase
         $this->armarConsulta();
         //echo $this->consulta;exit;
         $this->ejecutarConsulta();
-        //var_dump('llega',$this->respuest );exit;
+        //var_dump('llega',$this->respuesta );exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }
@@ -2422,7 +2423,7 @@ class MODDocCompraVenta extends MODbase
         $this->captura('percepcion_corrientes', 'numeric');
         $this->captura('otros_impuestos', 'numeric');
         $this->captura('percepcion_neuquen', 'numeric');
-        $this->captura('num_proveedor', 'int4');
+        $this->captura('num_proveedor', 'varchar');
         $this->captura('id_proveedor', 'int4');
         $this->captura('condicion', 'varchar');
         $this->captura('desc_proveedor', 'varchar');
@@ -2435,6 +2436,145 @@ class MODDocCompraVenta extends MODbase
         //Devuelve la respuesta
         return $this->respuesta;
     }
+
+    function listarFacturasXFuncionario()
+    {
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento = 'conta.ft_doc_compra_venta_sel';
+        $this->transaccion = 'CONTA_DFACXFUN_SEL';
+        $this->tipo_procedimiento = 'SEL';//tipo de transaccion
+
+        //captura parametros adicionales para el count
+
+        $this->setParametro('nombreVista','nombreVista','varchar');
+
+        $this->capturaCount('total_importe_ice', 'numeric');
+        $this->capturaCount('total_importe_excento', 'numeric');
+        $this->capturaCount('total_importe_it', 'numeric');
+        $this->capturaCount('total_importe_iva', 'numeric');
+        $this->capturaCount('total_importe_descuento', 'numeric');
+        $this->capturaCount('total_importe_doc', 'numeric');
+
+        $this->capturaCount('total_importe_retgar', 'numeric');
+        $this->capturaCount('total_importe_anticipo', 'numeric');
+        $this->capturaCount('tota_importe_pendiente', 'numeric');
+        $this->capturaCount('total_importe_neto', 'numeric');
+        $this->capturaCount('total_importe_descuento_ley', 'numeric');
+        $this->capturaCount('total_importe_pago_liquido', 'numeric');
+        $this->capturaCount('total_importe_aux_neto', 'numeric');
+
+
+
+        //Definicion de la lista del resultado del query
+        $this->captura('id_doc_compra_venta', 'int8');
+        $this->captura('revisado', 'varchar');
+        $this->captura('movil', 'varchar');
+        $this->captura('tipo', 'varchar');
+        $this->captura('importe_excento', 'numeric');
+        $this->captura('id_plantilla', 'int4');
+        $this->captura('fecha', 'date');
+        $this->captura('nro_documento', 'varchar');
+        $this->captura('nit', 'varchar');
+        $this->captura('importe_ice', 'numeric');
+        $this->captura('nro_autorizacion', 'varchar');
+        $this->captura('importe_iva', 'numeric');
+        $this->captura('importe_descuento', 'numeric');
+        $this->captura('importe_doc', 'numeric');
+        $this->captura('sw_contabilizar', 'varchar');
+        $this->captura('tabla_origen', 'varchar');
+        $this->captura('estado', 'varchar');
+        $this->captura('id_depto_conta', 'int4');
+        $this->captura('id_origen', 'int4');
+        $this->captura('obs', 'varchar');
+        $this->captura('estado_reg', 'varchar');
+        $this->captura('codigo_control', 'varchar');
+        $this->captura('importe_it', 'numeric');
+        $this->captura('razon_social', 'varchar');
+        $this->captura('id_usuario_ai', 'int4');
+        $this->captura('id_usuario_reg', 'int4');
+        $this->captura('fecha_reg', 'timestamp');
+        $this->captura('usuario_ai', 'varchar');
+        $this->captura('id_usuario_mod', 'int4');
+        $this->captura('fecha_mod', 'timestamp');
+        $this->captura('usr_reg', 'varchar');
+        $this->captura('usr_mod', 'varchar');
+
+        $this->captura('desc_depto', 'varchar');
+        $this->captura('desc_plantilla', 'varchar');
+        $this->captura('importe_descuento_ley', 'numeric');
+        $this->captura('importe_pago_liquido', 'numeric');
+        $this->captura('nro_dui', 'varchar');
+        $this->captura('id_moneda', 'int4');
+        $this->captura('desc_moneda', 'varchar');
+        $this->captura('id_int_comprobante', 'int4');
+        $this->captura('nro_tramite', 'varchar');
+        $this->captura('desc_comprobante', 'varchar');
+
+
+        $this->captura('importe_pendiente', 'numeric');
+        $this->captura('importe_anticipo', 'numeric');
+        $this->captura('importe_retgar', 'numeric');
+        $this->captura('importe_neto', 'numeric');
+
+        $this->captura('id_auxiliar', 'integer');
+        $this->captura('codigo_auxiliar', 'varchar');
+        $this->captura('nombre_auxiliar', 'varchar');
+
+        $this->captura('id_tipo_doc_compra_venta', 'integer');
+        $this->captura('desc_tipo_doc_compra_venta', 'varchar');
+
+        $this->captura('importe_aux_neto', 'numeric');
+
+        $this->captura('estacion', 'varchar');
+        $this->captura('id_punto_venta', 'integer');
+        $this->captura('nombre', 'varchar');
+        $this->captura('id_agencia', 'integer');
+        $this->captura('codigo_noiata', 'varchar');
+        $this->captura('codigo_int', 'varchar');
+        $this->captura('c31', 'varchar');
+        $this->captura('fecha_vencimiento', 'date');
+        $this->captura('tipo_cambio', 'numeric');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        //echo($this->consulta);exit;
+        $this->ejecutarConsulta();        
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
+    function listarDeptoFiltradoDeptoUsuarioConta(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_doc_compra_venta_sel';// nombre procedimiento almacenado
+        $this->transaccion='CONTA_DEPFUNCON_SEL';//nombre de la transaccion
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+
+
+        //Definicion de la lista del resultado del query        
+        $this->setParametro('codigo_subsistema','codigo_subsistema','varchar');        
+
+        //defino varialbes que se captran como retornod e la funcion
+        $this->captura('id_depto','integer');
+        $this->captura('codigo','varchar');
+        $this->captura('nombre','varchar');
+        $this->captura('nombre_corto','varchar');
+        $this->captura('id_subsistema','integer');
+
+        $this->captura('estado_reg','varchar');
+        $this->captura('fecha_reg','timestamp');
+        $this->captura('id_usuario_reg','integer');
+        $this->captura('fecha_mod','timestamp');
+        $this->captura('id_usuario_mod','integer');
+        $this->captura('usureg','text');
+        $this->captura('usumod','text');
+        $this->captura('desc_subsistema','text');
+
+        //Ejecuta la funcion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        return $this->respuesta;
+    }
+
 
 }
 

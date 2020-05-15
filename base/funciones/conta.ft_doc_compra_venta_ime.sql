@@ -175,6 +175,7 @@ END IF;
         END IF;
 
      ELSE
+
      	IF v_tipo_informe = 'lcv' THEN
                -- valida que periodO de libro de compras y ventas este abierto
                v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
@@ -228,13 +229,6 @@ END IF;
 
       IF v_parametros.tipo = 'compra' THEN
 
-        	select per.nombre_completo1
-            into v_cuenta
-            from conta.tdoc_compra_venta dcv
-            inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
-            inner join segu.vpersona per on per.id_persona = usu1.id_persona
-            where dcv.nro_documento = v_parametros.nro_documento
-            limit 1;
 
       /*  IF EXISTS(select
                     1
@@ -259,6 +253,17 @@ END IF;
                             and dcv.fecha =v_parametros.fecha
                             and dcv.razon_social = trim(v_parametros.razon_social)
                             and dcv.importe_doc = v_parametros.importe_doc)THEN
+                        
+                            select per.nombre_completo1
+                            into v_cuenta
+                            from conta.tdoc_compra_venta dcv
+                            inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
+                            inner join segu.vpersona per on per.id_persona = usu1.id_persona
+                            where dcv.nro_documento = trim(v_parametros.nro_documento)
+                            and dcv.importe_doc = v_parametros.importe_doc
+                            and dcv.razon_social = trim(v_parametros.razon_social)
+                            and dcv.fecha =v_parametros.fecha                            
+                            limit 1;
 
                        raise exception 'Ya existe un Documento/Factura registrado con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
 
@@ -329,6 +334,7 @@ END IF;
         end if;*/
 --raise exception 'verificando';
 
+
 		--para actualizar el plan de pago
         if (pxp.f_existe_parametro(p_tabla,'id_plan_pago')) then
             v_id_plan_pago = v_parametros.id_plan_pago;
@@ -388,12 +394,13 @@ END IF;
 
         ELSE
         	v_plan_pago = v_id_plan_pago_dcv;
-      		--solo estacion internacionales se relaciona una cuota con sus documentos compra y venta
-      	    IF pxp.f_get_variable_global('ESTACION_inicio') !='BOL' THEN
+      		--(may)solo estacion internacionales se relaciona una cuota con sus documentos compra y venta
+            --10-05-2020 (may) modificacion para q la central Bolivia se relaciona doc compra y venta con una cuota
+      	    --IF pxp.f_get_variable_global('ESTACION_inicio') !='BOL' THEN
               IF (v_plan_pago is null) THEN
                       v_plan_pago = v_parametros.id_plan_pago;
               END IF;
-            END IF;
+            --END IF;
 
         END IF;
 
@@ -1139,6 +1146,41 @@ END IF;
           IF v_parametros.razon_social is null or v_parametros.razon_social = '' THEN
           	raise exception 'Falta registrar el Razon Social';
           END IF;
+
+	-- breydi vasquez 11/05/2020 control de documento compra venta duplicado por usuario 
+    -- sujeto a futuras modificaciones question por la razon social 
+    
+      IF v_parametros.tipo = 'compra' THEN
+
+        --controles para que no se repita el documento
+        		  --control numero de documento
+             	  IF EXISTS(select 1
+                            from conta.tdoc_compra_venta dcv
+                            inner join param.tplantilla pla on pla.id_plantilla=dcv.id_plantilla
+                            where    dcv.estado_reg = 'activo' and  dcv.nro_documento = trim(v_parametros.nro_documento)
+                            and dcv.fecha =v_parametros.fecha
+                             and dcv.razon_social = trim(v_parametros.razon_social)
+                            and dcv.importe_doc = v_parametros.importe_doc
+                            and dcv.id_doc_compra_venta != v_parametros.id_doc_compra_venta
+                            )THEN
+                            
+                      select per.nombre_completo1
+                      into v_cuenta
+                      from conta.tdoc_compra_venta dcv
+                      inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
+                      inner join segu.vpersona per on per.id_persona = usu1.id_persona
+                      where dcv.nro_documento = trim(v_parametros.nro_documento)
+					  and dcv.importe_doc = v_parametros.importe_doc
+					  and dcv.razon_social = trim(v_parametros.razon_social)
+                      and dcv.fecha =v_parametros.fecha
+                      and dcv.id_doc_compra_venta != v_parametros.id_doc_compra_venta
+                      limit 1;
+
+                       raise exception 'Ya existe un Documento/Factura registrado con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
+
+                  END IF;
+        end if;
+        -- fin control 
 
       --Sentencia de la modificacion
       update conta.tdoc_compra_venta set
