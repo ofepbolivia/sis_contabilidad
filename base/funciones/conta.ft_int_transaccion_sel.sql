@@ -1801,11 +1801,11 @@ BEGIN
                         /**********************************/
 
                         ''SALDO ANTERIOR''::varchar as nro_factura,
-                        '||v_saldo_anterior||'::numeric as saldo_anterior
+                        '||v_saldo_anterior||'::numeric as saldo_anterior)
 
                         UNION
 
-            			select
+            			(select
 						transa.id_int_transaccion::integer,
 						transa.id_partida::integer,
 						transa.id_centro_costo::integer,
@@ -1912,8 +1912,8 @@ BEGIN
                                         par.tipo,icbte.c31,
                                         icbte.fecha_costo_ini,
 				                        icbte.fecha_costo_fin,
-                                        ot.desc_orden)
-            	ORDER BY id_int_transaccion ASC';
+                                        ot.desc_orden
+            	ORDER BY id_int_transaccion ASC)';
 			return v_consulta;
 		end;
 
