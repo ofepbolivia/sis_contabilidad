@@ -398,7 +398,9 @@ END IF;
             --10-05-2020 (may) modificacion para q la central Bolivia se relaciona doc compra y venta con una cuota
       	    --IF pxp.f_get_variable_global('ESTACION_inicio') !='BOL' THEN
               IF (v_plan_pago is null) THEN
+                if (pxp.f_existe_parametro(p_tabla, 'id_plan_pago'))then
                       v_plan_pago = v_parametros.id_plan_pago;
+                end if;                      
               END IF;
             --END IF;
 
