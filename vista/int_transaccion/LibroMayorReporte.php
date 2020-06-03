@@ -122,6 +122,28 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 {
                     config: {
+                        name: 'id_orden_trabajo',
+                        fieldLabel: 'Orden Trabajo',
+                        sysorigen: 'sis_contabilidad',
+                        origen: 'OT',
+                        allowBlank: true,
+                        gwidth: 200,
+                        width: 350,
+                        listWidth: 350,
+                        gdisplayField: 'desc_orden',
+                        renderer: function (value, p, record) {
+                            return String.format('{0}', record.data['desc_orden']);
+                        }
+
+                    },
+                    type: 'ComboRec',
+                    id_grupo: 0,
+                    filters: {pfiltro: 'ot.motivo_orden#ot.desc_orden', type: 'string'},
+                    grid: false,
+                    form: true
+                },
+                {
+                    config: {
                         name: 'nro_tramite',
                         fieldLabel: 'Nro Trámite',
                         allowBlank: true,
@@ -598,7 +620,8 @@ header("content-type: text/javascript; charset=UTF-8");
                       id_centro_costo:this.store.baseParams.id_centro_costo,
                       id_partida:this.store.baseParams.id_partida,
                       desde: this.store.baseParams.desde,
-                      hasta: this.store.baseParams.hasta
+                      hasta: this.store.baseParams.hasta,
+                      id_orden_trabajo: this.store.baseParams.id_orden_trabajo
                       /***************************************************************************/
                   },
                   success: this.successExport,
@@ -627,7 +650,8 @@ header("content-type: text/javascript; charset=UTF-8");
                       id_centro_costo:this.store.baseParams.id_centro_costo,
                       id_partida:this.store.baseParams.id_partida,
                       desde: this.store.baseParams.desde,
-                      hasta: this.store.baseParams.hasta
+                      hasta: this.store.baseParams.hasta,
+                      id_orden_trabajo: this.store.baseParams.id_orden_trabajo
                       /***************************************************************************/
                   },
                   success: this.successExport,
@@ -664,11 +688,13 @@ header("content-type: text/javascript; charset=UTF-8");
             cuenta = data.cuenta;
             partida = data.partida;
             centro_costo = data.cc;
+            orden_trabajo = data.ot;
             id_auxiliar = data.id_auxiliar;
             id_centro_costo = data.id_centro_costo;
             id_cuenta = data.id_cuenta;
             id_gestion = data.id_gestion;
             id_partida = data.id_partida;
+            id_orden_trabajo = data.id_orden_trabajo;
 
         },
 

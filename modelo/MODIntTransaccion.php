@@ -713,6 +713,7 @@ class MODIntTransaccion extends MODbase
         $this->setParametro('id_gestion', 'id_gestion', 'int4');
         $this->setParametro('id_centro_costo', 'id_centro_costo', 'int4');
         $this->setParametro('id_partida', 'id_partida', 'int4');
+        $this->setParametro('id_orden_trabajo', 'id_orden_trabajo', 'int4');
         $this->setParametro('desde', 'desde', 'varchar');
         $this->setParametro('hasta', 'hasta', 'varchar');
         $this->setCount(false);
@@ -756,6 +757,7 @@ class MODIntTransaccion extends MODbase
         $this->setParametro('id_gestion', 'id_gestion', 'int4');
         $this->setParametro('id_centro_costo', 'id_centro_costo', 'int4');
         $this->setParametro('id_partida', 'id_partida', 'int4');
+        $this->setParametro('id_orden_trabajo', 'id_orden_trabajo', 'int4');
         $this->setParametro('desde', 'desde', 'date');
         $this->setParametro('hasta', 'hasta', 'date');
         $this->setCount(false);
@@ -790,6 +792,7 @@ class MODIntTransaccion extends MODbase
         $this->setParametro('id_gestion', 'id_gestion', 'int4');
         $this->setParametro('id_centro_costo', 'id_centro_costo', 'int4');
         $this->setParametro('id_partida', 'id_partida', 'int4');
+        //$this->setParametro('id_orden_trabajo', 'id_orden_trabajo', 'int4');
         $this->setParametro('desde', 'desde', 'date');
         $this->setParametro('hasta', 'hasta', 'date');
         $this->setCount(false);
@@ -822,13 +825,14 @@ class MODIntTransaccion extends MODbase
         $this->procedimiento = 'conta.ft_int_transaccion_sel';
         $this->transaccion = 'CONTA_LISTMAY_SEL';
         $this->tipo_procedimiento = 'SEL';//tipo de transaccion
-        
+
 
         $this->setParametro('id_cuenta', 'id_cuenta', 'int4');
         $this->setParametro('id_auxiliar', 'id_auxiliar', 'int4');
         $this->setParametro('id_gestion', 'id_gestion', 'int4');
         $this->setParametro('id_centro_costo', 'id_centro_costo', 'int4');
         $this->setParametro('id_partida', 'id_partida', 'int4');
+        $this->setParametro('id_orden_trabajo', 'id_orden_trabajo', 'int4');
         $this->setParametro('tipo_filtro', 'tipo_filtro', 'varchar');
         $this->setParametro('desde', 'desde', 'text');
         $this->setParametro('hasta', 'hasta', 'varchar');

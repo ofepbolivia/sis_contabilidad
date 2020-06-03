@@ -1658,6 +1658,7 @@ BEGIN
             v_filtro_id_partida = '0=0';
             v_filtro_cuentas = '0=0';
 
+
             IF (v_parametros.id_auxiliar is not null)  THEN
             	v_filtro_id_auxiliar = 'transa.id_auxiliar = '||v_parametros.id_auxiliar||'';
             END IF;
@@ -1678,6 +1679,10 @@ BEGIN
             	v_filtro_cuentas = 'transa.id_cuenta = '||v_parametros.id_cuenta||'';
             end if;
 
+            IF (v_parametros.id_orden_trabajo is not null)  THEN
+            	v_filtro_ordenes = 'transa.id_orden_trabajo = '||v_parametros.id_orden_trabajo||'';
+            end if;
+
             /*********************************************************************************************/
 
            /*Para calcular el saldo por gestion recuperaremos el primer periodo de la gestion seleccionada*/
@@ -1688,7 +1693,7 @@ BEGIN
 
             /************************LLAMAMOS A LA FUNCION PARA CALCULAR EL SALDO ANTERIOR****************************************/
             select * into v_datos_anterior
-            from conta.f_recuperar_saldo_anterior_libro_mayor(v_filtro_cuentas,v_filtro_id_auxiliar,v_parametros.desde,v_filtro_id_partida,v_filtro_id_centro_costo,v_fecha_inicio_gestion)
+            from conta.f_recuperar_saldo_anterior_libro_mayor(v_filtro_cuentas,v_filtro_id_auxiliar,v_parametros.desde,v_filtro_id_partida,v_filtro_id_centro_costo,v_fecha_inicio_gestion,v_filtro_ordenes)
             as(saldo_anterior NUMERIC, total_debe_anterior NUMERIC, total_haber_anterior NUMERIC);
             /*********************************************************************************************************************/
 
@@ -1849,7 +1854,6 @@ BEGIN
                         icbte.fecha_costo_fin::date,
                         /**********************************/
 
-
                         COALESCE(string_agg(venta.nro_documento, '',''), '''')::varchar as nro_factura,
 						conta.f_calcular_saldo_libro_mayor_pdf(COALESCE(transa.importe_debe_mb,0),COALESCE(transa.importe_haber_mb,0),'''||v_parametros.desde||''','''||v_filtro_cuentas||''','''||v_filtro_ordenes||''','''||v_filtro_id_auxiliar||''','''||v_filtro_id_centro_costo||''','''||v_filtro_id_partida||''','||v_parametros.id_cuenta||','||v_parametros.id_gestion||')::numeric as importe_saldo_mb
 
@@ -1874,6 +1878,7 @@ BEGIN
                         and '||v_filtro_gestion||'
                         and '||v_filtro_id_centro_costo||'
                         and '||v_filtro_id_partida||'
+                        and '||v_filtro_ordenes||'
                         and icbte.fecha::date  >= '''||v_parametros.desde||'''
                         and icbte.fecha::date  <= '''||v_parametros.hasta||'''
 
@@ -1912,8 +1917,9 @@ BEGIN
                                         par.tipo,icbte.c31,
                                         icbte.fecha_costo_ini,
 				                        icbte.fecha_costo_fin,
-                                        ot.desc_orden
-            	ORDER BY id_int_transaccion ASC)';
+                                        ot.desc_orden)
+            	ORDER BY id_int_transaccion ASC';
+                raise notice '%',v_consulta;
 			return v_consulta;
 		end;
 
@@ -1961,6 +1967,10 @@ BEGIN
             	v_filtro_cuentas = 'transa.id_cuenta = '||v_parametros.id_cuenta||'';
             end if;
 
+             IF (v_parametros.id_orden_trabajo is not null)  THEN
+            	v_filtro_ordenes = 'transa.id_orden_trabajo = '||v_parametros.id_orden_trabajo||'';
+            end if;
+
             /*********************************************************************************************/
 
 
@@ -1972,7 +1982,7 @@ BEGIN
 
             /************************LLAMAMOS A LA FUNCION PARA CALCULAR EL SALDO ANTERIOR****************************************/
             select * into v_datos_anterior
-            from conta.f_recuperar_saldo_anterior_libro_mayor(v_filtro_cuentas,v_filtro_id_auxiliar,v_parametros.desde,v_filtro_id_partida,v_filtro_id_centro_costo,v_fecha_inicio_gestion)
+            from conta.f_recuperar_saldo_anterior_libro_mayor(v_filtro_cuentas,v_filtro_id_auxiliar,v_parametros.desde,v_filtro_id_partida,v_filtro_id_centro_costo,v_fecha_inicio_gestion,v_filtro_ordenes)
             as(saldo_anterior NUMERIC, total_debe_anterior NUMERIC, total_haber_anterior NUMERIC);
             /*********************************************************************************************************************/
 
@@ -2015,6 +2025,7 @@ BEGIN
                         inner join param.tperiodo per on per.id_periodo = icbte.id_periodo
 						where icbte.estado_reg = ''validado''
                               and ' ||v_filtro_cuentas||'
+                              and '||v_filtro_ordenes||'
                               and';
 
 			--Definicion de la respuesta
@@ -2080,6 +2091,10 @@ BEGIN
             	v_filtro_id_partida = 'transa.id_partida = '||v_parametros.id_partida||'';
             end if;
 
+             IF (v_parametros.id_orden_trabajo is not null)  THEN
+            	v_filtro_ordenes = 'transa.id_orden_trabajo = '||v_parametros.id_orden_trabajo||'';
+            end if;
+
              /****************************/
 
              IF  pxp.f_existe_parametro(p_tabla,'id_cuenta')  THEN
@@ -2106,36 +2121,6 @@ BEGIN
                     v_filtro_cuentas = ' transa.id_cuenta in ('||v_cuentas||') ';
                 END IF;
 
-            END IF;
-
-            IF  pxp.f_existe_parametro(p_tabla,'id_orden_trabajo')  THEN
-
-                  IF v_parametros.id_orden_trabajo is not NULL THEN
-
-
-                    IF v_parametros.id_orden_trabajo != 0 THEN
-                          WITH RECURSIVE orden_rec (id_orden_trabajo, id_orden_trabajo_fk) AS (
-                            SELECT cue.id_orden_trabajo, cue.id_orden_trabajo_fk
-                            FROM conta.torden_trabajo cue
-                            WHERE cue.id_orden_trabajo = v_parametros.id_orden_trabajo and cue.estado_reg = 'activo'
-                          UNION ALL
-                            SELECT cue2.id_orden_trabajo, cue2.id_orden_trabajo_fk
-                            FROM orden_rec lrec
-                            INNER JOIN conta.torden_trabajo cue2 ON lrec.id_orden_trabajo = cue2.id_orden_trabajo_fk
-                            where cue2.estado_reg = 'activo'
-                          )
-                        SELECT  pxp.list(id_orden_trabajo::varchar)
-                          into
-                            v_ordenes
-                        FROM orden_rec;
-
-                        v_filtro_ordenes = ' transa.id_orden_trabajo in ('||v_ordenes||') ';
-                    ELSE
-                        --cuando la orden de trabajo es cero, se requiere msotrar las ordenes de trabajo nulas
-                        v_filtro_ordenes = ' transa.id_orden_trabajo is null ';
-
-                    END IF;
-                END IF;
             END IF;
 
 
@@ -2272,6 +2257,10 @@ BEGIN
             	v_filtro_id_partida = 'transa.id_partida = '||v_parametros.id_partida||'';
             end if;
 
+            IF (v_parametros.id_orden_trabajo is not null)  THEN
+            	v_filtro_ordenes = 'transa.id_orden_trabajo = '||v_parametros.id_orden_trabajo||'';
+            end if;
+
              /****************************/
 
              IF  pxp.f_existe_parametro(p_tabla,'id_cuenta')  THEN
@@ -2300,35 +2289,6 @@ BEGIN
 
             END IF;
 
-            IF  pxp.f_existe_parametro(p_tabla,'id_orden_trabajo')  THEN
-
-                  IF v_parametros.id_orden_trabajo is not NULL THEN
-
-
-                    IF v_parametros.id_orden_trabajo != 0 THEN
-                          WITH RECURSIVE orden_rec (id_orden_trabajo, id_orden_trabajo_fk) AS (
-                            SELECT cue.id_orden_trabajo, cue.id_orden_trabajo_fk
-                            FROM conta.torden_trabajo cue
-                            WHERE cue.id_orden_trabajo = v_parametros.id_orden_trabajo and cue.estado_reg = 'activo'
-                          UNION ALL
-                            SELECT cue2.id_orden_trabajo, cue2.id_orden_trabajo_fk
-                            FROM orden_rec lrec
-                            INNER JOIN conta.torden_trabajo cue2 ON lrec.id_orden_trabajo = cue2.id_orden_trabajo_fk
-                            where cue2.estado_reg = 'activo'
-                          )
-                        SELECT  pxp.list(id_orden_trabajo::varchar)
-                          into
-                            v_ordenes
-                        FROM orden_rec;
-
-                        v_filtro_ordenes = ' transa.id_orden_trabajo in ('||v_ordenes||') ';
-                    ELSE
-                        --cuando la orden de trabajo es cero, se requiere msotrar las ordenes de trabajo nulas
-                        v_filtro_ordenes = ' transa.id_orden_trabajo is null ';
-
-                    END IF;
-                END IF;
-            END IF;
 
             /*Ponemos condiciones para recuperar el numero de cuenta*/
             select cue.nro_cuenta into v_numero_cuenta

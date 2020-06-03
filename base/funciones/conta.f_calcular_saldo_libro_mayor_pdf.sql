@@ -137,7 +137,7 @@ BEGIN
 
              	/************************LLAMAMOS A LA FUNCION PARA CALCULAR EL SALDO ANTERIOR****************************************/
                 select * into v_datos_anterior
-                from conta.f_recuperar_saldo_anterior_libro_mayor(p_filtro_cuentas,p_filtro_id_auxiliar,p_fecha_desde,p_filtro_partida,p_filtro_id_centro_costo,v_fecha_inicio_gestion)
+                from conta.f_recuperar_saldo_anterior_libro_mayor(p_filtro_cuentas,p_filtro_id_auxiliar,p_fecha_desde,p_filtro_partida,p_filtro_id_centro_costo,v_fecha_inicio_gestion,p_filtro_ordenes)
                 as(saldo_anterior NUMERIC, total_debe_anterior NUMERIC, total_haber_anterior NUMERIC);
               	/*********************************************************************************************************************/
 
