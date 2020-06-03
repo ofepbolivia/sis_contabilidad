@@ -55,9 +55,10 @@ Phx.vista.FormFiltroReporteLibroMayor=Ext.extend(Phx.frmInterfaz,{
                    frame: true,
                    border: false,
                    layout: 'form',
+                   width: '90%',
                    style: {
-                          height:'100px',
-                          width:'100px',
+                          height:'150px',
+                          width:'590px',
                           backgroundColor:'#dfe8f6'
                        },
                    padding: '0 0 0 0',
@@ -77,8 +78,8 @@ Phx.vista.FormFiltroReporteLibroMayor=Ext.extend(Phx.frmInterfaz,{
                  border: false,
                  layout: 'form',
                  style: {
-                        height:'100px',
-                        width:'100px',
+                        height:'150px',
+                        width:'300px',
                         backgroundColor:'#dfe8f6'
                      },
                  padding: '0 0 0 0',
@@ -96,8 +97,8 @@ Phx.vista.FormFiltroReporteLibroMayor=Ext.extend(Phx.frmInterfaz,{
                    frame: true,
                    layout: 'form',
                    style: {
-                          height:'100px',
-                          width:'100px',
+                          height:'150px',
+                          width:'350px',
                           backgroundColor:'#dfe8f6',
                          },
                    border: false,
