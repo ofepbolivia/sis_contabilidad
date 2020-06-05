@@ -1657,9 +1657,8 @@ BEGIN
             v_filtro_id_centro_costo = '0=0';
             v_filtro_id_partida = '0=0';
             v_filtro_cuentas = '0=0';
-
-
-            IF (v_parametros.id_auxiliar is not null)  THEN
+            --raise exception 'filtro es %',v_parametros.filtro;
+			IF (v_parametros.id_auxiliar is not null)  THEN
             	v_filtro_id_auxiliar = 'transa.id_auxiliar = '||v_parametros.id_auxiliar||'';
             END IF;
 
@@ -1881,7 +1880,10 @@ BEGIN
                         and '||v_filtro_ordenes||'
                         and icbte.fecha::date  >= '''||v_parametros.desde||'''
                         and icbte.fecha::date  <= '''||v_parametros.hasta||'''
+                        and ';
+                        v_consulta:=v_consulta||v_parametros.filtro;
 
+						v_consulta:= v_consulta|| '
 			group by transa.id_int_transaccion,
                                         transa.id_partida,
                                         transa.id_centro_costo,
@@ -1917,8 +1919,8 @@ BEGIN
                                         par.tipo,icbte.c31,
                                         icbte.fecha_costo_ini,
 				                        icbte.fecha_costo_fin,
-                                        ot.desc_orden)
-            	ORDER BY id_int_transaccion ASC';
+                                        ot.desc_orden
+                                        ORDER BY id_int_transaccion ASC)';
                 raise notice '%',v_consulta;
 			return v_consulta;
 		end;
@@ -2023,6 +2025,7 @@ BEGIN
 					    from conta.tint_transaccion transa
                         inner join conta.tint_comprobante icbte on icbte.id_int_comprobante = transa.id_int_comprobante
                         inner join param.tperiodo per on per.id_periodo = icbte.id_periodo
+                        --left join conta.tdoc_compra_venta venta on venta.id_int_comprobante = icbte.id_int_comprobante
 						where icbte.estado_reg = ''validado''
                               and ' ||v_filtro_cuentas||'
                               and '||v_filtro_ordenes||'
@@ -2073,7 +2076,6 @@ BEGIN
             v_filtro_gestion = '0=0';
             v_filtro_id_centro_costo = '0=0';
             v_filtro_id_partida = '0=0';
-
 
             IF (v_parametros.id_auxiliar is not null)  THEN
             	v_filtro_id_auxiliar = 'transa.id_auxiliar = '||v_parametros.id_auxiliar||'';
@@ -2168,6 +2170,9 @@ BEGIN
                                                             and '||v_filtro_id_partida||'
                                                         	and icbte.fecha::date  >= '''||v_parametros.desde||'''
                                                             and icbte.fecha::date  <= '''||v_parametros.hasta||'''
+                                                            and ';
+                              v_consulta:=v_consulta||v_parametros.filtro;
+                              v_consulta:= v_consulta|| '
                                   group by transa.id_int_transaccion,
                                         transa.id_partida,
                                         transa.id_centro_costo,

@@ -113,10 +113,10 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'ComboRec',
                     id_grupo: 0,
                     filters: {
-                        pfiltro: 'cue.nombre_cuenta#cue.nro_cuenta#cc.codigo_cc#cue.nro_cuenta#cue.nombre_cuenta#aux.codigo_auxiliar#aux.nombre_auxiliar#par.codigo#par.nombre_partida#ot.desc_orden',
+                        pfiltro: 'transa.nombre_cuenta#transa.nro_cuenta#cc.codigo_cc#cue.nro_cuenta#cue.nombre_cuenta#aux.codigo_auxiliar#aux.nombre_auxiliar#par.codigo#par.nombre_partida#ot.desc_orden',
                         type: 'string'
                     },
-                    bottom_filter: true,
+                    //bottom_filter: true,
                     grid: true,
                     form: true
                 },
@@ -152,6 +152,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1000
                     },
                     type: 'TextField',
+                    filters: {pfiltro: 'icbte.nro_tramite', type: 'string'},
                     bottom_filter: true,
                     id_grupo: 1,
                     grid: true,
@@ -167,7 +168,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1000
                     },
                     type: 'TextField',
-                    bottom_filter: true,
+                    //bottom_filter: true,
+                    //filters: {pfiltro: 'venta.nro_documento', type: 'string'},
                     id_grupo: 1,
                     grid: true,
                     form: true
@@ -182,7 +184,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1000
                     },
                     type: 'TextField',
-                    bottom_filter: true,
+                    //bottom_filter: true,
                     id_grupo: 1,
                     grid: true,
                     form: true
@@ -198,6 +200,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     },
                     type: 'TextField',
                     bottom_filter: true,
+                    filters: {pfiltro: 'icbte.c31', type: 'string'},
                     id_grupo: 1,
                     grid: true,
                     form: true
@@ -219,7 +222,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 1,
                     grid: true,
                     form: false,
-                    bottom_filter: true
+                    //bottom_filter: true
                 },
                 {
                     config: {
@@ -238,7 +241,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 1,
                     grid: true,
                     form: false,
-                    bottom_filter: true
+                    //bottom_filter: true
                 },
                 {
                     config: {
@@ -327,6 +330,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     },
                     type: 'TextArea',
                     filters: {pfiltro: 'transa.glosa', type: 'string'},
+                    bottom_filter: true,
                     id_grupo: 1,
                     grid: true,
                     form: true
@@ -621,7 +625,9 @@ header("content-type: text/javascript; charset=UTF-8");
                       id_partida:this.store.baseParams.id_partida,
                       desde: this.store.baseParams.desde,
                       hasta: this.store.baseParams.hasta,
-                      id_orden_trabajo: this.store.baseParams.id_orden_trabajo
+                      id_orden_trabajo: this.store.baseParams.id_orden_trabajo,
+                      /*Aqui pondremos para que el reporte nos filtre por los parametro que deben ser filtrado*/
+                      filtro_reporte: this.gfilter.store.baseParams.bottom_filter_value
                       /***************************************************************************/
                   },
                   success: this.successExport,
@@ -634,7 +640,9 @@ header("content-type: text/javascript; charset=UTF-8");
 
         libroMayorEXCEL: function () {
               Phx.CP.loadingShow();
-              console.log("El dato es el siguiente",this);
+              console.log("aqui para el filtro",this);
+              console.log("aqui para el filtro",this.bottom_filter.getValue);
+              console.log("aqui para el filtro",this.gfilter.store.baseParams.bottom_filter_value);
               Ext.Ajax.request({
                   url: '../../sis_contabilidad/control/IntTransaccion/GenerarReporteLibroMayorExcel',
                   params: {
@@ -651,7 +659,9 @@ header("content-type: text/javascript; charset=UTF-8");
                       id_partida:this.store.baseParams.id_partida,
                       desde: this.store.baseParams.desde,
                       hasta: this.store.baseParams.hasta,
-                      id_orden_trabajo: this.store.baseParams.id_orden_trabajo
+                      id_orden_trabajo: this.store.baseParams.id_orden_trabajo,
+                      /*Aqui pondremos para que el reporte nos filtre por los parametro que deben ser filtrado*/
+                      filtro_reporte: this.gfilter.store.baseParams.bottom_filter_value
                       /***************************************************************************/
                   },
                   success: this.successExport,

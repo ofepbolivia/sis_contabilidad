@@ -582,7 +582,9 @@ class ACTIntTransaccion extends ACTbase
     /*Reporte en PDF libro Mayor*/
     function GenerarLibroMayor()
     {
-
+      if ($this->objParam->getParametro('filtro_reporte') != '') {
+          $this->objParam->addFiltro("((icbte.nro_tramite::varchar ILIKE ''%".$this->objParam->getParametro('filtro_reporte')."%'') OR (icbte.c31::varchar ILIKE ''%".$this->objParam->getParametro('filtro_reporte')."%'') OR (transa.glosa::varchar ILIKE ''%".$this->objParam->getParametro('filtro_reporte')."%''))");
+      }
       $this->objFunc=$this->create('MODIntTransaccion');
   		$dataSource=$this->objFunc->listarReporteLibroMayor();
       $saldo_anterior = $this->calcularSaldoAnteriorLibroMayor();
@@ -637,9 +639,14 @@ class ACTIntTransaccion extends ACTbase
 
     function contenidoLibroMayor(){
 
+      //var_dump("esta llegando el filtro para poner",$this->objParam->getParametro('filtro_reporte'));
+
+      if ($this->objParam->getParametro('filtro_reporte') != '') {
+          $this->objParam->addFiltro("((icbte.nro_tramite::varchar ILIKE ''%".$this->objParam->getParametro('filtro_reporte')."%'') OR (icbte.c31::varchar ILIKE ''%".$this->objParam->getParametro('filtro_reporte')."%'') OR (transa.glosa::varchar ILIKE ''%".$this->objParam->getParametro('filtro_reporte')."%''))");
+      }
 
         $this->objFunc=$this->create('MODIntTransaccion');
-        $cbteHeader = $this->objFunc->listarReporteLibroMayor($this->objParam);
+        $cbteHeader = $this->objFunc->listarReporteLibroMayorPDF($this->objParam);
         if($cbteHeader->getTipo() == 'EXITO'){
             return $cbteHeader;
         }
