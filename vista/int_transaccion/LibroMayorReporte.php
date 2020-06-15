@@ -94,10 +94,8 @@ header("content-type: text/javascript; charset=UTF-8");
                                     color = 'red';
                                 }
 
-
                                 var retorno = String.format('<b>Cta.:</b> <font color="blue">{3}</font><br><b>Aux.:</b> <font color="#CC3B00">{4}</font><br><b>Ptda.:</b> <font color="{1}">{2}</font><br><b>CC:</b> {0}', record.data['desc_centro_costo'], color, record.data['desc_partida'],
                                     record.data['desc_cuenta'], record.data['desc_auxiliar']);
-
 
                                 if (record.data['desc_orden']) {
                                     retorno = retorno + '<br><b>Ord.:</b> ' + record.data['desc_orden'];
@@ -149,7 +147,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         allowBlank: true,
                         anchor: '80%',
                         gwidth: 200,
-                        maxLength: 1000
+                        maxLength: 1000,
+
                     },
                     type: 'TextField',
                     filters: {pfiltro: 'icbte.nro_tramite', type: 'string'},
@@ -325,7 +324,11 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1000,
                         renderer: function (value, metaData, record, rowIndex, colIndex, store) {
                             metaData.css = 'multilineColumn';
-                            return String.format('{0} <br> {1}', record.data['glosa1'], value);
+                            if (record.data['glosa1'] == 'SALDO ANTERIOR') {
+                              return String.format('<b style="font-size:15px; color:blue;">{0}</b> <br> {1}', record.data['glosa1'], value);
+                            }else {
+                              return String.format('{0} <br> {1}', record.data['glosa1'], value);
+                            }
                         }
                     },
                     type: 'TextArea',
@@ -348,7 +351,11 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 100,
                         renderer: function (value, p, record) {
                             if (record.data.tipo_reg != 'summary') {
-                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                                if (record.data['glosa1'] == 'SALDO ANTERIOR') {
+                                  return String.format('<b style="font-size:15px; color:blue;">{0}</b>', Ext.util.Format.number(value, '0,000.00'));
+                                }else{
+                                  return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                                }
                             } else {
                                 return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
                             }
@@ -371,7 +378,11 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 100,
                         renderer: function (value, p, record) {
                             if (record.data.tipo_reg != 'summary') {
+                              if (record.data['glosa1'] == 'SALDO ANTERIOR') {
+                                return String.format('<b style="font-size:15px; color:blue;">{0}</b>', Ext.util.Format.number(value, '0,000.00'));
+                              }else{
                                 return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                              }
                             } else {
                                 return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
                             }
@@ -394,7 +405,11 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 100,
                         renderer: function (value, p, record) {
                             if (record.data.tipo_reg != 'summary') {
+                              if (record.data['glosa1'] == 'SALDO ANTERIOR') {
+                                return String.format('<b style="font-size:15px; color:blue;">{0}</b>', Ext.util.Format.number(value, '0,000.00'));
+                              }else{
                                 return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                              }
                             } else {
                                 return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
                             }
@@ -578,7 +593,16 @@ header("content-type: text/javascript; charset=UTF-8");
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Trámite:&nbsp;&nbsp;</b> {nro_tramite} &nbsp; {fecha:date("d/m/Y")}</p>',
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:&nbsp;&nbsp;</b> {usr_reg}</p>',
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Estado Registro:&nbsp;&nbsp;</b> {estado_reg}</p><br>'
-            )
+            ),
+            renderer: function(v, p, record) {
+              if (record.data['glosa1'] == 'SALDO ANTERIOR') {
+
+              } else {
+                return '<div class="x-grid3-row-expander"></div>';
+              }
+
+            },
+
         }),
 
         arrayDefaultColumHidden: ['fecha_mod', 'usr_reg', 'usr_mod', 'estado_reg', 'fecha_reg', 'desc_centro_costo'],

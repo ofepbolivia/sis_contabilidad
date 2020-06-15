@@ -1771,7 +1771,7 @@ BEGIN
 						''activo''::varchar as estado_reg,
 						NULL::integer as id_int_transaccion_fk,
 						0::integer as id_cuenta,
-						''Saldo Anterior''::varchar as glosa,
+						''''::varchar as glosa,
 						NULL::integer as id_int_comprobante,
 						NULL::integer as id_auxiliar,
 						NULL::integer as id_usuario_reg,
@@ -1784,19 +1784,19 @@ BEGIN
                         '||v_datos_anterior.total_debe_anterior||'::numeric as total_debe_anterior,
                         '||v_datos_anterior.total_haber_anterior||'::numeric as total_haber_anterior,
 
-                        ''Saldo Anterior''::varchar as desc_partida,
-						''Saldo Anterior''::varchar as desc_centro_costo,
-						''Saldo Anterior''::varchar as desc_cuenta,
-						''Saldo Anterior''::varchar desc_auxiliar,
-                        ''SALDO ANTERIOR''::varchar as tipo_partida,
+                        ''''::varchar as desc_partida,
+						''''::varchar as desc_centro_costo,
+						''''::varchar as desc_cuenta,
+						''''::varchar desc_auxiliar,
+                        ''''::varchar as tipo_partida,
                         NULL::integer as id_orden_trabajo,
-                        ''Saldo Anterior''::varchar as desc_orden,
-                        ''Saldo Anterior''::varchar as nro_cbte,
-                        ''SALDO ANTERIOR''::varchar as nro_tramite,
-                        ''Saldo Anterior''::varchar as nombre_corto,
+                        ''''::varchar as desc_orden,
+                        ''''::varchar as nro_cbte,
+                        ''''::varchar as nro_tramite,
+                        ''''::varchar as nombre_corto,
                        	NULL::date as fecha,
                         ''SALDO ANTERIOR''::varchar as glosa1,
-                        ''Saldo Anterior''::varchar as codigo,
+                        ''''::varchar as codigo,
 
                         /*Recuperando datos sugeridos por lobito*/
                         ''''::varchar as c31,
@@ -1804,7 +1804,7 @@ BEGIN
                         NULL::date as fecha_costo_fin,
                         /**********************************/
 
-                        ''SALDO ANTERIOR''::varchar as nro_factura,
+                        ''''::varchar as nro_factura,
                         '||v_saldo_anterior||'::numeric as saldo_anterior)
 
                         UNION
