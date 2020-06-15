@@ -93,6 +93,10 @@ header("content-type: text/javascript; charset=UTF-8");
                                 if (record.data["tipo_partida"] == 'flujo') {
                                     color = 'red';
                                 }
+                                if (record.data['glosa1'] == 'SALDO ANTERIOR') {
+                                  var retorno = String.format('');
+
+                                } else {
 
                                 var retorno = String.format('<b>Cta.:</b> <font color="blue">{3}</font><br><b>Aux.:</b> <font color="#CC3B00">{4}</font><br><b>Ptda.:</b> <font color="{1}">{2}</font><br><b>CC:</b> {0}', record.data['desc_centro_costo'], color, record.data['desc_partida'],
                                     record.data['desc_cuenta'], record.data['desc_auxiliar']);
@@ -103,6 +107,8 @@ header("content-type: text/javascript; charset=UTF-8");
                                 if (record.data['desc_suborden']) {
                                     retorno = retorno + '<br><b>Sub.:</b> ' + record.data['desc_suborden'];
                                 }
+
+                                  }
                                 return retorno;
 
                              }
@@ -595,7 +601,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Estado Registro:&nbsp;&nbsp;</b> {estado_reg}</p><br>'
             ),
             renderer: function(v, p, record) {
-              if (record.data['glosa1'] == 'SALDO ANTERIOR') {
+              console.log("aqui llega detalle total",record.data);
+              if (record.data['glosa1'] == 'SALDO ANTERIOR' || record.data['tipo_reg'] == 'summary') {
 
               } else {
                 return '<div class="x-grid3-row-expander"></div>';
