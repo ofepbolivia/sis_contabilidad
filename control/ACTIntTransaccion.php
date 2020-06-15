@@ -646,7 +646,7 @@ class ACTIntTransaccion extends ACTbase
       }
 
         $this->objFunc=$this->create('MODIntTransaccion');
-        $cbteHeader = $this->objFunc->listarReporteLibroMayorPDF($this->objParam);
+        $cbteHeader = $this->objFunc->listarReporteLibroMayor($this->objParam);
         if($cbteHeader->getTipo() == 'EXITO'){
             return $cbteHeader;
         }

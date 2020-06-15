@@ -424,6 +424,20 @@ class RReporteLibroMayorExcel
         $datos = $this->datos_contenido;
 
         foreach ($datos as $value) {
+
+          if ($value["fecha_costo_ini"]=='' || $value["fecha_costo_ini"] == null) {
+            $fecha_costo_ini = '';
+          } else {
+            $fecha_costo_ini = date("d/m/Y", strtotime($value['fecha_costo_fin']));
+          }
+
+          if ($value["fecha_costo_fin"]=='' || $value["fecha_costo_fin"] == null) {
+            $fecha_costo_fin = '';
+          } else {
+            $fecha_costo_fin = date("d/m/Y", strtotime($value['fecha_costo_fin']));
+          }
+
+
           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, date("d/m/Y", strtotime($value["fecha"])));
           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['nro_cbte']);
           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['nro_factura']);
@@ -432,8 +446,8 @@ class RReporteLibroMayorExcel
           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['nro_tramite']);
           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['c31']);
           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $value['desc_orden']);
-          $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila,  date("d/m/Y", strtotime($value['fecha_costo_ini'])));
-          $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila,  date("d/m/Y", strtotime($value['fecha_costo_fin'])));
+          $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila,  $fecha_costo_ini);
+          $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila,  $fecha_costo_fin);
 
 
           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9, $fila, $value['glosa1']);
