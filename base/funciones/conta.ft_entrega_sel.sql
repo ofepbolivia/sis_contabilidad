@@ -301,7 +301,120 @@ BEGIN
 
     begin
       --Sentencia de la consulta
-      v_consulta:='select    COALESCE(t1.id_entrega, t2.id_entrega) as id_entrega,
+      --12-06-2020 (may) OBSERVACIONES SOBRE EL FULL JOIN ESTE HACE REPETIR REGISTRO PARA EL REPORTE DE ENTREGAS
+      v_consulta:=' SELECT  ent.id_entrega,
+                             ent.estado::varchar,
+                             ent.c31::varchar,
+                             ent.id_depto_conta,
+                             ent.fecha_c31,
+                             par.codigo::varchar,
+                             par.nombre_partida::varchar,
+                             trd.importe_debe_mb,
+                             trd.importe_haber_mb,
+                             CASE
+                               WHEN trd.factor_reversion > 0::numeric THEN trd.importe_debe_mb /(1::
+                                 numeric - trd.factor_reversion)
+                               ELSE trd.importe_debe_mb
+                             END AS importe_debe_mb_completo,
+                             CASE
+                               WHEN trd.factor_reversion > 0::numeric THEN trd.importe_haber_mb /(1
+                                 ::numeric - trd.factor_reversion)
+                               ELSE trd.importe_haber_mb
+                             END AS importe_haber_mb_completo,
+                             trd.importe_gasto_mb,
+                             trd.importe_recurso_mb,
+                             trd.factor_reversion,
+                             pr.codigo_cc::varchar,
+                             cp.codigo_categoria::varchar,
+                             cg.codigo::varchar AS codigo_cg,
+                             cg.nombre::varchar AS nombre_cg,
+                             cbt.beneficiario::varchar,
+                             cbt.glosa1::varchar,
+                             cbt.id_int_comprobante,
+                             trd.id_int_comprobante AS id_int_comprobante_dev,
+                             COALESCE(cb.nro_cuenta, ''SIN CUENTA''::character varying) AS nro_cuenta,
+                             cb.nombre_institucion,
+                             trd.importe_debe,
+                             trd.importe_haber,
+                             mm.moneda AS moneda_original
+                      FROM conta.tentrega ent
+                           JOIN conta.tentrega_det ed ON ed.id_entrega = ent.id_entrega
+                           JOIN conta.tint_comprobante cbt ON cbt.id_int_comprobante =
+                             ed.id_int_comprobante
+                           JOIN tes.tplan_pago pg ON pg.id_int_comprobante = cbt.id_int_comprobante
+                           JOIN tes.tplan_pago dev ON dev.id_plan_pago = pg.id_plan_pago_fk
+                           JOIN conta.tint_transaccion trd ON trd.id_int_comprobante =
+                             dev.id_int_comprobante
+                           JOIN pre.tpartida par ON par.id_partida = trd.id_partida
+                           JOIN pre.vpresupuesto_cc pr ON pr.id_centro_costo = trd.id_centro_costo
+                           JOIN pre.vcategoria_programatica cp ON cp.id_categoria_programatica =
+                             pr.id_categoria_prog
+                           LEFT JOIN pre.tclase_gasto_partida cgp ON cgp.id_partida = par.id_partida
+                           LEFT JOIN pre.tclase_gasto cg ON cg.id_clase_gasto = cgp.id_clase_gasto
+                           LEFT JOIN tes.vcuenta_bancaria cb ON cb.id_cuenta_bancaria =
+                             cbt.id_cuenta_bancaria
+                           LEFT JOIN param.tmoneda mm ON trd.id_moneda = mm.id_moneda
+                      WHERE par.sw_movimiento::text = ''presupuestaria''::text
+                      and ent.id_entrega = '||v_parametros.id_entrega||'
+                      UNION ALL
+                      SELECT ent.id_entrega,
+                             ent.estado::varchar,
+                             ent.c31::varchar,
+                             ent.id_depto_conta,
+                             ent.fecha_c31,
+                             par.codigo::varchar,
+                             par.nombre_partida::varchar,
+                             trp.importe_debe_mb,
+                             trp.importe_haber_mb,
+                             CASE
+                               WHEN trp.factor_reversion > 0::numeric THEN trp.importe_debe_mb /(1::
+                                 numeric - trp.factor_reversion)
+                               ELSE trp.importe_debe_mb
+                             END AS importe_debe_mb_completo,
+                             CASE
+                               WHEN trp.factor_reversion > 0::numeric THEN trp.importe_haber_mb /(1
+                                 ::numeric - trp.factor_reversion)
+                               ELSE trp.importe_haber_mb
+                             END AS importe_haber_mb_completo,
+                             trp.importe_gasto_mb,
+                             trp.importe_recurso_mb,
+                             trp.factor_reversion,
+                             pr.codigo_cc::varchar,
+                             cp.codigo_categoria::varchar,
+                             cg.codigo::varchar AS codigo_cg,
+                             cg.nombre::varchar AS nombre_cg,
+                             cbt.beneficiario::varchar,
+                             cbt.glosa1::varchar,
+                             cbt.id_int_comprobante,
+                             trp.id_int_comprobante AS id_int_comprobante_dev,
+                             COALESCE(cb.nro_cuenta, ''SIN CUENTA''::character varying) AS nro_cuenta,
+                             cb.nombre_institucion,
+                             trp.importe_debe,
+                             trp.importe_haber,
+                             m.moneda AS moneda_original
+                      FROM conta.tentrega ent
+                           JOIN conta.tentrega_det ed ON ed.id_entrega = ent.id_entrega
+                           JOIN conta.tint_comprobante cbt ON cbt.id_int_comprobante =
+                             ed.id_int_comprobante
+                           JOIN conta.tint_transaccion trp ON trp.id_int_comprobante =
+                             cbt.id_int_comprobante
+                           JOIN pre.tpartida par ON par.id_partida = trp.id_partida
+                           JOIN pre.vpresupuesto_cc pr ON pr.id_centro_costo = trp.id_centro_costo
+                           JOIN pre.vcategoria_programatica cp ON cp.id_categoria_programatica =
+                             pr.id_categoria_prog
+                           LEFT JOIN pre.tclase_gasto_partida cgp ON cgp.id_partida = par.id_partida
+                           LEFT JOIN pre.tclase_gasto cg ON cg.id_clase_gasto = cgp.id_clase_gasto
+                           LEFT JOIN tes.vcuenta_bancaria cb ON cb.id_cuenta_bancaria =
+                             cbt.id_cuenta_bancaria
+                           LEFT JOIN param.tmoneda m ON trp.id_moneda = m.id_moneda
+                      WHERE par.sw_movimiento::text = ''presupuestaria''::text
+                      and ent.id_entrega = '||v_parametros.id_entrega||'
+
+                      ORDER by nro_cuenta, codigo_cg , codigo_categoria , codigo';
+
+
+
+     /* v_consulta:='select    COALESCE(t1.id_entrega, t2.id_entrega) as id_entrega,
                              COALESCE(t1.estado, t2.estado)::varchar as estado,
                              COALESCE(t1.c31, t2.c31)::varchar as c31,
                              COALESCE(t1.id_depto_conta, t2.id_depto_conta) as id_depto_conta,
@@ -486,7 +599,7 @@ BEGIN
                       WHERE par.sw_movimiento::text = ''flujo''::text
                       and ent.id_entrega = '||v_parametros.id_entrega||') t2
                       on t1.id_int_comprobante = t2.id_int_comprobante
-                      ORDER by nro_cuenta, codigo_cg , codigo_categoria , codigo';
+                      ORDER by nro_cuenta, codigo_cg , codigo_categoria , codigo';*/
 
       --Devuelve la respuesta
       raise notice '--> %',v_consulta;
