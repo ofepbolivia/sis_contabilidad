@@ -2575,6 +2575,47 @@ class MODDocCompraVenta extends MODbase
         return $this->respuesta;
     }
 
+    //{developer:franklin.espinoza, date:01/06/2020}
+    function reporteLibroCompraNCD(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento = 'conta.ft_doc_compra_venta_sel';
+        $this->transaccion = 'CONTA_LIBROCNCD_SEL';
+        $this->tipo_procedimiento = 'SEL';//tipo de transaccion
+
+        $this->setParametro('filtro_sql', 'filtro_sql', 'varchar');
+        $this->setParametro('id_periodo', 'id_periodo', 'integer');
+        $this->setParametro('tipo_lcv', 'tipo_lcv', 'varchar');
+        $this->setParametro('fecha_ini', 'fecha_ini', 'date');
+        $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+
+
+        //Definicion de la lista del resultado del query
+        $this->captura('fecha_nota', 'date');
+        $this->captura('num_nota', 'varchar');
+        $this->captura('num_autorizacion', 'bigint');
+        $this->captura('estado', 'varchar');
+        $this->captura('nit', 'varchar');
+        $this->captura('razon_social', 'varchar');
+        $this->captura('total_devuelto', 'numeric');
+        $this->captura('rc_iva', 'numeric');
+        $this->captura('codigo_control', 'varchar');
+        $this->captura('fecha_original', 'date');
+        $this->captura('num_factura', 'bigint');
+        $this->captura('nroaut_anterior', 'bigint');
+        $this->captura('importe_total', 'numeric');
+        $this->captura('gestion', 'integer');
+        $this->captura('periodo', 'varchar');
+        $this->captura('razon_empresa', 'varchar');
+        $this->captura('nit_empresa', 'varchar');
+        $this->captura('periodo_num', 'varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        //echo($this->consulta); exit;
+        $this->ejecutarConsulta();
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 
 }
 
