@@ -404,7 +404,7 @@ BEGIN
                   --  si existe relacion,  identificar los comprobantes relacionados SIN NRO DE C31
                   IF v_parametros.id_tipo_relacion_comprobante is not null AND v_parametros.id_tipo_relacion_comprobante = v_registros_ent.id_tipo_relacion_comprobante THEN
 
-                       --  actualizar los combronbastes relacionados
+                       --  actualizar los comprobantes relacionados
                         FOR v_registros_aux in (select
                                                   cbte.id_int_comprobante,
                                                   cbte.c31
@@ -428,6 +428,28 @@ BEGIN
                         END LOOP;
 
                   END IF;
+
+
+                  --16-06-2020 (may) para que este realice la actualizacion a su cbte de diario y de pago
+
+                      FOR v_registros_aux in (select
+                                                      cbte.id_int_comprobante,
+                                                      cbte.c31
+                                                  from conta.tint_comprobante cbte
+                                                  where v_registros_ent.id_int_comprobante =  ANY(cbte.id_int_comprobante_fks) ) LOOP
+
+                                          --actualiza cbte relacionado
+                                          update conta.tint_comprobante  set
+                                              c31 =  v_parametros.c31,
+                                              fecha_c31 = v_parametros.fecha_c31
+                                          where id_int_comprobante = v_registros_aux.id_int_comprobante;
+
+
+                                    v_cont = v_cont + 1;
+                       END LOOP;
+
+                  --
+
 
                      --  IF verificar si es necesario llamar a libro de bancos
                      v_valor = param.f_get_depto_param( v_registros.id_depto_conta, 'ENTREGA');
