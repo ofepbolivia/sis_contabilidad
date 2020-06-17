@@ -176,12 +176,45 @@ class RReporteLibroMayorPDF extends  ReportePDF{
 
             }
           /****************************************************************************************************************************************/
+          $numero_cuenta = substr($cabezera['desc_cuenta'], 0, 3);
+          $inicial_cuenta = substr($cabezera['desc_cuenta'], 0, 0);
+          $cuenta_acreedora = substr($cabezera['desc_cuenta'], 0, 2);
+
+          if ($inicial_cuenta = '1') {
+            if ($numero_cuenta = '124' OR  $numero_cuenta = '114') {
+                  $comportamiento = 'pasivo';
+              }else{
+                    $comportamiento = 'activo';
+                   }
+          }
+          if ($inicial_cuenta = '4' or $inicial_cuenta = '6') {
+            $comportamiento = 'activo';
+          }
+           /*Si la cuenta inicia con 2 o 3 o 5 pertenece a un pasivo*/
+            if ($inicial_cuenta = '2' or $inicial_cuenta = '3' or $inicial_cuenta = '5') {
+              $comportamiento = 'pasivo';
+            }
+
+            if ($inicial_cuenta = '8') {
+              if ($cuenta_acreedora = '81') {
+                $comportamiento = 'activo';
+              } else if ($cuenta_acreedora = '82') {
+                $comportamiento = 'pasivo';
+              }
+            }
+
+            if ($comportamiento == 'activo') {
+            $saldo_total = $total_debe-$total_haber;
+          } elseif ($comportamiento == 'pasivo') {
+            $saldo_total = $total_haber-$total_debe;
+          }
 
             $tabla_datos .= '
                                   <tr style="font-size: 9px;">
                                       <td colspan="5"  style=" border:1px solid black; text-align: right; vertical-align: middle;"><strong>TOTALES</strong></td>
                                       <td style="border:1px solid black; text-align: right; vertical-align: middle;">'.number_format($total_debe, 2, ',', '.').'</td>
                                       <td style="border:1px solid black; text-align: right; vertical-align: middle;">'.number_format($total_haber, 2, ',', '.').'</td>
+                                      <td style="border:1px solid black; text-align: right; vertical-align: middle;">'.number_format($saldo_total, 2, ',', '.').'</td>
 
                                   </tr>
                           </table>
