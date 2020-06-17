@@ -1921,7 +1921,9 @@ BEGIN
 				                        icbte.fecha_costo_fin,
                                         ot.desc_orden
                                         ORDER BY id_int_transaccion ASC)';
-                raise notice '%',v_consulta;
+
+                --v_consulta:=v_consulta||' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
 			return v_consulta;
 		end;
 
@@ -2010,18 +2012,85 @@ BEGIN
                     FROM cuenta_rec;
 
 
-
                     v_filtro_cuentas = ' transa.id_cuenta in ('||v_cuentas||') ';
+
+                    /*Aqui aumentamos para calcular el saldo al Final de la grilla*/
+                    /*OBTENEMOS EL NUMERO DE CUENTA PARA PONER LAS CONDICIONES DEFINIDAS POR CHARITO*/
+                      select cue.nro_cuenta into v_numero_cuenta
+                      from conta.tint_transaccion transa
+                      inner join conta.tint_comprobante icbte on icbte.id_int_comprobante = transa.id_int_comprobante
+                      inner join conta.tcuenta cue on cue.id_cuenta = transa.id_cuenta
+                      where icbte.estado_reg = 'validado' and cue.id_cuenta = v_parametros.id_cuenta
+                      limit 1;
+
+					if (v_numero_cuenta is not NULL) then
+
+                      select substring (v_numero_cuenta from 1 for 1) into v_inicial_cuenta;
+
+                      if (v_inicial_cuenta = '1') then
+
+                          /*Recuperamos los 3 primero digitos para saber si es una cuenta de comportamiento pasivo o activo*/
+                          select substring (v_numero_cuenta from 1 for 3) into v_cuenta_activo_como_pasivo;
+                          /*************************************************************************************************/
+
+                          /*Si el numero de cuenta es 124 o 114 pertenece a una cuenta de Activo pero Se comporta como un pasivo la formula es
+                          Saldo_anterior + (Haber - Debe) si se comporta como un activo la formula es Saldo_anterior + (Debe - Haber)*/
+
+                              if (v_cuenta_activo_como_pasivo = '124' OR  v_cuenta_activo_como_pasivo = '114') THEN
+                                    v_comportamiento = 'pasivo';
+                              else
+                                    v_comportamiento = 'activo';
+                              end if;
+
+
+                      end if;
+
+                            /*Si la cuenta inicia con 4 o 6 pertenece a un activo*/
+                            if (v_inicial_cuenta = '4' or v_inicial_cuenta = '6') then
+                                  v_comportamiento = 'activo';
+                            end if;
+                            /*Si la cuenta inicia con 2 o 3 o 5 pertenece a un pasivo*/
+                             if (v_inicial_cuenta = '2' or v_inicial_cuenta = '3' or v_inicial_cuenta = '5') then
+                                  v_comportamiento = 'pasivo';
+                            end if;
+
+                        if (v_inicial_cuenta = '8') then
+                            /*Recuperamos los 3 primero digitos para saber si es una cuenta de comportamiento pasivo o activo*/
+                            select substring (v_numero_cuenta from 1 for 2) into v_cuenta_acreedora_como_pasivo;
+                            /*************************************************************************************************/
+
+                            if (v_cuenta_acreedora_como_pasivo = '81') then
+                                  v_comportamiento = 'activo';
+                            elsif (v_cuenta_acreedora_como_pasivo = '82') then
+                                  v_comportamiento = 'pasivo';
+                            end if;
+
+                        end if;
+
+                     /**********************************************************************/
+                     else
+                     	v_comportamiento = 'ninguno';
+                     end if;
                 END IF;
 
             END IF;
+
+
 
 
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select
                         count(transa.id_int_transaccion) as total,
                         (sum(COALESCE(transa.importe_debe_mb,0)) + '||v_datos_anterior.total_debe_anterior||') as total_debe,
-                        (sum(COALESCE(transa.importe_haber_mb,0)) + '||v_datos_anterior.total_haber_anterior||' ) as total_haber
+                        (sum(COALESCE(transa.importe_haber_mb,0)) + '||v_datos_anterior.total_haber_anterior||' ) as total_haber,
+                        (CASE
+                         	  WHEN '''||v_comportamiento||''' = ''ninguno''  THEN
+                              NULL
+                              WHEN '''||v_comportamiento||''' = ''activo''  THEN
+                              ((sum(COALESCE(transa.importe_debe_mb,0)) + '||v_datos_anterior.total_debe_anterior||')-(sum(COALESCE(transa.importe_haber_mb,0)) + '||v_datos_anterior.total_haber_anterior||' ))
+                              ELSE
+                              ((sum(COALESCE(transa.importe_haber_mb,0)) + '||v_datos_anterior.total_haber_anterior||' )-(sum(COALESCE(transa.importe_debe_mb,0)) + '||v_datos_anterior.total_debe_anterior||'))
+                        END) as total_saldo
 					    from conta.tint_transaccion transa
                         inner join conta.tint_comprobante icbte on icbte.id_int_comprobante = transa.id_int_comprobante
                         inner join param.tperiodo per on per.id_periodo = icbte.id_periodo
@@ -2033,7 +2102,7 @@ BEGIN
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
-            --raise notice '%',v_consulta;
+            raise notice '%',v_consulta;
 
 			--Devuelve la respuesta
 			return v_consulta;

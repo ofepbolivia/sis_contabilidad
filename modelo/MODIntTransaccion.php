@@ -841,6 +841,7 @@ class MODIntTransaccion extends MODbase
         //captura parametros adicionales para el count
         $this->capturaCount('total_debe', 'numeric');
         $this->capturaCount('total_haber', 'numeric');
+        $this->capturaCount('total_saldo', 'numeric');
 
 
         //Definicion de la lista del resultado del query

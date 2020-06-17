@@ -480,21 +480,54 @@ class RReporteLibroMayorExcel
 
 
         }
+        $numero_cuenta = substr($cabecera_datos['desc_cuenta'], 0, 3);
+        $inicial_cuenta = substr($cabecera_datos['desc_cuenta'], 0, 0);
+        $cuenta_acreedora = substr($cabecera_datos['desc_cuenta'], 0, 2);
+
+        if ($inicial_cuenta = '1') {
+          if ($numero_cuenta = '124' OR  $numero_cuenta = '114') {
+                $comportamiento = 'pasivo';
+            }else{
+                  $comportamiento = 'activo';
+                 }
+        }
+        if ($inicial_cuenta = '4' or $inicial_cuenta = '6') {
+          $comportamiento = 'activo';
+        }
+         /*Si la cuenta inicia con 2 o 3 o 5 pertenece a un pasivo*/
+          if ($inicial_cuenta = '2' or $inicial_cuenta = '3' or $inicial_cuenta = '5') {
+            $comportamiento = 'pasivo';
+          }
+
+          if ($inicial_cuenta = '8') {
+            if ($cuenta_acreedora = '81') {
+              $comportamiento = 'activo';
+            } else if ($cuenta_acreedora = '82') {
+              $comportamiento = 'pasivo';
+            }
+          }
+
         $anterior = 7;
         $this->docexcel->getActiveSheet()->setCellValue("J$fila",'TOTALES:');
-
         for ($i=7; $i < $fila; $i++) {
           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila, "=SUM((K$anterior:K$i))");
           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11, $fila, "=SUM((L$anterior:L$i))");
-          $this->docexcel->getActiveSheet()->getStyle("K$fila")->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat :: FORMAT_NUMBER_COMMA_SEPARATED1);
-          $this->docexcel->getActiveSheet()->getStyle("L$fila")->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat :: FORMAT_NUMBER_COMMA_SEPARATED1);
-
+          if ($comportamiento == 'activo') {
+          $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila, "=SUM((K$fila-L$fila))");
+        } elseif ($comportamiento == 'pasivo') {
+          $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila, "=SUM((L$fila-K$fila))");
         }
 
-        $this->docexcel->getActiveSheet()->getStyle("J$fila:L$fila")->applyFromArray($styleTotales);
+          $this->docexcel->getActiveSheet()->getStyle("K$fila")->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat :: FORMAT_NUMBER_COMMA_SEPARATED1);
+          $this->docexcel->getActiveSheet()->getStyle("L$fila")->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat :: FORMAT_NUMBER_COMMA_SEPARATED1);
+          $this->docexcel->getActiveSheet()->getStyle("M$fila")->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat :: FORMAT_NUMBER_COMMA_SEPARATED1);
+        }
+
+        $this->docexcel->getActiveSheet()->getStyle("J$fila:M$fila")->applyFromArray($styleTotales);
         $this->docexcel->getActiveSheet()->getStyle("J$fila")->applyFromArray($bordes);
         $this->docexcel->getActiveSheet()->getStyle("K$fila")->applyFromArray($bordes);
         $this->docexcel->getActiveSheet()->getStyle("L$fila")->applyFromArray($bordes);
+        $this->docexcel->getActiveSheet()->getStyle("M$fila")->applyFromArray($bordes);
 
         $saldo_anterior = $this->saldo_anterior;
 

@@ -638,8 +638,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         /*Aumentando funcion para sacar el reporte del libro mayor Ismael Valdivia (3/12/2019) */
         libroMayorPDF: function () {
-              Phx.CP.loadingShow();
-              console.log("la fecha es",this);
+              Phx.CP.loadingShow();            
               Ext.Ajax.request({
                   url: '../../sis_contabilidad/control/IntTransaccion/GenerarLibroMayor',
                   params: {
@@ -671,9 +670,6 @@ header("content-type: text/javascript; charset=UTF-8");
 
         libroMayorEXCEL: function () {
               Phx.CP.loadingShow();
-              console.log("aqui para el filtro",this);
-              console.log("aqui para el filtro",this.bottom_filter.getValue);
-              console.log("aqui para el filtro",this.gfilter.store.baseParams.bottom_filter_value);
               Ext.Ajax.request({
                   url: '../../sis_contabilidad/control/IntTransaccion/GenerarReporteLibroMayorExcel',
                   params: {
