@@ -357,9 +357,12 @@ BEGIN
 		begin
 
 
-			if(v_parametros.id_tipo_relacion_comprobante is null or v_parametros.id_tipo_relacion_comprobante = 0)then
+			--17-06-2020 (may) se quita porque todos se realizaran de una misma relacion
+			/*if(v_parametros.id_tipo_relacion_comprobante is null or v_parametros.id_tipo_relacion_comprobante = 0)then
               raise exception 'El campo "Incluir Relación" no puede ser nulo, por favor elegir una opción';
-            end if;
+            end if;	*/
+            --
+
             --  verificar que la estrega este en estado  borrador
             select
               *
@@ -374,8 +377,9 @@ BEGIN
             update conta.tentrega set
               c31 = v_parametros.c31,
               fecha_c31 = v_parametros.fecha_c31,
-              obs = v_parametros.obs,
-              id_tipo_relacion_comprobante = v_parametros.id_tipo_relacion_comprobante
+              obs = v_parametros.obs
+              --17-06-2020 (may) se quita porque todos se realizaran de una misma relacion
+              --id_tipo_relacion_comprobante = v_parametros.id_tipo_relacion_comprobante
             where id_entrega = v_parametros.id_entrega;
 
             v_sw_tmp = true;
@@ -401,8 +405,10 @@ BEGIN
                       fecha_c31 = v_parametros.fecha_c31
                   where id_int_comprobante = v_registros_ent.id_int_comprobante;
 
-                  --  si existe relacion,  identificar los comprobantes relacionados SIN NRO DE C31
+                  --17-06-2020 (may) se quita porque todos se realizaran de una misma relacion
+                  /*--  si existe relacion,  identificar los comprobantes relacionados SIN NRO DE C31
                   IF v_parametros.id_tipo_relacion_comprobante is not null AND v_parametros.id_tipo_relacion_comprobante = v_registros_ent.id_tipo_relacion_comprobante THEN
+
 
                        --  actualizar los comprobantes relacionados
                         FOR v_registros_aux in (select
@@ -428,9 +434,9 @@ BEGIN
                         END LOOP;
 
                   END IF;
+				  */
 
-
-                  --16-06-2020 (may) para que este realice la actualizacion a su cbte de diario y de pago
+				  --16-06-2020 (may) para que este realice la actualizacion a su cbte de diario y de pago
 
                       FOR v_registros_aux in (select
                                                       cbte.id_int_comprobante,
