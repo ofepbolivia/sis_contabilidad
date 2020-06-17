@@ -499,10 +499,10 @@ Phx.vista.Entrega=Ext.extend(Phx.gridInterfaz,{
          var rec=this.sm.getSelected(),
              obsValorInicial;
              Phx.CP.loadWindows('../../../sis_contabilidad/vista/entrega/EntregaForm.php',
-            'Estado de Wf',
+            'Registro Entrega',
             {   modal: true,
-                width: '70%',
-                height: '70%'
+                width: '60%',
+                height: '30%'
             }, 
             {    data: rec.data }, this.idContenedor,'EntregaForm',
             {
