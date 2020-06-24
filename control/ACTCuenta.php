@@ -14,7 +14,7 @@ require_once(dirname(__FILE__).'/../reportes/RResultadosXls.php');
 require_once(dirname(__FILE__).'/../reportes/RBalanceOrdenes.php');
 require_once(dirname(__FILE__).'/../reportes/RBalanceTipoCC.php');
 require_once(dirname(__FILE__).'/../reportes/RBalanceTipoCcXls.php');
-
+require_once('../../lib/lib_control/ACTConexionOFEP.php');
 
 class ACTCuenta extends ACTbase{    
 			
@@ -290,7 +290,31 @@ class ACTCuenta extends ACTbase{
 			$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
 			$this->mensajeExito->setArchivoGenerado($nombreArchivo);
 			$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
-		}
+		}else if ($this->objParam->getParametro('formato') == 'json') {
+            $dataSource = $this->recuperarDatosResultados();
+            $i = 0;
+		    foreach ($dataSource as $fila) {
+		        $array[$i]["id_cuenta"] = $fila["id_cuenta"];
+		        $array[$i]["codigo_cuenta"] = $fila["codigo_cuenta"];
+		        $array[$i]["desc_cuenta"] = $fila["desc_cuenta"];
+		        $array[$i]["codigo"] = $fila["codigo"];
+                $array[$i]["monto"] = $fila["monto"];
+		        $i++;
+            }
+
+            $data = array(
+                "json"=> json_encode($array), //CODIFICAMOS A JSON EL ARRAY DEL BG
+                "desde" => $this->objParam->getParametro('desde'),
+                "hasta" => $this->objParam->getParametro('hasta'),
+                "titulo" => $this->objParam->getParametro('titulo_rep'),
+             );
+
+
+            //Envio de informacion a la OFEP
+            $conexionOFEP =  new ACTConexionOFEP($this->objParam);
+            $conexionOFEP = $conexionOFEP->conexionOFEP($data);
+            return $conexionOFEP;
+        }
 		else{
 			//genera reprote en excel ....
 			$this->reporteResultadosXls();

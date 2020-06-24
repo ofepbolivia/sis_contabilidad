@@ -31,8 +31,38 @@ Phx.vista.FormFiltroResultado=Ext.extend(Phx.frmInterfaz,{
         this.init(); 
         this.iniciarEventos();   
        
-        
-        
+       //button OFEP
+        this.form.getFooterToolbar().addButton
+        (
+            {
+                text: 'Enviar a OFEP',
+                iconCls: 'bbuttonlist',
+                scope: this,
+                handler: this.webServices,
+            }
+        );
+    },
+    //webservice a OFEP
+    webServices: function () {
+        var rec =this.getValForm();
+        var datos;
+        Ext.Ajax.request({
+            url: '../../sis_contabilidad/control/Cuenta/reporteResultados',
+            params: rec,
+            success: function (response) {
+                var win = new Ext.Window({
+                    title: "JSON",
+                    width: 500,
+                    height:350,
+                    items: [
+                        {
+                            html: response.responseText
+                        }
+                    ]
+                });
+                win.show();
+            }
+        });
     },
     
     Atributos:[
@@ -68,7 +98,7 @@ Phx.vista.FormFiltroResultado=Ext.extend(Phx.frmInterfaz,{
 						fields: ['id_resultado_plantilla','nombre','codigo', 'periodo_calculo'],
 						// turn on remote sorting
 						remoteSort: true,
-						baseParams: { par_filtro:'resplan.nombre#resplan.codigo',tipo: 'reporte'}
+						baseParams: { par_filtro:'resplan.nombre#resplan.codigo',tipo: 'reporte', solos_visible:'si'}
 	                }),
 	                valueField: 'id_resultado_plantilla',
 	   				displayField: 'nombre',
@@ -184,7 +214,7 @@ Phx.vista.FormFiltroResultado=Ext.extend(Phx.frmInterfaz,{
 	       		    lazyRender:true,
 	       		    mode: 'local',
 	       		    gwidth: 100,
-	       		    store:['pdf','excel']
+	       		    store:['pdf','excel', 'json']
 	       		},
 	       		type:'ComboBox',
 	       		id_grupo:0,

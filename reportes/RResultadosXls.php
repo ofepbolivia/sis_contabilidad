@@ -69,7 +69,7 @@ class RResultadosXls
         //$sheet->setCellValueByColumnAndRow(0,1,$this->objParam->getParametro('titulo_rep'));
         $sheet->getStyle('A1')->getFont()->applyFromArray(array('bold'=>true,
             'size'=>12,
-            'name'=>Arial));
+            'name'=>'Arial'));
 
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
         $sheet->setCellValueByColumnAndRow(0,1,strtoupper($titulo));
@@ -79,7 +79,7 @@ class RResultadosXls
         $sheet->getStyle('A2')->getFont()->applyFromArray(array(
             'bold'=>true,
             'size'=>10,
-            'name'=>Arial));
+            'name'=>'Arial'));
 
         $sheet->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
         $sheet->setCellValueByColumnAndRow(0,2,strtoupper('DEPTOS: '.$codigos));
@@ -88,7 +88,7 @@ class RResultadosXls
         $sheet->getStyle('A3')->getFont()->applyFromArray(array(
             'bold'=>true,
             'size'=>10,
-            'name'=>Arial));
+            'name'=>'Arial'));
 
         $sheet->getStyle('A3')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
         $sheet->setCellValueByColumnAndRow(0,3,$fechas);
@@ -212,7 +212,7 @@ class RResultadosXls
                     'italic'=>$italic,
                     'underline'=>$underline,
                     'size'=>$val['font_size'],
-                    'name'=>Arial));
+                    'name'=>'Arial'));
 
                 $sheet->getStyle(($this->equivalencias[0]).$fila)->getAlignment()->setHorizontal($posicion);
                 $sheet->setCellValueByColumnAndRow(0,$fila,$texto);
@@ -243,7 +243,7 @@ class RResultadosXls
                     $sheet->getStyle(($this->equivalencias[1]).$fila)->getFont()->applyFromArray(array(
                         'bold'=>false,
                         'size'=>8,
-                        'name'=>Arial,
+                        'name'=>'Arial',
                         'color'=>$color));
 
                     $sheet->getStyle(($this->equivalencias[1]).$fila)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
@@ -257,7 +257,7 @@ class RResultadosXls
                     $sheet->getStyle(($this->equivalencias[2]).$fila)->getFont()->applyFromArray(array(
                         'bold'=>false,
                         'size'=>9,
-                        'name'=>Arial,
+                        'name'=>'Arial',
                         'color'=>$color));
 
                     $sheet->getStyle(($this->equivalencias[2]).$fila)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
@@ -271,7 +271,7 @@ class RResultadosXls
                     $sheet->getStyle(($this->equivalencias[3]).$fila)->getFont()->applyFromArray(array(
                         'bold'=>true,
                         'size'=>10,
-                        'name'=>Arial,
+                        'name'=>'Arial',
                         'color'=>$color));
 
 
@@ -372,7 +372,7 @@ class RResultadosXls
                 $sheet->getStyle(($this->equivalencias[$titulos_columnas[$val['plantilla']]]).$titulos_filas[$this->getLlaveFila($val)])->getFont()->applyFromArray(array(
                     'bold'=>false,
                     'size'=>10,
-                    'name'=>Arial,
+                    'name'=>'Arial',
                     'color'=>$color));
 
                 $sheet->getStyle(($this->equivalencias[$titulos_columnas[$val['plantilla']]]).$titulos_filas[$this->getLlaveFila($val)])->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
@@ -390,7 +390,7 @@ class RResultadosXls
         $sheet->getStyle($this->equivalencias[0].$fila.':'.$this->equivalencias[$indice_columnas-2].$fila)->getFont()->applyFromArray(array(
             'bold'=>true,
             'size'=>10,
-            'name'=>Arial));
+            'name'=>'Arial'));
 
         $sheet->getStyle($this->equivalencias[0].$fila.':'.$this->equivalencias[$indice_columnas-2].$fila)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
