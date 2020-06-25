@@ -1041,7 +1041,7 @@ BEGIN
                               v_fecha = now()::date;
 
                         ELSE
-                              raise exception 'verificar fechas cbtes';
+                              raise exception 'Verificar fecha del comprobante cuando este es de distinto mes y gestión.';
 
                         END IF;
 
@@ -1063,7 +1063,7 @@ BEGIN
                               v_fecha = now()::date;
 
                         ELSE
-                              raise exception 'verificar fechas cbtes';
+                              raise exception 'Verficar la fecha del comprobante cuando este es de distinta gestion y mismo mes.';
 
                         END IF;
 
@@ -1085,7 +1085,7 @@ BEGIN
                               v_fecha = now()::date;
 
                         ELSE
-                              raise exception 'verificar fechas cbtes';
+                              v_fecha = now()::date;
 
                         END IF;
                   END IF;
