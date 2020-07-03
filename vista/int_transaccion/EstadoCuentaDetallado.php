@@ -231,7 +231,8 @@ header("content-type: text/javascript; charset=UTF-8");
 
                 {
                     config:{
-                        name: 'glosa',
+                        name: 'glosa1',
+                        //name: 'glosa',
                         fieldLabel: 'Glosa',
                         allowBlank: true,
                         anchor: '80%',
@@ -239,7 +240,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength:1000,
                         renderer: function(value, metaData, record, rowIndex, colIndex, store) {
                             metaData.css = 'multilineColumn';
-                            return String.format('{0} <br> {1}', record.data['glosa1'], value);
+                            //return String.format('{0} <br> {1}', record.data['glosa1'], value);
+                            return String.format('{0}', record.data['glosa1']);
                         }
                     },
                     type:'TextArea',
@@ -808,7 +810,8 @@ header("content-type: text/javascript; charset=UTF-8");
             { name:'desc_partida', type: 'string'},
             { name:'desc_centro_costo', type: 'string'},
             'cbte_relacional',
-            'tipo_partida','id_orden_trabajo','desc_orden',
+            'tipo_partida','id_orden_trabajo',
+            { name:'desc_orden', type: 'string'},
             'tipo_reg','nro_cbte','nro_tramite','nombre_corto',
             { name:'fecha', type: 'date',dateFormat:'Y-m-d'},
             'glosa1',
@@ -1003,7 +1006,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }, rec.data, this.idContenedor, 'DocCompraVentaCbte');
         },
 
-        ExtraColumExportDet:[{
+        /*ExtraColumExportDet:[{
             label:'Partida',
             name:'desc_partida',
             width:'200',
@@ -1018,7 +1021,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type:'string',
                 gdisplayField:'nro_cbte',
                 value:'nro_cbte'
-            }],
+            }],*/
         //mpmpmp
         postReloadPage:function(data){
             console.log(data);
