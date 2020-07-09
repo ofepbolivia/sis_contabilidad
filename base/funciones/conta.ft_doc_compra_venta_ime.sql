@@ -1216,6 +1216,7 @@ END IF;
                                       where    dcv.estado_reg = 'activo'
                                       and  dcv.nro_documento = trim(v_parametros.nro_documento)
                                       and dcv.nro_autorizacion = v_parametros.nro_autorizacion
+                                      and dcv.id_doc_compra_venta != v_parametros.id_doc_compra_venta
                                       )THEN
 
                                   select per.nombre_completo1
@@ -1226,6 +1227,7 @@ END IF;
                                   where dcv.estado_reg = 'activo'
                                   and dcv.nro_documento = trim(v_parametros.nro_documento)
                                   and dcv.nro_autorizacion = v_parametros.nro_autorizacion
+                                  and dcv.id_doc_compra_venta != v_parametros.id_doc_compra_venta
                                   limit 1;
 
                             raise exception 'Ya existe una Factura registrada con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
