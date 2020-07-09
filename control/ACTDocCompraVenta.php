@@ -48,6 +48,14 @@ class ACTDocCompraVenta extends ACTbase
 
         if ($this->objParam->getParametro('sin_cbte') == 'si') {
             $this->objParam->addFiltro("dcv.id_int_comprobante is NULL");
+
+            //09-07-2020 (may) modificacion control de fecha en filtro de documentos
+            $fecha = new DateTime($this->objParam->getParametro('fecha_cbte'));
+            $fecha_gestion =  date_format($fecha,'Y');
+
+            $this->objParam->addFiltro("dcv.fecha  between '' 1/1/".$fecha_gestion. "'' and '' 31/12/".$fecha_gestion. "'' ");
+            //
+
         } else {
             /* en algunos casos es necesario relacionar con documentos con fechas mayores
             if($this->objParam->getParametro('manual')!=''){

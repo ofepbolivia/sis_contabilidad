@@ -11,7 +11,7 @@ header("content-type: text/javascript; charset=UTF-8");
 <script>
     Phx.vista.DocCompraVentaCbte=Ext.extend(Phx.gridInterfaz,{
         fheight: '20%',
-        fwidth: '20%',
+        fwidth: '40%',
         tabEnter: true,
         constructor:function(config){
             var me = this;
@@ -86,7 +86,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                 'desc_plantilla', 'desc_moneda','importe_doc','nro_documento',
                                 'tipo','razon_social','fecha'],
                             remoteSort: true,
-                            baseParams:{par_filtro:'pla.desc_plantilla#dcv.razon_social#dcv.nro_documento#dcv.nit#dcv.importe_doc#dcv.codigo_control'},
+                            baseParams:{par_filtro:'pla.desc_plantilla#dcv.razon_social#dcv.nro_documento#dcv.nit#dcv.importe_doc#dcv.codigo_control', filgestion: 'si'},
                         }),
                     tpl:'<tpl for="."><div class="x-combo-list-item"><p><b>{razon_social}</b>,  NIT: {nit}</p><p>{desc_plantilla} </p><p ><span style="color: #F00000">Doc: {nro_documento}</span> de Fecha: {fecha}</p><p style="color: green;"> {importe_doc} {desc_moneda}  </p></div></tpl>',
                     valueField: 'id_doc_compra_venta',
@@ -104,7 +104,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     gwidth: 250,
                     minChars:2,
                     resizable: true,
-                    anchor: '56.5%'
+                    anchor: '100%'
                 },
                 type:'ComboBox',
                 id_grupo: 0,
