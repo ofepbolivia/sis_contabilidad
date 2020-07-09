@@ -325,6 +325,9 @@ class MODIntTransaccion extends MODbase
         $this->captura('id_estado_wf', 'int4');
         //$this->captura('cbte_relacional','varchar');
 
+        $this->captura('c31', 'varchar');
+        $this->captura('nro_documentos', 'varchar');
+
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();

@@ -396,7 +396,11 @@ BEGIN
                         icbte.fecha,
                         icbte.glosa1,
                         icbte.id_proceso_wf,
-                        icbte.id_estado_wf
+                        icbte.id_estado_wf,
+                        icbte.c31,
+                        (select array_to_string( array_agg( cv.nro_documento), '','' )
+                         from conta.tdoc_compra_venta  cv
+                         where cv.id_int_comprobante=transa.id_int_comprobante)::VARCHAR as nro_documentos
 
 						from conta.tint_transaccion transa
                         inner join conta.tint_comprobante icbte on icbte.id_int_comprobante = transa.id_int_comprobante
