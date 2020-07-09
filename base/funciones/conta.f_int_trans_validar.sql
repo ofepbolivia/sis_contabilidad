@@ -96,13 +96,19 @@ BEGIN
                                /*(franklin.espinoza) En caso de que sea estacion BUE no se verifica depto para entregas*/
                                if pxp.f_get_variable_global('ESTACION_inicio') = 'BOL' then
                                  v_valor = param.f_get_depto_param( v_registros_cbte.id_depto, 'ENTREGA');
+								 /*Aumentando esta parte para que no se integre viaticos con el libro de bancos (Ismael Valdivia) 01/07/2020*/
 
-                                 IF (v_conta_integrar_libro_bancos = 'si' AND v_valor='NO') OR (v_conta_integrar_libro_bancos='si' AND v_registros_cbte.codigo_plantilla in ('SOLFONDAV', 'REPOCAJA')) THEN
-                                      -- si alguna transaccion tiene banco habilitado para pago
-                                      IF  not tes.f_integracion_libro_bancos(p_id_usuario,p_id_int_comprobante) THEN
-                                          --raise exception 'error al registrar transacción en libro de bancos, comprobante %', p_id_int_comprobante;
-                                      END IF;
-                                 END IF;
+                                 IF (v_registros_cbte.codigo_plantilla != 'DEVPAGVIA') then
+
+                                       IF (v_conta_integrar_libro_bancos = 'si' AND v_valor='NO') OR (v_conta_integrar_libro_bancos='si' AND v_registros_cbte.codigo_plantilla in ('SOLFONDAV', 'REPOCAJA')) THEN
+                                            -- si alguna transaccion tiene banco habilitado para pago
+                                            IF  not tes.f_integracion_libro_bancos(p_id_usuario,p_id_int_comprobante) THEN
+                                                --raise exception 'error al registrar transacción en libro de bancos, comprobante %', p_id_int_comprobante;
+                                            END IF;
+                                       END IF;
+
+                                 end if;
+
                                else
                                 IF (v_conta_integrar_libro_bancos = 'si') OR (v_conta_integrar_libro_bancos='si' AND v_registros_cbte.codigo_plantilla in ('SOLFONDAV', 'REPOCAJA')) THEN
                                       -- si alguna transaccion tiene banco habilitado para pago
@@ -111,39 +117,39 @@ BEGIN
                                     END IF;
                                  END IF;
                                end if;
-                            
-                               
-                        
+
+
+
                         END IF;
                     END IF;
-                END IF;   
-               
-               
-              
+                END IF;
+
+
+
               -----------------------------------
               --TODO agregar otras validaciones
               -----------------------------------
-              
-              
-              
-              
+
+
+
+
            END LOOP;
-   
-  
-   
+
+
+
    --retorna resultado
    RETURN TRUE;
 
 
 EXCEPTION
-				
+
 	WHEN OTHERS THEN
 		v_resp='';
 		v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
 		v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
 		v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 		raise exception '%',v_resp;
-				        
+
 END;
 $body$
 LANGUAGE 'plpgsql'

@@ -1590,7 +1590,7 @@ BEGIN
     #AUTOR:		franklin.espinoza
     #FECHA:		01-06-2020 10:10:09
     ***********************************/
-    elsif p_transaccion = 'CONTA_LIBROCNCD_SEL'then
+    elsif(p_transaccion = 'CONTA_LIBROCNCD_SEL')then
     	begin
 
             if pxp.f_existe_parametro(p_tabla, 'filtro_sql') then
