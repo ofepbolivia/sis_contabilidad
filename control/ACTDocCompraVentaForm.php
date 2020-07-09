@@ -231,9 +231,9 @@ class ACTDocCompraVentaForm extends ACTbase{
         }
 
         if($this->objParam->getParametro('tipo_lcv')=='lcncd'){
-            $nombre = 'compras_'.$sufijo.'_'.$NIT;
+            $nombre = 'compras_notas_'.$sufijo.'_'.$NIT;
         }else{
-            $nombre = 'ventas_'.$sufijo.'_'.$NIT;
+            $nombre = 'ventas__notas'.$sufijo.'_'.$NIT;
         }
         $nombre=str_replace("/", "", $nombre);
 
@@ -324,13 +324,13 @@ class ACTDocCompraVentaForm extends ACTbase{
                     $val['estado'].$separador.
                     $val['nit'].$separador.
                     $val['razon_social'].$separador.
-                    $val['total_devuelto'].$separador.
-                    $val['rc_iva'].$separador.
+                    number_format($val['total_devuelto'],2,'.', '') .$separador.
+                    number_format($val['rc_iva'],2,'.', '') .$separador.
                     $val['codigo_control'].$separador.
                     date("d/m/Y", strtotime( $val['fecha_original'])).$separador.
                     $val['num_factura'].$separador.
                     $val['nroaut_anterior'].$separador.
-                    $val['importe_total']."\r\n");
+                    number_format($val['importe_total'],2,'.', '')."\r\n");
 
             }
             /*else{
