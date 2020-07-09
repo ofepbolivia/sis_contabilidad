@@ -707,175 +707,172 @@ BEGIN
         WHERE per.id_periodo = v_parametros.id_periodo;
 
 
-        v_host:='dbname=dbendesis host=192.168.100.30 user=ende_pxp password=ende_pxp';
+         FOR v_record_plan_pago_pxp IN
+            WITH tabla_temporal_documentos AS (
+                SELECT doc.id_int_comprobante,
+                       doc.id_periodo,
+                       doc.razon_social,
+                       doc.id_doc_compra_venta AS id_documento,
+                       doc.importe_neto        AS importe_total,
+                       doc.id_moneda,
+                       doc.nro_documento,
+                       doc.nro_autorizacion,
+                       doc.fecha               AS fecha_documento,
+                       doc.nit                 AS nro_nit,
+                       0                       AS importe_debe,
+                       0                       AS importe_gasto
+                FROM conta.tdoc_compra_venta doc
+                         INNER JOIN conta.tint_comprobante comp ON comp.id_int_comprobante = doc.id_int_comprobante
+            ),
+                 t_doc_devengado AS
+                     (
+                         select pg_devengado.id_plan_pago,
+                                doc.id_documento,
+                                doc.razon_social,
+                                doc.fecha_documento,
+                                doc.nro_documento,
+                                doc.nro_autorizacion,
+                                doc.importe_total,
+                                doc.nro_nit,
+                                plantilla.tipo_informe,
+                                plantilla.tipo_plantilla,
+                                pg_devengado.fecha_dev,
+                                pg_devengado.fecha_costo_ini,
+                                pg_devengado.fecha_costo_fin,
+                                -- coalesce(libro.fecha, libro.fecha_pago) AS fecha_pago,
+                                provee.id_proveedor,
+                                contra.numero AS numero_contrato,
+                                contra.id_contrato,
+                                contra.id_contrato_fk, /*agregamos esto para ver si tiene un contrato anterior y este es el modificado*/
+                                contra.monto  AS monto_contrato,
+                                contra.bancarizacion,
+                                obliga.num_tramite,
+                                pg_devengado.nro_cuota,
+                                contra.resolucion_bancarizacion,
+                                doc.importe_debe,
+                                doc.importe_gasto,
+                                contra.tipo_monto
+                         from tes.tplan_pago pg_devengado
+                                  INNER JOIN param.tplantilla plantilla
+                                             ON plantilla.id_plantilla = pg_devengado.id_plantilla
+                                  INNER JOIN tes.tobligacion_pago obliga
+                                             ON obliga.id_obligacion_pago = pg_devengado.id_obligacion_pago
+                                  LEFT JOIN leg.tcontrato contra ON contra.id_contrato = obliga.id_contrato
+                                  INNER JOIN param.tproveedor provee ON provee.id_proveedor = obliga.id_proveedor
+                                  INNER JOIN tabla_temporal_documentos doc
+                                             ON doc.id_int_comprobante = pg_devengado.id_int_comprobante
+                         where pg_devengado.estado = 'devengado'
+                           --AND obliga.num_tramite = 'PCP-000287-2020'
+                           AND (plantilla.tipo_informe = 'lcv' OR plantilla.id_plantilla = 28)
+                           --AND nro_cuota = 3
+                     ),
+                 t_libro_pagado AS
+                     (
+                         SELECT pg_pagado.estado                        as estado_plan_pago_pagado,
+                                pg_pagado.id_plan_pago,
+                                tdd.id_plan_pago,
+                                libro.comprobante_sigma,
+                                libro.id_libro_bancos,
+                                libro.tipo,
+                                tdd.id_documento,
+                                tdd.razon_social,
+                                tdd.fecha_documento,
+                                tdd.nro_documento,
+                                tdd.nro_autorizacion,
+                                tdd.importe_total,
+                                tdd.nro_nit,
+                                tdd.tipo_informe,
+                                tdd.tipo_plantilla,
+                                tdd.fecha_dev,
+                                pg_pagado.fecha_pag,
+                                tdd.fecha_costo_ini,
+                                tdd.fecha_costo_fin,
+                                coalesce(libro.fecha, libro.fecha_pago) AS fecha_pago,
+                                libro.fecha_reg::date,
+                                cuenta.id_cuenta_bancaria,
+                                cuenta.denominacion,
+                                cuenta.nro_cuenta,
 
-        --creacion de tabla temporal del endesis
-        v_consulta = conta.f_obtener_string_documento_bancarizacion(v_periodo.gestion::INTEGER);
+                                tdd.id_proveedor,
+                                tdd.numero_contrato,
+                                tdd.id_contrato,
+                                tdd.id_contrato_fk, /*agregamos esto para ver si tiene un contrato anterior y este es el modificado*/
+                                tdd.monto_contrato,
+                                tdd.bancarizacion,
+                                obliga.num_tramite,
+                                tdd.nro_cuota,
+                                pg_pagado.forma_pago,
+                                libro.nro_comprobante                   as comprobante_c31,
+                                libro.fecha_pago                        AS fecha_entrega,
+                                pg_pagado.id_cuenta_bancaria            AS id_cuenta_bancaria_plan_pago,
+                                libro.nro_cheque,
+                                pg_pagado.id_proceso_wf,
+                                tdd.resolucion_bancarizacion,
+                                pg_pagado.monto_retgar_mo,
+                                pg_pagado.liquido_pagable,
+                                pg_pagado.monto                         AS monto_pago,
+                                pg_pagado.otros_descuentos,
+                                pg_pagado.descuento_inter_serv,
+                                libro.estado                            AS estado_libro,
+                                libro.importe_cheque,
+                                tdd.importe_debe,
+                                tdd.importe_gasto,
+                                0                                       AS importe_haber,
+                                0                                       AS importe_recurso,
+                                tdd.tipo_monto,
+                                libro_fk.importe_cheque                 AS importe_cheque_fk,
+                                libro_fk.nro_cheque                     AS nro_cheque_fk
+                         FROM tes.tplan_pago pg_pagado
+                                  INNER JOIN t_doc_devengado tdd ON tdd.id_plan_pago = pg_pagado.id_plan_pago_fk
+                                  LEFT JOIN tes.tts_libro_bancos libro
+                                            ON libro.id_int_comprobante = pg_pagado.id_int_comprobante
+                                  LEFT JOIN tes.tts_libro_bancos libro_fk
+                                            ON libro_fk.id_libro_bancos_fk = libro.id_libro_bancos
+                                  LEFT JOIN tes.tcuenta_bancaria cuenta
+                                            ON cuenta.id_cuenta_bancaria = pg_pagado.id_cuenta_bancaria
+                                  INNER JOIN tes.tobligacion_pago obliga
+                                             ON obliga.id_obligacion_pago = pg_pagado.id_obligacion_pago
+                         WHERE ((libro.tipo = 'cheque' OR libro.tipo = 'transferencia_carta' OR
+                                 libro.tipo = 'transferencia_fondos') OR
+                                pg_pagado.forma_pago = 'transferencia' OR pg_pagado.forma_pago = 'cheque')
+                           AND (pg_pagado.forma_pago = 'transferencia' OR pg_pagado.forma_pago = 'cheque')
+                           AND (
+                                 libro.estado IN ('cobrado', 'entregado', 'anulado', 'borrador')
+                                 OR libro.estado IS NULL
+                                 OR (pg_pagado.forma_pago = 'transferencia' AND
+                                     libro.estado IN ('cobrado', 'entregado', 'anulado', 'borrador', 'depositado'))
+                             )
+                           and (
+                                 (
+                                         tdd.fecha_documento >= v_periodo.fecha_ini::date and
+                                         tdd.fecha_documento <= v_periodo.fecha_fin
+                                     )
+                                 or
+                                 (
+                                             coalesce(libro.fecha, libro.fecha_reg::date) >= v_periodo.fecha_ini::date
+                                         and
+                                             coalesce(libro.fecha, libro.fecha_reg::date) <= v_periodo.fecha_fin::date
+                                     )
+                                 or
+                                 (
+                                         libro.fecha >= v_periodo.fecha_ini::date and
+                                         libro.fecha <= v_periodo.fecha_fin::date
+                                     )
+                             )
+                           AND (
+                                 (tdd.importe_total >= 50000)
+                                 OR (tdd.bancarizacion = 'si' AND tdd.tipo_monto = 'cerrado')
+                                 OR (tdd.bancarizacion = 'si' AND tdd.tipo_monto = 'abierto' AND
+                                     tdd.importe_total >= 50000)
+                             )
+                         ORDER BY tdd.fecha_documento, tdd.nro_documento, libro.estado ASC
+                     )
+            select *
+            from t_libro_pagado
 
+            LOOP
 
-
-       /* v_consulta:= ' WITH tabla_temporal_documentos AS (
-              SELECT * FROM dblink(''' || v_host || ''',
-          ''select tctcomp.id_int_comprobante,
-          tctdoc.razon_social,
-          tctdoc.id_documento,
-          docval.importe_total,
-          docval.id_moneda,
-          tctdoc.nro_documento,
-          tctdoc.nro_autorizacion,
-          tctdoc.fecha_documento,
-          tctdoc.nro_nit,
-          traval.importe_debe,
-          traval.importe_gasto
-          from sci.tct_comprobante tctcomp
-          inner join sci.tct_transaccion tcttra on tcttra.id_comprobante = tctcomp.id_comprobante
-          inner JOIN sci.tct_transac_valor traval on traval.id_transaccion = tcttra.id_transaccion
-          inner join sci.tct_documento tctdoc on tctdoc.id_transaccion = tcttra.id_transaccion
-          inner join sci.tct_documento_valor docval on docval.id_documento = tctdoc.id_documento
-          where   docval.id_moneda = 1 and traval.id_moneda=1
-           ''
-                   ) AS d (id_int_comprobante integer,
-                   razon_social varchar(500),
-                    id_documento integer,
-                    importe_total numeric(10,2),
-                    id_moneda INTEGER,
-                    nro_documento bigint,
-                    nro_autorizacion VARCHAR(20),
-                    fecha_documento date,
-                    nro_nit varchar(30),
-                     importe_debe numeric(10,2),
-                     importe_gasto numeric(10,2))
-              )';
-
-        v_consulta := v_consulta || ',tabla_temporal_sigma AS (
-              SELECT * FROM dblink(''' || v_host || ''',
-          ''select tctcomp.id_int_comprobante,
-          tctcomp.id_comprobante,
-          entre.comprobante_c31,
-            traval.importe_haber,
-  traval.importe_recurso,
-          entre.fecha_entrega
-
-          from sci.tct_comprobante tctcomp
-             inner join sci.tct_transaccion tcttra on tcttra.id_comprobante = tctcomp.id_comprobante
-            inner join sci.tct_cuenta cta on cta.id_cuenta=tcttra.id_cuenta and cta.tipo_cuenta=1
-            inner join sci.tct_transac_valor traval on traval.id_transaccion = tcttra.id_transaccion and traval.id_moneda = 1
-          inner join sci.tct_entrega_comprobante entrecom on entrecom.id_comprobante = tctcomp.id_comprobante
-          inner join sci.tct_entrega entre on entre.id_entrega = entrecom.id_entrega
-
-           ''
-                   ) AS d (
-                   id_int_comprobante integer,
-
-                    id_comprobante integer,
-
-                    comprobante_c31 VARCHAR(20),
-                     importe_haber numeric(10,2),
-                   importe_recurso numeric(10,2),
-                    fecha_entrega date )
-              )';
-*/
---raise exception 'a: %, b: %',v_periodo.fecha_ini, v_periodo.fecha_fin;
-        v_consulta:= v_consulta || 'select pg_pagado.id_plan_pago,
-      pg_devengado.id_plan_pago,
-      libro.comprobante_sigma,
-      libro.id_libro_bancos,
-      libro.tipo,
-      doc.id_documento,
-      doc.razon_social,
-      doc.fecha_documento,
-      doc.nro_documento,
-       doc.nro_autorizacion,
-      doc.importe_total,
-      doc.nro_nit,
-      plantilla.tipo_informe,
-      plantilla.tipo_plantilla,
-      pg_devengado.fecha_dev,
-      pg_pagado.fecha_pag,
-      pg_devengado.fecha_costo_ini,
-      pg_devengado.fecha_costo_fin,
-     coalesce(libro.fecha, libro.fecha_pago) as fecha_pago,
-     libro.fecha_reg::date,
-      cuenta.id_cuenta_bancaria,
-      cuenta.denominacion,
-      cuenta.nro_cuenta,
-
-      provee.id_proveedor,
-      contra.numero as numero_contrato,
-      contra.id_contrato,
-      contra.id_contrato_fk, /*agregamos esto para ver si tiene un contrato anterior y este es el modificado*/
-      contra.monto as monto_contrato,
-      contra.bancarizacion,
-      obliga.num_tramite,
-      pg_devengado.nro_cuota,
-       pg_pagado.forma_pago,
-      sigma.comprobante_c31,
-      sigma.fecha_entrega,
-      pg_pagado.id_cuenta_bancaria as id_cuenta_bancaria_plan_pago,
-      libro.nro_cheque,
-      pg_pagado.id_proceso_wf,
-      contra.resolucion_bancarizacion,
-      pg_pagado.monto_retgar_mo,
-      pg_pagado.liquido_pagable,
-      pg_pagado.monto as monto_pago,
-      pg_pagado.otros_descuentos,
-      pg_pagado.descuento_inter_serv,
-      libro.estado as estado_libro,
-      libro.importe_cheque,
-      doc.importe_debe,
-      doc.importe_gasto,
-      sigma.importe_recurso,
-      sigma.importe_haber,
-      contra.tipo_monto,
-      libro_fk.importe_cheque as importe_cheque_fk,
-      libro_fk.nro_cheque as nro_cheque_fk
-from tes.tplan_pago pg_pagado
-inner join tes.tplan_pago pg_devengado on pg_devengado.id_plan_pago = pg_pagado.id_plan_pago_fk
-inner join param.tplantilla plantilla  on plantilla.id_plantilla = pg_devengado.id_plantilla
-
-left join tabla_temporal_sigma sigma on sigma.id_int_comprobante = pg_pagado.id_int_comprobante
-left join tes.tts_libro_bancos libro on libro.id_int_comprobante = pg_pagado.id_int_comprobante
-left join tes.tts_libro_bancos libro_fk on libro_fk.id_libro_bancos_fk = libro.id_libro_bancos
-
-
-left join tes.tcuenta_bancaria cuenta on cuenta.id_cuenta_bancaria = pg_pagado.id_cuenta_bancaria
-
-inner join tes.tobligacion_pago obliga on obliga.id_obligacion_pago = pg_pagado.id_obligacion_pago
-left join leg.tcontrato contra on contra.id_contrato = obliga.id_contrato
-
-inner join param.tproveedor provee on provee.id_proveedor = obliga.id_proveedor
-
-inner join tabla_temporal_documentos doc on doc.id_int_comprobante = pg_devengado.id_int_comprobante
-
-
-where pg_pagado.estado=''pagado'' and pg_devengado.estado = ''devengado''
-and ((libro.tipo=''cheque'' or libro.tipo=''transferencia_carta''  or libro.tipo=''transferencia_fondos'') or  pg_pagado.forma_pago = ''transferencia'' or pg_pagado.forma_pago = ''cheque'')
-and ( pg_pagado.forma_pago = ''transferencia'' or pg_pagado.forma_pago=''cheque'')
-and (plantilla.tipo_informe = ''lcv'' or plantilla.id_plantilla = 28)
-
-and (
-        libro.estado in (''cobrado'',''entregado'',''anulado'',''borrador'')
-        or libro.estado is null
-        or (pg_pagado.forma_pago = ''transferencia'' and libro.estado in(''cobrado'',''entregado'',''anulado'',''borrador'',''depositado'') )
-      )
-
-and ((doc.fecha_documento >= ''' || v_periodo.fecha_ini || '''::date and doc.fecha_documento <=''' ||
-                     v_periodo.fecha_fin || '''::date)
-or (coalesce(libro.fecha, libro.fecha_reg::date)  >= ''' || v_periodo.fecha_ini || '''::date and coalesce(libro.fecha, libro.fecha_reg::date)  <=''' || v_periodo.fecha_fin || '''::date)
-or (sigma.fecha_entrega >= ''' || v_periodo.fecha_ini || '''::date and sigma.fecha_entrega <=''' || v_periodo.fecha_fin
-                     || '''::date)
-)
-and (
-(doc.importe_total >= 50000)
- or (contra.bancarizacion = ''si'' and contra.tipo_monto=''cerrado'')
-  or (contra.bancarizacion=''si'' and contra.tipo_monto=''abierto'' and doc.importe_total >= 50000)
-  )
- ORDER BY doc.fecha_documento,doc.nro_documento ,libro.estado asc ';
-
---raise exception 'v_consulta: %', v_consulta;
---raise exception 'llega';
-        FOR v_record_plan_pago_pxp IN EXECUTE v_consulta LOOP
-
+             --raise exception '%',v_record_plan_pago_pxp;
 
           --RAISE EXCEPTION 'a: %, b: %, c: %, d: %',v_record_plan_pago_pxp.fecha_pago, v_record_plan_pago_pxp.nro_cheque, v_record_plan_pago_pxp.forma_pago, v_record_plan_pago_pxp.comprobante_c31;
           v_monto_acumulado = 0;
@@ -918,7 +915,7 @@ and (
 
 
           IF ((v_record_plan_pago_pxp.fecha_documento :: DATE <= v_periodo.fecha_fin :: DATE
-               AND v_fecha_libro_o_entrega :: DATE <= v_periodo.fecha_fin :: DATE)
+               AND (v_fecha_libro_o_entrega :: DATE <= v_periodo.fecha_fin :: DATE or v_fecha_libro_o_entrega is null))
 
               OR (v_record_plan_pago_pxp.resolucion_bancarizacion = '10-0011-11'
                   AND v_fecha_libro_o_entrega :: DATE >= v_periodo.fecha_ini :: DATE
@@ -962,7 +959,8 @@ and (
                         fecha_documento=v_record_plan_pago_pxp.fecha_documento,
                         fecha_de_pago=v_fecha_libro_o_entrega,
                         num_documento=v_record_plan_pago_pxp.nro_documento,
-                        num_documento_pago=v_doc_pago
+                        num_documento_pago=v_doc_pago,
+                        id_periodo = v_parametros.id_periodo
                     where conta.tbanca_compra_venta.id_documento = v_record_plan_pago_pxp.id_documento;
               end if;
             	/*update conta.tbanca_compra_venta
@@ -980,7 +978,11 @@ and (
 
 
               v_rec = param.f_get_periodo_gestion(v_record_plan_pago_pxp.fecha_documento);
-              v_rec2 = param.f_get_periodo_gestion(v_fecha_libro_o_entrega);
+              IF v_fecha_libro_o_entrega IS NOT NULL THEN
+                  v_rec2 = param.f_get_periodo_gestion(v_fecha_libro_o_entrega);
+              ELSE
+                  v_rec2 = param.f_get_periodo_gestion(v_record_plan_pago_pxp.fecha_documento);
+              END IF;
 
               --todo aca validar de mejor forma
               --me fijo si la fecha de factura es igual a la del pago
