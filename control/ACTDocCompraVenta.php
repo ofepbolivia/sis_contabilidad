@@ -52,8 +52,10 @@ class ACTDocCompraVenta extends ACTbase
             //09-07-2020 (may) modificacion control de fecha en filtro de documentos
             $fecha = new DateTime($this->objParam->getParametro('fecha_cbte'));
             $fecha_gestion =  date_format($fecha,'Y');
+            //20/07/2020 (may) modificacion para que se puedan ver facturas hasta de una gestion anterior
+            $fecha_gestion_anterior = $fecha_gestion-1 ;
 
-            $this->objParam->addFiltro("dcv.fecha  between '' 1/1/".$fecha_gestion. "'' and '' 31/12/".$fecha_gestion. "'' ");
+            $this->objParam->addFiltro("dcv.fecha  between '' 1/1/".$fecha_gestion_anterior. "'' and '' 31/12/".$fecha_gestion. "'' ");
             //
 
         } else {
