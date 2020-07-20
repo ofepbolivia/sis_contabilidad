@@ -582,7 +582,9 @@ class ACTIntTransaccion extends ACTbase
     /*Reporte en PDF libro Mayor*/
     function GenerarLibroMayor()
     {
-
+      if ($this->objParam->getParametro('filtro_reporte') != '') {
+          $this->objParam->addFiltro("((icbte.nro_tramite::varchar ILIKE ''%".$this->objParam->getParametro('filtro_reporte')."%'') OR (icbte.c31::varchar ILIKE ''%".$this->objParam->getParametro('filtro_reporte')."%'') OR (transa.glosa::varchar ILIKE ''%".$this->objParam->getParametro('filtro_reporte')."%''))");
+      }
       $this->objFunc=$this->create('MODIntTransaccion');
   		$dataSource=$this->objFunc->listarReporteLibroMayor();
       $saldo_anterior = $this->calcularSaldoAnteriorLibroMayor();
@@ -623,7 +625,7 @@ class ACTIntTransaccion extends ACTbase
 
         $dataSource = $this->contenidoLibroMayor();
         $saldo_anterior = $this->calcularSaldoAnteriorLibroMayor();
-        $recuperar_cabecera =$this->recuperarCabecera();
+        $recuperar_cabecera =$this->recuperarCabecera();        
         $nombreArchivo = uniqid(md5(session_id()).'Estado Cuentas').'.xls';
         $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
         $reporte =new RReporteLibroMayorExcel($this->objParam);
@@ -637,9 +639,15 @@ class ACTIntTransaccion extends ACTbase
 
     function contenidoLibroMayor(){
 
+      //var_dump("esta llegando el filtro para poner",$this->objParam->getParametro('filtro_reporte'));
+
+      if ($this->objParam->getParametro('filtro_reporte') != '') {
+          $this->objParam->addFiltro("((icbte.nro_tramite::varchar ILIKE ''%".$this->objParam->getParametro('filtro_reporte')."%'') OR (icbte.c31::varchar ILIKE ''%".$this->objParam->getParametro('filtro_reporte')."%'') OR (transa.glosa::varchar ILIKE ''%".$this->objParam->getParametro('filtro_reporte')."%''))");
+      }
 
         $this->objFunc=$this->create('MODIntTransaccion');
         $cbteHeader = $this->objFunc->listarReporteLibroMayor($this->objParam);
+
         if($cbteHeader->getTipo() == 'EXITO'){
             return $cbteHeader;
         }
@@ -719,6 +727,7 @@ class ACTIntTransaccion extends ACTbase
         $temp = Array();
         $temp['importe_debe_mb'] = $this->res->extraData['total_debe'];
         $temp['importe_haber_mb'] = $this->res->extraData['total_haber'];
+        $temp['importe_saldo_mb'] = $this->res->extraData['total_saldo'];
         $temp['tipo_reg'] = 'summary';
         //$temp['id_int_transaccion'] = 0;
 

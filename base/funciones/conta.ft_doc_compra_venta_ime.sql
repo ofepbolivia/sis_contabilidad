@@ -164,6 +164,7 @@ END IF;
         WHERE pp.id_plan_pago = v_parametros.id_plan_pago;
 
 
+
         IF v_tipo_informe = 'lcv' THEN
             IF (v_tipo_obligacion= 'sp' or v_tipo_obligacion= 'spd' or v_tipo_obligacion= 'spi' or v_tipo_obligacion= 'pago_especial_spi')THEN
               v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_id_depto_destino, v_rec.po_id_periodo);
@@ -178,6 +179,7 @@ END IF;
 
      	IF v_tipo_informe = 'lcv' THEN
                -- valida que periodO de libro de compras y ventas este abierto
+               --0---161
                v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
         END IF;
      END IF;
@@ -253,7 +255,7 @@ END IF;
                             and dcv.fecha =v_parametros.fecha
                             and dcv.razon_social = trim(v_parametros.razon_social)
                             and dcv.importe_doc = v_parametros.importe_doc)THEN
-                        
+
                             select per.nombre_completo1
                             into v_cuenta
                             from conta.tdoc_compra_venta dcv
@@ -262,11 +264,35 @@ END IF;
                             where dcv.nro_documento = trim(v_parametros.nro_documento)
                             and dcv.importe_doc = v_parametros.importe_doc
                             and dcv.razon_social = trim(v_parametros.razon_social)
-                            and dcv.fecha =v_parametros.fecha                            
+                            and dcv.fecha =v_parametros.fecha
                             limit 1;
 
                        raise exception 'Ya existe un Documento/Factura registrado con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
+				  ELSE
+                  		--08-07-2020 (may)validacion para controlar duplicidad de las facturas
+                  		IF (v_parametros.id_plantilla in (1,31,25,34,27,15,33,4,37) ) THEN
 
+                  			IF EXISTS(select 1
+                                      from conta.tdoc_compra_venta dcv
+                                      inner join param.tplantilla pla on pla.id_plantilla=dcv.id_plantilla
+                                      where    dcv.estado_reg = 'activo'
+                                      and  dcv.nro_documento = trim(v_parametros.nro_documento)
+                                      and dcv.nro_autorizacion = v_parametros.nro_autorizacion
+                                      )THEN
+
+                                  select per.nombre_completo1
+                                  into v_cuenta
+                                  from conta.tdoc_compra_venta dcv
+                                  inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
+                                  inner join segu.vpersona per on per.id_persona = usu1.id_persona
+                                  where dcv.estado_reg = 'activo'
+                                  and dcv.nro_documento = trim(v_parametros.nro_documento)
+                                  and dcv.nro_autorizacion = v_parametros.nro_autorizacion
+                                  limit 1;
+
+                            raise exception 'Ya existe una Factura registrada con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
+				 			END IF;
+                        END IF;
                   END IF;
 
 
@@ -400,7 +426,7 @@ END IF;
               IF (v_plan_pago is null) THEN
                 if (pxp.f_existe_parametro(p_tabla, 'id_plan_pago'))then
                       v_plan_pago = v_parametros.id_plan_pago;
-                end if;                      
+                end if;
               END IF;
             --END IF;
 
@@ -1149,9 +1175,9 @@ END IF;
           	raise exception 'Falta registrar el Razon Social';
           END IF;
 
-	-- breydi vasquez 11/05/2020 control de documento compra venta duplicado por usuario 
-    -- sujeto a futuras modificaciones question por la razon social 
-    
+	-- breydi vasquez 11/05/2020 control de documento compra venta duplicado por usuario
+    -- sujeto a futuras modificaciones question por la razon social
+
       IF v_parametros.tipo = 'compra' THEN
 
         --controles para que no se repita el documento
@@ -1165,7 +1191,7 @@ END IF;
                             and dcv.importe_doc = v_parametros.importe_doc
                             and dcv.id_doc_compra_venta != v_parametros.id_doc_compra_venta
                             )THEN
-                            
+
                       select per.nombre_completo1
                       into v_cuenta
                       from conta.tdoc_compra_venta dcv
@@ -1180,9 +1206,37 @@ END IF;
 
                        raise exception 'Ya existe un Documento/Factura registrado con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
 
+                  ELSE
+                  		--08-07-2020 (may)validacion para controlar duplicidad de las facturas
+                  		IF (v_parametros.id_plantilla in (1,31,25,34,27,15,33,4,37) ) THEN
+
+                  			IF EXISTS(select 1
+                                      from conta.tdoc_compra_venta dcv
+                                      inner join param.tplantilla pla on pla.id_plantilla=dcv.id_plantilla
+                                      where    dcv.estado_reg = 'activo'
+                                      and  dcv.nro_documento = trim(v_parametros.nro_documento)
+                                      and dcv.nro_autorizacion = v_parametros.nro_autorizacion
+                                      and dcv.id_doc_compra_venta != v_parametros.id_doc_compra_venta
+                                      )THEN
+
+                                  select per.nombre_completo1
+                                  into v_cuenta
+                                  from conta.tdoc_compra_venta dcv
+                                  inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
+                                  inner join segu.vpersona per on per.id_persona = usu1.id_persona
+                                  where dcv.estado_reg = 'activo'
+                                  and dcv.nro_documento = trim(v_parametros.nro_documento)
+                                  and dcv.nro_autorizacion = v_parametros.nro_autorizacion
+                                  and dcv.id_doc_compra_venta != v_parametros.id_doc_compra_venta
+                                  limit 1;
+
+                            raise exception 'Ya existe una Factura registrada con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
+				 			END IF;
+                        END IF;
+
                   END IF;
         end if;
-        -- fin control 
+        -- fin control
 
       --Sentencia de la modificacion
       update conta.tdoc_compra_venta set
@@ -1216,7 +1270,9 @@ END IF;
         id_auxiliar = v_parametros.id_auxiliar,
         id_int_comprobante = v_id_int_comprobante,
         fecha_vencimiento = v_fecha_venci,
-        tipo_cambio = COALESCE(v_tipo_cambio,1)
+        tipo_cambio = COALESCE(v_tipo_cambio,1),
+        fecha_mod = now(),
+        id_usuario_mod = p_id_usuario
       where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
 
 

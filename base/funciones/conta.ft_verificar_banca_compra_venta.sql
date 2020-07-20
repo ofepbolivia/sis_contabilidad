@@ -261,10 +261,10 @@ BEGIN
             raise exception '%', 'tipo de documento de pago Acumulado Vacio' ;
             end if;
 
-             if (v_record.fecha_de_pago is null) then
+           /*  if (v_record.fecha_de_pago is null) then
             raise exception '%', 'fecha de pago Vacio' ;
             end if;
-
+*/
 
             if v_record.revisado2 = 'si' then
             update conta.tbanca_compra_venta

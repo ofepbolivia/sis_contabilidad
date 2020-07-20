@@ -36,7 +36,7 @@ DECLARE
     v_tipo   			varchar;
     v_sincronizar		varchar;
     v_gestion			integer;
-
+    v_periodo			integer;
 
 BEGIN
 
@@ -1583,7 +1583,75 @@ BEGIN
                             
                v_consulta:=v_consulta||v_parametros.filtro;
                return v_consulta;
-         END;  
+         END;
+    /*********************************
+    #TRANSACCION:  'CONTA_LIBROCNCD_SEL'
+    #DESCRIPCION:	Reporte Libro de Compras Notas de Credito-Debito
+    #AUTOR:		franklin.espinoza
+    #FECHA:		01-06-2020 10:10:09
+    ***********************************/
+    elsif(p_transaccion = 'CONTA_LIBROCNCD_SEL')then
+    	begin
+
+            if pxp.f_existe_parametro(p_tabla, 'filtro_sql') then
+              if 'periodo' = v_parametros.filtro_sql then
+                  select tper.fecha_ini, tper.fecha_fin
+                  into v_registros
+                  from param.tperiodo tper
+                  where tper.id_periodo = v_parametros.id_periodo;
+                  v_filtro = 'tnc.fecha between '''||v_registros.fecha_ini||'''::date and '''||v_registros.fecha_fin||'''::date';
+
+                  v_gestion = date_part('year', v_registros.fecha_ini);
+            	  v_periodo = date_part('month', v_registros.fecha_ini);
+              elsif 'fechas' = v_parametros.filtro_sql then
+                  v_filtro = 'tnc.fecha between '''||v_parametros.fecha_ini||'''::date and '||v_parametros.fecha_fin||'''::date';
+
+                  v_gestion = date_part('year', v_parametros.fecha_ini);
+            	  v_periodo = date_part('month', v_parametros.fecha_ini);
+
+                  select tper.id_periodo
+                  into v_parametros.id_periodo
+                  from param.tperiodo tper
+                  where tper.v_parametros.fecha_ini;
+
+              end if;
+            end if;
+
+
+            select tem.nombre, tem.nit
+            into v_registros
+            from param.tempresa tem
+            where tem.codigo = '578';
+
+            --raise 'parametros: %', v_filtro;
+            --Sentencia de la consulta de conteo de registros
+            v_consulta:='select
+              tnc.fecha::date as fecha_nota,
+              tnc.nro_nota::varchar as num_nota,
+              tnc.nroaut as num_autorizacion,
+              (case when tnc.estado = ''1'' then ''V'' else ''A'' end)::varchar as estado,
+              tnc.nit,
+              (case when tnc.estado = ''1'' then tnc.razon else ''ANULADA'' end)::varchar as razon_social,
+              tnc.total_devuelto::numeric,
+              tnc.credfis::numeric as rc_iva,
+              tnc.codigo_control,
+              tnc.fecha_fac::date as fecha_original,
+              tnc.nrofac as num_factura,
+              tnc.nroaut_anterior,
+              (tnc.total_devuelto + tnc.excento)::numeric as importe_total,
+              '||v_gestion||'::integer as gestion,
+              param.f_literal_periodo('||v_parametros.id_periodo||') as periodo,
+              '''||v_registros.nombre||'''::varchar as razon_empresa,
+              '''||v_registros.nit||'''::varchar as nit_empresa,
+              '''||v_periodo||'''::varchar as periodo_num
+            from decr.tnota tnc
+            where '||v_filtro;
+
+            raise notice '%', v_consulta;
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
 
     else
 

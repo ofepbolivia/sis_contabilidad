@@ -396,7 +396,11 @@ BEGIN
                         icbte.fecha,
                         icbte.glosa1,
                         icbte.id_proceso_wf,
-                        icbte.id_estado_wf
+                        icbte.id_estado_wf,
+                        icbte.c31,
+                        (select array_to_string( array_agg( cv.nro_documento), '','' )
+                         from conta.tdoc_compra_venta  cv
+                         where cv.id_int_comprobante=transa.id_int_comprobante)::VARCHAR as nro_documentos
 
 						from conta.tint_transaccion transa
                         inner join conta.tint_comprobante icbte on icbte.id_int_comprobante = transa.id_int_comprobante
@@ -1657,8 +1661,8 @@ BEGIN
             v_filtro_id_centro_costo = '0=0';
             v_filtro_id_partida = '0=0';
             v_filtro_cuentas = '0=0';
-
-            IF (v_parametros.id_auxiliar is not null)  THEN
+            --raise exception 'filtro es %',v_parametros.filtro;
+			IF (v_parametros.id_auxiliar is not null)  THEN
             	v_filtro_id_auxiliar = 'transa.id_auxiliar = '||v_parametros.id_auxiliar||'';
             END IF;
 
@@ -1678,6 +1682,10 @@ BEGIN
             	v_filtro_cuentas = 'transa.id_cuenta = '||v_parametros.id_cuenta||'';
             end if;
 
+            IF (v_parametros.id_orden_trabajo is not null)  THEN
+            	v_filtro_ordenes = 'transa.id_orden_trabajo = '||v_parametros.id_orden_trabajo||'';
+            end if;
+
             /*********************************************************************************************/
 
            /*Para calcular el saldo por gestion recuperaremos el primer periodo de la gestion seleccionada*/
@@ -1688,7 +1696,7 @@ BEGIN
 
             /************************LLAMAMOS A LA FUNCION PARA CALCULAR EL SALDO ANTERIOR****************************************/
             select * into v_datos_anterior
-            from conta.f_recuperar_saldo_anterior_libro_mayor(v_filtro_cuentas,v_filtro_id_auxiliar,v_parametros.desde,v_filtro_id_partida,v_filtro_id_centro_costo,v_fecha_inicio_gestion)
+            from conta.f_recuperar_saldo_anterior_libro_mayor(v_filtro_cuentas,v_filtro_id_auxiliar,v_parametros.desde,v_filtro_id_partida,v_filtro_id_centro_costo,v_fecha_inicio_gestion,v_filtro_ordenes)
             as(saldo_anterior NUMERIC, total_debe_anterior NUMERIC, total_haber_anterior NUMERIC);
             /*********************************************************************************************************************/
 
@@ -1767,7 +1775,7 @@ BEGIN
 						''activo''::varchar as estado_reg,
 						NULL::integer as id_int_transaccion_fk,
 						0::integer as id_cuenta,
-						''Saldo Anterior''::varchar as glosa,
+						''''::varchar as glosa,
 						NULL::integer as id_int_comprobante,
 						NULL::integer as id_auxiliar,
 						NULL::integer as id_usuario_reg,
@@ -1780,19 +1788,19 @@ BEGIN
                         '||v_datos_anterior.total_debe_anterior||'::numeric as total_debe_anterior,
                         '||v_datos_anterior.total_haber_anterior||'::numeric as total_haber_anterior,
 
-                        ''Saldo Anterior''::varchar as desc_partida,
-						''Saldo Anterior''::varchar as desc_centro_costo,
-						''Saldo Anterior''::varchar as desc_cuenta,
-						''Saldo Anterior''::varchar desc_auxiliar,
-                        ''SALDO ANTERIOR''::varchar as tipo_partida,
+                        ''''::varchar as desc_partida,
+						''''::varchar as desc_centro_costo,
+						''''::varchar as desc_cuenta,
+						''''::varchar desc_auxiliar,
+                        ''''::varchar as tipo_partida,
                         NULL::integer as id_orden_trabajo,
-                        ''Saldo Anterior''::varchar as desc_orden,
-                        ''Saldo Anterior''::varchar as nro_cbte,
-                        ''SALDO ANTERIOR''::varchar as nro_tramite,
-                        ''Saldo Anterior''::varchar as nombre_corto,
+                        ''''::varchar as desc_orden,
+                        ''''::varchar as nro_cbte,
+                        ''''::varchar as nro_tramite,
+                        ''''::varchar as nombre_corto,
                        	NULL::date as fecha,
                         ''SALDO ANTERIOR''::varchar as glosa1,
-                        ''Saldo Anterior''::varchar as codigo,
+                        ''''::varchar as codigo,
 
                         /*Recuperando datos sugeridos por lobito*/
                         ''''::varchar as c31,
@@ -1800,7 +1808,7 @@ BEGIN
                         NULL::date as fecha_costo_fin,
                         /**********************************/
 
-                        ''SALDO ANTERIOR''::varchar as nro_factura,
+                        ''''::varchar as nro_factura,
                         '||v_saldo_anterior||'::numeric as saldo_anterior)
 
                         UNION
@@ -1849,7 +1857,6 @@ BEGIN
                         icbte.fecha_costo_fin::date,
                         /**********************************/
 
-
                         COALESCE(string_agg(venta.nro_documento, '',''), '''')::varchar as nro_factura,
 						conta.f_calcular_saldo_libro_mayor_pdf(COALESCE(transa.importe_debe_mb,0),COALESCE(transa.importe_haber_mb,0),'''||v_parametros.desde||''','''||v_filtro_cuentas||''','''||v_filtro_ordenes||''','''||v_filtro_id_auxiliar||''','''||v_filtro_id_centro_costo||''','''||v_filtro_id_partida||''','||v_parametros.id_cuenta||','||v_parametros.id_gestion||')::numeric as importe_saldo_mb
 
@@ -1874,9 +1881,13 @@ BEGIN
                         and '||v_filtro_gestion||'
                         and '||v_filtro_id_centro_costo||'
                         and '||v_filtro_id_partida||'
+                        and '||v_filtro_ordenes||'
                         and icbte.fecha::date  >= '''||v_parametros.desde||'''
                         and icbte.fecha::date  <= '''||v_parametros.hasta||'''
+                        and ';
+                        v_consulta:=v_consulta||v_parametros.filtro;
 
+						v_consulta:= v_consulta|| '
 			group by transa.id_int_transaccion,
                                         transa.id_partida,
                                         transa.id_centro_costo,
@@ -1913,7 +1924,10 @@ BEGIN
                                         icbte.fecha_costo_ini,
 				                        icbte.fecha_costo_fin,
                                         ot.desc_orden
-            	ORDER BY id_int_transaccion ASC)';
+                                        ORDER BY id_int_transaccion ASC)';
+
+                --v_consulta:=v_consulta||' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+
 			return v_consulta;
 		end;
 
@@ -1961,6 +1975,10 @@ BEGIN
             	v_filtro_cuentas = 'transa.id_cuenta = '||v_parametros.id_cuenta||'';
             end if;
 
+             IF (v_parametros.id_orden_trabajo is not null)  THEN
+            	v_filtro_ordenes = 'transa.id_orden_trabajo = '||v_parametros.id_orden_trabajo||'';
+            end if;
+
             /*********************************************************************************************/
 
 
@@ -1972,7 +1990,7 @@ BEGIN
 
             /************************LLAMAMOS A LA FUNCION PARA CALCULAR EL SALDO ANTERIOR****************************************/
             select * into v_datos_anterior
-            from conta.f_recuperar_saldo_anterior_libro_mayor(v_filtro_cuentas,v_filtro_id_auxiliar,v_parametros.desde,v_filtro_id_partida,v_filtro_id_centro_costo,v_fecha_inicio_gestion)
+            from conta.f_recuperar_saldo_anterior_libro_mayor(v_filtro_cuentas,v_filtro_id_auxiliar,v_parametros.desde,v_filtro_id_partida,v_filtro_id_centro_costo,v_fecha_inicio_gestion,v_filtro_ordenes)
             as(saldo_anterior NUMERIC, total_debe_anterior NUMERIC, total_haber_anterior NUMERIC);
             /*********************************************************************************************************************/
 
@@ -1998,28 +2016,97 @@ BEGIN
                     FROM cuenta_rec;
 
 
-
                     v_filtro_cuentas = ' transa.id_cuenta in ('||v_cuentas||') ';
+
+                    /*Aqui aumentamos para calcular el saldo al Final de la grilla*/
+                    /*OBTENEMOS EL NUMERO DE CUENTA PARA PONER LAS CONDICIONES DEFINIDAS POR CHARITO*/
+                      select cue.nro_cuenta into v_numero_cuenta
+                      from conta.tint_transaccion transa
+                      inner join conta.tint_comprobante icbte on icbte.id_int_comprobante = transa.id_int_comprobante
+                      inner join conta.tcuenta cue on cue.id_cuenta = transa.id_cuenta
+                      where icbte.estado_reg = 'validado' and cue.id_cuenta = v_parametros.id_cuenta
+                      limit 1;
+
+					if (v_numero_cuenta is not NULL) then
+
+                      select substring (v_numero_cuenta from 1 for 1) into v_inicial_cuenta;
+
+                      if (v_inicial_cuenta = '1') then
+
+                          /*Recuperamos los 3 primero digitos para saber si es una cuenta de comportamiento pasivo o activo*/
+                          select substring (v_numero_cuenta from 1 for 3) into v_cuenta_activo_como_pasivo;
+                          /*************************************************************************************************/
+
+                          /*Si el numero de cuenta es 124 o 114 pertenece a una cuenta de Activo pero Se comporta como un pasivo la formula es
+                          Saldo_anterior + (Haber - Debe) si se comporta como un activo la formula es Saldo_anterior + (Debe - Haber)*/
+
+                              if (v_cuenta_activo_como_pasivo = '124' OR  v_cuenta_activo_como_pasivo = '114') THEN
+                                    v_comportamiento = 'pasivo';
+                              else
+                                    v_comportamiento = 'activo';
+                              end if;
+
+
+                      end if;
+
+                            /*Si la cuenta inicia con 4 o 6 pertenece a un activo*/
+                            if (v_inicial_cuenta = '4' or v_inicial_cuenta = '6') then
+                                  v_comportamiento = 'activo';
+                            end if;
+                            /*Si la cuenta inicia con 2 o 3 o 5 pertenece a un pasivo*/
+                             if (v_inicial_cuenta = '2' or v_inicial_cuenta = '3' or v_inicial_cuenta = '5') then
+                                  v_comportamiento = 'pasivo';
+                            end if;
+
+                        if (v_inicial_cuenta = '8') then
+                            /*Recuperamos los 3 primero digitos para saber si es una cuenta de comportamiento pasivo o activo*/
+                            select substring (v_numero_cuenta from 1 for 2) into v_cuenta_acreedora_como_pasivo;
+                            /*************************************************************************************************/
+
+                            if (v_cuenta_acreedora_como_pasivo = '81') then
+                                  v_comportamiento = 'activo';
+                            elsif (v_cuenta_acreedora_como_pasivo = '82') then
+                                  v_comportamiento = 'pasivo';
+                            end if;
+
+                        end if;
+
+                     /**********************************************************************/
+                     else
+                     	v_comportamiento = 'ninguno';
+                     end if;
                 END IF;
 
             END IF;
+
+
 
 
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select
                         count(transa.id_int_transaccion) as total,
                         (sum(COALESCE(transa.importe_debe_mb,0)) + '||v_datos_anterior.total_debe_anterior||') as total_debe,
-                        (sum(COALESCE(transa.importe_haber_mb,0)) + '||v_datos_anterior.total_haber_anterior||' ) as total_haber
+                        (sum(COALESCE(transa.importe_haber_mb,0)) + '||v_datos_anterior.total_haber_anterior||' ) as total_haber,
+                        (CASE
+                         	  WHEN '''||v_comportamiento||''' = ''ninguno''  THEN
+                              NULL
+                              WHEN '''||v_comportamiento||''' = ''activo''  THEN
+                              ((sum(COALESCE(transa.importe_debe_mb,0)) + '||v_datos_anterior.total_debe_anterior||')-(sum(COALESCE(transa.importe_haber_mb,0)) + '||v_datos_anterior.total_haber_anterior||' ))
+                              ELSE
+                              ((sum(COALESCE(transa.importe_haber_mb,0)) + '||v_datos_anterior.total_haber_anterior||' )-(sum(COALESCE(transa.importe_debe_mb,0)) + '||v_datos_anterior.total_debe_anterior||'))
+                        END) as total_saldo
 					    from conta.tint_transaccion transa
                         inner join conta.tint_comprobante icbte on icbte.id_int_comprobante = transa.id_int_comprobante
                         inner join param.tperiodo per on per.id_periodo = icbte.id_periodo
+                        --left join conta.tdoc_compra_venta venta on venta.id_int_comprobante = icbte.id_int_comprobante
 						where icbte.estado_reg = ''validado''
                               and ' ||v_filtro_cuentas||'
+                              and '||v_filtro_ordenes||'
                               and';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
-            --raise notice '%',v_consulta;
+            raise notice '%',v_consulta;
 
 			--Devuelve la respuesta
 			return v_consulta;
@@ -2063,7 +2150,6 @@ BEGIN
             v_filtro_id_centro_costo = '0=0';
             v_filtro_id_partida = '0=0';
 
-
             IF (v_parametros.id_auxiliar is not null)  THEN
             	v_filtro_id_auxiliar = 'transa.id_auxiliar = '||v_parametros.id_auxiliar||'';
             END IF;
@@ -2078,6 +2164,10 @@ BEGIN
 
              IF (v_parametros.id_partida is not null)  THEN
             	v_filtro_id_partida = 'transa.id_partida = '||v_parametros.id_partida||'';
+            end if;
+
+             IF (v_parametros.id_orden_trabajo is not null)  THEN
+            	v_filtro_ordenes = 'transa.id_orden_trabajo = '||v_parametros.id_orden_trabajo||'';
             end if;
 
              /****************************/
@@ -2106,36 +2196,6 @@ BEGIN
                     v_filtro_cuentas = ' transa.id_cuenta in ('||v_cuentas||') ';
                 END IF;
 
-            END IF;
-
-            IF  pxp.f_existe_parametro(p_tabla,'id_orden_trabajo')  THEN
-
-                  IF v_parametros.id_orden_trabajo is not NULL THEN
-
-
-                    IF v_parametros.id_orden_trabajo != 0 THEN
-                          WITH RECURSIVE orden_rec (id_orden_trabajo, id_orden_trabajo_fk) AS (
-                            SELECT cue.id_orden_trabajo, cue.id_orden_trabajo_fk
-                            FROM conta.torden_trabajo cue
-                            WHERE cue.id_orden_trabajo = v_parametros.id_orden_trabajo and cue.estado_reg = 'activo'
-                          UNION ALL
-                            SELECT cue2.id_orden_trabajo, cue2.id_orden_trabajo_fk
-                            FROM orden_rec lrec
-                            INNER JOIN conta.torden_trabajo cue2 ON lrec.id_orden_trabajo = cue2.id_orden_trabajo_fk
-                            where cue2.estado_reg = 'activo'
-                          )
-                        SELECT  pxp.list(id_orden_trabajo::varchar)
-                          into
-                            v_ordenes
-                        FROM orden_rec;
-
-                        v_filtro_ordenes = ' transa.id_orden_trabajo in ('||v_ordenes||') ';
-                    ELSE
-                        --cuando la orden de trabajo es cero, se requiere msotrar las ordenes de trabajo nulas
-                        v_filtro_ordenes = ' transa.id_orden_trabajo is null ';
-
-                    END IF;
-                END IF;
             END IF;
 
 
@@ -2183,6 +2243,9 @@ BEGIN
                                                             and '||v_filtro_id_partida||'
                                                         	and icbte.fecha::date  >= '''||v_parametros.desde||'''
                                                             and icbte.fecha::date  <= '''||v_parametros.hasta||'''
+                                                            and ';
+                              v_consulta:=v_consulta||v_parametros.filtro;
+                              v_consulta:= v_consulta|| '
                                   group by transa.id_int_transaccion,
                                         transa.id_partida,
                                         transa.id_centro_costo,
@@ -2272,6 +2335,10 @@ BEGIN
             	v_filtro_id_partida = 'transa.id_partida = '||v_parametros.id_partida||'';
             end if;
 
+            IF (v_parametros.id_orden_trabajo is not null)  THEN
+            	v_filtro_ordenes = 'transa.id_orden_trabajo = '||v_parametros.id_orden_trabajo||'';
+            end if;
+
              /****************************/
 
              IF  pxp.f_existe_parametro(p_tabla,'id_cuenta')  THEN
@@ -2300,35 +2367,6 @@ BEGIN
 
             END IF;
 
-            IF  pxp.f_existe_parametro(p_tabla,'id_orden_trabajo')  THEN
-
-                  IF v_parametros.id_orden_trabajo is not NULL THEN
-
-
-                    IF v_parametros.id_orden_trabajo != 0 THEN
-                          WITH RECURSIVE orden_rec (id_orden_trabajo, id_orden_trabajo_fk) AS (
-                            SELECT cue.id_orden_trabajo, cue.id_orden_trabajo_fk
-                            FROM conta.torden_trabajo cue
-                            WHERE cue.id_orden_trabajo = v_parametros.id_orden_trabajo and cue.estado_reg = 'activo'
-                          UNION ALL
-                            SELECT cue2.id_orden_trabajo, cue2.id_orden_trabajo_fk
-                            FROM orden_rec lrec
-                            INNER JOIN conta.torden_trabajo cue2 ON lrec.id_orden_trabajo = cue2.id_orden_trabajo_fk
-                            where cue2.estado_reg = 'activo'
-                          )
-                        SELECT  pxp.list(id_orden_trabajo::varchar)
-                          into
-                            v_ordenes
-                        FROM orden_rec;
-
-                        v_filtro_ordenes = ' transa.id_orden_trabajo in ('||v_ordenes||') ';
-                    ELSE
-                        --cuando la orden de trabajo es cero, se requiere msotrar las ordenes de trabajo nulas
-                        v_filtro_ordenes = ' transa.id_orden_trabajo is null ';
-
-                    END IF;
-                END IF;
-            END IF;
 
             /*Ponemos condiciones para recuperar el numero de cuenta*/
             select cue.nro_cuenta into v_numero_cuenta

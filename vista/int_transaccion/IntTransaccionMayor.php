@@ -85,7 +85,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         gwidth: 500,
                         width: 350,
                         listWidth: 350,
-                        scope: this,
+                        //scope: this,
                         renderer: function (value, p, record) {
                             var color = 'green';
                             if (record.data["tipo_reg"] != 'summary') {
@@ -154,7 +154,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     },
                     bottom_filter: true,
                     grid: true,
-                    form: true
+                    form: false
                 },
                 {
                     config: {
@@ -204,8 +204,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         type: 'string'
                     },
 
-                    grid: false,
-                    form: true
+                    grid: true,
+                    form: false
                 },
                 {
                     config: {
@@ -246,26 +246,26 @@ header("content-type: text/javascript; charset=UTF-8");
                     },
                     type: 'ComboRec',
                     id_grupo: 0,
-                    filters: {pfiltro: 'ot.motivo_orden#ot.desc_orden', type: 'string'},
+                    filters: {pfiltro: 'ot.desc_orden', type: 'string'},
                     grid: true,
                     form: true
                 },
                 {
                     config: {
-                        name: 'glosa',
+                        name: 'glosa1',
                         fieldLabel: 'Glosa',
                         allowBlank: true,
-                        anchor: '80%',
+                        anchor: '100%',
                         gwidth: 300,
                         maxLength: 1000,
                         renderer: function (value, metaData, record, rowIndex, colIndex, store) {
                             metaData.css = 'multilineColumn';
-                            return String.format('{0} <br> {1}', record.data['glosa1'], value);
+                            return String.format('{0}', record.data['glosa1']);
                         }
                     },
                     type: 'TextArea',
-                    filters: {pfiltro: 'transa.glosa', type: 'string'},
-                    id_grupo: 1,
+                    filters: {pfiltro: 'transa.glosa1', type: 'string'},
+                    id_grupo: 0,
                     grid: true,
                     form: true
                 },
@@ -425,6 +425,45 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 1,
                     grid: true,
                     form: true
+                },
+                {
+                    config: {
+                        name: 'c31',
+                        fieldLabel: 'C31',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 100
+
+                    },
+                    type: 'TextField',
+                    filters: {pfiltro: 'icbte.c31', type: 'string'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false,
+                    bottom_filter: true
+                },
+                {
+                    config:{
+                        name:'nro_documentos',
+                        fieldLabel: 'Nº de Factura',
+                        allowBlank:true,
+                        gwidth:300,
+                        width: 200,
+                        listWidth: 350,
+                        renderer:function(value, metaData, record){
+
+                            metaData.css = 'multilineColumn';
+                            //return String.format('{0}<br> {1}', record.data['nro_documentos'], value);}
+                            return String.format('{0}', record.data['nro_documentos']);}
+
+
+                    },
+                    type:'TextArea',
+                    id_grupo:0,
+                    filters:{pfiltro:'cv.nro_documentos',type:'string'},
+                    grid:true,
+                    form:false
                 },
                 {
                     config: {
@@ -613,9 +652,12 @@ header("content-type: text/javascript; charset=UTF-8");
             {name: 'desc_centro_costo', type: 'string'},
             'cbte_relacional',
             'cbte_relacional',
-            'tipo_partida', 'id_orden_trabajo', 'desc_orden',
+            'tipo_partida', 'id_orden_trabajo',
+            {name: 'desc_orden', type: 'string'},
             'tipo_reg', 'nro_cbte', 'nro_tramite', 'nombre_corto', 'fecha', 'glosa1',
             'id_proceso_wf', 'id_estado_wf', 'id_suborden', 'desc_suborden',
+            { name:'c31', type: 'string'},
+            { name:'nro_documentos', type: 'string'}
 
         ],
 	
@@ -794,7 +836,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 height: '80%'
             }, rec.data, this.idContenedor, 'DocCompraVentaCbte');
         },
-
+/*
         ExtraColumExportDet: [{
             label: 'Partida',
             name: 'desc_partida',
@@ -804,13 +846,13 @@ header("content-type: text/javascript; charset=UTF-8");
             value: 'desc_partida'
         },
             {
-                label: 'Cbte',
+                label: 'Cbtee',
                 name: 'nro_cbte',
                 width: '100',
                 type: 'string',
                 gdisplayField: 'nro_cbte',
                 value: 'nro_cbte'
-            }],
+            }],*/
         //mpmpmp
         postReloadPage: function (data) {
             console.log(data);

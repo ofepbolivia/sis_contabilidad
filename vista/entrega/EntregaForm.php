@@ -69,8 +69,9 @@ Phx.vista.EntregaForm=Ext.extend(Phx.frmInterfaz,{
             },
             type:'TextArea',
             form:true 
-        },  
-         {
+        }
+        //17-06-2020 (maylee.perez) se quita porque todos se realizaran de una misma relacion
+        /*,{
 			config : {
 				name : 'id_tipo_relacion_comprobante',
 				fieldLabel : 'Incluir Relación',
@@ -119,7 +120,7 @@ Phx.vista.EntregaForm=Ext.extend(Phx.frmInterfaz,{
 			},
 			grid : true,
 			form : true
-		}
+		}*/
             
     ],
     
@@ -132,13 +133,14 @@ Phx.vista.EntregaForm=Ext.extend(Phx.frmInterfaz,{
        }
     },
     getValues:function(){
-    	console.log('this.estado_destino',this.estado_destino)
-    	var aux = this.Cmp.id_tipo_relacion_comprobante.getValue().trim() == '' ? 0 : this.Cmp.id_tipo_relacion_comprobante.getValue();
+    	//console.log('this.estado_destino',this.estado_destino)
+        //17-06-2020 (maylee.perez) se quita porque todos se realizaran de una misma relacion
+    	//var aux = this.Cmp.id_tipo_relacion_comprobante.getValue().trim() == '' ? 0 : this.Cmp.id_tipo_relacion_comprobante.getValue();
 
     	var resp = {    id_entrega: this.data.id_entrega,
                         c31:  this.Cmp.c31.getValue(),
                         fecha_c31:  this.Cmp.fecha_c31.getValue().dateFormat('d/m/Y'),  
-                        id_tipo_relacion_comprobante: aux,    
+                        //id_tipo_relacion_comprobante: aux,
                         obs: this.Cmp.obs.getValue(),
                      }
                      
@@ -147,7 +149,8 @@ Phx.vista.EntregaForm=Ext.extend(Phx.frmInterfaz,{
          return resp;   
      },
     iniciarEventos: function () {
-            this.cmpRelacion =this.getComponente('id_tipo_relacion_comprobante');
+            //17-06-2020 (maylee.perez) se quita porque todos se realizaran de una misma relacion
+            /*this.cmpRelacion =this.getComponente('id_tipo_relacion_comprobante');
 
             this.cmpRelacion.on('change',function(field,n,o){
                 var me = this;
@@ -164,7 +167,7 @@ Phx.vista.EntregaForm=Ext.extend(Phx.frmInterfaz,{
                  //   me.reset();*/
                 //this.cmpRelacion.reset();
                 //me.callParent( arguments );
-            },this);
+            //},this);*/
 
     }
     

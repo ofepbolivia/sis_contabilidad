@@ -146,7 +146,7 @@ Phx.vista.FormFiltroReporteLibroMayor=Ext.extend(Phx.frmInterfaz,{
 					fieldLabel: 'Hasta',
 					allowBlank: false,
 					format: 'd/m/Y',
-					width: 150        
+					width: 150
 				},
 				type: 'DateField',
 				id_grupo: 0,
@@ -192,10 +192,9 @@ Phx.vista.FormFiltroReporteLibroMayor=Ext.extend(Phx.frmInterfaz,{
    				width: 150
        	     },
    			type:'ComboRec',
-   			id_grupo:2,
+   			id_grupo:1,
    			form:true
 	   	},
-
 	   		{
             config:{
                 name: 'id_centro_costo',
@@ -205,6 +204,35 @@ Phx.vista.FormFiltroReporteLibroMayor=Ext.extend(Phx.frmInterfaz,{
                 origen: 'CENTROCOSTO',
                 gdisplayField: 'desc_centro_costo',
                 width: 150
+            },
+            type: 'ComboRec',
+            id_grupo: 2,
+            form: true
+        },
+        {
+            config:{
+                    name: 'id_orden_trabajo',
+                    fieldLabel: 'ORDEN DE TRABAJO',
+                    tpl:'<tpl for="."><div class="x-combo-list-item"><p><b>{codigo}</b></p><p>{desc_orden}</p> <p>Tipo:{tipo}</p></div></tpl>',
+                    sysorigen: 'sis_contabilidad',
+	       		    origen: 'OT',
+                    allowBlank: true,
+                    gwidth: 200,
+                    store : new Ext.data.JsonStore({
+                            url:'../../sis_contabilidad/control/OrdenTrabajo/listarOrdenTrabajoAll',
+                            id : 'id_orden_trabajo',
+                            root: 'datos',
+                            sortInfo:{
+                                    field: 'motivo_orden',
+                                    direction: 'ASC'
+                            },
+                            totalProperty: 'total',
+                            fields: ['id_orden_trabajo','motivo_orden','desc_orden','motivo_orden','codigo','tipo'],
+                            remoteSort: true,
+                            baseParams:{par_filtro:'desc_orden#motivo_orden'}
+                    }),
+                    width: 150
+
             },
             type: 'ComboRec',
             id_grupo: 2,
@@ -233,14 +261,15 @@ Phx.vista.FormFiltroReporteLibroMayor=Ext.extend(Phx.frmInterfaz,{
 			var partida=this.Cmp.id_partida.lastSelectionText;
 
 			var cc=this.Cmp.id_centro_costo.lastSelectionText;
+      var ot=this.Cmp.id_orden_trabajo.lastSelectionText;
 
-      console.log("la cuenta es",this);
 			this.onEnablePanel(this.idContenedor + '-south',
 				Ext.apply(parametros,{	'gest': gest,
 										'cuenta': cuenta,
 										'auxiliar': auxiliar,
 										'partida': partida,
 										'cc' : cc,
+                    'ot' : ot,
 									 }));
         }
     },
@@ -250,6 +279,7 @@ Phx.vista.FormFiltroReporteLibroMayor=Ext.extend(Phx.frmInterfaz,{
       this.Cmp.id_partida.reset();
       this.Cmp.id_centro_costo.reset();
       this.Cmp.id_auxiliar.reset();
+      this.Cmp.id_orden_trabajo.reset();
 	   },
 
 	//

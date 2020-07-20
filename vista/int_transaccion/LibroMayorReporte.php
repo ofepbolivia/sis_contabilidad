@@ -93,11 +93,13 @@ header("content-type: text/javascript; charset=UTF-8");
                                 if (record.data["tipo_partida"] == 'flujo') {
                                     color = 'red';
                                 }
+                                if (record.data['glosa1'] == 'SALDO ANTERIOR') {
+                                  var retorno = String.format('');
 
+                                } else {
 
                                 var retorno = String.format('<b>Cta.:</b> <font color="blue">{3}</font><br><b>Aux.:</b> <font color="#CC3B00">{4}</font><br><b>Ptda.:</b> <font color="{1}">{2}</font><br><b>CC:</b> {0}', record.data['desc_centro_costo'], color, record.data['desc_partida'],
                                     record.data['desc_cuenta'], record.data['desc_auxiliar']);
-
 
                                 if (record.data['desc_orden']) {
                                     retorno = retorno + '<br><b>Ord.:</b> ' + record.data['desc_orden'];
@@ -105,6 +107,8 @@ header("content-type: text/javascript; charset=UTF-8");
                                 if (record.data['desc_suborden']) {
                                     retorno = retorno + '<br><b>Sub.:</b> ' + record.data['desc_suborden'];
                                 }
+
+                                  }
                                 return retorno;
 
                              }
@@ -113,11 +117,33 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'ComboRec',
                     id_grupo: 0,
                     filters: {
-                        pfiltro: 'cue.nombre_cuenta#cue.nro_cuenta#cc.codigo_cc#cue.nro_cuenta#cue.nombre_cuenta#aux.codigo_auxiliar#aux.nombre_auxiliar#par.codigo#par.nombre_partida#ot.desc_orden',
+                        pfiltro: 'transa.nombre_cuenta#transa.nro_cuenta#cc.codigo_cc#cue.nro_cuenta#cue.nombre_cuenta#aux.codigo_auxiliar#aux.nombre_auxiliar#par.codigo#par.nombre_partida#ot.desc_orden',
                         type: 'string'
                     },
-                    bottom_filter: true,
+                    //bottom_filter: true,
                     grid: true,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'id_orden_trabajo',
+                        fieldLabel: 'Orden Trabajo',
+                        sysorigen: 'sis_contabilidad',
+                        origen: 'OT',
+                        allowBlank: true,
+                        gwidth: 200,
+                        width: 350,
+                        listWidth: 350,
+                        gdisplayField: 'desc_orden',
+                        renderer: function (value, p, record) {
+                            return String.format('{0}', record.data['desc_orden']);
+                        }
+
+                    },
+                    type: 'ComboRec',
+                    id_grupo: 0,
+                    filters: {pfiltro: 'ot.motivo_orden#ot.desc_orden', type: 'string'},
+                    grid: false,
                     form: true
                 },
                 {
@@ -127,9 +153,11 @@ header("content-type: text/javascript; charset=UTF-8");
                         allowBlank: true,
                         anchor: '80%',
                         gwidth: 200,
-                        maxLength: 1000
+                        maxLength: 1000,
+
                     },
                     type: 'TextField',
+                    filters: {pfiltro: 'icbte.nro_tramite', type: 'string'},
                     bottom_filter: true,
                     id_grupo: 1,
                     grid: true,
@@ -145,7 +173,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1000
                     },
                     type: 'TextField',
-                    bottom_filter: true,
+                    //bottom_filter: true,
+                    //filters: {pfiltro: 'venta.nro_documento', type: 'string'},
                     id_grupo: 1,
                     grid: true,
                     form: true
@@ -160,7 +189,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1000
                     },
                     type: 'TextField',
-                    bottom_filter: true,
+                    //bottom_filter: true,
                     id_grupo: 1,
                     grid: true,
                     form: true
@@ -176,6 +205,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     },
                     type: 'TextField',
                     bottom_filter: true,
+                    filters: {pfiltro: 'icbte.c31', type: 'string'},
                     id_grupo: 1,
                     grid: true,
                     form: true
@@ -197,7 +227,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 1,
                     grid: true,
                     form: false,
-                    bottom_filter: true
+                    //bottom_filter: true
                 },
                 {
                     config: {
@@ -216,7 +246,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 1,
                     grid: true,
                     form: false,
-                    bottom_filter: true
+                    //bottom_filter: true
                 },
                 {
                     config: {
@@ -300,11 +330,16 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 1000,
                         renderer: function (value, metaData, record, rowIndex, colIndex, store) {
                             metaData.css = 'multilineColumn';
-                            return String.format('{0} <br> {1}', record.data['glosa1'], value);
+                            if (record.data['glosa1'] == 'SALDO ANTERIOR') {
+                              return String.format('<b style="font-size:15px; color:blue;">{0}</b> <br> {1}', record.data['glosa1'], value);
+                            }else {
+                              return String.format('{0} <br> {1}', record.data['glosa1'], value);
+                            }
                         }
                     },
                     type: 'TextArea',
                     filters: {pfiltro: 'transa.glosa', type: 'string'},
+                    bottom_filter: true,
                     id_grupo: 1,
                     grid: true,
                     form: true
@@ -322,7 +357,11 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 100,
                         renderer: function (value, p, record) {
                             if (record.data.tipo_reg != 'summary') {
-                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                                if (record.data['glosa1'] == 'SALDO ANTERIOR') {
+                                  return String.format('<b style="font-size:15px; color:blue;">{0}</b>', Ext.util.Format.number(value, '0,000.00'));
+                                }else{
+                                  return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                                }
                             } else {
                                 return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
                             }
@@ -345,7 +384,11 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 100,
                         renderer: function (value, p, record) {
                             if (record.data.tipo_reg != 'summary') {
+                              if (record.data['glosa1'] == 'SALDO ANTERIOR') {
+                                return String.format('<b style="font-size:15px; color:blue;">{0}</b>', Ext.util.Format.number(value, '0,000.00'));
+                              }else{
                                 return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                              }
                             } else {
                                 return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
                             }
@@ -368,7 +411,11 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 100,
                         renderer: function (value, p, record) {
                             if (record.data.tipo_reg != 'summary') {
+                              if (record.data['glosa1'] == 'SALDO ANTERIOR') {
+                                return String.format('<b style="font-size:15px; color:blue;">{0}</b>', Ext.util.Format.number(value, '0,000.00'));
+                              }else{
                                 return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                              }
                             } else {
                                 return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
                             }
@@ -552,7 +599,17 @@ header("content-type: text/javascript; charset=UTF-8");
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Trámite:&nbsp;&nbsp;</b> {nro_tramite} &nbsp; {fecha:date("d/m/Y")}</p>',
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:&nbsp;&nbsp;</b> {usr_reg}</p>',
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Estado Registro:&nbsp;&nbsp;</b> {estado_reg}</p><br>'
-            )
+            ),
+            renderer: function(v, p, record) {
+              console.log("aqui llega detalle total",record.data);
+              if (record.data['glosa1'] == 'SALDO ANTERIOR' || record.data['tipo_reg'] == 'summary') {
+
+              } else {
+                return '<div class="x-grid3-row-expander"></div>';
+              }
+
+            },
+
         }),
 
         arrayDefaultColumHidden: ['fecha_mod', 'usr_reg', 'usr_mod', 'estado_reg', 'fecha_reg', 'desc_centro_costo'],
@@ -581,8 +638,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         /*Aumentando funcion para sacar el reporte del libro mayor Ismael Valdivia (3/12/2019) */
         libroMayorPDF: function () {
-              Phx.CP.loadingShow();
-              console.log("la fecha es",this);
+              Phx.CP.loadingShow();            
               Ext.Ajax.request({
                   url: '../../sis_contabilidad/control/IntTransaccion/GenerarLibroMayor',
                   params: {
@@ -598,7 +654,10 @@ header("content-type: text/javascript; charset=UTF-8");
                       id_centro_costo:this.store.baseParams.id_centro_costo,
                       id_partida:this.store.baseParams.id_partida,
                       desde: this.store.baseParams.desde,
-                      hasta: this.store.baseParams.hasta
+                      hasta: this.store.baseParams.hasta,
+                      id_orden_trabajo: this.store.baseParams.id_orden_trabajo,
+                      /*Aqui pondremos para que el reporte nos filtre por los parametro que deben ser filtrado*/
+                      filtro_reporte: this.gfilter.store.baseParams.bottom_filter_value
                       /***************************************************************************/
                   },
                   success: this.successExport,
@@ -611,7 +670,6 @@ header("content-type: text/javascript; charset=UTF-8");
 
         libroMayorEXCEL: function () {
               Phx.CP.loadingShow();
-              console.log("El dato es el siguiente",this);
               Ext.Ajax.request({
                   url: '../../sis_contabilidad/control/IntTransaccion/GenerarReporteLibroMayorExcel',
                   params: {
@@ -627,7 +685,10 @@ header("content-type: text/javascript; charset=UTF-8");
                       id_centro_costo:this.store.baseParams.id_centro_costo,
                       id_partida:this.store.baseParams.id_partida,
                       desde: this.store.baseParams.desde,
-                      hasta: this.store.baseParams.hasta
+                      hasta: this.store.baseParams.hasta,
+                      id_orden_trabajo: this.store.baseParams.id_orden_trabajo,
+                      /*Aqui pondremos para que el reporte nos filtre por los parametro que deben ser filtrado*/
+                      filtro_reporte: this.gfilter.store.baseParams.bottom_filter_value
                       /***************************************************************************/
                   },
                   success: this.successExport,
@@ -664,11 +725,13 @@ header("content-type: text/javascript; charset=UTF-8");
             cuenta = data.cuenta;
             partida = data.partida;
             centro_costo = data.cc;
+            orden_trabajo = data.ot;
             id_auxiliar = data.id_auxiliar;
             id_centro_costo = data.id_centro_costo;
             id_cuenta = data.id_cuenta;
             id_gestion = data.id_gestion;
             id_partida = data.id_partida;
+            id_orden_trabajo = data.id_orden_trabajo;
 
         },
 
