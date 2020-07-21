@@ -34,8 +34,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.addEvents('successsave');
             if (config.data.mostrarFormaPago === false) {
                 this.mostrarFormaPago = config.data.mostrarFormaPago;
-            }                        
-            
+            }
+
             Ext.apply(this, config);
             this.obtenerVariableGlobal(config);
             this.generarAtributos();
@@ -1813,7 +1813,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.tipo_cambio.reset();
                         //this.Cmp.tipo_cambio.reset();
                     }
-                }, this);						  
+                }, this);
 
             }, this);
 
@@ -1905,14 +1905,16 @@ header("content-type: text/javascript; charset=UTF-8");
                                 var mesFactura = res[3].split("/");
                                 var fechaFac = mesFactura[2] + '-' + mesFactura[1] + '-' + mesFactura[0];
                                 var mesFac = new Date(fechaFac).getMonth();
-                                var monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Mayo",
+                                var monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
                                     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
                                 ];
                                 var literalFactura = monthNames[mesFac];
                                 var literalPeriodo = monthNames[mesPer];
-                                if (mesFactura[1] != mesPeriodo) {
-                                    this.mensaje_('ALERTA', 'Actualmente se encuentra en el periodo: ' + literalPeriodo + ', la factura corresponde al periodo de: ' + literalFactura, 'ERROR');
-                                }
+                                if(this.data.tmpPeriodo!=undefined) {
+                                  if (mesFactura[1] != mesPeriodo) {
+                                      this.mensaje_('ALERTA', 'El periodo seleccionado en la interfaz anterior es: ' + literalPeriodo + ' y la fecha de la factura que intenta registrar corresponde al periodo de: ' + literalFactura+' revise los datos de la factura.', 'ERROR');
+                                  }
+                              }
 
                             }
 
@@ -1933,7 +1935,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             }, this);
 
-            this.Cmp.fecha_vencimiento.setReadOnly(false);				  
+            this.Cmp.fecha_vencimiento.setReadOnly(false);
         },
 
         resetearMontos: function () {
@@ -2125,15 +2127,15 @@ header("content-type: text/javascript; charset=UTF-8");
         },
 		disableComponentes: function () {
             //03-01-2020 (may) modificacion porque mostraba a todos su codigo de control
-            //if(this.data.datosOriginales.data.isNewRelationEditable){            
-            
+            //if(this.data.datosOriginales.data.isNewRelationEditable){
+
             if(this.data.tipo_form != 'new' ){
                 //08-01-2020 (may) modificacion para que solo tenga bloqueado los campos de la factura en fondos en avance
                 //console.log('llegam',this.data );
                 //console.log('llegam22',this.data.objPadre.mycls );
                 //console.log('llegam233',this.mycls);
                 if (this.data.objPadre.mycls == 'RendicionDetReg' && this.mycls == 'FormRendicionCD'){
-                    
+
                     if (this.data.datosOriginales.data.revisado == 'si' || this.data.boton_rendicion=='readOnly') {
                         this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
                         this.Cmp.mod_rev.setValue(this.data.datosOriginales.data.revisado);
@@ -2159,7 +2161,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.importe_doc.setDisabled(true);
 
                         if (this.data.datosOriginales.data.id_moneda == 2) {
-                            this.mostrarComponente(this.Cmp.tipo_cambio);                            
+                            this.mostrarComponente(this.Cmp.tipo_cambio);
                         }
                         else {
                             this.ocultarComponente(this.Cmp.tipo_cambio);
@@ -2181,11 +2183,11 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.mod_rev.setValue(this.data.datosOriginales.data.revisado);
                     this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
                     if (this.data.datosOriginales.data.id_moneda == 2) {
-                        this.mostrarComponente(this.Cmp.tipo_cambio);                            
+                        this.mostrarComponente(this.Cmp.tipo_cambio);
                     }
                     else {
                         this.ocultarComponente(this.Cmp.tipo_cambio);
-                    }                                        
+                    }
                 }
             }
         },

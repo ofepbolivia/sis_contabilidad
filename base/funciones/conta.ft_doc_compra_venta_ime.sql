@@ -104,7 +104,7 @@ BEGIN
 IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
     if (pxp.f_existe_parametro(p_tabla,'desc_clase_comprobante')) then
         if(v_parametros.desc_clase_comprobante = 'Comprobante de Pago Contable') then
-			RAISE  EXCEPTION 'Solo puede registar factoras en Comprobante de Pago Presupuestario';
+			RAISE  EXCEPTION 'Solo puede registrar facturas en Comprobante de Pago Presupuestario';
         end if;
       end if;
 END IF;
@@ -168,10 +168,15 @@ END IF;
         IF v_tipo_informe = 'lcv' THEN
             IF (v_tipo_obligacion= 'sp' or v_tipo_obligacion= 'spd' or v_tipo_obligacion= 'spi' or v_tipo_obligacion= 'pago_especial_spi')THEN
               v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_id_depto_destino, v_rec.po_id_periodo);
-            ELSE IF (v_tipo_obligacion= 'sp'or v_tipo_obligacion= 'spd'  or v_tipo_obligacion= 'spi' or v_tipo_obligacion= 'pago_especial_spi')THEN
+              /*
+             *modificado por breydi vasquez  en fecha 21/07/2020
+             *descripcion: se comento el else if, porque el id_plan_pago llega como nullo, eso permitido que se
+             * registre facturas en periodos ya cerrados.
+             */
+            ELSE --IF (v_tipo_obligacion= 'sp'or v_tipo_obligacion= 'spd'  or v_tipo_obligacion= 'spi' or v_tipo_obligacion= 'pago_especial_spi')THEN
               -- valida que periodO de libro de compras y ventas este abierto
               v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
-                 END IF;
+                 --END IF;
             END IF;
         END IF;
 
