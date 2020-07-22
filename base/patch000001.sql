@@ -4962,7 +4962,7 @@ ALTER TABLE conta.tlog_periodo_compra
   ALTER COLUMN id_log_periodo_compra SET STATISTICS 0;
 
 COMMENT ON TABLE conta.tlog_periodo_compra
-IS 'Log de estado registrado de los cambios ejecutados (abierto, cerrado, cerrado parcial) en el control 
+IS 'Log de estado registrado de los cambios ejecutados (abierto, cerrado, cerrado parcial) en el control
 de periodos del sistema de contabilidad. ';
 
 COMMENT ON COLUMN conta.tlog_periodo_compra.estado
@@ -5154,3 +5154,9 @@ ALTER TABLE conta.tfactura_airbp_concepto
   ALTER COLUMN ne TYPE VARCHAR(20) COLLATE pg_catalog."default";
 
 /***********************************F-SCP-BVP-CONTA-0-04/05/2020****************************************/
+
+/***********************************I-SCP-BVP-CONTA-0-22/07/2020****************************************/
+
+ALTER TABLE conta.tlog_periodo_compra
+  ADD COLUMN observacion TEXT;
+/***********************************F-SCP-BVP-CONTA-0-22/07/2020****************************************/
