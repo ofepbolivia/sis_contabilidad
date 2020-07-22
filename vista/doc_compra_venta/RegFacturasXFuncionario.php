@@ -2,7 +2,7 @@
 /**
  * @package pXP
  * @file RegFacturasXFuncionario.php
- * @author  breydi vasquez 
+ * @author  breydi vasquez
  * @date 07-05-2020
  * @description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
  */
@@ -16,7 +16,7 @@ header("content-type: text/javascript; charset=UTF-8");
         tipoDoc: 'compra',
         regitrarDetalle: 'si',
         constructor: function (config) {
-            this.initButtons = [this.cmbDepto,'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', this.cmbGestion, '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', 
+            this.initButtons = [this.cmbDepto,'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', this.cmbGestion, '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
             this.cmbPeriodo, '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'];
             var me = this;
 
@@ -115,11 +115,11 @@ header("content-type: text/javascript; charset=UTF-8");
                     config: {
                         name: 'revisado',
                         fieldLabel: 'Revisado',
-                        allowBlank: true,                        
+                        allowBlank: true,
                         anchor: '80%',
                         gwidth: 80,
-                        maxLength: 3,                        
-                        renderer: function (value, p, record, rowIndex, colIndex) {                            
+                        maxLength: 3,
+                        renderer: function (value, p, record, rowIndex, colIndex) {
                             var checked = '',
                                 state = 'disabled',
                                 momento = 'no';
@@ -603,7 +603,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'Field',
                     filters: {pfiltro: 'ic.id_int_comprobante#ic.nro_cbte', type: 'string'},
                     id_grupo: 0,
-                    grid: true,                    
+                    grid: true,
                     form: false
                 },
                 {
@@ -941,7 +941,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         maxLength: 16,
                         minLength: 16
                     },
-                    type: 'TextField',                    
+                    type: 'TextField',
                     filters: {pfiltro: 'ob.nombre', type: 'string'},
                     id_grupo: 0,
                     bottom_filter: true,
@@ -1097,7 +1097,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             //llama al constructor de la clase padre
             Phx.vista.RegFacturasXFuncionario.superclass.constructor.call(this, config);
-            
+
             this.bloquearOrdenamientoGrid();
 
             this.cmbGestion.on('select', function (combo, record, index) {
@@ -1117,9 +1117,37 @@ header("content-type: text/javascript; charset=UTF-8");
             this.cmbDepto.on('select', function (combo, record, index) {
                 this.capturaFiltros();
             }, this);
-            
-            this.init();            
-            this.obtenerVariableGlobal();            
+
+            // botones
+            this.addButton('btnFacturasAdju', {
+                text: 'Adjuntar Archivo',
+                iconCls: 'bfolder',
+                disabled: false,
+                handler: this.onSeeFacture,
+                tooltip: '<b>Adjuntar Archivo</b><br><b>Nos permite adjuntar documentos de un funcionario.</b>'
+            });
+
+            this.init();
+            this.obtenerVariableGlobal();
+            console.log('datos de inicio',this);
+            // this.tbar.items.items[2].setValue(19);
+            // this.tbar.items.items[2].setRawValue('2020');
+
+        },
+
+        onSeeFacture: function () {
+
+            var rec = this.getSelectedData();
+            rec.datos_extras_id = rec.id_doc_compra_venta;
+
+            Phx.CP.loadWindows('../../../sis_contabilidad/vista/doc_compra_venta/ArchivoFactura.php',
+                'Archivo',
+                {
+                    width: '60%',
+                    height: '70%',
+                    modal:true,
+                }, rec, this.idContenedor, 'ArchivoFactura');
+
         },
 
         obtenerVariableGlobal: function () {
@@ -1132,7 +1160,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 success: function (resp) {
                     Phx.CP.loadingHide();
-                    var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));                    
+                    var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
                     if (reg.ROOT.error) {
                         Ext.Msg.alert('Error', 'Error a recuperar la variable global')
                     } else {
@@ -1275,7 +1303,7 @@ header("content-type: text/javascript; charset=UTF-8");
             width: 80
         }),
         tam_pag: 50,
-        title: 'Registro de Facturas',        
+        title: 'Registro de Facturas',
         ActDel: '../../sis_contabilidad/control/DocCompraVenta/eliminarDocCompraVenta',
         ActList: '../../sis_contabilidad/control/DocCompraVenta/listarFacturasXFuncionario',
         id_store: 'id_doc_compra_venta',
@@ -1350,11 +1378,11 @@ header("content-type: text/javascript; charset=UTF-8");
         formTitulo: '<span style="font-size:12pt;">Registro Facturas</span>',
         abrirFormulario: function (tipo, record) {
             var me = this;
-            console.log(' me.regitrarDetalle', me.regitrarDetalle)
+            
             me.objSolForm = Phx.CP.loadWindows('../../../sis_contabilidad/vista/doc_compra_venta/FormCompraVentaFuncionario.php',
                 me.formTitulo,
                 {
-                    modal: false,
+                    modal: true,
                     width: '80%',
                     height: (me.regitrarDetalle == 'si') ? '100%' : '60%',
                 }, {
@@ -1404,7 +1432,7 @@ header("content-type: text/javascript; charset=UTF-8");
         preparaMenu: function (tb) {
             Phx.vista.RegFacturasXFuncionario.superclass.preparaMenu.call(this, tb)
             var data = this.getSelectedData();
-            
+
             if (data['revisado'] == 'si' || data.tipo_reg == 'summary') {
                 this.getBoton('edit').disable();
                 this.getBoton('del').disable();
