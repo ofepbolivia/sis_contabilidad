@@ -8,7 +8,7 @@ $body$
 /*
 	Autor: Rensi Arteaga Copari (KPLIAN)
     Fecha: 25/08/2015
-    Descripción: Revisa si el periodo del libro de compra ventas  se encuentra abierto y si el usuario tiene permido para 
+    Descripción: Revisa si el periodo del libro de compra ventas  se encuentra abierto y si el usuario tiene permido para
     insertar o modificar documentos para la fecha y departametno indicados
 */
 
@@ -35,6 +35,7 @@ v_monto_haber		numeric;
 v_monto_debe		numeric;
 v_reg_pcv           record;
 
+v_depto			   varchar;
 
 BEGIN
 
@@ -51,6 +52,13 @@ BEGIN
    and pcv.id_depto = p_id_depto_conta
    and pcv.estado_reg = 'activo';
 
+--aumento de consulta para optener el nombre del departamento y agregarlo al raise
+   select dep.nombre into v_depto
+  from conta.tperiodo_compra_venta codep
+  inner join param.tdepto dep on dep.id_depto = codep.id_depto
+  where codep.id_depto = p_id_depto_conta
+  and codep.id_periodo = p_id_periodo;
+
    IF  v_reg_pcv is null THEN
      raise exception 'No se encontró un periodo para el departamento contable y fecha determinados';
    END IF;
@@ -58,7 +66,7 @@ BEGIN
     IF v_reg_pcv.estado = 'abierto' THEN
        RETURN TRUE;
     ELSIF   v_reg_pcv.estado = 'cerrado' THEN
-       raise exception 'El periodo % del libro de compras y ventas se encuentra Cerrado.', pxp.f_obtener_literal_periodo(v_reg_pcv.periodo,0) ;
+              raise exception 'El periodo % del libro de compras y ventas se encuentra Cerrado. para el departamento de %', pxp.f_obtener_literal_periodo(v_reg_pcv.periodo,0), v_depto ;
     ELSIF   v_reg_pcv.estado = 'cerrado_parcial' THEN
 
       --TODO verifica si el usuario tiene permisos,
@@ -85,14 +93,14 @@ BEGIN
 
 
 EXCEPTION
-				
+
 	WHEN OTHERS THEN
 		v_resp='';
 		v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
 		v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
 		v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 		raise exception '%',v_resp;
-				        
+
 END;
 $body$
 LANGUAGE 'plpgsql'
