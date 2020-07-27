@@ -81,7 +81,7 @@ BEGIN
             RETURN TRUE;
 
         ELSE
-           raise exception 'El periodo % se encuentra parcialmente cerrado y el usuario no es miembro del departametno de contabilidad.', pxp.f_obtener_literal_periodo(v_reg_pcv.periodo,0);
+                      raise exception 'El periodo % se encuentra parcialmente cerrado, para el departamento de % y el usuario no es miembro del departametno de contabilidad.',pxp.f_obtener_literal_periodo(v_reg_pcv.periodo,0), v_depto;
         END IF;
 
     ELSE
