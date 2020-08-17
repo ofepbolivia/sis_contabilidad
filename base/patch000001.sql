@@ -5160,3 +5160,11 @@ ALTER TABLE conta.tfactura_airbp_concepto
 ALTER TABLE conta.tlog_periodo_compra
   ADD COLUMN observacion TEXT;
 /***********************************F-SCP-BVP-CONTA-0-22/07/2020****************************************/
+
+/***********************************I-SCP-MAY-CONTA-0-17/08/2020****************************************/
+ALTER TABLE conta.tdoc_compra_venta_ext
+  ADD COLUMN importe_postergacion_covid NUMERIC(19,2) DEFAULT 0 ;
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.importe_postergacion_covid
+IS 'por tiempos de covid se aumenta el campo ya sea por los descuentos de la factura o realicen el pago cuando lo soliciten pago en la estacion';
+/***********************************F-SCP-MAY-CONTA-0-17/08/2020****************************************/

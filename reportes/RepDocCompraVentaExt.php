@@ -86,11 +86,11 @@ class RepDocCompraVentaExt
         //titulos
 
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, 2, 'PLANILLA MENSUAL');
-        $this->docexcel->getActiveSheet()->getStyle('A2:AI2')->applyFromArray($styleTitulos1);
-        $this->docexcel->getActiveSheet()->mergeCells('A2:AI2');
+        $this->docexcel->getActiveSheet()->getStyle('A2:AJ2')->applyFromArray($styleTitulos1);
+        $this->docexcel->getActiveSheet()->mergeCells('A2:AJ2');
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, 3, 'Del: ' . $this->objParam->getParametro('fecha_ini') . '   Al: ' . $this->objParam->getParametro('fecha_fin'));
-        $this->docexcel->getActiveSheet()->getStyle('A3:AI3')->applyFromArray($styleTitulos3);
-        $this->docexcel->getActiveSheet()->mergeCells('A3:AI3');
+        $this->docexcel->getActiveSheet()->getStyle('A3:AJ3')->applyFromArray($styleTitulos3);
+        $this->docexcel->getActiveSheet()->mergeCells('A3:AJ3');
 
         //*************************************FIN TITULO*****************************************
 
@@ -129,7 +129,8 @@ class RepDocCompraVentaExt
         $this->docexcel->getActiveSheet()->getColumnDimension('AF')->setWidth(18);
         $this->docexcel->getActiveSheet()->getColumnDimension('AG')->setWidth(18);
         $this->docexcel->getActiveSheet()->getColumnDimension('AH')->setWidth(18);
-        $this->docexcel->getActiveSheet()->getColumnDimension('AI')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('AI')->setWidth(18);
+        $this->docexcel->getActiveSheet()->getColumnDimension('AJ')->setWidth(25);
 
 
         $styleTitulos = array(
@@ -178,15 +179,15 @@ class RepDocCompraVentaExt
                     'style' => PHPExcel_Style_Border::BORDER_THIN
                 )
             ));
-        $this->docexcel->getActiveSheet()->getStyle('A4:AI4')->getAlignment()->setWrapText(true);
+        $this->docexcel->getActiveSheet()->getStyle('A4:AJ4')->getAlignment()->setWrapText(true);
 
-        $this->docexcel->getActiveSheet()->getStyle('A4:AI4')->applyFromArray($styleTitulos);
+        $this->docexcel->getActiveSheet()->getStyle('A4:AJ4')->applyFromArray($styleTitulos);
 
         $this->docexcel->getActiveSheet()->getStyle('A4')->applyFromArray($styleTitulosRed);
         $this->docexcel->getActiveSheet()->getStyle('H4:U4')->applyFromArray($styleTitulosRed);
         $this->docexcel->getActiveSheet()->getStyle('Z4:AH4')->applyFromArray($styleTitulosRed);
 
-        $this->docexcel->getActiveSheet()->getStyle("P:AI")->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat :: FORMAT_NUMBER_COMMA_SEPARATED1);
+        $this->docexcel->getActiveSheet()->getStyle("P:AJ")->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat :: FORMAT_NUMBER_COMMA_SEPARATED1);
 
         //*************************************Cabecera*****************************************
         $this->docexcel->getActiveSheet()->setCellValue('A4','NRO PROVEEDOR');
@@ -223,7 +224,8 @@ class RepDocCompraVentaExt
         $this->docexcel->getActiveSheet()->setCellValue('AF4','PERCEPCION IIBB CORRIENTES');
         $this->docexcel->getActiveSheet()->setCellValue('AG4','OTROS IMPUESTOS');
         $this->docexcel->getActiveSheet()->setCellValue('AH4','PERCEPCION IIBB NEUQUEN');
-        $this->docexcel->getActiveSheet()->setCellValue('AI4','TOTAL');
+        $this->docexcel->getActiveSheet()->setCellValue('AI4','POSTERGACION COVID');
+        $this->docexcel->getActiveSheet()->setCellValue('AJ4','TOTAL');
 
 
     }

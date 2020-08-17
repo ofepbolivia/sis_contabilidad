@@ -22,6 +22,8 @@ class MODDocCompraVenta extends MODbase
         $this->transaccion = 'CONTA_DCV_SEL';
         $this->tipo_procedimiento = 'SEL';//tipo de transaccion
 
+        //$this->setParametro('nombreVista','nombreVista','varchar');
+
         //captura parametros adicionales para el count
         $this->capturaCount('total_importe_ice', 'numeric');
         $this->capturaCount('total_importe_excento', 'numeric');
@@ -1858,6 +1860,9 @@ class MODDocCompraVenta extends MODbase
         $this->captura('percepcion_corrientes', 'numeric');
         $this->captura('otros_impuestos', 'numeric');
         $this->captura('percepcion_neuquen', 'numeric');
+
+        $this->captura('importe_postergacion_covid', 'numeric');
+
         $this->captura('total', 'numeric');
 
         //Ejecuta la instruccion
@@ -1952,6 +1957,8 @@ class MODDocCompraVenta extends MODbase
             $this->setParametro('percepcion_neuquen', 'percepcion_neuquen', 'numeric');
             $this->setParametro('id_doc_compra_venta', 'id_doc_compra_venta', 'integer');
             $this->setParametro('id_proveedor', 'id_proveedor', 'integer');
+
+            $this->setParametro('importe_postergacion_covid', 'importe_postergacion_covid', 'numeric');
 
 
             //Ejecuta la instruccion
@@ -2155,8 +2162,10 @@ class MODDocCompraVenta extends MODbase
             $this->setParametro('percepcion_corrientes', 'percepcion_corrientes', 'numeric');
             $this->setParametro('otros_impuestos', 'otros_impuestos', 'numeric');
             $this->setParametro('percepcion_neuquen', 'percepcion_neuquen', 'numeric');
-            $this->setParametro('id_proveedor', 'id_proveedor', 'numeric');
+            $this->setParametro('id_proveedor', 'id_proveedor', 'int4');
             //$this->setParametro('control', 'control', 'varchar');
+
+            $this->setParametro('importe_postergacion_covid', 'importe_postergacion_covid', 'numeric');
 
 
 
@@ -2427,6 +2436,8 @@ class MODDocCompraVenta extends MODbase
         $this->captura('id_proveedor', 'int4');
         $this->captura('condicion', 'varchar');
         $this->captura('desc_proveedor', 'varchar');
+
+        $this->captura('importe_postergacion_covid', 'numeric');
 
 
         //Ejecuta la instruccion

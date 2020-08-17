@@ -646,7 +646,8 @@ ELSE  --(MAY) para las estaciones Internacionales, tienen mas parametros
             percepcion_corrientes,
             otros_impuestos,
             percepcion_neuquen,
-            id_doc_compra_venta
+            id_doc_compra_venta,
+            importe_postergacion_covid
 
           ) values(
             v_parametros.costo_directo,
@@ -665,7 +666,8 @@ ELSE  --(MAY) para las estaciones Internacionales, tienen mas parametros
             v_parametros.percepcion_corrientes,
             v_parametros.otros_impuestos,
             v_parametros.percepcion_neuquen,
-            v_id_doc_compra_venta
+            v_id_doc_compra_venta,
+            v_parametros.importe_postergacion_covid
 
       )RETURNING id_doc_compra_venta_ext into v_id_doc_compra_venta_ext;
 
@@ -2245,7 +2247,8 @@ END IF;
                   percepcion_corrientes,
                   otros_impuestos,
                   percepcion_neuquen,
-                  id_doc_compra_venta
+                  id_doc_compra_venta,
+                  importe_postergacion_covid
 
                 ) values(
                   v_parametros.costo_directo,
@@ -2264,7 +2267,8 @@ END IF;
                   v_parametros.percepcion_corrientes,
                   v_parametros.otros_impuestos,
                   v_parametros.percepcion_neuquen,
-                  v_parametros.id_doc_compra_venta
+                  v_parametros.id_doc_compra_venta,
+                  v_parametros.importe_postergacion_covid
 
             )RETURNING id_doc_compra_venta_ext into v_id_doc_compra_venta_ext;
 
@@ -2285,7 +2289,8 @@ END IF;
               percepcion_tucuman  = COALESCE(v_parametros.percepcion_tucuman,0),
               percepcion_corrientes  = COALESCE(v_parametros.percepcion_corrientes,0),
               otros_impuestos  = COALESCE(v_parametros.otros_impuestos,0),
-              percepcion_neuquen  = COALESCE(v_parametros.percepcion_neuquen,0)
+              percepcion_neuquen  = COALESCE(v_parametros.percepcion_neuquen,0),
+        	  importe_postergacion_covid = COALESCE(v_parametros.importe_postergacion_covid,0)
 
       		where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
       END IF;

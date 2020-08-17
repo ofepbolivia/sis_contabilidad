@@ -1152,7 +1152,9 @@ BEGIN
                                                        WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE(dcv.percepcion_neuquen, 0))::numeric
                                         END))::numeric as percepcion_neuquen,
 
-
+										(COALESCE(CASE WHEN dcv.id_moneda = 2  THEN (COALESCE (vce.importe_postergacion_covid, 0) * COALESCE (dcv.tipo_cambio, 0))
+                                                     WHEN dcv.id_moneda != 2 THEN (COALESCE(vce.importe_postergacion_covid, 0))::numeric
+                                        END))::numeric as importe_postergacion_covid,
 
                                         (COALESCE(CASE WHEN dcv.id_moneda = 2 AND dcv.id_plantilla = 41 THEN -(COALESCE((COALESCE(dcv.importe_excento, 0) + COALESCE(dcv.no_gravado, 0) +
                                                                                                                 COALESCE(dcv.base_21, 0) + COALESCE(dcv.base_27, 0) +
@@ -1204,6 +1206,8 @@ BEGIN
                                 left join param.tproveedor prov on prov.id_proveedor = dcv.id_proveedor
                                 left join conta.tint_comprobante cbte on cbte.id_int_comprobante = dcv.id_int_comprobante
                                 left join param.tplantilla plan on plan.id_plantilla = dcv.id_plantilla
+
+                                left join conta.tdoc_compra_venta_ext vce on vce.id_doc_compra_venta = dcv.id_doc_compra_venta
 
                 where cbte.fecha BETWEEN  '''||v_parametros.fecha_ini||''' and '''||v_parametros.fecha_fin ||'''
                 ';
@@ -1300,7 +1304,9 @@ BEGIN
                           			prov.num_proveedor,
                          			dcv.id_proveedor,
                                     prov.condicion,
-                                    prov.desc_proveedor
+                                    prov.desc_proveedor,
+
+                                    dcvext.importe_postergacion_covid::numeric
 
                                 from conta.tdoc_compra_venta dcv
                                   inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg

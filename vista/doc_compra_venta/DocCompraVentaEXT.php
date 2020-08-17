@@ -1093,6 +1093,23 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: false
                 },
                 {
+                    config: {
+                        name: 'importe_postergacion_covid',
+                        fieldLabel: 'Postergación Covid',
+                        allowBlank: true,
+                        allowDecimals: true,
+                        decimalPrecision : 2,
+                        enableKeyEvents : true,
+                        allowNegative: true,
+                        anchor: '80%',
+                        gwidth: 100
+                    },
+                    type: 'NumberField',
+                    id_grupo: 1,
+                    form: false,
+                    grid: true
+                },
+                {
                     config:{
                         name: 'costo_directo',
                         fieldLabel: 'Costo Directo',
@@ -1815,7 +1832,8 @@ header("content-type: text/javascript; charset=UTF-8");
             'control',
             'id_proveedor',
             'condicion',
-            'desc_proveedor'
+            'desc_proveedor',
+            {name: 'importe_postergacion_covid', type: 'numeric'}
 
         ],
         sortInfo: {

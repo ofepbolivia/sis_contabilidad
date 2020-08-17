@@ -1907,6 +1907,22 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 {
                     config: {
+                        name: 'importe_postergacion_covid',
+                        fieldLabel: 'Postergación Covid',
+                        allowBlank: true,
+                        allowDecimals: true,
+                        //decimalPrecision : 2,
+                        enableKeyEvents : true,
+                        allowNegative: true,
+                        anchor: '80%',
+                        gwidth: 100
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
                         name: 'importe_descuento',
                         fieldLabel: 'Descuento',
                         allowBlank: true,
@@ -2171,6 +2187,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.codigo_control.reset();
                     this.Cmp.importe_descuento.reset();
 
+                    this.Cmp.importe_postergacion_covid.reset();
+
                 }
                 else {
                     //calcula porcentaje descuento
@@ -2304,6 +2322,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.importe_excento.on('change', this.calculaMontoPago, this);
             this.Cmp.importe_descuento.on('change', this.calculaMontoPago, this);
             this.Cmp.importe_descuento_ley.on('change', this.calculaMontoPago, this);
+
+            this.Cmp.importe_postergacion_covid.on('change', this.calculaMontoPago, this);
 
             //this.Cmp.importe_pendiente.on('change', this.calculaMontoPago, this);
             //this.Cmp.importe_anticipo.on('change', this.calculaMontoPago, this);
@@ -2467,8 +2487,15 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.resetearMontos();
                     return;
                 }
-                this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - this.Cmp.importe_descuento.getValue());
+                if (this.Cmp.importe_postergacion_covid.getValue() > this.Cmp.importe_doc.getValue()) {
+                    alert("El importe Postergacion Covid no puede ser mayor que Monto del documento");
+                    this.resetearMontos();
+                    return;
+                }
+                //this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - this.Cmp.importe_descuento.getValue());
                 this.Cmp.porc_descuento.setValue(this.Cmp.importe_descuento.getValue() / this.Cmp.importe_doc.getValue());
+
+                //this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - this.Cmp.importe_postergacion_covid.getValue());
 
 
             } else {
@@ -2602,8 +2629,14 @@ header("content-type: text/javascript; charset=UTF-8");
                               this.Cmp.imp_internos.getValue() + this.Cmp.percepcion_tucuman.getValue() + this.Cmp.percepcion_corrientes.getValue() + this.Cmp.percepcion_neuquen.getValue() +
                               this.Cmp.otros_impuestos.getValue() ;
 
+                var liquido_pago = this.Cmp.importe_excento.getValue() + this.Cmp.no_gravado.getValue() + total_iva_21 + total_iva_27 + total_iva_10_5  + total_iva_2_5 +
+                              this.Cmp.base_21.getValue() + this.Cmp.base_27.getValue() + this.Cmp.base_10_5.getValue() + this.Cmp.base_2_5.getValue() +
+                              this.Cmp.percepcion_caba.getValue() + this.Cmp.percepcion_bue.getValue() + this.Cmp.percepcion_iva.getValue() + this.Cmp.percepcion_salta.getValue() +
+                              this.Cmp.imp_internos.getValue() + this.Cmp.percepcion_tucuman.getValue() + this.Cmp.percepcion_corrientes.getValue() + this.Cmp.percepcion_neuquen.getValue() +
+                              this.Cmp.otros_impuestos.getValue() + (this.Cmp.importe_postergacion_covid.getValue()) ;
+
                 this.Cmp.importe_doc.setValue(liquido > 0 ? liquido : 0);
-                this.Cmp.importe_pago_liquido.setValue(liquido > 0 ? liquido : 0);
+                this.Cmp.importe_pago_liquido.setValue(liquido_pago > 0 ? liquido_pago : 0);
            // }
 
            /* if (this.aux != 'Póliza de Importación - DUI') {
@@ -2751,6 +2784,8 @@ header("content-type: text/javascript; charset=UTF-8");
 
                         this.Cmp.iva_21.setDisabled(true);
                         this.Cmp.nro_dui.setDisabled(true);
+
+                        this.Cmp.importe_postergacion_covid.setDisabled(true);
                     }
                     this.Cmp.mod_rev.setValue(this.data.datosOriginales.data.revisado);
                     this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
@@ -2789,6 +2824,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.percepcion_corrientes.setValue(0);
             this.Cmp.otros_impuestos.setValue(0);
             this.Cmp.percepcion_neuquen.setValue(0);
+
+            this.Cmp.importe_postergacion_covid.setValue(0);
         },
 
         mostrarImportes: function (datos) {
