@@ -1165,7 +1165,7 @@ BEGIN
                                                                                                                 COALESCE(dcv.percepcion_iva, 0) + COALESCE(dcv.percepcion_salta, 0) +
                                                                                                                 COALESCE(dcv.imp_internos, 0) + COALESCE(dcv.percepcion_tucuman, 0) +
                                                                                                                 COALESCE(dcv.percepcion_corrientes, 0) + COALESCE(dcv.otros_impuestos, 0) +
-                                                                                                                COALESCE(dcv.percepcion_neuquen, 0)
+                                                                                                                COALESCE(dcv.percepcion_neuquen, 0) + COALESCE(vce.importe_postergacion_covid, 0)
                                                                                                                 ),0) * COALESCE (dcv.tipo_cambio, 0))
                                                        WHEN dcv.id_moneda = 2 AND dcv.id_plantilla != 41 THEN (COALESCE((COALESCE(dcv.importe_excento, 0) + COALESCE(dcv.no_gravado, 0) +
                                                                                                                 COALESCE(dcv.base_21, 0) + COALESCE(dcv.base_27, 0) +
@@ -1176,7 +1176,7 @@ BEGIN
                                                                                                                 COALESCE(dcv.percepcion_iva, 0) + COALESCE(dcv.percepcion_salta, 0) +
                                                                                                                 COALESCE(dcv.imp_internos, 0) + COALESCE(dcv.percepcion_tucuman, 0) +
                                                                                                                 COALESCE(dcv.percepcion_corrientes, 0) + COALESCE(dcv.otros_impuestos, 0) +
-                                                                                                                COALESCE(dcv.percepcion_neuquen, 0)
+                                                                                                                COALESCE(dcv.percepcion_neuquen, 0) + COALESCE(vce.importe_postergacion_covid, 0)
                                                                                                                 ),0) * COALESCE (dcv.tipo_cambio, 0))
 
                                                        WHEN dcv.id_moneda != 2 AND dcv.id_plantilla = 41 THEN -(COALESCE((COALESCE(dcv.importe_excento, 0) + COALESCE(dcv.no_gravado, 0) +
@@ -1188,7 +1188,8 @@ BEGIN
                                                                                                                 COALESCE(dcv.percepcion_iva, 0) + COALESCE(dcv.percepcion_salta, 0) +
                                                                                                                 COALESCE(dcv.imp_internos, 0) + COALESCE(dcv.percepcion_tucuman, 0) +
                                                                                                                 COALESCE(dcv.percepcion_corrientes, 0) + COALESCE(dcv.otros_impuestos, 0) +
-                                                                                                                COALESCE(dcv.percepcion_neuquen, 0)),0))::numeric
+                                                                                                                COALESCE(dcv.percepcion_neuquen, 0) + COALESCE(vce.importe_postergacion_covid, 0)
+                                                                                                                ),0))::numeric
                                                        WHEN dcv.id_moneda != 2 AND dcv.id_plantilla != 41 THEN (COALESCE((COALESCE(dcv.importe_excento, 0) + COALESCE(dcv.no_gravado, 0) +
                                                                                                                 COALESCE(dcv.base_21, 0) + COALESCE(dcv.base_27, 0) +
                                                                                                                 COALESCE(dcv.base_10_5, 0) + COALESCE(dcv.base_2_5, 0) +
@@ -1198,7 +1199,8 @@ BEGIN
                                                                                                                 COALESCE(dcv.percepcion_iva, 0) + COALESCE(dcv.percepcion_salta, 0) +
                                                                                                                 COALESCE(dcv.imp_internos, 0) + COALESCE(dcv.percepcion_tucuman, 0) +
                                                                                                                 COALESCE(dcv.percepcion_corrientes, 0) + COALESCE(dcv.otros_impuestos, 0) +
-                                                                                                                COALESCE(dcv.percepcion_neuquen, 0)),0))::numeric
+                                                                                                                COALESCE(dcv.percepcion_neuquen, 0)+ COALESCE(vce.importe_postergacion_covid, 0)
+                                                                                                                ),0))::numeric
                                         END))::numeric as total
 
 
