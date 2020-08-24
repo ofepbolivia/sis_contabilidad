@@ -82,7 +82,31 @@ header("content-type: text/javascript; charset=UTF-8");
                 type:'ComboBox',
                 id_grupo:1,
                 form:true
+            },
+            {
+                config: {
+                    name: 'id_funcionario',
+                    hiddenName: 'id_funcionario',
+                    origen: 'FUNCIONARIOCAR',
+                    fieldLabel: 'Funcionario',
+                    allowBlank: true,
+                    width:220,
+                    gwidth: 200,
+                    valueField: 'id_funcionario',
+                    gdisplayField: 'desc_funcionario1',
+                    baseParams: {es_combo_solicitud: 'si'},
+                    renderer: function (value, p, record) {
+                        return String.format('{0}', record.data['desc_funcionario1']);
+                    }
+                },
+                type: 'ComboRec',//ComboRec
+                id_grupo: 1,
+                filters: {pfiltro: 'fun.desc_funcionario1', type: 'string'},
+                bottom_filter: true,
+                grid: true,
+                form: true
             }
+
         ],
         title: 'Generar Reporte',
         ActSave: '../../sis_contabilidad/control/ReporteExt/reporteDetalleGastos',
