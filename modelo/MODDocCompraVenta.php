@@ -260,6 +260,9 @@ class MODDocCompraVenta extends MODbase
         $this->setParametro('importe_anticipo', 'importe_anticipo', 'numeric');
         $this->setParametro('importe_retgar', 'importe_retgar', 'numeric');
         $this->setParametro('importe_neto', 'importe_neto', 'numeric');
+
+        $this->setParametro('id_proveedor', 'id_proveedor', 'integer');
+
         $this->setParametro('id_auxiliar', 'id_auxiliar', 'integer');
         $this->setParametro('id_agencia', 'id_agencia', 'integer');
         $this->setParametro('id_int_comprobante', 'id_int_comprobante', 'integer');
@@ -1820,7 +1823,7 @@ class MODDocCompraVenta extends MODbase
         $this->procedimiento = 'conta.ft_doc_compra_venta_sel';
         $this->transaccion = 'CONTA_REPDCVEXT_SEL';
         $this->tipo_procedimiento = 'SEL';//tipo de transaccion
-        //$this->setCount(false);
+        $this->setCount(false);
 
         $this->setParametro('fecha_ini', 'fecha_ini', 'date');
         $this->setParametro('fecha_fin', 'fecha_fin', 'date');
@@ -1892,7 +1895,8 @@ class MODDocCompraVenta extends MODbase
 
             //Definicion de variables para ejecucion del procedimiento
             $this->procedimiento = 'conta.ft_doc_compra_venta_ime';
-            $this->transaccion = 'CONTA_DCV_INS';
+            //$this->transaccion = 'CONTA_DCV_INS';
+            $this->transaccion = 'CONTA_DCVEXT_INS';
             $this->tipo_procedimiento = 'IME';
 
             //Define los parametros para la funcion
