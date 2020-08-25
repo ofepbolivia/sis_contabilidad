@@ -270,6 +270,27 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: true
                 },
 
+                {
+                    config: {
+                        name: 'nro_cbte',
+                        fieldLabel: 'Cbte',
+                        gwidth: 135,
+                        emptyText: 'Nro. de Cbte.',
+                        renderer: function (value, p, record) {
+                            return String.format('{0}', value);
+                        }
+                    },
+                    type: 'Field',
+                    filters: {
+                        pfiltro: 'nro_cbte',
+                        type: 'string'
+                    },
+                    id_grupo: 0,
+                    bottom_filtro: true,
+                    grid: true,
+                    form: false
+                },
+
 
                 {
                     config: {
