@@ -656,7 +656,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     fieldLabel: 'Moneda',
                     gdisplayField: 'moneda', //mapea al store del grid
                     gwidth: 100,
-                    anchor: '90%',
+                    width: 115,
 
                     store: new Ext.data.JsonStore({
                         url: '../../sis_parametros/control/Moneda/listarMoneda',
