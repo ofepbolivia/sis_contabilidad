@@ -25,6 +25,16 @@ class ACTIntComprobante extends ACTbase{
         $this->objParam->defecto('dir_ordenacion','asc');
         $this->objParam->addFiltro("(incbte.temporal = ''no'' or (incbte.temporal = ''si'' and vbregional = ''si''))");
 
+        //(franklin.espinoza) 20/08/2020
+        //var_dump($this->objParam->getParametro('estado_cbte'));exit;
+        if($this->objParam->getParametro('estado_cbte')=='borrador'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''borrador'')");
+        }else if($this->objParam->getParametro('estado_cbte')=='contabilidad'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''vbconta'')");
+        }else if($this->objParam->getParametro('estado_cbte')=='finanzas'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''vbfin'')");
+        }
+
         if($this->objParam->getParametro('tipo')=='diario'){
             $this->objParam->addFiltro("incbte.id_clase_comprobante in (''3'',''4'')");
         }

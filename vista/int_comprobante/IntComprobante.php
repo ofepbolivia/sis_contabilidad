@@ -1271,6 +1271,7 @@ header("content-type: text/javascript; charset=UTF-8");
         cmbDepto: new Ext.form.AwesomeCombo({
             name: 'id_depto',
             fieldLabel: 'Depto',
+            grupo: [0, 1, 2],
             typeAhead: false,
             forceSelection: true,
             allowBlank: false,
