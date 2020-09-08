@@ -173,6 +173,12 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.Cmp.id_int_comprobante_fks.modificado = true;
             }, this);
 
+            this.Cmp.id_depto.on('select', function (cmp, rec, indice) {
+                this.Cmp.id_moneda.reset();
+                this.Cmp.id_moneda.store.baseParams.id_depto = rec.data.id_depto;
+                this.Cmp.id_moneda.modificado = true;
+            }, this);
+
             //eventos de fechas de costo
             this.Cmp.fecha_costo_ini.on('change', function (o, newValue, oldValue) {
                 this.Cmp.fecha_costo_fin.setMinValue(newValue);
@@ -648,10 +654,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid: true,
                 form: true
             },*/
-            {
+            /*{
                 config: {
                     name: 'id_moneda',
-                    origen: 'MONEDA',
                     allowBlank: false,
                     fieldLabel: 'Moneda',
                     gdisplayField: 'moneda', //mapea al store del grid
@@ -659,24 +664,72 @@ header("content-type: text/javascript; charset=UTF-8");
                     width: 115,
 
                     store: new Ext.data.JsonStore({
-                        url: '../../sis_parametros/control/Moneda/listarMoneda',
+                        url: '../../sis_parametros/control/DeptoMoneda/listarDeptoMoneda',
                         id: 'id_moneda',
                         root: 'datos',
                         sortInfo: {
                             field: 'moneda',
                             direction: 'ASC'
                         },
-                        totalProperty: 'total',
-                        fields: ['id_moneda', 'moneda', 'codigo', 'tipo_moneda', 'codigo_internacional'],
+                        fields: ['id_moneda', 'moneda', 'codigo'],
                         // turn on remote sorting
                         remoteSort: true,
-                        baseParams:{par_filtro: 'moneda#codigo', filtrar: 'no'}
+                        baseParams:{par_filtro: 'moneda#codigo'}
                     }),
                     renderer: function (value, p, record) {
                         return String.format('{0}', record.data['desc_moneda']);
                     }
                 },
-                type: 'ComboRec',
+                type: 'ComboBox',
+                id_grupo: 2,
+                filters: {
+                    pfiltro: 'incbte.desc_moneda',
+                    type: 'string'
+                },
+                grid: true,
+                form: true
+            },*/
+
+            {
+                config: {
+                    name: 'id_moneda',
+                    fieldLabel: 'Moneda',
+                    allowBlank: false,
+                    emptyText: 'Elija una opción...',
+                    resizable: true,
+                    store: new Ext.data.JsonStore({
+                        url: '../../sis_parametros/control/DeptoMoneda/listarDeptoMoneda',
+                        id: 'id_moneda',
+                        root: 'datos',
+                        sortInfo: {
+                            field: 'moneda',
+                            direction: 'ASC'
+                        },
+                        fields: ['id_moneda', 'moneda', 'codigo', 'id_depto'],
+                        // turn on remote sorting
+                        remoteSort: true,
+                        baseParams:{par_filtro: 'moneda#codigo'}
+                    }),
+                    valueField: 'id_moneda',
+                    displayField: 'moneda',
+                    gdisplayField: 'desc_moneda',
+                    hiddenName: 'id_moneda',
+                    tpl: '<tpl for="."><div class="x-combo-list-item"><p><font color="green"><b>{moneda}</b></font></p><p>Codigo:<b>{codigo}</b></p></div></tpl>',
+                    forceSelection: true,
+                    typeAhead: false,
+                    triggerAction: 'all',
+                    lazyRender: true,
+                    mode: 'remote',
+                    pageSize: 15,
+                    queryDelay: 1000,
+                    width: 170,
+                    gwidth: 100,
+                    minChars: 2,
+                    renderer: function (value, p, record) {
+                        return String.format('{0}', record.data['desc_moneda']);
+                    }
+                },
+                type: 'ComboBox',
                 id_grupo: 2,
                 filters: {
                     pfiltro: 'incbte.desc_moneda',
@@ -685,6 +738,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid: true,
                 form: true
             },
+
             {
                 config: {
                     name: 'forma_cambio',
