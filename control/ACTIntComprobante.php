@@ -23,17 +23,20 @@ class ACTIntComprobante extends ACTbase{
     function listarIntComprobante(){
         $this->objParam->defecto('ordenacion','id_int_comprobante');
         $this->objParam->defecto('dir_ordenacion','asc');
-        $this->objParam->addFiltro("(incbte.temporal = ''no'' or (incbte.temporal = ''si'' and vbregional = ''si''))");
+        $this->objParam->addFiltro("(incbte.temporal = ''no'' or (incbte.temporal = ''si'' and incbte.vbregional = ''si''))");
 
-        //(franklin.espinoza) 20/08/2020
+        //begin(franklin.espinoza) 20/08/2020
         //var_dump($this->objParam->getParametro('estado_cbte'));exit;
-        if($this->objParam->getParametro('estado_cbte')=='borrador'){
+        if($this->objParam->getParametro('estado_cbte') == 'borrador'){
             $this->objParam->addFiltro("incbte.estado_reg in (''borrador'')");
-        }else if($this->objParam->getParametro('estado_cbte')=='contabilidad'){
-            $this->objParam->addFiltro("incbte.estado_reg in (''vbconta'')");
-        }else if($this->objParam->getParametro('estado_cbte')=='finanzas'){
-            $this->objParam->addFiltro("incbte.estado_reg in (''vbfin'')");
+        }else if($this->objParam->getParametro('estado_cbte') == 'verificado'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''verificado'')");
+        }else if($this->objParam->getParametro('estado_cbte') == 'aprobado'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''aprobado'')");
+        }else if($this->objParam->getParametro('estado_cbte') == 'borrador_elaborado'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''borrador'',''elaborado'')");
         }
+        //end(franklin.espinoza) 20/08/2020
 
         if($this->objParam->getParametro('tipo')=='diario'){
             $this->objParam->addFiltro("incbte.id_clase_comprobante in (''3'',''4'')");
@@ -58,16 +61,15 @@ class ACTIntComprobante extends ACTbase{
 
         if($this->objParam->getParametro('nombreVista') == 'IntComprobanteLd'  || $this->objParam->getParametro('nombreVista') == 'IntComprobanteLdEntrega'){
             $this->objParam->addFiltro("incbte.estado_reg = ''validado''");
-        }
-        else{
+        }else{
             //(may) vb de los comprobantes en estado vbfin y vbconta
             if($this->objParam->getParametro('nombreVista') == 'VbIntComprobante'){
-                $this->objParam->addFiltro(" (incbte.estado_reg in (''vbfin'',''vbconta''))" );
+                //$this->objParam->addFiltro(" (incbte.estado_reg in (''verificado'',''aprobado''))" );
 
             }else{
                 //(may)25-09-2019 para que enliste el nuevo estado vbfin y vbconta
                 // $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
-                $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'',''vbfin'',''vbconta'')");
+                $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'',''elaborado'')");
             }
 
         }
@@ -651,8 +653,7 @@ class ACTIntComprobante extends ACTbase{
 		}		
 		if($this->objParam->getParametro('nombreVista') == 'IntComprobanteLd'  || $this->objParam->getParametro('nombreVista') == 'IntComprobanteLdEntrega'){
 			$this->objParam->addFiltro("incbte.estado_reg = ''validado''");    
-		}
-		else{
+		}else{
 			$this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
 		}		
 		if($this->objParam->getParametro('nombreVista') == 'IntComprobanteLdEntrega'){
@@ -763,8 +764,7 @@ class ACTIntComprobante extends ACTbase{
 
         if($this->objParam->getParametro('nombreVista') == 'IntComprobanteLd'  || $this->objParam->getParametro('nombreVista') == 'IntComprobanteLdEntrega'){
             $this->objParam->addFiltro("incbte.estado_reg = ''validado''");
-        }
-        else{
+        }else{
             $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
         }
 

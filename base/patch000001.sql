@@ -5168,3 +5168,12 @@ ALTER TABLE conta.tdoc_compra_venta_ext
 COMMENT ON COLUMN conta.tdoc_compra_venta_ext.importe_postergacion_covid
 IS 'por tiempos de covid se aumenta el campo ya sea por los descuentos de la factura o realicen el pago cuando lo soliciten pago en la estacion';
 /***********************************F-SCP-MAY-CONTA-0-17/08/2020****************************************/
+
+
+/***********************************I-SCP-FEA-CONTA-0-07/09/2020****************************************/
+ALTER TABLE conta.tint_comprobante
+  ADD COLUMN id_service_request INTEGER;
+
+COMMENT ON COLUMN conta.tint_comprobante.id_service_request
+IS 'Identificador del bus de servicios SIGEP.';
+/***********************************F-SCP-FEA-CONTA-0-07/09/2020****************************************/

@@ -89,6 +89,7 @@ class MODIntComprobante extends MODbase{
         $this->captura('ope_3','varchar');
         $this->captura('tipo_cambio_3','numeric');
         $this->captura('id_moneda_act','int4');
+        $this->captura('id_service_request','integer');
 
 
 

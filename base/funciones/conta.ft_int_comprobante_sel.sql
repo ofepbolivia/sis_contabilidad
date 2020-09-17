@@ -167,13 +167,14 @@ BEGIN
                               incbte.ope_3,
                               incbte.tipo_cambio_3,
                               incbte.id_moneda_act
-
+                              ,tic.id_service_request
 
                           from conta.vint_comprobante incbte
+                          inner join conta.tint_comprobante tic on tic.id_int_comprobante  = incbte.id_int_comprobante
                           inner join wf.tproceso_wf pwf on pwf.id_proceso_wf = incbte.id_proceso_wf
                           inner join wf.testado_wf ew on ew.id_estado_wf = incbte.id_estado_wf
                           '||v_inner||'
-                          where (incbte.estado_reg in (''borrador'',''validado'',''vbfin'',''vbconta'')) and '||v_filtro;
+                          where (incbte.estado_reg in (''borrador'',''validado'',''elaborado'',''verificado'',''aprobado'')) and '||v_filtro;
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
