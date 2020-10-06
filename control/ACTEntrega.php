@@ -62,6 +62,13 @@ class ACTEntrega extends ACTbase
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 
+    //{develop:franklin.espinoza date:28/09/2020}
+    function crearEntregaSigep(){
+        $this->objFunc = $this->create('MODEntrega');
+        $this->res = $this->objFunc->crearEntregaSigep($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
     function cambiarEstado()
     {
         $this->objFunc = $this->create('MODEntrega');

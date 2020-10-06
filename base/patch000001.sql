@@ -5177,3 +5177,13 @@ ALTER TABLE conta.tint_comprobante
 COMMENT ON COLUMN conta.tint_comprobante.id_service_request
 IS 'Identificador del bus de servicios SIGEP.';
 /***********************************F-SCP-FEA-CONTA-0-07/09/2020****************************************/
+
+/***********************************I-SCP-FEA-CONTA-0-27/09/2020****************************************/
+
+ALTER TABLE conta.tentrega
+  ADD COLUMN id_service_request INTEGER;
+
+COMMENT ON COLUMN conta.tentrega.id_service_request
+IS 'Identificador del bus de servicios SIGEP.';
+
+/***********************************F-SCP-FEA-CONTA-0-27/09/2020****************************************/

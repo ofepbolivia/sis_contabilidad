@@ -42,6 +42,9 @@ class MODEntrega extends MODbase{
         $this->captura('monto','numeric');
         $this->captura('tipo_cambio_2','numeric');
         $this->captura('fecha','varchar');
+        $this->captura('id_clase_comprobante','integer');
+        $this->captura('id_service_request','integer');
+        $this->captura('localidad','varchar');
 
 
         //Ejecuta la instruccion
@@ -135,7 +138,27 @@ class MODEntrega extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-	
+
+    //{develop:franklin.espinoza date:28/09/2020}
+    function crearEntregaSigep(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_entrega_ime';
+        $this->transaccion='CONTA_CRENT_SIG_INS';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_int_comprobantes','id_int_comprobantes','varchar');
+        $this->setParametro('total_cbte','total_cbte','int4');
+        $this->setParametro('id_depto_conta','id_depto_conta','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta(); //echo $this->consulta;exit;
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
 	 function cambiarEstado(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='conta.ft_entrega_ime';

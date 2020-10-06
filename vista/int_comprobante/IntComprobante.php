@@ -76,7 +76,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.addButton('btnChequeoDocumentosWf',
                 {
                     text: 'Documentos',
-                    grupo: [0, 1, 2, 3],
+                    grupo: [0, 1, 2, 3, 4],
                     iconCls: 'bchecklist',
                     disabled: true,
                     handler: this.loadCheckDocumentosWf,
@@ -86,7 +86,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             this.addButton('btnObs', {
                 text: 'Obs Wf',
-                grupo: [0, 1, 2, 3],
+                grupo: [0, 1, 2, 3, 4],
                 iconCls: 'bchecklist',
                 disabled: true,
                 handler: this.onOpenObs,
@@ -1275,7 +1275,7 @@ header("content-type: text/javascript; charset=UTF-8");
         cmbDepto: new Ext.form.AwesomeCombo({
             name: 'id_depto',
             fieldLabel: 'Depto',
-            grupo: [0, 1, 2],
+            grupo: [0, 1, 2, 3, 4],
             typeAhead: false,
             forceSelection: true,
             allowBlank: false,
@@ -1317,7 +1317,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         cmbGestion: new Ext.form.ComboBox({
             fieldLabel: 'Gestion',
-            grupo: [0, 1, 2],
+            grupo: [0, 1, 2, 3, 4],
             allowBlank: false,
             blankText: '... ?',
             emptyText: 'Gestion...',

@@ -89,7 +89,12 @@ class MODIntComprobante extends MODbase{
         $this->captura('ope_3','varchar');
         $this->captura('tipo_cambio_3','numeric');
         $this->captura('id_moneda_act','int4');
+        //franklin.espinoza 27/09/2020
         $this->captura('id_service_request','integer');
+        $this->captura('id_depto_libro','integer');
+        $this->captura('id_cuenta_bancaria','integer');
+        $this->captura('desc_cuenta_bancaria','text');
+        $this->captura('desc_depto_lb','varchar');
 
 
 
@@ -310,6 +315,10 @@ class MODIntComprobante extends MODbase{
         $this->setParametro('tipo_cambio_3','tipo_cambio_3','numeric');
         $this->setParametro('id_config_cambiaria','id_config_cambiaria','integer');
         $this->setParametro('forma_cambio','forma_cambio','varchar');
+
+        //franklin.espinoza 27/09/2020
+        $this->setParametro('id_depto_libro','id_depto_libro','integer');
+        $this->setParametro('id_cuenta_bancaria','id_cuenta_bancaria','integer');
 
 
         //Ejecuta la instruccion

@@ -125,6 +125,9 @@ DECLARE
    v_ofi_tri						numeric;
    v_ofi_act						numeric;
 
+    --begin franklin.espinoza 27/09/2020
+    v_id_dl							integer;
+	  v_id_cb							integer;
 
 BEGIN
 
@@ -505,7 +508,7 @@ BEGIN
              v_reg_cbte
             from conta.tint_comprobante ic where ic.id_int_comprobante = v_parametros.id_int_comprobante;
 
-            IF v_reg_cbte.estado_reg != 'borrador' THEN
+            IF v_reg_cbte.estado_reg not in ('borrador','elaborado') THEN
                raise exception 'solo puede editar comprobantes en borrador';
             END IF;
 
@@ -671,42 +674,92 @@ BEGIN
 			------------------------------
 			--Sentencia de la modificacion
 			------------------------------
-			update conta.tint_comprobante set
-                id_clase_comprobante = v_parametros.id_clase_comprobante,
-                id_tipo_relacion_comprobante = v_parametros.id_tipo_relacion_comprobante,
-                momento = v_tipo_comprobante,
-                id_int_comprobante_fks =  (string_to_array(v_parametros.id_int_comprobante_fks,','))::INTEGER[],
-                id_subsistema = v_id_subsistema,
-                id_depto = v_parametros.id_depto,
-                id_moneda = v_parametros.id_moneda,
-                id_periodo = v_rec.po_id_periodo,
-                id_funcionario_firma1 = v_parametros.id_funcionario_firma1,
-                id_funcionario_firma2 = v_parametros.id_funcionario_firma2,
-                id_funcionario_firma3 = v_parametros.id_funcionario_firma3,
-                tipo_cambio = v_tc_1,
-                beneficiario = v_parametros.beneficiario,
+			--begin franklin.espinoza 27/09/2020
+        IF  pxp.f_existe_parametro(p_tabla , 'id_depto_libro')  THEN
+          v_id_dl = v_parametros.id_depto_libro;
+        END IF;
 
-                glosa1 = v_parametros.glosa1,
-                fecha = v_parametros.fecha,
-                glosa2 = v_parametros.glosa2,
+        IF  pxp.f_existe_parametro(p_tabla , 'id_cuenta_bancaria')  THEN
+          v_id_cb = v_parametros.id_cuenta_bancaria;
+        END IF;
+      --end franklin.espinoza 27/09/2020
+      if v_id_dl is null and v_id_cb is null then
+        update conta.tint_comprobante set
+                  id_clase_comprobante = v_parametros.id_clase_comprobante,
+                  id_tipo_relacion_comprobante = v_parametros.id_tipo_relacion_comprobante,
+                  momento = v_tipo_comprobante,
+                  id_int_comprobante_fks =  (string_to_array(v_parametros.id_int_comprobante_fks,','))::INTEGER[],
+                  id_subsistema = v_id_subsistema,
+                  id_depto = v_parametros.id_depto,
+                  id_moneda = v_parametros.id_moneda,
+                  id_periodo = v_rec.po_id_periodo,
+                  id_funcionario_firma1 = v_parametros.id_funcionario_firma1,
+                  id_funcionario_firma2 = v_parametros.id_funcionario_firma2,
+                  id_funcionario_firma3 = v_parametros.id_funcionario_firma3,
+                  tipo_cambio = v_tc_1,
+                  beneficiario = v_parametros.beneficiario,
 
-                -- momento = v_parametros.momento,
-                id_usuario_mod = p_id_usuario,
-                fecha_mod = now(),
-                id_usuario_ai = v_parametros._id_usuario_ai,
-                usuario_ai = v_parametros._nombre_usuario_ai,
-                cbte_cierre = v_parametros.cbte_cierre,
-                cbte_apertura = v_parametros.cbte_apertura,
-                momento_comprometido = v_momento_comprometido,
-                momento_ejecutado = v_momento_ejecutado,
-                momento_pagado =  v_momento_pagado,
-                fecha_costo_ini = v_parametros.fecha_costo_ini,
-                fecha_costo_fin = v_parametros.fecha_costo_fin,
-                tipo_cambio_2 = v_tc_2,
-                tipo_cambio_3 = v_tc_3,
-                forma_cambio = v_parametros.forma_cambio
-			where id_int_comprobante = v_parametros.id_int_comprobante;
+                  glosa1 = v_parametros.glosa1,
+                  fecha = v_parametros.fecha,
+                  glosa2 = v_parametros.glosa2,
 
+                  -- momento = v_parametros.momento,
+                  id_usuario_mod = p_id_usuario,
+                  fecha_mod = now(),
+                  id_usuario_ai = v_parametros._id_usuario_ai,
+                  usuario_ai = v_parametros._nombre_usuario_ai,
+                  cbte_cierre = v_parametros.cbte_cierre,
+                  cbte_apertura = v_parametros.cbte_apertura,
+                  momento_comprometido = v_momento_comprometido,
+                  momento_ejecutado = v_momento_ejecutado,
+                  momento_pagado =  v_momento_pagado,
+                  fecha_costo_ini = v_parametros.fecha_costo_ini,
+                  fecha_costo_fin = v_parametros.fecha_costo_fin,
+                  tipo_cambio_2 = v_tc_2,
+                  tipo_cambio_3 = v_tc_3,
+                  forma_cambio = v_parametros.forma_cambio
+        where id_int_comprobante = v_parametros.id_int_comprobante;
+
+      else
+            	update conta.tint_comprobante set
+                  id_clase_comprobante = v_parametros.id_clase_comprobante,
+                  id_tipo_relacion_comprobante = v_parametros.id_tipo_relacion_comprobante,
+                  momento = v_tipo_comprobante,
+                  id_int_comprobante_fks =  (string_to_array(v_parametros.id_int_comprobante_fks,','))::INTEGER[],
+                  id_subsistema = v_id_subsistema,
+                  id_depto = v_parametros.id_depto,
+                  id_moneda = v_parametros.id_moneda,
+                  id_periodo = v_rec.po_id_periodo,
+                  id_funcionario_firma1 = v_parametros.id_funcionario_firma1,
+                  id_funcionario_firma2 = v_parametros.id_funcionario_firma2,
+                  id_funcionario_firma3 = v_parametros.id_funcionario_firma3,
+                  tipo_cambio = v_tc_1,
+                  beneficiario = v_parametros.beneficiario,
+                  glosa1 = v_parametros.glosa1,
+                  fecha = v_parametros.fecha,
+                  glosa2 = v_parametros.glosa2,
+
+                  -- momento = v_parametros.momento,
+                  id_usuario_mod = p_id_usuario,
+                  fecha_mod = now(),
+                  id_usuario_ai = v_parametros._id_usuario_ai,
+                  usuario_ai = v_parametros._nombre_usuario_ai,
+                  cbte_cierre = v_parametros.cbte_cierre,
+                  cbte_apertura = v_parametros.cbte_apertura,
+                  momento_comprometido = v_momento_comprometido,
+                  momento_ejecutado = v_momento_ejecutado,
+                  momento_pagado =  v_momento_pagado,
+                  fecha_costo_ini = v_parametros.fecha_costo_ini,
+                  fecha_costo_fin = v_parametros.fecha_costo_fin,
+                  tipo_cambio_2 = v_tc_2,
+                  tipo_cambio_3 = v_tc_3,
+                  forma_cambio = v_parametros.forma_cambio,
+                  --franklin.espinoza 27/09/2020
+                  id_cuenta_bancaria = v_parametros.id_cuenta_bancaria,
+                  id_depto_libro = v_parametros.id_depto_libro
+
+              where id_int_comprobante = v_parametros.id_int_comprobante;
+      end if;
 
 
 
