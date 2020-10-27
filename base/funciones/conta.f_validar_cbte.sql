@@ -81,6 +81,9 @@ DECLARE
 
     v_fecha_fin_periodo				date;
 
+    --21/10/2020 franklin.espinoza
+	v_prioridad_depto				integer;
+
 BEGIN
 
 
@@ -313,15 +316,15 @@ BEGIN
 
 
     if  v_variacion != 0  then
-         v_errores = 'El comprobante no iguala presupuestariamente: Diferencia '||v_variacion::varchar;
+         v_errores = 'El comprobante (ID: '||p_id_int_comprobante||') no iguala presupuestariamente: Diferencia '||v_variacion::varchar;
     end if;
 
     if  v_variacion_mb != 0  then
-         v_errores = 'El comprobante no iguala presupuestariamente en moneda base: Diferencia '||v_variacion_mb::varchar;
+         v_errores = 'El comprobante (ID: '||p_id_int_comprobante||') no iguala presupuestariamente en moneda base: Diferencia '||v_variacion_mb::varchar;
     end if;
 
     if  v_variacion_mt != 0  then
-        v_errores = 'El comprobante no iguala presupuestariamente en moneda de triangulación: Diferencia  '||v_variacion_mt::varchar;
+        v_errores = 'El comprobante (ID: '||p_id_int_comprobante||') no iguala presupuestariamente en moneda de triangulación: Diferencia  '||v_variacion_mt::varchar;
     end if;
 
 
@@ -433,7 +436,14 @@ BEGIN
                        FROM param.tperiodo per
                        WHERE per.id_periodo = v_id_periodo;
 
-                 	 IF (p_id_usuario not in  (22,38) )THEN
+                        --franklin.espinoza 20/10/2020 consulta para internacionales
+                     select de.prioridad
+                     into v_prioridad_depto
+                     from conta.tint_comprobante tic
+                     inner join param.tdepto de on de.id_depto = tic.id_depto
+                     where tic.id_int_comprobante = p_id_int_comprobante;
+
+                 	 IF (p_id_usuario not in  (22,38) and v_prioridad_depto != 3)THEN
                      --raise exception 'llleagh % > %',v_rec_cbte.fecha, v_fecha_fin_periodo;
                     	 IF (v_rec_cbte.fecha > v_fecha_fin_periodo and v_rec_cbte.fecha != v_fecha_fin_periodo) THEN
 
@@ -463,7 +473,7 @@ BEGIN
                                                 and c.fecha > v_rec_cbte.fecha
                                                 and (c.nro_cbte is not null or v_rec_cbte.nro_cbte  != '') ) THEN
 
-                                        raise exception 'Existen2 comprobantes validados con fecha superior al % para este periodo, cambie la fecha. ', to_char(v_rec_cbte.fecha, 'DD/MM/YYYY');
+                                        raise exception 'Existen comprobantes validados con fecha superior al % para este periodo, cambie la fecha. ', to_char(v_rec_cbte.fecha, 'DD/MM/YYYY');
                                END IF;
                           END IF;
 

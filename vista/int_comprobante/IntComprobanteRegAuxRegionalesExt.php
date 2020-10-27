@@ -141,16 +141,24 @@ header("content-type: text/javascript; charset=UTF-8");
 
 
 
-            this.addButtonIndex(6,'sig_estado', {
+            /*this.addButtonIndex(6,'sig_estado', {
                 text: 'Aprobar',
                 grupo: [0, 1, 2, 3],
                 iconCls: 'badelante',
                 disabled: true,
                 handler: this.sigEstado,
                 tooltip: '<b>Pasar al Siguiente Estado</b>'
+            });*/
+
+            this.addButtonIndex(6,'chkEntregasSigep',{	text:'Entregas SIGEP',
+                iconCls: 'blist',
+                grupo: [0, 1, 2, 3],
+                disabled: true,
+                handler: this.crearEntregaSigep,
+                tooltip: '<b>Crear Entregas Sigep</b><p>Las entregas permiten asociar con cbte en otros subsistema (por ejemplo SIGMA o SIGEP)</p>'
             });
 
-            this.addButtonIndex(6,'ant_estado',{
+            /*this.addButtonIndex(6,'ant_estado',{
                 grupo: [0,1,2,3,4,5],
                 argument: {estado: 'anterior'},
                 text: 'Anterior',
@@ -158,7 +166,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 hidden: false,
                 handler: this.antEstado,
                 tooltip: '<b>Volver al Anterior Estado</b>'
-            });
+            });*/
 
             this.addButtonIndex(6,'consulta', {
                 text: 'Consulta CBT',
@@ -169,7 +177,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: '<b>Consulta de Comprobantes</b>'
             });
 
-            this.addButtonIndex(7,'sigep_ext_verificado_pago',
+            /*this.addButtonIndex(7,'sigep_ext_verificado_pago',
                 {
                     iconCls: 'bball_green',
                     xtype: 'splitbutton',
@@ -191,7 +199,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         },
                         handler: this.onEditC31,
                         scope: this
-                    }/*, {
+                    }/!*, {
                         text: 'Eliminar C31',
                         iconCls: 'bdel-sigep',
                         argument: {
@@ -200,9 +208,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         },
                         handler: this.onEliminarC31,
                         scope: this
-                    }*/]
+                    }*!/]
                 }
-            );
+            );*/
 
             this.addButton('btnWizard', {
                 text: 'Plantilla',
@@ -239,13 +247,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: '<b>Crear Entregas </b><p>Las entregas permiten asociar con cbte en otros subsistema (por ejemplo SIGMA o SIGEP)</p>'
             });
 
-            this.addButton('chkEntregasSigep',{	text:'Entregas SIGEP',
-                iconCls: 'blist',
-                grupo: [0, 1, 2, 3],
-                disabled: true,
-                handler: this.crearEntregaSigep,
-                tooltip: '<b>Crear Entregas Sigep</b><p>Las entregas permiten asociar con cbte en otros subsistema (por ejemplo SIGMA o SIGEP)</p>'
-            });
+
 
             this.addBotonesAjusteIgualar();
 
@@ -271,12 +273,14 @@ header("content-type: text/javascript; charset=UTF-8");
                 params:{
                     id_service_request : record.id_service_request,
                     estado_reg : record.estado_reg,
-                    json_data : record.glosa1
+                    json_data : record.glosa1,
+                    clase_comprobante : record.id_clase_comprobante
                 },
                 success: function (resp) {
                     var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
                     var datos = reg.ROOT.datos;
                     Phx.CP.loadingHide();
+                    console.log('datos fuera',datos);
                     if(datos.process){
                         console.log('datos',datos);
                         Ext.Msg.show({
@@ -348,7 +352,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         consultaCBTE: function(){
 
-            if( this.cmbDepto.getValue() != '' && this.cmbGestion.getValue() != '' ) { console.log('combos',this.cmbDepto.getValue(), this.cmbGestion.getValue());
+            if( this.cmbDepto.getValue() != '' && this.cmbGestion.getValue() != '' ) { //console.log('combos',this.cmbDepto.getValue(), this.cmbGestion.getValue());
                 var rec = {maestro: this};
                 rec.id_depto = this.cmbDepto.getValue();
                 rec.id_gestion = this.cmbGestion.getValue();
@@ -490,13 +494,13 @@ header("content-type: text/javascript; charset=UTF-8");
             var record = this.getSelectedData();
             this.estado.setText(record.estado_reg.toUpperCase());
             if(record.estado_reg != 'borrador'){
-                this.getBoton('ant_estado').setVisible(true);
+                //this.getBoton('ant_estado').setVisible(true);
             }
         },
 
         deselectRecord : function(grid, rowIndex, rec) {
             this.estado.setText('');
-            this.getBoton('ant_estado').setVisible(false);
+            //this.getBoton('ant_estado').setVisible(false);
         },
 
         /*=================================BEGIN VERIFICAR=======================================*/
@@ -656,7 +660,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }else {
                 resp.argument.wizard.panel.destroy();
                 this.reload();
-                if(rec.data.estado_reg == 'aprobado'){
+                if(rec.data.estado_reg == 'aprobado' || rec.data.estado_reg == 'borrador'){
                     if (resp.argument.id_proceso_wf) {
                         Phx.CP.loadingShow();
                         Ext.Ajax.request({
@@ -1015,7 +1019,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }
         },
 
-        onSigepReguC:function(wizard,resp){
+        onSigepReguC:function(wizard,resp, momento){
 
             var rec = this.sm.getSelected().data;
             console.log('wizardSIGP:',wizard,'respSIGP:',resp, rec);
@@ -1027,13 +1031,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 url: '../../sis_sigep/control/SigepAdqDet/cargarSigepReguCip',
                 params: {
                     id_proceso_wf: rec.id_proceso_wf,
-                    momento: resp.momento,
+                    momento: momento,
                     sigep_adq: resp.sigep_adq,
                     localidad: rec.localidad,
                 },
                 success: this.successConsu,
                 failure: this.failureC, //chequea si esta en verificacion presupeusto para enviar correo de transferencia
-                argument: {wizard: wizard},
+                argument: {wizard: wizard, resp : resp, momento: momento},
                 timeout: this.timeout,
                 scope: this
             });
@@ -1201,11 +1205,9 @@ header("content-type: text/javascript; charset=UTF-8");
             this.swButton = 'EDIT';
             var rec = this.sm.getSelected().data;
 
-            this.cmpFecha.disable();
 
             Phx.vista.IntComprobanteRegAuxRegionalesExt.superclass.onButtonEdit.call(this);
-
-
+            this.cmpFecha.enable();
             this.Cmp.id_moneda.setReadOnly(true);
             //para que se puede modificar bolivia de sus comprobantes de ñas estaciones internacionales
             /*if (rec.localidad == 'internacional') {
@@ -1302,7 +1304,7 @@ header("content-type: text/javascript; charset=UTF-8");
             var rec = this.sm.getSelected();
             if (rec.data.tipo_reg == 'summary') {
                 this.getBoton('btnSwEditble').disable();
-                this.getBoton('sig_estado').disable();
+                //this.getBoton('sig_estado').disable();
                 this.getBoton('btnImprimir').disable();
                 this.getBoton('btnRelDev').disable();
                 this.getBoton('btnIgualarCbte').disable();
@@ -1317,7 +1319,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 } else {
                     this.getBoton('btnSwEditble').setDisabled(true);
                 }
-                this.getBoton('sig_estado').enable();
+                //this.getBoton('sig_estado').enable();
                 this.getBoton('btnImprimir').enable();
                 this.getBoton('btnRelDev').enable();
                 this.getBoton('btnIgualarCbte').enable();
@@ -1337,18 +1339,18 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('btnDocCmpVnt').disable();
             }
 
-            if(rec.data.estado_reg != 'borrador'){
+            /*if(rec.data.estado_reg != 'borrador'){
                 this.getBoton('ant_estado').enable();
-            }
+            }*/
 
-            this.getBoton('sigep_ext_verificado_pago').enable();
+            //this.getBoton('sigep_ext_verificado_pago').enable();
 
             return tb;
         },
         liberaMenu: function () {
             var tb = Phx.vista.IntComprobanteRegAuxRegionalesExt.superclass.liberaMenu.call(this);
 
-            this.getBoton('sig_estado').disable();
+            //this.getBoton('sig_estado').disable();
             this.getBoton('btnImprimir').disable();
             this.getBoton('btnRelDev').disable();
             this.getBoton('btnIgualarCbte').disable();
@@ -1362,7 +1364,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('chkEntregasSigep').disable();
             this.getBoton('btnVolcar').disable();
 
-            this.getBoton('sigep_ext_verificado_pago').disable();
+            //this.getBoton('sigep_ext_verificado_pago').disable();
         },
         /*
         capturaFiltros : function(combo, record, index) {

@@ -289,6 +289,10 @@ header("content-type: text/javascript; charset=UTF-8");
                 name: 'id_int_comprobante'
             },
             type: 'Field',
+            filters: {
+                pfiltro: 'incbte.id_int_comprobante',
+                type: 'numeric'
+            },
             bottom_filtro: true,
             form: false,
             grid: true
@@ -1262,7 +1266,28 @@ header("content-type: text/javascript; charset=UTF-8");
                 id_grupo: 0,
                 grid: true,
                 form: false
-            }],
+            },
+            {
+                config: {
+                    name: 'id_service_request',
+                    fieldLabel: 'Id. Service Request',
+                    allowBlank: true,
+                    readOnly: true,
+                    anchor: '90%',
+                    gwidth: 70,
+                    maxLength: 20,
+                    decimalPrecision: 6
+                },
+                type: 'NumberField',
+                filters: {
+                    pfiltro: 'incbte.id_service_request',
+                    type: 'numeric'
+                },
+                id_grupo: 0,
+                grid: true,
+                form: false
+            }
+            ],
 
         Grupos: [{
             layout: 'column',
@@ -1437,7 +1462,7 @@ header("content-type: text/javascript; charset=UTF-8");
             tpl: new Ext.Template('<br>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Departamento:&nbsp;&nbsp;</b> {desc_depto} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Clase cbte:&nbsp;&nbsp;</b> {desc_clase_comprobante}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Origen:&nbsp;&nbsp;</b> {desc_subsistema}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Beneficiario:&nbsp;&nbsp;</b> {beneficiario}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Glosa:&nbsp;&nbsp;</b> {glosa1} {glosa2}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Frima 1:&nbsp;&nbsp;</b> {desc_firma1} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Firma 2:&nbsp;&nbsp;</b> {desc_firma2} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Firma 3:&nbsp;&nbsp;</b> {desc_firma3} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:&nbsp;&nbsp;</b> {usr_reg}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Estado Registro:&nbsp;&nbsp;</b> {estado_reg}</p><br>')
         }),
 
-        arrayDefaultColumHidden: ['id_funcionario_firma1', 'id_funcionario_firma2', 'id_funcionario_firma3', 'id_subsistema', 'id_tipo_relacion_comprobante', 'fecha_mod', 'usr_reg', 'usr_mod', 'id_depto', 'estado', 'glosa1', 'momento', 'glosa2', 'desc_subsistema', 'desc_clase_comprobante', 'estado_reg', 'fecha_reg'],
+        arrayDefaultColumHidden: ['id_funcionario_firma1', 'id_funcionario_firma2', 'id_funcionario_firma3', 'id_subsistema', 'id_tipo_relacion_comprobante', 'fecha_mod', 'usr_reg', 'usr_mod', 'id_depto', 'estado', 'glosa1', 'momento', 'glosa2', 'desc_subsistema', 'desc_clase_comprobante', 'estado_reg', 'fecha_reg', 'id_service_request'],
 
         sortInfo: {
             field: 'id_int_comprobante',

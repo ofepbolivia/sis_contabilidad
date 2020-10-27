@@ -93,6 +93,11 @@ DECLARE
      v_cbt_clase_gasto_d		record;
      v_clase_gasto				integer=0;
 
+     v_comprobante_mixto		varchar='';
+     v_id_int_comprobante		integer;
+     v_filtro_mixto				varchar;
+     v_contador_validado		integer=0;
+	 v_total_validado			integer;
 BEGIN
 
     v_nombre_funcion = 'conta.ft_entrega_ime';
@@ -550,20 +555,27 @@ BEGIN
              v_titulo  = 'Entrega';
 
           --10-03-2020 (may) modificacion para entregas , cuando este este finalizado los de prioridad 3 (internacionales), se validen automaticamente cada una.
-          select de.prioridad
+          --comentado y reemplazado franklin.espinoza 20/10/2020
+          /*select de.prioridad
           into v_prioridad_cbte
           from conta.tentrega_det ed
           inner join conta.tentrega ent on ent.id_entrega = ed.id_entrega
           inner join conta.tint_comprobante cbte on cbte.id_int_comprobante = ed.id_int_comprobante
           JOIN param.tdepto de ON de.id_depto = ent.id_depto_conta
-          where ed.id_entrega =  v_entrega.id_entrega;
+          where ed.id_entrega =  v_entrega.id_entrega;*/
 
+          --franklin.espinoza 20/10/2020 consulta anterior devuelve un conjunto de registros lo correcto es un solo valor
+		  	select de.prioridad
+			into v_prioridad_cbte
+            from conta.tentrega ent
+            inner join param.tdepto de on de.id_depto = ent.id_depto_conta
+            where ent.id_entrega =  v_entrega.id_entrega;
 
             IF v_codigo_estado_siguiente = 'finalizado' and v_entrega.c31 = '' THEN
 
             	raise exception 'Debe ingresar numero de c31 antes de finalizar la entrega';
 
-            ELSIF (v_codigo_estado_siguiente = 'finalizado' and v_prioridad_cbte = 3) THEN --10-03-2020 (may) prioridad 3 para las internacionales, se valida cbte cuando la entrega finaliza
+            ELSIF (v_codigo_estado_siguiente in ('finalizado') and v_prioridad_cbte = 3) THEN --10-03-2020 (may) prioridad 3 para las internacionales, se valida cbte cuando la entrega finaliza
 
                 FOR v_registros_int_cbte in ( select ed.id_entrega,
                                                      cbte.id_int_comprobante,
@@ -575,6 +587,7 @@ BEGIN
                                               where ed.id_entrega =  v_entrega.id_entrega
                                              ) LOOP
                  --raise exception 'llega %',v_registros_int_cbte.id_int_comprobante;
+
                                  v_resp = conta.f_validar_cbte(p_id_usuario,
                                                                v_parametros._id_usuario_ai,
                                                                v_parametros._nombre_usuario_ai,
@@ -836,15 +849,36 @@ BEGIN
            	if v_parametros.total_cbte < 1 then
                 raise exception 'No tiene comprobantes para entregar';
             end if;
-
-
-          	for v_cbt_clase_gasto_m in  execute('select distinct tic.id_int_comprobante, cg.codigo::integer clase_gasto
+--raise 'valores: %', v_parametros.id_int_comprobantes;
+			for v_cbt_clase_gasto_m in  execute('select distinct tic.id_int_comprobante, cg.codigo::integer clase_gasto
             								   from conta.tint_comprobante tic
                                                inner join conta.tint_transaccion transa on transa.id_int_comprobante = tic.id_int_comprobante
                                                inner join pre.tpartida par on par.id_partida = transa.id_partida
                                                inner join pre.tclase_gasto_partida tcgp ON tcgp.id_partida = par.id_partida
                                                inner join pre.tclase_gasto cg ON cg.id_clase_gasto= tcgp.id_clase_gasto
                                                where tic.id_int_comprobante in ('||v_parametros.id_int_comprobantes||')
+                                               order by tic.id_int_comprobante asc') loop
+
+				if v_id_int_comprobante is not null then
+                  if v_cbt_clase_gasto_m.id_int_comprobante = v_id_int_comprobante then
+                      v_comprobante_mixto = v_comprobante_mixto||v_cbt_clase_gasto_m.id_int_comprobante||',';
+                  end if;
+                end if;
+
+                v_id_int_comprobante = v_cbt_clase_gasto_m.id_int_comprobante;
+            end loop;
+            v_comprobante_mixto = trim(v_comprobante_mixto,',');
+            v_filtro_mixto = '';
+            if v_comprobante_mixto != '' then
+            	v_filtro_mixto = ' and tic.id_int_comprobante not in ('||v_comprobante_mixto||') ';
+            end if;
+          	for v_cbt_clase_gasto_m in  execute('select distinct tic.id_int_comprobante, cg.codigo::integer clase_gasto, tic.glosa1
+            								   from conta.tint_comprobante tic
+                                               inner join conta.tint_transaccion transa on transa.id_int_comprobante = tic.id_int_comprobante
+                                               inner join pre.tpartida par on par.id_partida = transa.id_partida
+                                               inner join pre.tclase_gasto_partida tcgp ON tcgp.id_partida = par.id_partida
+                                               inner join pre.tclase_gasto cg ON cg.id_clase_gasto= tcgp.id_clase_gasto
+                                               where tic.id_int_comprobante in ('||v_parametros.id_int_comprobantes||')'||v_filtro_mixto||'
                                                order by cg.codigo::integer asc') loop
 
             	if v_cbt_clase_gasto_m.clase_gasto != v_clase_gasto then
@@ -890,7 +924,9 @@ BEGIN
                             id_usuario_mod,
                             id_depto_conta,
                             id_proceso_wf,
-                            id_estado_wf
+                            id_estado_wf,
+                            tipo,
+                            glosa
                     ) values(
                             v_fecha_cbte,
                             '',
@@ -904,7 +940,9 @@ BEGIN
                             null,
                             v_parametros.id_depto_conta,
                             v_id_proceso_wf,
-                            v_id_estado_wf
+                            v_id_estado_wf,
+                            'sigep_una_cg',
+                            v_cbt_clase_gasto_m.glosa1
                   	)RETURNING id_entrega into v_id_entrega;
 
                     for v_cbt_clase_gasto_d in  execute('select distinct tic.id_int_comprobante, cg.codigo::integer clase_gasto
@@ -913,17 +951,18 @@ BEGIN
                                                        inner join pre.tpartida par on par.id_partida = transa.id_partida
                                                        inner join pre.tclase_gasto_partida tcgp ON tcgp.id_partida = par.id_partida
                                                        inner join pre.tclase_gasto cg ON cg.id_clase_gasto= tcgp.id_clase_gasto
-                                                       where tic.id_int_comprobante in ('||v_parametros.id_int_comprobantes||') and cg.codigo::integer = '||v_cbt_clase_gasto_m.clase_gasto||'
+                                                       where tic.id_int_comprobante in ('||v_parametros.id_int_comprobantes||')'||v_filtro_mixto||'
+                                                       and cg.codigo::integer = '||v_cbt_clase_gasto_m.clase_gasto||'
                                                        order by cg.codigo::integer asc') loop
 
-                         --  valida que no tenga ninguna entrega ya configurada
+                         --valida que no tenga ninguna entrega ya configurada
                          v_c31 = null;
                          select c.c31 into v_c31
                          from conta.tint_comprobante c
                          where c.id_int_comprobante =   v_cbt_clase_gasto_d.id_int_comprobante;
 
                          if v_c31 is not null  and trim(v_c31) != ''   then
-                            raise exception 'El comprobantes (id: %)  ya se encuentra relacionado con la entrega o C31: %', v_cbt_clase_gasto_d.id_int_comprobante ,v_c31;
+                            raise exception 'El comprobantes (A) (id: %)  ya se encuentra relacionado con la entrega o C31: %', v_cbt_clase_gasto_d.id_int_comprobante ,v_c31;
                          end if;
 
                          --Sentencia de la insercion
@@ -962,6 +1001,117 @@ BEGIN
 
             end loop;--for clase de gasto
 
+			if v_comprobante_mixto != '' then
+            	for v_cbt_clase_gasto_m in  execute('select distinct tic.id_int_comprobante, tic.glosa1
+            								   from conta.tint_comprobante tic
+                                               where tic.id_int_comprobante in ('||v_comprobante_mixto||')
+                                               order by tic.id_int_comprobante asc') loop
+
+
+                    select tp.codigo, pm.id_proceso_macro
+                    into   v_codigo_tipo_proceso, v_id_proceso_macro
+                    from  wf.tproceso_macro pm
+                    inner join wf.ttipo_proceso tp on tp.id_proceso_macro = pm.id_proceso_macro
+                    where pm.codigo='CON-EN' and tp.estado_reg = 'activo' and tp.inicio = 'si';
+
+                    --Obtenemos la gestion
+                    select g.id_gestion into v_gestion
+                    from param.tgestion g
+                    where g.gestion = EXTRACT(YEAR FROM current_date);
+
+                    SELECT i.id_estado_wf into v_estado_wf_com
+                    from conta.tint_comprobante i
+                    WHERE i.id_int_comprobante::VARCHAR = ANY(string_to_array(v_comprobante_mixto,','));
+
+                    ------------------------------
+                    --registra procesos disparados
+                    ------------------------------
+                    SELECT ps_id_proceso_wf, ps_id_estado_wf, ps_codigo_estado
+                    into   v_id_proceso_wf, v_id_estado_wf, v_codigo_estado
+                    FROM wf.f_registra_proceso_disparado_wf( p_id_usuario, v_parametros._id_usuario_ai, v_parametros._nombre_usuario_ai,
+                                       						 v_estado_wf_com, NULL, NULL, NULL, 'CONEN', 'CONEN');
+
+                    SELECT cbte.fecha INTO	v_fecha_cbte
+                    FROM  conta.tint_comprobante cbte
+                    WHERE cbte.id_int_comprobante::integer = v_cbt_clase_gasto_m.id_int_comprobante;
+
+
+                	insert into conta.tentrega(
+                            fecha_c31,
+                            c31,
+                            estado,
+                            estado_reg,
+                            id_usuario_ai,
+                            usuario_ai,
+                            fecha_reg,
+                            id_usuario_reg,
+                            fecha_mod,
+                            id_usuario_mod,
+                            id_depto_conta,
+                            id_proceso_wf,
+                            id_estado_wf,
+                            tipo,
+                            glosa
+                    ) values(
+                            v_fecha_cbte,
+                            '',
+                            v_codigo_estado, --> estado de la entrega
+                            'activo',
+                            v_parametros._id_usuario_ai,
+                            v_parametros._nombre_usuario_ai,
+                            now(),
+                            p_id_usuario,
+                            null,
+                            null,
+                            v_parametros.id_depto_conta,
+                            v_id_proceso_wf,
+                            v_id_estado_wf,
+                            'sigep_mas_cg',
+                            v_cbt_clase_gasto_m.glosa1
+                  	)RETURNING id_entrega into v_id_entrega;
+
+                   --valida que no tenga ninguna entrega ya configurada
+                   v_c31 = null;
+                   select c.c31 into v_c31
+                   from conta.tint_comprobante c
+                   where c.id_int_comprobante =   v_cbt_clase_gasto_m.id_int_comprobante;
+
+                   if v_c31 is not null  and trim(v_c31) != ''   then
+                      raise exception 'El comprobantes (B) (id: %)  ya se encuentra relacionado con la entrega o C31: %', v_cbt_clase_gasto_m.id_int_comprobante ,v_c31;
+                   end if;
+
+                   --Sentencia de la insercion
+                  insert into conta.tentrega_det(
+                      estado_reg,
+                      id_int_comprobante,
+                      id_entrega,
+                      id_usuario_reg,
+                      fecha_reg,
+                      usuario_ai,
+                      id_usuario_ai,
+                      id_usuario_mod,
+                      fecha_mod
+                  ) values(
+                      'activo',
+                      v_cbt_clase_gasto_m.id_int_comprobante,
+                      v_id_entrega,
+                      p_id_usuario,
+                      now(),
+                      v_parametros._nombre_usuario_ai,
+                      v_parametros._id_usuario_ai,
+                      null,
+                      null
+                  )RETURNING id_entrega_det into v_id_entrega_det;
+
+                  --  temporalmente marca el cbte relacionado a la entrega
+                  update conta.tint_comprobante  set
+                      c31 =  'ENT ID:'||v_id_entrega::varchar,
+                      fecha_c31 = now()
+                  where id_int_comprobante = v_cbt_clase_gasto_m.id_int_comprobante;
+
+            	end loop;--for clase de gasto
+            end if;
+
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Creación de entrega contable para los cbte '||v_parametros.id_int_comprobantes);
             v_resp = pxp.f_agrega_clave(v_resp,'id_entrega',v_id_entrega::varchar);
@@ -971,6 +1121,87 @@ BEGIN
 
 		end;
 
+    /*********************************
+ 	#TRANSACCION:  'CONTA_ENT_MOD'
+ 	#DESCRIPCION:	Definir la Glosa de una entrega
+ 	#AUTOR:		franklin.espinoza
+ 	#FECHA:		20-10-2020
+	***********************************/
+
+	elseif(p_transaccion='CONTA_ENT_MOD')then
+    	begin
+          	update conta.tentrega set
+              	glosa = v_parametros.glosa
+          	where id_entrega = v_parametros.id_entrega;
+
+          	-- si hay mas de un estado disponible  preguntamos al usuario
+          	v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Transacción modificado(a)');
+          	v_resp = pxp.f_agrega_clave(v_resp,'id_entrega',v_parametros.id_entrega::varchar);
+
+        	--Devuelve la respuesta
+          	return v_resp;
+        end;
+
+    /*********************************
+ 	#TRANSACCION:  'CONTA_VALCBTENT_INS'
+ 	#DESCRIPCION:	Validar Comprobantes de la entrega
+ 	#AUTOR:		franklin.espinoza
+ 	#FECHA:		20-10-2020
+	***********************************/
+
+	elseif(p_transaccion='CONTA_VALCBTENT_INS')then
+    	begin
+
+        	select  count(ed.id_entrega)
+            into v_total_validado
+            from conta.tentrega_det ed
+            inner join conta.tentrega ent on ent.id_entrega = ed.id_entrega
+            inner join conta.tint_comprobante cbte on cbte.id_int_comprobante = ed.id_int_comprobante
+            JOIN param.tdepto de ON de.id_depto = ent.id_depto_conta
+            where ed.id_entrega =  v_parametros.id_entrega and cbte.estado_reg != 'validado';
+
+        	FOR v_registros_int_cbte in ( select
+            								ed.id_entrega,
+                                            cbte.id_int_comprobante,
+                                            de.prioridad,
+                                           	ent.id_usuario_ai,
+                                            ent.usuario_ai
+                                          from conta.tentrega_det ed
+                                          inner join conta.tentrega ent on ent.id_entrega = ed.id_entrega
+                                          inner join conta.tint_comprobante cbte on cbte.id_int_comprobante = ed.id_int_comprobante
+                                          JOIN param.tdepto de ON de.id_depto = ent.id_depto_conta
+                                          where ed.id_entrega =  v_parametros.id_entrega and cbte.estado_reg != 'validado' ) LOOP
+
+            	v_resp = conta.f_validar_cbte( p_id_usuario,
+                                               v_registros_int_cbte.id_usuario_ai,
+                                               v_registros_int_cbte.usuario_ai,
+                                               v_registros_int_cbte.id_int_comprobante,
+                                               'si'
+                							 );
+                v_contador_validado = v_contador_validado + 1;
+
+            END LOOP;
+
+            if v_total_validado = v_contador_validado then
+            	update conta.tentrega set
+              		validado = 'si'
+          		where id_entrega = v_parametros.id_entrega;
+            else
+            	update conta.tentrega set
+              		validado = 'no'
+          		where id_entrega = v_parametros.id_entrega;
+            end if;
+
+
+
+          	-- si hay mas de un estado disponible  preguntamos al usuario
+          	v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Validación Comprobantes');
+          	v_resp = pxp.f_agrega_clave(v_resp,'id_entrega',v_parametros.id_entrega::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'status',true::varchar);
+
+        	--Devuelve la respuesta
+          	return v_resp;
+        end;
 
 
     else

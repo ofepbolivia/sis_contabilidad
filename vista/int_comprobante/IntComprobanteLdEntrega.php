@@ -23,6 +23,14 @@ Phx.vista.IntComprobanteLdEntrega = {
 	
 	constructor: function(config) {
 	    Phx.vista.IntComprobanteLdEntrega.superclass.constructor.call(this,config);
+
+        this.addButtonIndex(12,'chkEntregasSigep',{	text:'Entregas SIGEP',
+            iconCls: 'blist',
+            grupo: [0, 1, 2, 3],
+            disabled: true,
+            handler: this.crearEntregaSigep,
+            tooltip: '<b>Crear Entregas Sigep</b><p>Las entregas permiten asociar con cbte en otros subsistema (por ejemplo SIGMA o SIGEP)</p>'
+        });
 	    
 	    this.addButton('chkEntregas',{	text:'Entregas',
 				iconCls: 'blist',
@@ -33,6 +41,47 @@ Phx.vista.IntComprobanteLdEntrega = {
 	    
 	   
     
+    },
+
+    crearEntregaSigep: function(){
+        var filas=this.sm.getSelections(),
+            total= 0,tmp='',me = this;
+
+        for(var i=0;i<this.sm.getCount();i++){
+            aux={};
+            if(total == 0){
+                tmp = filas[i].data[this.id_store];
+            }
+            else{
+                tmp = tmp + ','+ filas[i].data[this.id_store];
+            }
+            total = total + 1;
+        }
+        if(total != 0){
+            if(confirm("¿Esta  seguro de Crear esta entrega?") ){
+                Phx.CP.loadingShow();
+                Ext.Ajax.request({
+                    url : '../../sis_contabilidad/control/Entrega/crearEntregaSigep',
+                    params : {
+                        id_int_comprobantes : tmp,
+                        id_depto_conta: me.cmbDepto.getValue(),
+                        total_cbte: total
+                    },
+                    success : function(resp) {
+                        Phx.CP.loadingHide();
+                        alert('La entrega fue creada con exito, incluye cbte(s): '+ total);
+                        this.reload();
+
+                    },
+                    failure : this.conexionFailure,
+                    timeout : this.timeout,
+                    scope : this
+                });
+            }
+        }
+        else{
+            alert ('No selecciono ningun comprobante');
+        }
     },
     
     cmbDepto : new Ext.form.AwesomeCombo({
@@ -85,7 +134,7 @@ Phx.vista.IntComprobanteLdEntrega = {
 	},
 	preparaMenu : function(n) {
 			var tb = Phx.vista.IntComprobanteLdEntrega.superclass.preparaMenu.call(this,n);
-			
+            this.getBoton('chkEntregasSigep').enable();
             this.getBoton('chkEntregas').enable();
             
 			
@@ -94,8 +143,9 @@ Phx.vista.IntComprobanteLdEntrega = {
 	liberaMenu : function() {
 			var tb = Phx.vista.IntComprobanteLdEntrega.superclass.liberaMenu.call(this);
 			
+            this.getBoton('chkEntregasSigep').disable();
             this.getBoton('chkEntregas').disable();
-			
+
 	},
 	
 	crearEntrega: function(){

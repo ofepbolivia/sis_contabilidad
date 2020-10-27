@@ -236,7 +236,7 @@ Phx.vista.Entrega=Ext.extend(Phx.gridInterfaz,{
                 }
             },
             type:'Field',
-            filters:{pfiltro:'pp.monto',type:'numeric'},
+            filters:{pfiltro:'monto',type:'numeric'},
             id_grupo:1,
             grid:true,
             form:false

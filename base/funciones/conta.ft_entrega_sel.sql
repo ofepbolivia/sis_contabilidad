@@ -111,7 +111,10 @@ BEGIN
                              to_char(com.fecha,''DD/MM/YYYY'')::varchar as fecha,
 							com.id_clase_comprobante,
 							ent.id_service_request,
-              com.localidad
+              com.localidad,
+              ent.glosa,
+              ent.tipo,
+			        ent.validado
 
 						from conta.tentrega ent
 						inner join segu.tusuario usu1 on usu1.id_usuario = ent.id_usuario_reg

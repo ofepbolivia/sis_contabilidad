@@ -73,7 +73,7 @@ class ACTIntComprobante extends ACTbase{
             }else{
                 //(may)25-09-2019 para que enliste el nuevo estado vbfin y vbconta
                 // $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
-                $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'',''elaborado'',''verificado'',''aprobado'')");
+                $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
             }
 
         }
@@ -824,6 +824,13 @@ class ACTIntComprobante extends ACTbase{
     function cbteIncrementoCbte(){
         $this->objFunc=$this->create('MODIntComprobante');
         $this->res=$this->objFunc->cbteIncrementoCbte($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //{develop: franklin.espinoza date: 12/10/2020, description: Guarda Preventivo,Compromiso,Devengado para procesos con Preventivo}
+    function guardarDocumentoSigep(){
+        $this->objFunc=$this->create('MODIntComprobante');
+        $this->res=$this->objFunc->guardarDocumentoSigep($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 

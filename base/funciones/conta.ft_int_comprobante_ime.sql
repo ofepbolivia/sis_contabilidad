@@ -126,9 +126,10 @@ DECLARE
    v_ofi_act						numeric;
 
     --begin franklin.espinoza 27/09/2020
-    v_id_dl							integer;
-	  v_id_cb							integer;
+    v_id_dl							  integer;
+	  v_id_cb							  integer;
 
+    v_localidad						varchar;
 BEGIN
 
     v_nombre_funcion = 'conta.ft_int_comprobante_ime';
@@ -374,96 +375,211 @@ BEGIN
             	raise exception 'Error de datos en el campo AITBs, los datos ingresados deben ser si o no';
             else
 
-        	insert into conta.tint_comprobante(
-                id_clase_comprobante,
-                id_subsistema,
-                id_depto,
-                id_moneda,
-                id_periodo,
-                id_funcionario_firma1,
-                id_funcionario_firma2,
-                id_funcionario_firma3,
-                tipo_cambio,
-                beneficiario,
-                estado_reg,
-                glosa1,
-                fecha,
-                glosa2,
-                --momento,
-                id_usuario_reg,
-                fecha_reg,
-                id_usuario_mod,
-                fecha_mod,
-                id_usuario_ai,
-                usuario_ai,
-                id_int_comprobante_fks,
-                cbte_cierre,
-                cbte_apertura,
-                cbte_aitb,
-                manual,
-                momento_comprometido,
-                momento_ejecutado,
-                momento_pagado,
-                momento,
-                id_tipo_relacion_comprobante,
-                fecha_costo_ini,
-                fecha_costo_fin,
-                id_config_cambiaria,
-                tipo_cambio_2,
-                localidad,
-                id_moneda_tri,
-                nro_tramite,
-                id_proceso_wf,
-                id_estado_wf,
-                forma_cambio,
-                id_moneda_act,
-                tipo_cambio_3
-          	) values(
-                v_parametros.id_clase_comprobante,
-                v_id_subsistema,
-                v_parametros.id_depto,
-                v_parametros.id_moneda,
-                v_rec.po_id_periodo,
-                v_parametros.id_funcionario_firma1,
-                v_parametros.id_funcionario_firma2,
-                v_parametros.id_funcionario_firma3,
-                v_parametros.tipo_cambio,
-                v_parametros.beneficiario,
-                'borrador',  --  v_codigo_estado
-                v_parametros.glosa1,
-                v_parametros.fecha,
-                v_parametros.glosa2,
-                --v_parametros.momento,
-                p_id_usuario,
-                now(),
-                null,
-                null,
-                v_parametros._id_usuario_ai,
-                v_parametros._nombre_usuario_ai,
-                va_id_int_cbte_fk,
-                v_parametros.cbte_cierre,
-                v_parametros.cbte_apertura,
-                v_parametros.cbte_aitb,
-                'si',
-                v_momento_comprometido,
-                v_momento_ejecutado,
-                v_momento_pagado,
-                v_tipo_comprobante,
-                v_parametros.id_tipo_relacion_comprobante,
-                v_parametros.fecha_costo_ini,
-                v_parametros.fecha_costo_fin,
-                v_parametros.id_config_cambiaria,
-                v_parametros.tipo_cambio_2,
-                'nacional',
-                v_id_moneda_tri,
-                v_num_tramite,
-                v_id_proceso_wf,
-                v_id_estado_wf,
-                v_parametros.forma_cambio,
-                v_id_moneda_act,
-                v_parametros.tipo_cambio_3
+          --begin (franklin.espinoza) 08/10/2020
+          if v_parametros.id_depto IN (49, 79, 80) then
+            v_localidad = 'internacional';
+          else
+            v_localidad = 'nacional';
+          end if;
+          --end (franklin.espinoza) 08/10/2020
 
-			)RETURNING id_int_comprobante into v_id_int_comprobante;
+          --begin franklin.espinoza 09/10/2020
+            IF  pxp.f_existe_parametro(p_tabla , 'id_depto_libro')  THEN
+               v_id_dl = v_parametros.id_depto_libro;
+            END IF;
+
+            IF  pxp.f_existe_parametro(p_tabla , 'id_cuenta_bancaria')  THEN
+               v_id_cb = v_parametros.id_cuenta_bancaria;
+            END IF;
+            --end franklin.espinoza 09/10/2020
+          --if v_id_dl is null and v_id_cb is null then
+          if v_parametros.id_depto NOT IN (49, 79, 80) then
+            insert into conta.tint_comprobante(
+                  id_clase_comprobante,
+                  id_subsistema,
+                  id_depto,
+                  id_moneda,
+                  id_periodo,
+                  id_funcionario_firma1,
+                  id_funcionario_firma2,
+                  id_funcionario_firma3,
+                  tipo_cambio,
+                  beneficiario,
+                  estado_reg,
+                  glosa1,
+                  fecha,
+                  glosa2,
+                  --momento,
+                  id_usuario_reg,
+                  fecha_reg,
+                  id_usuario_mod,
+                  fecha_mod,
+                  id_usuario_ai,
+                  usuario_ai,
+                  id_int_comprobante_fks,
+                  cbte_cierre,
+                  cbte_apertura,
+                  cbte_aitb,
+                  manual,
+                  momento_comprometido,
+                  momento_ejecutado,
+                  momento_pagado,
+                  momento,
+                  id_tipo_relacion_comprobante,
+                  fecha_costo_ini,
+                  fecha_costo_fin,
+                  id_config_cambiaria,
+                  tipo_cambio_2,
+                  localidad,
+                  id_moneda_tri,
+                  nro_tramite,
+                  id_proceso_wf,
+                  id_estado_wf,
+                  forma_cambio,
+                  id_moneda_act,
+                  tipo_cambio_3
+              ) values(
+                  v_parametros.id_clase_comprobante,
+                  v_id_subsistema,
+                  v_parametros.id_depto,
+                  v_parametros.id_moneda,
+                  v_rec.po_id_periodo,
+                  v_parametros.id_funcionario_firma1,
+                  v_parametros.id_funcionario_firma2,
+                  v_parametros.id_funcionario_firma3,
+                  v_parametros.tipo_cambio,
+                  v_parametros.beneficiario,
+                  'borrador',  --  v_codigo_estado
+                  v_parametros.glosa1,
+                  v_parametros.fecha,
+                  v_parametros.glosa2,
+                  --v_parametros.momento,
+                  p_id_usuario,
+                  now(),
+                  null,
+                  null,
+                  v_parametros._id_usuario_ai,
+                  v_parametros._nombre_usuario_ai,
+                  va_id_int_cbte_fk,
+                  v_parametros.cbte_cierre,
+                  v_parametros.cbte_apertura,
+                  v_parametros.cbte_aitb,
+                  'si',
+                  v_momento_comprometido,
+                  v_momento_ejecutado,
+                  v_momento_pagado,
+                  v_tipo_comprobante,
+                  v_parametros.id_tipo_relacion_comprobante,
+                  v_parametros.fecha_costo_ini,
+                  v_parametros.fecha_costo_fin,
+                  v_parametros.id_config_cambiaria,
+                  v_parametros.tipo_cambio_2,
+                  v_localidad, --(franklin.espinoza) 08/10/2020
+                  v_id_moneda_tri,
+                  v_num_tramite,
+                  v_id_proceso_wf,
+                  v_id_estado_wf,
+                  v_parametros.forma_cambio,
+                  v_id_moneda_act,
+                  v_parametros.tipo_cambio_3
+
+        )RETURNING id_int_comprobante into v_id_int_comprobante;
+      else
+            	insert into conta.tint_comprobante(
+                  id_clase_comprobante,
+                  id_subsistema,
+                  id_depto,
+                  id_moneda,
+                  id_periodo,
+                  id_funcionario_firma1,
+                  id_funcionario_firma2,
+                  id_funcionario_firma3,
+                  tipo_cambio,
+                  beneficiario,
+                  estado_reg,
+                  glosa1,
+                  fecha,
+                  glosa2,
+                  --momento,
+                  id_usuario_reg,
+                  fecha_reg,
+                  id_usuario_mod,
+                  fecha_mod,
+                  id_usuario_ai,
+                  usuario_ai,
+                  id_int_comprobante_fks,
+                  cbte_cierre,
+                  cbte_apertura,
+                  cbte_aitb,
+                  manual,
+                  momento_comprometido,
+                  momento_ejecutado,
+                  momento_pagado,
+                  momento,
+                  id_tipo_relacion_comprobante,
+                  fecha_costo_ini,
+                  fecha_costo_fin,
+                  id_config_cambiaria,
+                  tipo_cambio_2,
+                  localidad,
+                  id_moneda_tri,
+                  nro_tramite,
+                  id_proceso_wf,
+                  id_estado_wf,
+                  forma_cambio,
+                  id_moneda_act,
+                  tipo_cambio_3,
+                  id_cuenta_bancaria,
+                  id_depto_libro
+          		) values(
+                  v_parametros.id_clase_comprobante,
+                  v_id_subsistema,
+                  v_parametros.id_depto,
+                  v_parametros.id_moneda,
+                  v_rec.po_id_periodo,
+                  v_parametros.id_funcionario_firma1,
+                  v_parametros.id_funcionario_firma2,
+                  v_parametros.id_funcionario_firma3,
+                  v_parametros.tipo_cambio,
+                  v_parametros.beneficiario,
+                  'borrador',  --  v_codigo_estado
+                  v_parametros.glosa1,
+                  v_parametros.fecha,
+                  v_parametros.glosa2,
+                  --v_parametros.momento,
+                  p_id_usuario,
+                  now(),
+                  null,
+                  null,
+                  v_parametros._id_usuario_ai,
+                  v_parametros._nombre_usuario_ai,
+                  va_id_int_cbte_fk,
+                  v_parametros.cbte_cierre,
+                  v_parametros.cbte_apertura,
+                  v_parametros.cbte_aitb,
+                  'si',
+                  v_momento_comprometido,
+                  v_momento_ejecutado,
+                  v_momento_pagado,
+                  v_tipo_comprobante,
+                  v_parametros.id_tipo_relacion_comprobante,
+                  v_parametros.fecha_costo_ini,
+                  v_parametros.fecha_costo_fin,
+                  v_parametros.id_config_cambiaria,
+                  v_parametros.tipo_cambio_2,
+                  v_localidad, --(franklin.espinoza) 08/10/2020
+                  v_id_moneda_tri,
+                  v_num_tramite,
+                  v_id_proceso_wf,
+                  v_id_estado_wf,
+                  v_parametros.forma_cambio,
+                  v_id_moneda_act,
+                  v_parametros.tipo_cambio_3,
+                  v_parametros.id_cuenta_bancaria,
+                  v_parametros.id_depto_libro
+
+				)RETURNING id_int_comprobante into v_id_int_comprobante;
+      end if;
 
 		end if;
             update wf.tproceso_wf p set

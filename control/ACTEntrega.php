@@ -25,6 +25,21 @@ class ACTEntrega extends ACTbase
             $this->objParam->addFiltro("ent.estado  in (''vbconta'')");
         }
 
+        //begin(franklin.espinoza) 20/08/2020
+        if($this->objParam->getParametro('estado_entrega') == 'borrador'){
+            $this->objParam->addFiltro("ent.estado in (''borrador'')");
+        }else if($this->objParam->getParametro('estado_entrega') == 'elaborado'){
+            $this->objParam->addFiltro("ent.estado in (''elaborado'')");
+        }else if($this->objParam->getParametro('estado_entrega') == 'verificado'){
+            $this->objParam->addFiltro("ent.estado in (''verificado'')");
+        }else if($this->objParam->getParametro('estado_entrega') == 'aprobado'){
+            $this->objParam->addFiltro("ent.estado in (''aprobado'')");
+        }else if($this->objParam->getParametro('estado_entrega') == 'finalizado'){
+            $this->objParam->addFiltro("ent.estado in (''finalizado'')");
+        }else if($this->objParam->getParametro('estado_entrega') == 'borrador_elaborado'){
+            $this->objParam->addFiltro("ent.estado in (''borrador'',''elaborado'')");
+        }
+
 
         if ($this->objParam->getParametro('tipoReporte') == 'excel_grid' || $this->objParam->getParametro('tipoReporte') == 'pdf_grid') {
             $this->objReporte = new Reporte($this->objParam, $this);
@@ -184,6 +199,13 @@ class ACTEntrega extends ACTbase
 
             $this->res = $this->objFunc->listarDetalleComprobante($this->objParam);
         }
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //{develop:franklin.espinoza date:20/10/2020}
+    function validarComprobantesERP(){
+        $this->objFunc = $this->create('MODEntrega');
+        $this->res = $this->objFunc->validarComprobantesERP($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 

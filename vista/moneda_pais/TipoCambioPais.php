@@ -305,7 +305,7 @@ Phx.vista.TipoCambioPais=Ext.extend(Phx.gridInterfaz,{
 	},
   bdel:false,
 	bsave:false,
-  bexcel:false,
+  bexcel:true,
 	btest:false,
 	bedit:true,
   fwidth : 420,
