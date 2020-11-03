@@ -65,7 +65,8 @@ Phx.vista.IntComprobanteLdEntrega = {
                     params : {
                         id_int_comprobantes : tmp,
                         id_depto_conta: me.cmbDepto.getValue(),
-                        total_cbte: total
+                        total_cbte: total,
+                        tipo: 'normal'
                     },
                     success : function(resp) {
                         Phx.CP.loadingHide();

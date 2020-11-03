@@ -130,6 +130,7 @@ DECLARE
 	  v_id_cb							  integer;
 
     v_localidad						varchar;
+
 BEGIN
 
     v_nombre_funcion = 'conta.ft_int_comprobante_ime';
@@ -437,7 +438,8 @@ BEGIN
                   id_estado_wf,
                   forma_cambio,
                   id_moneda_act,
-                  tipo_cambio_3
+                  tipo_cambio_3,
+                  tipo_cbte
               ) values(
                   v_parametros.id_clase_comprobante,
                   v_id_subsistema,
@@ -474,14 +476,15 @@ BEGIN
                   v_parametros.fecha_costo_fin,
                   v_parametros.id_config_cambiaria,
                   v_parametros.tipo_cambio_2,
-                  v_localidad, --(franklin.espinoza) 08/10/2020
+                  'nacional', --(franklin.espinoza) 08/10/2020
                   v_id_moneda_tri,
                   v_num_tramite,
                   v_id_proceso_wf,
                   v_id_estado_wf,
                   v_parametros.forma_cambio,
                   v_id_moneda_act,
-                  v_parametros.tipo_cambio_3
+                  v_parametros.tipo_cambio_3,
+                  v_localidad
 
         )RETURNING id_int_comprobante into v_id_int_comprobante;
       else
@@ -530,7 +533,8 @@ BEGIN
                   id_moneda_act,
                   tipo_cambio_3,
                   id_cuenta_bancaria,
-                  id_depto_libro
+                  id_depto_libro,
+                  tipo_cbte
           		) values(
                   v_parametros.id_clase_comprobante,
                   v_id_subsistema,
@@ -567,7 +571,7 @@ BEGIN
                   v_parametros.fecha_costo_fin,
                   v_parametros.id_config_cambiaria,
                   v_parametros.tipo_cambio_2,
-                  v_localidad, --(franklin.espinoza) 08/10/2020
+                  'nacional', --(franklin.espinoza) 08/10/2020
                   v_id_moneda_tri,
                   v_num_tramite,
                   v_id_proceso_wf,
@@ -576,7 +580,8 @@ BEGIN
                   v_id_moneda_act,
                   v_parametros.tipo_cambio_3,
                   v_parametros.id_cuenta_bancaria,
-                  v_parametros.id_depto_libro
+                  v_parametros.id_depto_libro,
+                  v_localidad
 
 				)RETURNING id_int_comprobante into v_id_int_comprobante;
       end if;
@@ -3453,7 +3458,6 @@ BEGIN
                       raise exception 'No puede generar el nuevo comprobante';
 
                       end;
-
 
     else
 

@@ -32,10 +32,58 @@ header("content-type: text/javascript; charset=UTF-8");
         -khtml-user-select: text !important;
         -webkit-user-select: text !important;
     }
+
+    /*tipo entrega*/
+    .regularizacion_una_cg {
+        background-color: #bdffb2;//#e2ffe2
+    color: #090;
+    }
+
+    .regularizacion_mas_cg{
+        background-color: #EAA8A8;//#ffe2e2
+    color: #900;
+    }
+
+    .normal_una_cg {
+        background-color: #bdffb2;//#e2ffe2
+    color: #090;
+    }
+
+    .normal_mas_cg{
+        background-color: #EAA8A8;//#ffe2e2
+    color: #900;
+    }
+
+
+
 </style>
 
 <script>
     Phx.vista.EntregaRegionalesExtVoBo=Ext.extend(Phx.gridInterfaz,{
+
+        viewConfig: {
+
+            autoFill: true,
+            getRowClass: function (record) { console.log('record.data', record.data);
+
+                if (record.data.tipo == 'normal_una_cg') {
+                    return 'normal_una_cg';
+
+                } else if (record.data.tipo == 'normal_mas_cg') {
+                    return 'normal_mas_cg';
+
+                } else if (record.data.tipo == 'regularizacion_una_cg') {
+                    return 'regularizacion_una_cg';
+
+                } else if (record.data.tipo == 'regularizacion_mas_cg') {
+                    return 'regularizacion_mas_cg';
+
+                } else {
+                    return '';
+                }
+            }
+
+        },
 
         constructor:function(config){
 
@@ -74,13 +122,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 handler: this.loadCheckDocumentosRecWf,
                 tooltip: '<b>Documentos del Reclamo</b><br/>Subir los documetos requeridos en el Reclamo seleccionado.'
             });
-            this.addButton('fin_entrega', {
+            /*this.addButton('fin_entrega', {
                 text : 'Registrar Entrega',
                 iconCls : 'btag_accept',
                 disabled : true,
                 handler : this.cambiarEstado,
                 tooltip: '<b>Finaliza la entrega, defini el nro de Cbte relacionado en SIGMA/SIGEP/OTRO</b>'
-            });
+            });*/
 
             //Botón para Imprimir el Comprobante
             this.addButton('btnImprimir', {
@@ -118,6 +166,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
 
         cmbDepto : new Ext.form.AwesomeCombo({
+            
             name : 'id_depto_ent_ext_vb',
             fieldLabel : 'Depto',
             typeAhead : false,
@@ -126,7 +175,7 @@ header("content-type: text/javascript; charset=UTF-8");
             disableSearchButton : true,
             emptyText : 'Depto Contable',
             store : new Ext.data.JsonStore({
-                url : '../../sis_parametros/control/Depto/listarDeptoFiltradoDeptoUsuario',//../../sis_parametros/control/Depto/listarDeptoFiltradoPrioridadEXT
+                url : '../../sis_parametros/control/Depto/listarDepto',//../../sis_parametros/control/Depto/listarDeptoFiltradoPrioridadEXT
                 id : 'id_depto',
                 root : 'datos',
                 sortInfo : {
@@ -407,7 +456,11 @@ header("content-type: text/javascript; charset=UTF-8");
             'fecha',
             'id_clase_comprobante',
             'id_service_request',
-            'localidad'
+            'localidad',
+            'glosa',
+            'tipo',
+            'validado',
+            'tipo_cbte'
 
         ],
         sortInfo:{
@@ -499,14 +552,31 @@ header("content-type: text/javascript; charset=UTF-8");
             console.log('wizardSIGEP ENTREGA:',wizard,'respSIGP:',resp, rec);
             Phx.CP.loadingShow();
             if(rec.estado == 'verificado'){
-                //if (rec.id_clase_comprobante == 3){
                 this.onEgaAprobarCIP(wizard,resp);
-                //}
 
-            }else if(rec.estado == 'aprobado'){
+            }else if(rec.estado == 'aprobado' && (rec.tipo == 'normal_una_cg' || rec.tipo == 'normal_mas_cg')){
                 //if (rec.id_clase_comprobante == 3){
                 this.onEgaFirmarCIP(wizard,resp);
                 //}
+            }else{
+                Ext.Ajax.request({
+                    url:'../../sis_contabilidad/control/Entrega/siguienteEstado',
+                    params:{
+
+                        id_proceso_wf_act:  resp.id_proceso_wf_act,
+                        id_estado_wf_act:   resp.id_estado_wf_act,
+                        id_tipo_estado:     resp.id_tipo_estado,
+                        id_funcionario_wf:  resp.id_funcionario_wf,
+                        id_depto_wf:        resp.id_depto_wf,
+                        obs:                resp.obs,
+                        json_procesos:      Ext.util.JSON.encode(resp.procesos)
+                    },
+                    success:this.successWizard,
+                    failure: this.conexionFailure,
+                    argument:{wizard:wizard},
+                    timeout:this.timeout,
+                    scope:this
+                });
             }
 
         },
@@ -735,7 +805,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('btnImprimir').enable();
             this.getBoton('diagrama_gantt').enable();
             this.getBoton('btnChequeoDocumentosWf').enable();
-            this.getBoton('fin_entrega').enable();
+            //this.getBoton('fin_entrega').enable();
             this.getBoton('btnObs').enable();
             return tb;
         },
@@ -743,7 +813,7 @@ header("content-type: text/javascript; charset=UTF-8");
             var tb = Phx.vista.EntregaRegionalesExtVoBo.superclass.liberaMenu.call(this);
             this.getBoton('sig_estado').disable();
             this.getBoton('btnImprimir').disable();
-            this.getBoton('fin_entrega').disable();
+            //this.getBoton('fin_entrega').disable();
             this.getBoton('btnChequeoDocumentosWf').disable();
             this.getBoton('ant_estado').disable();
             this.getBoton('diagrama_gantt').disable();
@@ -856,7 +926,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
 
 
-        bdel: true,
+        bdel: false,
         bsave: false,
         bnew: false,
         bedit: false

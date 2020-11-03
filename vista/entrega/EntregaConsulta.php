@@ -33,15 +33,26 @@ header("content-type: text/javascript; charset=UTF-8");
     }
 
     /*tipo entrega*/
-    .sigep_una_cg {
+    .regularizacion_una_cg {
         background-color: #bdffb2;//#e2ffe2
     color: #090;
     }
 
-    .sigep_mas_cg{
+    .regularizacion_mas_cg{
         background-color: #EAA8A8;//#ffe2e2
     color: #900;
     }
+
+    .normal_una_cg {
+        background-color: #bdffb2;//#e2ffe2
+    color: #090;
+    }
+
+    .normal_mas_cg{
+        background-color: #EAA8A8;//#ffe2e2
+    color: #900;
+    }
+
 </style>
 <script>
     Phx.vista.EntregaConsulta=Ext.extend(Phx.gridInterfaz,{
@@ -51,11 +62,17 @@ header("content-type: text/javascript; charset=UTF-8");
             autoFill: true,
             getRowClass: function (record) {
 
-                if (record.data.tipo == 'sigep_una_cg') {
-                    return 'sigep_una_cg';
+                if (record.data.tipo == 'normal_una_cg') {
+                    return 'normal_una_cg';
 
-                } else if (record.data.tipo == 'sigep_mas_cg') {
-                    return 'sigep_mas_cg';
+                } else if (record.data.tipo == 'normal_mas_cg') {
+                    return 'normal_mas_cg';
+
+                } else if (record.data.tipo == 'regularizacion_una_cg') {
+                    return 'regularizacion_una_cg';
+
+                } else if (record.data.tipo == 'regularizacion_mas_cg') {
+                    return 'regularizacion_mas_cg';
 
                 } else {
                     return '';
@@ -63,6 +80,8 @@ header("content-type: text/javascript; charset=UTF-8");
             }
 
         },
+
+        nombreVista: 'EntregaConsulta',
 
         constructor:function(config){
 
@@ -95,6 +114,76 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip : '<b>Imprimir Reporte de Entrega</b><br/>Imprime un detalle de las factidas presupeustarias relacioandas a la entrega'
             });
 
+            if (this.unidad == 'contabilidad') {
+
+                this.addButtonIndex(7, 'erp_ext_entrega',
+                    {
+                        iconCls: 'bball_green',
+                        disabled: true,
+                        xtype: 'splitbutton',
+                        grupo: [0, 1,2,3,4],
+                        tooltip: '<b>Acciones para validar y desvalidar, comprobante ERP.</b>',
+                        text: 'ACTION ERP',
+                        //handler: this.onButtonExcel,
+                        argument: {
+                            'news': true,
+                            def: 'reset'
+                        },
+                        scope: this,
+                        menu: [
+                            {
+                                text: 'Validar CBTE',
+                                iconCls: 'bver-sigep',
+                                argument: {
+                                    'news': true,
+                                    def: 'csv'
+                                },
+                                handler: this.onValidar,
+                                scope: this
+                            },
+                            {
+                                text: 'Desvalidar CBTE',
+                                iconCls: 'bdes-sigep',
+                                argument: {
+                                    'news': true,
+                                    def: 'csv'
+                                },
+                                handler: this.onDesvalidar,
+                                scope: this
+                            }
+                        ]
+                    }
+                );
+
+                this.addButtonIndex(7,'sigep_ext_entrega',
+                    {
+                        iconCls: 'bball_green',
+                        xtype: 'splitbutton',
+                        grupo: [0, 1,2,3,4],
+                        tooltip: '<b>Acciones para procesar SIGEP</b>',
+                        text: 'ACTION SIGEP',
+                        //handler: this.onButtonExcel,
+                        argument: {
+                            'news': true,
+                            def: 'reset'
+                        },
+                        scope: this,
+                        menu: [
+                            {
+                                text: 'Desverificar C31',
+                                iconCls: 'bdes-sigep',
+                                argument: {
+                                    'news': true,
+                                    def: 'csv'
+                                },
+                                handler: this.revertirProcesoSigep,
+                                scope: this
+                            }
+                        ]
+                    }
+                );
+            }
+
 
             this.init();
 
@@ -107,6 +196,140 @@ header("content-type: text/javascript; charset=UTF-8");
             this.cmbDepto.on('valid', function() {
                 this.capturaFiltros();
             }, this);
+
+        },
+
+        revertirProcesoSigep : function (){
+            var record = this.getSelectedData();
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url:'../../sis_sigep/control/SigepAdq/readyProcesoSigep',
+                params:{
+                    id_service_request : record.id_service_request,
+                    estado_reg : record.estado,
+                    momento : 'pass',
+                    direction : 'previous'
+                },
+                success: function (resp) {
+                    var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
+                    var datos = reg.ROOT.datos;
+                    console.log('revertirProcesoEntregaSigep Contador',datos);
+                    if(datos.process){
+                        Ext.Ajax.request({
+                            url:'../../sis_contabilidad/control/Entrega/retrosederEstado',
+                            params:{
+                                id_proceso_wf: record.id_proceso_wf,
+                                id_estado_wf:  record.id_estado_wf,
+                                obs: 'Retroceso Realizada por el Contador Responsable.'
+                            },
+                            argument:{ wizard : wizard },
+                            success:this.successEstadoSinc,
+                            failure: this.conexionFailure,
+                            timeout:this.timeout,
+                            scope:this
+                        });
+                    }else{
+                        Ext.Msg.show({
+                            title: 'Reversión de proceso ERP-SIGEP',
+                            msg: '<b>Estimado Funcionario: '+'\n'+'No se pudo revertir el proceso ERP-SIGEP, comunicarse con el siguiente numero().</b>',
+                            buttons: Ext.Msg.OK,
+                            width: 512,
+                            icon: Ext.Msg.INFO
+                        });
+                    }
+                },
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope:this
+            });
+        },
+
+        successEstadoSinc:function(resp){
+            Phx.CP.loadingHide();
+            this.reload();
+        },
+
+        onValidar : function(){
+            Phx.CP.loadingShow();
+            let record = this.getSelectedData();
+            //console.log('record', record, 'wizard', wizard, 'response', response);
+            Ext.Ajax.request({
+                url:'../../sis_contabilidad/control/Entrega/validarGrupoComprobantes',
+                params:{
+                    id_entrega : record.id_entrega
+                },
+                success: function (resp) {
+                    var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
+                    var datos = reg.ROOT.datos;
+                    Phx.CP.loadingHide();
+                    console.log('datos fuera',datos);
+                    if(datos.process){
+                        console.log('datos',datos);
+                        Ext.Msg.show({
+                            title: 'Estado SIGEP',
+                            msg: '<b>Estimado Funcionario: '+'\n'+'La información se guardo satisfactoriamente en el SIGEP.</b>',
+                            buttons: Ext.Msg.OK,
+                            width: 512,
+                            icon: Ext.Msg.INFO
+                        });
+                    }else{
+                        Phx.CP.loadingHide();
+
+                        Ext.Msg.show({
+                            title: 'Estado SIGEP',
+                            msg: '<b>Estimado Funcionario: '+'\n'+'Hubo algunos inconvenientes al guardar información en el SIGEP.</b>',
+                            buttons: Ext.Msg.OK,
+                            width: 512,
+                            icon: Ext.Msg.INFO
+                        });
+                    }
+                },
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope:this
+            });
+
+        },
+
+        onDesvalidar : function(){
+            Phx.CP.loadingShow();
+            let record = this.getSelectedData();
+            //console.log('record', record, 'wizard', wizard, 'response', response);
+            Ext.Ajax.request({
+                url:'../../sis_contabilidad/control/Entrega/desvalidarGrupoComprobantes',
+                params:{
+                    id_entrega : record.id_entrega
+                },
+                success: function (resp) {
+                    var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
+                    var datos = reg.ROOT.datos;
+                    Phx.CP.loadingHide();
+                    console.log('datos fuera',datos);
+                    if(datos.process){
+                        console.log('datos',datos);
+                        Ext.Msg.show({
+                            title: 'Estado SIGEP',
+                            msg: '<b>Estimado Funcionario: '+'\n'+'La información se guardo satisfactoriamente en el SIGEP.</b>',
+                            buttons: Ext.Msg.OK,
+                            width: 512,
+                            icon: Ext.Msg.INFO
+                        });
+                    }else{
+                        Phx.CP.loadingHide();
+
+                        Ext.Msg.show({
+                            title: 'Estado SIGEP',
+                            msg: '<b>Estimado Funcionario: '+'\n'+'Hubo algunos inconvenientes al guardar información en el SIGEP.</b>',
+                            buttons: Ext.Msg.OK,
+                            width: 512,
+                            icon: Ext.Msg.INFO
+                        });
+                    }
+                },
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope:this
+            });
 
         },
 
@@ -173,7 +396,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
                 config:{
                     name: 'id_entrega',
-                    fieldLabel: 'Nro',
+                    fieldLabel: 'Id. Entrega',
                     allowBlank: false,
                     anchor: '80%',
                     gwidth: 100,
@@ -183,7 +406,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 filters:{pfiltro:'ent.id_entrega',type:'string'},
                 id_grupo:1,
                 grid:true,
-                form:true
+                form:true,
+                bottom_filter:true
             },
             {
                 config:{
@@ -426,9 +650,10 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         south : {
             url : '../../../sis_contabilidad/vista/entrega_det/EntregaDet.php',
-            title : 'Detalle',
+            title : 'Detalle Comprobantes',
             height : '50%', //altura de la ventana hijo
-            cls : 'EntregaDet'
+            cls : 'EntregaDet',
+            nombreVista: this.nombreVista
         },
 
 
@@ -439,6 +664,10 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('btnImprimir').enable();
             this.getBoton('diagrama_gantt').enable();
             this.getBoton('btnChequeoDocumentosWf').enable();
+            if (this.unidad == 'contabilidad') {
+                this.getBoton('sigep_ext_entrega').enable();
+                this.getBoton('erp_ext_entrega').enable();
+            }
             return tb;
         },
         liberaMenu : function() {
@@ -446,6 +675,10 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('btnImprimir').disable();
             this.getBoton('btnChequeoDocumentosWf').disable();
             this.getBoton('diagrama_gantt').disable();
+            if (this.unidad == 'contabilidad') {
+                this.getBoton('sigep_ext_entrega').disable();
+                this.getBoton('erp_ext_entrega').disable();
+            }
         },
         capturaFiltros : function(combo, record, index) {
             this.desbloquearOrdenamientoGrid();

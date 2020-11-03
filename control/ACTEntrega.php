@@ -209,6 +209,19 @@ class ACTEntrega extends ACTbase
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 
+    //{develop:franklin.espinoza date:30/10/2020}
+    function validarGrupoComprobantes(){
+        $this->objFunc = $this->create('MODEntrega');
+        $this->res = $this->objFunc->validarComprobantesERP($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //{develop:franklin.espinoza date:30/10/2020}
+    function desvalidarGrupoComprobantes(){
+        $this->objFunc = $this->create('MODEntrega');
+        $this->res = $this->objFunc->desvalidarGrupoComprobantes($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 
 }
 

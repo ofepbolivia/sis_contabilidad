@@ -331,7 +331,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         params : {
                             id_int_comprobantes : tmp,
                             id_depto_conta: me.cmbDepto.getValue(),
-                            total_cbte: total
+                            total_cbte: total,
+                            tipo: 'regularizacion'
                         },
                         success : function(resp) {
                             Phx.CP.loadingHide();
@@ -1203,7 +1204,13 @@ header("content-type: text/javascript; charset=UTF-8");
 
         onButtonEdit: function () {
             this.swButton = 'EDIT';
-            var rec = this.sm.getSelected().data;
+
+            //var record = this.sm.getSelected().data;
+            var rec = this.getSelectedData();
+
+            if (this.swButton == 'EDIT') {
+                localidad = rec.localidad;
+            }
 
 
             Phx.vista.IntComprobanteRegAuxRegionalesExt.superclass.onButtonEdit.call(this);
@@ -1402,13 +1409,13 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         getConfigCambiaria: function (sw_valores) {
 
+            var rec = this.getSelectedData();
             var localidad = 'nacional';
 
             if (this.swButton == 'EDIT') {
-                var rec = this.sm.getSelected();
-                localidad = rec.data.localidad;
-
+                localidad = 'nacional';
             }
+            //console.log('getConfigCambiaria',localidad, 'a', this.Cmp.fecha.getValue(), 'b', this.Cmp.id_moneda.getValue(), 'c', this.Cmp.forma_cambio.getValue());
 
             //Verifica que la fecha y la moneda hayan sido elegidos
             if (this.Cmp.fecha.getValue() && this.Cmp.id_moneda.getValue() && this.Cmp.forma_cambio.getValue()) {

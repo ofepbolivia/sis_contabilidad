@@ -5234,3 +5234,13 @@ COMMENT ON COLUMN conta.tdocumento_sigep.nro_secuencia
 IS 'dato sigep para procesos con preventivo default 0.';
 
 /***********************************F-SCP-FEA-CONTA-0-12/10/2020****************************************/
+
+
+/***********************************I-SCP-FEA-CONTA-0-29/10/2020****************************************/
+ALTER TABLE conta.tint_comprobante
+  ADD COLUMN tipo_cbte VARCHAR(32);
+
+COMMENT ON COLUMN conta.tint_comprobante.tipo_cbte
+IS 'Campo que sirve para identificar el tipo de CBTE para integracion sigep.';
+
+/***********************************F-SCP-FEA-CONTA-0-29/10/2020****************************************/

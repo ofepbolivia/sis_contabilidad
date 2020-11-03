@@ -97,7 +97,13 @@ DECLARE
      v_id_int_comprobante		integer;
      v_filtro_mixto				varchar;
      v_contador_validado		integer=0;
-	 v_total_validado			integer;
+	 v_total_validado			integer=0;
+     v_tipo_comprobante			varchar;
+     v_consulta_entrega			varchar = '';
+     v_consulta_entrega_d		varchar = '';
+     v_tipo_entrega				varchar;
+
+     v_entrega_validado			varchar;
 BEGIN
 
     v_nombre_funcion = 'conta.ft_entrega_ime';
@@ -565,8 +571,8 @@ BEGIN
           where ed.id_entrega =  v_entrega.id_entrega;*/
 
           --franklin.espinoza 20/10/2020 consulta anterior devuelve un conjunto de registros lo correcto es un solo valor
-		  	select de.prioridad
-			into v_prioridad_cbte
+		  	select de.prioridad, coalesce(ent.validado,'no')
+			into v_prioridad_cbte, v_entrega_validado
             from conta.tentrega ent
             inner join param.tdepto de on de.id_depto = ent.id_depto_conta
             where ent.id_entrega =  v_entrega.id_entrega;
@@ -575,7 +581,8 @@ BEGIN
 
             	raise exception 'Debe ingresar numero de c31 antes de finalizar la entrega';
 
-            ELSIF (v_codigo_estado_siguiente in ('finalizado') and v_prioridad_cbte = 3) THEN --10-03-2020 (may) prioridad 3 para las internacionales, se valida cbte cuando la entrega finaliza
+			--28/10/2020 franklin.espinoza se adiciona la regla -> v_entrega_validado = 'no' para los comprobantes de regularizacion
+            ELSIF (v_codigo_estado_siguiente in ('finalizado') and v_prioridad_cbte = 3 and v_entrega_validado = 'no') THEN --10-03-2020 (may) prioridad 3 para las internacionales, se valida cbte cuando la entrega finaliza
 
                 FOR v_registros_int_cbte in ( select ed.id_entrega,
                                                      cbte.id_int_comprobante,
@@ -849,16 +856,34 @@ BEGIN
            	if v_parametros.total_cbte < 1 then
                 raise exception 'No tiene comprobantes para entregar';
             end if;
---raise 'valores: %', v_parametros.id_int_comprobantes;
-			for v_cbt_clase_gasto_m in  execute('select distinct tic.id_int_comprobante, cg.codigo::integer clase_gasto
-            								   from conta.tint_comprobante tic
-                                               inner join conta.tint_transaccion transa on transa.id_int_comprobante = tic.id_int_comprobante
-                                               inner join pre.tpartida par on par.id_partida = transa.id_partida
-                                               inner join pre.tclase_gasto_partida tcgp ON tcgp.id_partida = par.id_partida
-                                               inner join pre.tclase_gasto cg ON cg.id_clase_gasto= tcgp.id_clase_gasto
-                                               where tic.id_int_comprobante in ('||v_parametros.id_int_comprobantes||')
-                                               order by tic.id_int_comprobante asc') loop
 
+            execute('select distinct tc.tipo_comprobante
+            from conta.tint_comprobante tic
+            inner join conta.tclase_comprobante tc on tc.id_clase_comprobante = tic.id_clase_comprobante
+            where tic.id_int_comprobante in ('||v_parametros.id_int_comprobantes||')') into v_tipo_comprobante;
+
+			--generar consulta de acuerdo al tipo de comprobante
+			if v_tipo_comprobante = 'contable' then
+            	v_consulta_entrega = 'select distinct tic.id_int_comprobante, cg.codigo::integer clase_gasto
+                                      from conta.tint_comprobante tic
+                                      inner join conta.tint_transaccion transa on transa.id_int_comprobante = tic.id_int_comprobante and transa.importe_debe != 0
+                                      inner join conta.tcuenta cue on cue.id_cuenta = transa.id_cuenta
+                                      inner join pre.tclase_gasto_cuenta tcgc on tcgc.id_cuenta = cue.id_cuenta
+                                      inner join pre.tclase_gasto cg ON cg.id_clase_gasto= tcgc.id_clase_gasto
+                                      where tic.id_int_comprobante in ('||v_parametros.id_int_comprobantes||')
+                                      order by tic.id_int_comprobante asc';
+            elsif v_tipo_comprobante = 'presupuestario' then
+            	v_consulta_entrega = 'select distinct tic.id_int_comprobante, cg.codigo::integer clase_gasto
+                  					  from conta.tint_comprobante tic
+                                      inner join conta.tint_transaccion transa on transa.id_int_comprobante = tic.id_int_comprobante
+                                      inner join pre.tpartida par on par.id_partida = transa.id_partida
+                                      inner join pre.tclase_gasto_partida tcgp ON tcgp.id_partida = par.id_partida
+                                      inner join pre.tclase_gasto cg ON cg.id_clase_gasto= tcgp.id_clase_gasto
+                                      where tic.id_int_comprobante in ('||v_parametros.id_int_comprobantes||')
+                                      order by tic.id_int_comprobante asc';
+            end if;
+
+			for v_cbt_clase_gasto_m in  execute(v_consulta_entrega) loop
 				if v_id_int_comprobante is not null then
                   if v_cbt_clase_gasto_m.id_int_comprobante = v_id_int_comprobante then
                       v_comprobante_mixto = v_comprobante_mixto||v_cbt_clase_gasto_m.id_int_comprobante||',';
@@ -867,20 +892,39 @@ BEGIN
 
                 v_id_int_comprobante = v_cbt_clase_gasto_m.id_int_comprobante;
             end loop;
+
             v_comprobante_mixto = trim(v_comprobante_mixto,',');
             v_filtro_mixto = '';
+            v_tipo_entrega = v_parametros.tipo||'_una_cg';
+
             if v_comprobante_mixto != '' then
             	v_filtro_mixto = ' and tic.id_int_comprobante not in ('||v_comprobante_mixto||') ';
+                v_tipo_entrega = v_parametros.tipo||'_mas_cg';
             end if;
-          	for v_cbt_clase_gasto_m in  execute('select distinct tic.id_int_comprobante, cg.codigo::integer clase_gasto, tic.glosa1
-            								   from conta.tint_comprobante tic
-                                               inner join conta.tint_transaccion transa on transa.id_int_comprobante = tic.id_int_comprobante
-                                               inner join pre.tpartida par on par.id_partida = transa.id_partida
-                                               inner join pre.tclase_gasto_partida tcgp ON tcgp.id_partida = par.id_partida
-                                               inner join pre.tclase_gasto cg ON cg.id_clase_gasto= tcgp.id_clase_gasto
-                                               where tic.id_int_comprobante in ('||v_parametros.id_int_comprobantes||')'||v_filtro_mixto||'
-                                               order by cg.codigo::integer asc') loop
 
+            --generar consulta de acuerdo al tipo de comprobante
+            if v_tipo_comprobante = 'contable' then
+            	v_consulta_entrega = 'select distinct tic.id_int_comprobante, cg.codigo::integer clase_gasto, tic.glosa1
+                					  from conta.tint_comprobante tic
+                                      inner join conta.tint_transaccion transa on transa.id_int_comprobante = tic.id_int_comprobante and transa.importe_debe != 0
+                                      inner join conta.tcuenta cue on cue.id_cuenta = transa.id_cuenta
+                                      inner join pre.tclase_gasto_cuenta tcgc on tcgc.id_cuenta = cue.id_cuenta
+                                      inner join pre.tclase_gasto cg ON cg.id_clase_gasto= tcgc.id_clase_gasto
+                                      where tic.id_int_comprobante in ('||v_parametros.id_int_comprobantes||')'||v_filtro_mixto||'
+                                      order by cg.codigo::integer asc';
+            elsif v_tipo_comprobante = 'presupuestario' then
+            	v_consulta_entrega = 'select distinct tic.id_int_comprobante, cg.codigo::integer clase_gasto, tic.glosa1
+                					  from conta.tint_comprobante tic
+                                      inner join conta.tint_transaccion transa on transa.id_int_comprobante = tic.id_int_comprobante
+                                      inner join pre.tpartida par on par.id_partida = transa.id_partida
+                                      inner join pre.tclase_gasto_partida tcgp ON tcgp.id_partida = par.id_partida
+                                      inner join pre.tclase_gasto cg ON cg.id_clase_gasto= tcgp.id_clase_gasto
+                                      where tic.id_int_comprobante in ('||v_parametros.id_int_comprobantes||')'||v_filtro_mixto||'
+                                      order by cg.codigo::integer asc';
+            end if;
+
+
+          	for v_cbt_clase_gasto_m in  execute(v_consulta_entrega) loop --raise 'v_comprobante_mixto:a %', v_cbt_clase_gasto_m.clase_gasto;
             	if v_cbt_clase_gasto_m.clase_gasto != v_clase_gasto then
 
                     select tp.codigo, pm.id_proceso_macro
@@ -941,20 +985,36 @@ BEGIN
                             v_parametros.id_depto_conta,
                             v_id_proceso_wf,
                             v_id_estado_wf,
-                            'sigep_una_cg',
+                            v_tipo_entrega,
                             v_cbt_clase_gasto_m.glosa1
                   	)RETURNING id_entrega into v_id_entrega;
 
-                    for v_cbt_clase_gasto_d in  execute('select distinct tic.id_int_comprobante, cg.codigo::integer clase_gasto
-                                                       from conta.tint_comprobante tic
-                                                       inner join conta.tint_transaccion transa on transa.id_int_comprobante = tic.id_int_comprobante
-                                                       inner join pre.tpartida par on par.id_partida = transa.id_partida
-                                                       inner join pre.tclase_gasto_partida tcgp ON tcgp.id_partida = par.id_partida
-                                                       inner join pre.tclase_gasto cg ON cg.id_clase_gasto= tcgp.id_clase_gasto
-                                                       where tic.id_int_comprobante in ('||v_parametros.id_int_comprobantes||')'||v_filtro_mixto||'
-                                                       and cg.codigo::integer = '||v_cbt_clase_gasto_m.clase_gasto||'
-                                                       order by cg.codigo::integer asc') loop
+                    --generar consulta de acuerdo al tipo de comprobante
+                    if v_tipo_comprobante = 'contable' then
+                    	v_consulta_entrega = 'select distinct tic.id_int_comprobante, cg.codigo::integer clase_gasto
+                                             from conta.tint_comprobante tic
+                                             inner join conta.tint_transaccion transa on transa.id_int_comprobante = tic.id_int_comprobante and transa.importe_debe != 0
+                                             inner join conta.tcuenta cue on cue.id_cuenta = transa.id_cuenta
+                                      		 inner join pre.tclase_gasto_cuenta tcgc on tcgc.id_cuenta = cue.id_cuenta
+                                      		 inner join pre.tclase_gasto cg ON cg.id_clase_gasto= tcgc.id_clase_gasto
+                                             where tic.id_int_comprobante in ('||v_parametros.id_int_comprobantes||')'||v_filtro_mixto||'
+                                             and cg.codigo::integer = '||v_cbt_clase_gasto_m.clase_gasto||'
+                                             order by cg.codigo::integer asc';
+                    elsif v_tipo_comprobante = 'presupuestario' then
 
+                        v_consulta_entrega = 'select distinct tic.id_int_comprobante, cg.codigo::integer clase_gasto
+                                             from conta.tint_comprobante tic
+                                             inner join conta.tint_transaccion transa on transa.id_int_comprobante = tic.id_int_comprobante
+                                             inner join pre.tpartida par on par.id_partida = transa.id_partida
+                                             inner join pre.tclase_gasto_partida tcgp ON tcgp.id_partida = par.id_partida
+                                             inner join pre.tclase_gasto cg ON cg.id_clase_gasto= tcgp.id_clase_gasto
+                                             where tic.id_int_comprobante in ('||v_parametros.id_int_comprobantes||')'||v_filtro_mixto||'
+                                             and cg.codigo::integer = '||v_cbt_clase_gasto_m.clase_gasto||'
+                                             order by cg.codigo::integer asc';
+                    end if;
+
+                    for v_cbt_clase_gasto_d in  execute(v_consulta_entrega) loop
+						--raise 'v_cbt_clase_gasto_d: b %', v_cbt_clase_gasto_d;
                          --valida que no tenga ninguna entrega ya configurada
                          v_c31 = null;
                          select c.c31 into v_c31
@@ -1066,7 +1126,7 @@ BEGIN
                             v_parametros.id_depto_conta,
                             v_id_proceso_wf,
                             v_id_estado_wf,
-                            'sigep_mas_cg',
+                            v_tipo_entrega,
                             v_cbt_clase_gasto_m.glosa1
                   	)RETURNING id_entrega into v_id_entrega;
 
@@ -1159,7 +1219,7 @@ BEGIN
             inner join conta.tint_comprobante cbte on cbte.id_int_comprobante = ed.id_int_comprobante
             JOIN param.tdepto de ON de.id_depto = ent.id_depto_conta
             where ed.id_entrega =  v_parametros.id_entrega and cbte.estado_reg != 'validado';
-
+                --raise 'validacion: %', v_total_validado;
         	FOR v_registros_int_cbte in ( select
             								ed.id_entrega,
                                             cbte.id_int_comprobante,
@@ -1203,6 +1263,131 @@ BEGIN
           	return v_resp;
         end;
 
+	/*********************************
+ 	#TRANSACCION:  'CONTA_DESVALCBTS_INS'
+ 	#DESCRIPCION:	Desvalidar Comprobantes de la entrega
+ 	#AUTOR:		franklin.espinoza
+ 	#FECHA:		30-10-2020
+	***********************************/
+
+	elseif(p_transaccion='CONTA_DESVALCBTS_INS')then
+    	begin
+
+        	select  count(ed.id_entrega)
+            into v_total_validado
+            from conta.tentrega_det ed
+            inner join conta.tentrega ent on ent.id_entrega = ed.id_entrega
+            inner join conta.tint_comprobante cbte on cbte.id_int_comprobante = ed.id_int_comprobante
+            JOIN param.tdepto de ON de.id_depto = ent.id_depto_conta
+            where ed.id_entrega =  v_parametros.id_entrega and cbte.estado_reg = 'validado';
+                --raise 'validacion: %', v_total_validado;
+        	FOR v_registros_int_cbte in ( select
+            								ed.id_entrega,
+                                            cbte.id_int_comprobante,
+                                            de.prioridad,
+                                           	ent.id_usuario_ai,
+                                            ent.usuario_ai,
+                                            cbte.id_estado_wf,
+                                            cbte.id_proceso_wf
+                                          from conta.tentrega_det ed
+                                          inner join conta.tentrega ent on ent.id_entrega = ed.id_entrega
+                                          inner join conta.tint_comprobante cbte on cbte.id_int_comprobante = ed.id_int_comprobante
+                                          JOIN param.tdepto de ON de.id_depto = ent.id_depto_conta
+                                          where ed.id_entrega =  v_parametros.id_entrega and cbte.estado_reg = 'validado' ) LOOP
+
+            	--------------------------------------------------
+                --Retrocede al estado inmediatamente anterior
+                -------------------------------------------------
+       			--recuperaq estado anterior segun Log del WF
+                SELECT
+
+                   ps_id_tipo_estado,
+                   ps_id_funcionario,
+                   ps_id_usuario_reg,
+                   ps_id_depto,
+                   ps_codigo_estado,
+                   ps_id_estado_wf_ant
+                into
+                   v_id_tipo_estado,
+                   v_id_funcionario,
+                   v_id_usuario_reg,
+                   v_id_depto,
+                   v_codigo_estado,
+                   v_id_estado_wf_ant
+                FROM wf.f_obtener_estado_ant_log_wf(v_registros_int_cbte.id_estado_wf);
+
+              	select ew.id_proceso_wf
+                into v_id_proceso_wf
+              	from wf.testado_wf ew
+              	where ew.id_estado_wf= v_id_estado_wf_ant;
+
+
+         		--configurar acceso directo para la alarma
+               	v_acceso_directo = '';
+               	v_clase = '';
+               	v_parametros_ad = '';
+               	v_tipo_noti = 'notificacion';
+         		v_titulo  = 'Notificacion';
+
+
+                IF   v_codigo_estado_siguiente not in('borrador','supconta','vbconta','finalizado')   THEN
+                      v_acceso_directo = '../../../sis_contabilidad/vista/entrega/Entrega.php';
+                      v_clase = 'Entrega';
+                      v_parametros_ad = '{filtro_directo:{campo:"conta.id_proceso_wf",valor:"'||v_parametros.id_proceso_wf_act::varchar||'"}}';
+                      v_tipo_noti = 'notificacion';
+                      v_titulo  = 'Notificacion';
+                 END IF;
+
+
+          		-- registra nuevo estado
+
+          		v_id_estado_actual = wf.f_registra_estado_wf(
+              	v_id_tipo_estado,
+                v_id_funcionario,
+                v_registros_int_cbte.id_estado_wf,
+                v_id_proceso_wf,
+                p_id_usuario,
+                v_registros_int_cbte.id_usuario_ai,
+                v_registros_int_cbte.usuario_ai,
+                v_id_depto,
+                '[RETROCESO] Corrección datos',
+                v_acceso_directo,
+                v_clase,
+                v_parametros_ad,
+              	v_tipo_noti,
+                v_titulo);
+
+				update conta.tint_comprobante   set
+                 id_estado_wf =  v_id_estado_actual,
+                 estado_reg = v_codigo_estado,
+                 id_usuario_mod = p_id_usuario,
+                 fecha_mod = now(),
+                 id_usuario_ai = v_parametros._id_usuario_ai,
+                 usuario_ai = v_parametros._nombre_usuario_ai
+            	where id_proceso_wf = v_registros_int_cbte.id_proceso_wf;
+
+
+
+                v_contador_validado = v_contador_validado + 1;
+
+            END LOOP;
+
+            if v_total_validado = v_contador_validado then
+            	update conta.tentrega set
+              		validado = 'no'
+          		where id_entrega = v_parametros.id_entrega;
+            end if;
+
+
+
+          	-- si hay mas de un estado disponible  preguntamos al usuario
+          	v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Validación Comprobantes');
+          	v_resp = pxp.f_agrega_clave(v_resp,'id_entrega',v_parametros.id_entrega::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'status',true::varchar);
+
+        	--Devuelve la respuesta
+          	return v_resp;
+        end;
 
     else
 

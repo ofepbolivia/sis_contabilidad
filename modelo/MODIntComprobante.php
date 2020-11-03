@@ -95,7 +95,7 @@ class MODIntComprobante extends MODbase{
         $this->captura('id_cuenta_bancaria','integer');
         $this->captura('desc_cuenta_bancaria','text');
         $this->captura('desc_depto_lb','varchar');
-        $this->captura('nro_preventivo','integer');
+        $this->captura('tipo_cbte','varchar');
 
 
 

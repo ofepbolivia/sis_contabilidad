@@ -34,14 +34,25 @@ header("content-type: text/javascript; charset=UTF-8");
     }
 
     /*tipo entrega*/
-    .sigep_una_cg {
+
+    .regularizacion_una_cg {
         background-color: #bdffb2;//#e2ffe2
-        color: #090;
+    color: #090;
     }
 
-    .sigep_mas_cg{
+    .regularizacion_mas_cg{
         background-color: #EAA8A8;//#ffe2e2
-        color: #900;
+    color: #900;
+    }
+
+    .normal_una_cg {
+        background-color: #bdffb2;//#e2ffe2
+    color: #090;
+    }
+
+    .normal_mas_cg{
+        background-color: #EAA8A8;//#ffe2e2
+    color: #900;
     }
 
 
@@ -56,11 +67,17 @@ header("content-type: text/javascript; charset=UTF-8");
             autoFill: true,
             getRowClass: function (record) {
 
-                if (record.data.tipo == 'sigep_una_cg') {
-                    return 'sigep_una_cg';
+                if (record.data.tipo == 'normal_una_cg') {
+                    return 'normal_una_cg';
 
-                } else if (record.data.tipo == 'sigep_mas_cg') {
-                        return 'sigep_mas_cg';
+                } else if (record.data.tipo == 'normal_mas_cg') {
+                    return 'normal_mas_cg';
+
+                } else if (record.data.tipo == 'regularizacion_una_cg') {
+                    return 'regularizacion_una_cg';
+
+                } else if (record.data.tipo == 'regularizacion_mas_cg') {
+                    return 'regularizacion_mas_cg';
 
                 } else {
                     return '';
@@ -124,6 +141,45 @@ header("content-type: text/javascript; charset=UTF-8");
                 }
             );
 
+            this.addButtonIndex(7,'erp_ext_entrega',
+                {
+                    iconCls: 'bball_green',
+                    disabled: true,
+                    xtype: 'splitbutton',
+                    grupo: [0,4],
+                    tooltip: '<b>Acciones para validar y desvalidar, comprobante ERP.</b>',
+                    text: 'ACTION ERP',
+                    //handler: this.onButtonExcel,
+                    argument: {
+                        'news': true,
+                        def: 'reset'
+                    },
+                    scope: this,
+                    menu: [
+                        {
+                            text: 'Validar CBTE',
+                            iconCls: 'bver-sigep',
+                            argument: {
+                                'news': true,
+                                def: 'csv'
+                            },
+                            handler: this.onValidar,
+                            scope: this
+                        },
+                        {
+                            text: 'Desvalidar CBTE',
+                            iconCls: 'bdes-sigep',
+                            argument: {
+                                'news': true,
+                                def: 'csv'
+                            },
+                            handler: this.onDesvalidar,
+                            scope: this
+                        }
+                    ]
+                }
+            );
+
             this.addBotonesGantt();
 
             this.addButton('btnChequeoDocumentosWf',{
@@ -160,7 +216,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: '<b>Observaciones</b><br/><b>Observaciones del WF</b>'
             });
 
-
+            this.bbar.insert(12,'-');
+            this.bbar.insert(13,'-');
+            this.bbar.insert(14,this.estado);
 
             this.init();
 
@@ -174,7 +232,33 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.capturaFiltros();
             }, this);
 
+            this.sm.on('rowselect', this.selectRecord,this);
+            this.sm.on('rowdeselect', this.deselectRecord,this);
+
         },
+
+        selectRecord : function(grid, rowIndex, rec) {
+            var record = this.getSelectedData();
+            this.estado.setText(record.estado.toUpperCase());
+        },
+
+        deselectRecord : function(grid, rowIndex, rec) {
+            this.estado.setText('');
+        },
+
+        estado : new Ext.form.Label({
+            name: 'estado_entrega_cont',
+            grupo: [0,1,2,3,4],
+            fieldLabel: 'Estado',
+            text: '',
+            allowBlank: false,
+            anchor: '60%',
+            gwidth: 100,
+            format: 'd/m/Y',
+            hidden : false,
+            readOnly:true,
+            style: 'font-size: 15pt; font-weight: bold; background-image: none; color: #ff4040;'
+        }),
 
         onEditC31 : function(){
             Phx.CP.loadingShow();
@@ -186,7 +270,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_service_request : record.id_service_request,
                     estado_reg : record.estado,
                     json_data : record.glosa,
-                    clase_comprobante : record.id_clase_comprobante
+                    clase_comprobante : record.id_clase_comprobante,
+                    id_entrega : record.id_entrega
                 },
                 success: function (resp) {
                     var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
@@ -221,9 +306,92 @@ header("content-type: text/javascript; charset=UTF-8");
 
         },
 
+        onValidar : function(){
+            Phx.CP.loadingShow();
+            let record = this.getSelectedData();
+            //console.log('record', record, 'wizard', wizard, 'response', response);
+            Ext.Ajax.request({
+                url:'../../sis_contabilidad/control/Entrega/validarGrupoComprobantes',
+                params:{
+                    id_entrega : record.id_entrega
+                },
+                success: function (resp) {
+                    var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
+                    var datos = reg.ROOT.datos;
+                    Phx.CP.loadingHide();
+                    console.log('datos fuera',datos);
+                    if(datos.process){
+                        console.log('datos',datos);
+                        Ext.Msg.show({
+                            title: 'Estado SIGEP',
+                            msg: '<b>Estimado Funcionario: '+'\n'+'La información se guardo satisfactoriamente en el SIGEP.</b>',
+                            buttons: Ext.Msg.OK,
+                            width: 512,
+                            icon: Ext.Msg.INFO
+                        });
+                    }else{
+                        Phx.CP.loadingHide();
 
+                        Ext.Msg.show({
+                            title: 'Estado SIGEP',
+                            msg: '<b>Estimado Funcionario: '+'\n'+'Hubo algunos inconvenientes al guardar información en el SIGEP.</b>',
+                            buttons: Ext.Msg.OK,
+                            width: 512,
+                            icon: Ext.Msg.INFO
+                        });
+                    }
+                },
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope:this
+            });
+
+        },
+
+        onDesvalidar : function(){
+            Phx.CP.loadingShow();
+            let record = this.getSelectedData();
+            //console.log('record', record, 'wizard', wizard, 'response', response);
+            Ext.Ajax.request({
+                url:'../../sis_contabilidad/control/Entrega/desvalidarGrupoComprobantes',
+                params:{
+                    id_entrega : record.id_entrega
+                },
+                success: function (resp) {
+                    var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
+                    var datos = reg.ROOT.datos;
+                    Phx.CP.loadingHide();
+                    console.log('datos fuera',datos);
+                    if(datos.process){
+                        console.log('datos',datos);
+                        Ext.Msg.show({
+                            title: 'Estado SIGEP',
+                            msg: '<b>Estimado Funcionario: '+'\n'+'La información se guardo satisfactoriamente en el SIGEP.</b>',
+                            buttons: Ext.Msg.OK,
+                            width: 512,
+                            icon: Ext.Msg.INFO
+                        });
+                    }else{
+                        Phx.CP.loadingHide();
+
+                        Ext.Msg.show({
+                            title: 'Estado SIGEP',
+                            msg: '<b>Estimado Funcionario: '+'\n'+'Hubo algunos inconvenientes al guardar información en el SIGEP.</b>',
+                            buttons: Ext.Msg.OK,
+                            width: 512,
+                            icon: Ext.Msg.INFO
+                        });
+                    }
+                },
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope:this
+            });
+
+        },
 
         cmbDepto : new Ext.form.AwesomeCombo({
+            id: 'id_depto_ent_ext',
             name : 'id_depto_ent_ext',
             fieldLabel : 'Depto',
             typeAhead : false,
@@ -539,7 +707,8 @@ header("content-type: text/javascript; charset=UTF-8");
             'localidad',
             'glosa',
             'tipo',
-            'validado'
+            'validado',
+            'tipo_cbte'
 
         ],
         sortInfo:{
@@ -554,8 +723,8 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         /*================================= BEGIN SIGUIENTE ESTADO =======================================*/
         sigEstado : function () {
+            //var rec = this.getSelectedData();
             var rec = this.sm.getSelected();
-            console.log('rec',rec.data);
             if(rec.data.validado == 'no'){
                 this.validarComprobantesERP();
             }else{
@@ -625,6 +794,25 @@ header("content-type: text/javascript; charset=UTF-8");
                 });
         },
         onSaveWizard: function (wizard, resp) {
+            /*Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url:'../../sis_contabilidad/control/Entrega/siguienteEstado',
+                params:{
+
+                    id_proceso_wf_act:  resp.id_proceso_wf_act,
+                    id_estado_wf_act:   resp.id_estado_wf_act,
+                    id_tipo_estado:     resp.id_tipo_estado,
+                    id_funcionario_wf:  resp.id_funcionario_wf,
+                    id_depto_wf:        resp.id_depto_wf,
+                    obs:                resp.obs,
+                    json_procesos:      Ext.util.JSON.encode(resp.procesos)
+                },
+                success:this.successWizard,
+                failure: this.conexionFailure,
+                argument:{wizard:wizard},
+                timeout:this.timeout,
+                scope:this
+            });*/
             this.mandarDatosWizard(wizard, resp, true);
         },
 
@@ -719,20 +907,20 @@ header("content-type: text/javascript; charset=UTF-8");
 
             if(rec.estado == 'borrador') {
                 if (rec.id_clase_comprobante == 5) {
-                    if (rec.localidad == 'internacional'){
+                    if (rec.tipo_cbte == 'internacional'){
                         this.onSigepReguS(wizard, resp, 'REGULARIZAS');
                     }else{
                         this.onSigepSip(wizard, resp);
                     }
                 }else if (rec.id_clase_comprobante == 3){
-                    if (rec.localidad == 'internacional'){
+                    if (rec.tipo_cbte == 'internacional'){
                         this.onSigepReguC(wizard, resp, 'REGULARIZAC');
                     }else{
                         console.log('onSigepCIP');
                         this.onSigepCIP(wizard, resp, 'CON_IMPUTACION');
                     }
                 }else if (rec.id_clase_comprobante == 1){
-                    if (rec.localidad == 'internacional'){
+                    if (rec.tipo_cbte == 'internacional'){
                         this.onSigepReguC(wizard, resp, 'REGULARIZAC');
                     }else{
                         console.log('onSigepCIP');
@@ -757,7 +945,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_proceso_wf: rec.id_proceso_wf,
                     momento: momento,
                     sigep_adq: resp.sigep_adq,
-                    localidad: rec.localidad
+                    localidad: rec.tipo_cbte
                 },
                 success: this.successConsu, //successConsu
                 failure: this.failureCheck, //chequea si esta en verificacion presupeusto para enviar correo de transferencia
@@ -783,7 +971,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 params: {
                     id_proceso_wf: rec.id_proceso_wf,
                     momento: momento,
-                    localidad: rec.localidad,
+                    localidad: rec.tipo_cbte,
                 },
                 success: this.successConsu,
                 failure: this.failureC, //chequea si esta en verificacion presupeusto para enviar correo de transferencia
@@ -807,7 +995,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_proceso_wf : rec.id_proceso_wf,
                     momento : resp.momento,
                     sigep_adq : resp.sigep_adq,
-                    localidad : rec.localidad
+                    localidad : rec.tipo_cbte
                 },
                 success: this.successConsu,
                 failure: this.failureC, //chequea si esta en verificacion presupeusto para enviar correo de transferencia
@@ -1121,7 +1309,20 @@ header("content-type: text/javascript; charset=UTF-8");
         onAntEstado: function(wizard,resp){
 
             Phx.CP.loadingShow();
-
+            /*Ext.Ajax.request({
+                url:'../../sis_contabilidad/control/Entrega/retrosederEstado',
+                params:{
+                    id_proceso_wf: resp.id_proceso_wf,
+                    id_estado_wf:  resp.id_estado_wf,
+                    obs: resp.obs,
+                    estado_destino: resp.estado_destino
+                },
+                argument:{wizard:wizard},
+                success:this.successEstadoSinc,
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+            });*/
             this.revertirProcesoSigep(wizard,resp);
         },
 
@@ -1261,6 +1462,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('btnObs').enable();
 
             this.getBoton('sigep_ext_entrega').enable();
+            //this.getBoton('erp_ext_entrega').enable();
             return tb;
         },
         liberaMenu : function() {
@@ -1273,6 +1475,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('diagrama_gantt').disable();
             this.getBoton('btnObs').disable();
             this.getBoton('sigep_ext_entrega').disable();
+            //this.getBoton('erp_ext_entrega').disable();
 
         },
         capturaFiltros : function(combo, record, index) {

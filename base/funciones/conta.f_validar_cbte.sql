@@ -123,7 +123,8 @@ BEGIN
         c.id_periodo,
         cc.id_documento,   --documento con que se genera la numeracion
         cc.codigo as codigo_cbte,
-        sis.codigo as codigo_sistema
+        sis.codigo as codigo_sistema,
+        coalesce(c.id_service_request,0) as tipo_cbte --29/10/20 franklin.espinoza
 	  into
         v_rec_cbte
     from conta.tint_comprobante c
@@ -138,7 +139,7 @@ BEGIN
     --  Verifica si los cbte de diario cuadran con los dosc/fact/recibos/invoices registrados
     -------------------------------------------------------------------------------------------
      --14-05-2020(may) condicion para los cbtes q no sea obligatorio los documentos
-     IF (v_rec_cbte.localidad != 'internacional') THEN
+     IF (v_rec_cbte.localidad != 'internacional' and v_rec_cbte.tipo_cbte::varchar = '0'::varchar ) THEN --29/10/20 franklin.espinoza se agrega la regla para comprobantes integracion sigep and v_rec_cbte.tipo_cbte = 0
         v_resp_val_doc =  conta.f_validar_cbte_docs(p_id_int_comprobante, p_validar_doc);
      END IF;
 
