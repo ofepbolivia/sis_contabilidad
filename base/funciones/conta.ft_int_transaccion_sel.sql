@@ -398,9 +398,15 @@ BEGIN
                         icbte.id_proceso_wf,
                         icbte.id_estado_wf,
                         icbte.c31,
-                        (select array_to_string( array_agg( cv.nro_documento), '','' )
+
+                        --Remplazando por la subconsulta comentada (Ismael Valdivia 03/11/2020)
+                        array_to_string( array_agg( cv.nro_documento), '','' )::varchar as nro_documentos
+
+                        --Comentando esta subconsulta porque tarda en recuerar la informacion (Ismael Valdivia 03/11/2020)
+                        /*(select array_to_string( array_agg( cv.nro_documento), '','' )
                          from conta.tdoc_compra_venta  cv
-                         where cv.id_int_comprobante=transa.id_int_comprobante)::VARCHAR as nro_documentos
+                         where cv.id_int_comprobante=transa.id_int_comprobante)::VARCHAR as nro_documentos*/
+                        --------------------------------------------------------------------------------------------------
 
 						from conta.tint_transaccion transa
                         inner join conta.tint_comprobante icbte on icbte.id_int_comprobante = transa.id_int_comprobante
@@ -416,6 +422,9 @@ BEGIN
 						left join param.vcentro_costo cc on cc.id_centro_costo = transa.id_centro_costo
 						left join conta.tauxiliar aux on aux.id_auxiliar = transa.id_auxiliar
                         left join conta.torden_trabajo ot on ot.id_orden_trabajo =  transa.id_orden_trabajo
+
+                        left join conta.tdoc_compra_venta cv on cv.id_int_comprobante = transa.id_int_comprobante
+
 				        where icbte.estado_reg = ''validado''
                               and ' ||v_filtro_cuentas||'
                               and '||v_filtro_ordenes||'
@@ -423,6 +432,30 @@ BEGIN
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
+
+            --Aqui Aumentamos para agrupar la consulta
+            v_consulta:=v_consulta||'group by transa.id_int_transaccion,
+                                              usu1.cuenta,
+                                              usu2.cuenta,
+                                              cue.nro_cuenta,
+                                              cue.nombre_cuenta,
+                                              par.sw_movimiento,
+                                              icbte.nro_cbte,
+                                              icbte.nro_tramite,
+                                              dep.nombre_corto,
+                                              icbte.fecha,
+                                              icbte.glosa1,
+                                              icbte.id_proceso_wf,
+                                              icbte.id_estado_wf,
+                                              icbte.c31,
+                                              par.codigo,
+                                              par.nombre_partida,
+                                              cc.codigo_cc,
+                                              aux.codigo_auxiliar,
+                                              aux.nombre_auxiliar,
+                                              ot.id_orden_trabajo';
+
+
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
             raise notice '%', v_consulta;
 			--Devuelve la respuesta
@@ -567,6 +600,9 @@ BEGIN
 						left join param.vcentro_costo cc on cc.id_centro_costo = transa.id_centro_costo
 						left join conta.tauxiliar aux on aux.id_auxiliar = transa.id_auxiliar
                         left join conta.torden_trabajo ot on ot.id_orden_trabajo =  transa.id_orden_trabajo
+
+                        left join conta.tdoc_compra_venta cv on cv.id_int_comprobante = transa.id_int_comprobante
+
 				        where icbte.estado_reg = ''validado''
                               and ' ||v_filtro_cuentas||'
                               and '||v_filtro_ordenes||'

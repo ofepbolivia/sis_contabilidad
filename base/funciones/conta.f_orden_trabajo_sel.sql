@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.f_orden_trabajo_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -14,13 +12,13 @@ $body$
  DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'conta.torden_trabajo'
  AUTOR: 		Gonzalo Sarmiento Sejas
  FECHA:	        21-02-2013 21:08:55
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION:
+ AUTOR:
+ FECHA:
 ***************************************************************************/
 
 DECLARE
@@ -33,53 +31,53 @@ DECLARE
     v_filtro			varchar;
     v_ordenes			varchar;
     v_id_tipo_cc		integer;
-			    
+
 BEGIN
 
 	v_nombre_funcion = 'conta.f_orden_trabajo_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'CONTA_ODT_SEL'
  	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		Gonzalo Sarmiento Sejas	
+ 	#AUTOR:		Gonzalo Sarmiento Sejas
  	#FECHA:		21-02-2013 21:08:55
 	***********************************/
 
 	if(p_transaccion='CONTA_ODT_SEL')then
-     				
+
     	begin
-        
+
             --armar filtro especial de tipos de centros de costo
             v_filtro = '0 = 0 AND ';
-            
+
             IF pxp.f_existe_parametro(p_tabla, 'id_centro_costo') THEN
-            
-                 select 
+
+                 select
                     id_tipo_cc
-                 into 
+                 into
                    v_id_tipo_cc
                  from param.tcentro_costo cc
                  where cc.id_centro_costo = v_parametros.id_centro_costo;
-                 
+
                  IF v_id_tipo_cc is null THEN
                     raise exception 'No fue parametrizaso un tipo para el centro de costos % ',v_parametros.id_centro_costo;
                  END IF;
-                  
-                 SELECT 
+
+                 SELECT
                   pxp.list(c.id_orden_trabajo::VARCHAR)
-                 into 
-                   v_ordenes 
-                FROM conta.vot_arb c 
+                 into
+                   v_ordenes
+                FROM conta.vot_arb c
                 inner join conta.ttipo_cc_ot tco on tco.id_orden_trabajo = ANY(c.ids)
                 where c.movimiento = 'si'  and tco.id_tipo_cc = v_id_tipo_cc;
-            
-            
+
+
                  v_filtro = ' id_orden_trabajo in ('||COALESCE(v_ordenes,'0')::Varchar||') AND ';
-                
-            
+
+
             END IF;
-        
+
     		--Sentencia de la consulta
 			v_consulta:='select
                           id_orden_trabajo,
@@ -99,13 +97,16 @@ BEGIN
                           codigo,
                           descripcion::varchar,
                           id_orden_trabajo_fk,
-                          desc_otp
-                        
+                          desc_otp,
+
+                          --Aumentando para filtrar conceptos por el grupo de ot
+                          id_grupo_ots::varchar
+
 						from conta.vorden_trabajo odt
-				        where      movimiento = ''si'' 
-                              and tipo in (''estadistica'',''centro'',''edt'',''orden'') 
+				        where      movimiento = ''si''
+                              and tipo in (''estadistica'',''centro'',''edt'',''orden'')
                               and '||v_filtro;
-			
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
@@ -113,66 +114,66 @@ BEGIN
             raise notice '>>>>>>>>>>>>  %',v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'CONTA_ODT_CONT'
  	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		Gonzalo Sarmiento Sejas	
+ 	#AUTOR:		Gonzalo Sarmiento Sejas
  	#FECHA:		21-02-2013 21:08:55
 	***********************************/
 
 	elsif(p_transaccion='CONTA_ODT_CONT')then
 
 		begin
-        
+
         --armar filtro especial de tipos de centros de costo
             v_filtro = '0 = 0 AND ';
-            
+
             IF pxp.f_existe_parametro(p_tabla, 'id_centro_costo') THEN
-            
-                 select 
+
+                 select
                     id_tipo_cc
-                 into 
+                 into
                    v_id_tipo_cc
                  from param.tcentro_costo cc
                  where cc.id_centro_costo = v_parametros.id_centro_costo;
-                 
+
                  IF v_id_tipo_cc is null THEN
                     raise exception 'No fue parametrizaso un tipo para el centro de costos % ',v_parametros.id_centro_costo;
                  END IF;
-                  
-                 SELECT 
+
+                 SELECT
                   pxp.list(c.id_orden_trabajo::VARCHAR)
-                 into 
-                   v_ordenes 
-                FROM conta.vot_arb c 
+                 into
+                   v_ordenes
+                FROM conta.vot_arb c
                 inner join conta.ttipo_cc_ot tco on tco.id_orden_trabajo = ANY(c.ids)
                 where c.movimiento = 'si'  and tco.id_tipo_cc = v_id_tipo_cc;
-            
-            
+
+
                  v_filtro = ' id_orden_trabajo in ('||COALESCE(v_ordenes,'0')::Varchar||') AND ';
-                
-            
+
+
             END IF;
-            
+
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_orden_trabajo)
 					     from conta.vorden_trabajo odt
-				         where      movimiento = ''si'' 
-                              and tipo in (''estadistica'',''centro'',''edt'',''orden'') 
+				         where      movimiento = ''si''
+                              and tipo in (''estadistica'',''centro'',''edt'',''orden'')
                               and '||v_filtro;
-			
-			--Definicion de la respuesta		    
+
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
 			return v_consulta;
 
 		end;
-        
-    /*********************************    
+
+    /*********************************
  	#TRANSACCION:  'CONTA_ODTRAM_SEL'
  	#DESCRIPCION:	Consulta OT del tipo rama para configurar padres desde la interface de OT
  	#AUTOR:		Renso Arteaga Copari KPLIAN
@@ -180,7 +181,7 @@ BEGIN
 	***********************************/
 
 	elsif(p_transaccion='CONTA_ODTRAM_SEL')then
-     				
+
     	begin
     		--Sentencia de la consulta
 			v_consulta:='select
@@ -203,7 +204,7 @@ BEGIN
                           id_orden_trabajo_fk
                         from conta.vorden_trabajo odt
 				        where  movimiento = ''no'' and tipo in (''estadistica'',''centro'',''edt'',''orden'') and ';
-			
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
@@ -211,10 +212,10 @@ BEGIN
             raise notice '%',v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'CONTA_ODTRAM_CONT'
  	#DESCRIPCION:	Conteo de registros
  	#AUTOR:		Rensi ARteaga Copari
@@ -228,18 +229,18 @@ BEGIN
 			v_consulta:='select count(id_orden_trabajo)
 					     from conta.vorden_trabajo odt
 				         where  movimiento = ''no'' and tipo in (''estadistica'',''centro'',''edt'',''orden'') and ';
-			
-			--Definicion de la respuesta		    
+
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
 			return v_consulta;
 
-		end;    
-        
-        
-     
-    /*********************************    
+		end;
+
+
+
+    /*********************************
  	#TRANSACCION:  'CONTA_ODTALL_SEL'
  	#DESCRIPCION:	Consulta de datos
  	#AUTOR:		RAC KPLIAN
@@ -247,7 +248,7 @@ BEGIN
 	***********************************/
 
 	elseif(p_transaccion='CONTA_ODTALL_SEL')then
-     				
+
     	begin
     		--Sentencia de la consulta
 			v_consulta:='select
@@ -268,10 +269,10 @@ BEGIN
                           codigo,
                           descripcion::varchar,
                           id_orden_trabajo_fk
-                        
+
 						from conta.vorden_trabajo odt
 				        where   ';
-			
+
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
@@ -279,10 +280,10 @@ BEGIN
             raise notice '%',v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
-						
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'CONTA_ODTALL_CONT'
  	#DESCRIPCION:	Conteo de registros
  	#AUTOR:		RAC KPLIAN
@@ -296,18 +297,18 @@ BEGIN
 			v_consulta:='select count(id_orden_trabajo)
 					     from conta.vorden_trabajo odt
 				         where  ';
-			
-			--Definicion de la respuesta		    
+
+			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 
 			--Devuelve la respuesta
 			return v_consulta;
 
-		end;   
-        
-        
-        
-    /*********************************   
+		end;
+
+
+
+    /*********************************
      #TRANSACCION:  'CONTA_ODTARB_SEL'
      #DESCRIPCION:    Consulta de ordenes en formato arbol
      #AUTOR:            Rensi Arteaga
@@ -315,16 +316,16 @@ BEGIN
     ***********************************/
 
     elseif(p_transaccion='CONTA_ODTARB_SEL')then
-                    
-        begin       
+
+        begin
               if(v_parametros.node = 'id') then
-                v_where := ' odt.id_orden_trabajo_fk is NULL and movimiento = ''no'' ';   
-                     
+                v_where := ' odt.id_orden_trabajo_fk is NULL and movimiento = ''no'' ';
+
               else
                 v_where := ' odt.id_orden_trabajo_fk = '||v_parametros.node;
               end if;
-       
-       
+
+
             --Sentencia de la consulta
             v_consulta:='select
                           id_orden_trabajo,
@@ -349,26 +350,26 @@ BEGIN
                                ''hijo''::varchar
                           END as tipo_nodo,
                           id_orden_trabajo_fk
-                        
-						from conta.vorden_trabajo odt                          
-                        where  '||v_where|| ' 
+
+						from conta.vorden_trabajo odt
+                        where  '||v_where|| '
                            and odt.estado_reg = ''activo''
                         ORDER BY odt.id_orden_trabajo';
             raise notice '%',v_consulta;
-           
+
             --Devuelve la respuesta
             return v_consulta;
-                       
-        end;        
-					
+
+        end;
+
 	else
-					     
+
 		raise exception 'Transaccion inexistente';
-					         
+
 	end if;
-					
+
 EXCEPTION
-					
+
 	WHEN OTHERS THEN
 			v_resp='';
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
@@ -382,3 +383,6 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
+
+ALTER FUNCTION conta.f_orden_trabajo_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;
