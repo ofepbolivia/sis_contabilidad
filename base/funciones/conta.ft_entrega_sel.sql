@@ -108,15 +108,21 @@ BEGIN
                              inner join tes.tplan_pago pp on pp.id_int_comprobante = ende.id_int_comprobante
                              where ende.id_entrega = ent.id_entrega) as monto,
                              com.tipo_cambio_2,
-                             to_char(com.fecha,''DD/MM/YYYY'')::varchar as fecha
-
+                             to_char(com.fecha,''DD/MM/YYYY'')::varchar as fecha,
+							com.id_clase_comprobante,
+							ent.id_service_request,
+                            com.localidad,
+                            ent.glosa,
+                            ent.tipo,
+                            ent.validado,
+                            tic.tipo_cbte
 
 						from conta.tentrega ent
 						inner join segu.tusuario usu1 on usu1.id_usuario = ent.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = ent.id_usuario_mod
 				        inner join conta.tentrega_det det on det.id_entrega = ent.id_entrega
                         inner join conta.vint_comprobante com on com.id_int_comprobante = det.id_int_comprobante
-
+						inner join conta.tint_comprobante tic on tic.id_int_comprobante = com.id_int_comprobante
                         where  '||v_filtro;
 
       --Definicion de la respuesta
@@ -147,6 +153,7 @@ BEGIN
 						left join segu.tusuario usu2 on usu2.id_usuario = ent.id_usuario_mod
 				        inner join conta.tentrega_det det on det.id_entrega = ent.id_entrega
                         inner join conta.vint_comprobante com on com.id_int_comprobante = det.id_int_comprobante
+                        inner join conta.tint_comprobante tic on tic.id_int_comprobante = com.id_int_comprobante
                        	where ';
 
       --Definicion de la respuesta

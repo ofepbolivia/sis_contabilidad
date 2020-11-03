@@ -81,9 +81,15 @@ BEGIN
                 where depu.id_usuario =  p_id_usuario and depu.cargo = 'responsable';
 
 				--15-06-2020(may) para la interfaz de Registro de Comprobantes de Pago IntComprobanteRegAux_2 se mostraran todos los cbtes
-				IF v_parametros.nombreVista != 'IntComprobanteLd' and v_parametros.nombreVista != 'VbIntComprobante' and v_parametros.nombreVista != 'IntComprobanteRegAux_2' THEN
+				IF v_parametros.nombreVista != 'IntComprobanteLd' and v_parametros.nombreVista != 'VbIntComprobante' and v_parametros.nombreVista != 'IntComprobanteRegAux_2' and v_parametros.nombreVista != 'IntComprobanteConsulta' THEN
                 	v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||' or incbte.id_usuario_mod = '||p_id_usuario::varchar ||' or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
                 END IF;
+
+                --franklin.espinoza 27/09/2020
+                IF v_parametros.nombreVista = 'IntComprobanteRegAuxExt' THEN
+                	v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||' or incbte.id_usuario_mod = '||p_id_usuario::varchar ||' or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
+                END IF;
+
 
                 -- para la vista visto bueno comprobante
        			IF v_parametros.nombreVista = 'VbIntComprobante' THEN
@@ -168,13 +174,20 @@ BEGIN
                               incbte.tipo_cambio_3,
                               incbte.id_moneda_act
                               ,tic.id_service_request
-
+							  ,tic.id_depto_libro
+                              ,tic.id_cuenta_bancaria
+                              ,coalesce(cb.nombre_institucion,''S/N'') ||'' (''||coalesce(cb.nro_cuenta,''S/C'')||'')'' as desc_cuenta_bancaria
+                              ,depto.nombre as desc_depto_lb
+                              ,tic.tipo_cbte
                           from conta.vint_comprobante incbte
                           inner join conta.tint_comprobante tic on tic.id_int_comprobante  = incbte.id_int_comprobante
+
                           inner join wf.tproceso_wf pwf on pwf.id_proceso_wf = incbte.id_proceso_wf
                           inner join wf.testado_wf ew on ew.id_estado_wf = incbte.id_estado_wf
+                          left join tes.vcuenta_bancaria cb on cb.id_cuenta_bancaria = tic.id_cuenta_bancaria
+                          left join param.tdepto depto on depto.id_depto = tic.id_depto_libro
                           '||v_inner||'
-                          where (incbte.estado_reg in (''borrador'',''validado'',''elaborado'',''verificado'',''aprobado'')) and '||v_filtro;
+                          where /*(incbte.estado_reg in (''borrador'',''validado'',''elaborado'',''verificado'',''aprobado'')) and*/ '||v_filtro;
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -340,6 +353,11 @@ BEGIN
                 	v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||'  or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
                 END IF;
 
+				--franklin.espinoza 27/09/2020
+                IF v_parametros.nombreVista = 'IntComprobanteRegAuxExt' THEN
+                	v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||' or incbte.id_usuario_mod = '||p_id_usuario::varchar ||' or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
+                END IF;
+
                 -- para la vista visto bueno comprobante
        			IF v_parametros.nombreVista = 'VbIntComprobante' THEN
                     v_inner = 'left join orga.vfuncionario fun on fun.id_funcionario = ew.id_funcionario
@@ -352,12 +370,16 @@ BEGIN
             END IF;
 
             --Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(id_int_comprobante)
+			v_consulta:='select count(incbte.id_int_comprobante)
 					     from conta.vint_comprobante incbte
+                         --inner join conta.tint_comprobante tic on tic.id_int_comprobante  = incbte.id_int_comprobante
                          inner join wf.tproceso_wf pwf on pwf.id_proceso_wf = incbte.id_proceso_wf
                          inner join wf.testado_wf ew on ew.id_estado_wf = incbte.id_estado_wf
+
+                         --left join tes.vcuenta_bancaria cb on cb.id_cuenta_bancaria = tic.id_cuenta_bancaria
+                         --left join param.tdepto depto on depto.id_depto = tic.id_depto_libro
                          '||v_inner||'
-                         where  incbte.estado_reg in (''borrador'',''validado'',''vbfin'',''vbconta'') and '||v_filtro;
+                         where  /*incbte.estado_reg in (''borrador'',''validado'',''vbfin'',''vbconta'') and*/ '||v_filtro;
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
@@ -393,10 +415,10 @@ BEGIN
                             inner join conta.tclase_comprobante cc on cc.id_clase_comprobante = inc.id_clase_comprobante
                             where  ';
 
-			--Definicion de la respuesta												
-			v_consulta:=v_consulta||v_parametros.filtro;								
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
 			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-			
+
 			--Devuelve la respuesta
 			return v_consulta;
 
@@ -1035,6 +1057,3 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
-
-ALTER FUNCTION conta.ft_int_comprobante_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;

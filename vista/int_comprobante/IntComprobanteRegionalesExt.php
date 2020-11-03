@@ -238,7 +238,16 @@ header("content-type: text/javascript; charset=UTF-8");
                 }
             }, this);
 
-
+            this.Cmp.id_depto_libro.on('select',function(a,b,c){
+                this.Cmp.id_cuenta_bancaria.setValue('');
+                this.Cmp.id_cuenta_bancaria.store.baseParams.id_depto_lb = this.Cmp.id_depto_libro.getValue();
+                this.Cmp.id_cuenta_bancaria.store.baseParams.permiso = 'todos';
+                this.Cmp.id_cuenta_bancaria.modificado=true;
+                /*this.Cmp.id_proveedor_cta_bancaria.setValue('');
+                this.Cmp.id_proveedor_cta_bancaria.store.baseParams.id_depto_lb = this.Cmp.id_depto_lb.getValue();
+                this.Cmp.id_proveedor_cta_bancaria.store.baseParams.permiso = 'todos';
+                this.Cmp.id_proveedor_cta_bancaria.modificado=true;*/
+            },this);
 
         },
 
@@ -280,6 +289,10 @@ header("content-type: text/javascript; charset=UTF-8");
                 name: 'id_int_comprobante'
             },
             type: 'Field',
+            filters: {
+                pfiltro: 'incbte.id_int_comprobante',
+                type: 'numeric'
+            },
             bottom_filtro: true,
             form: false,
             grid: true
@@ -1049,7 +1062,82 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid: true,
                 egrid: true,
                 form: true
-            }, {
+            },
+
+            {
+                config: {
+                    name: 'id_depto_libro',
+                    hiddenName: 'id_depto_libro',
+                    //url: '../../sis_parametros/control/Depto/listarDepto',
+                    origen: 'DEPTO',
+                    allowBlank: false,
+                    fieldLabel: 'Libro de bancos destino',
+                    disabled: false,
+                    width: '80%',
+                    baseParams: {estado: 'activo', codigo_subsistema: 'TES', modulo: 'LB', tipo_filtro: 'DEPTO_UO'},
+                    gdisplayField: 'desc_depto_lb',
+                    gwidth: 120,
+                    width: 250
+                },
+                //type:'TrigguerCombo',
+                filters: {pfiltro: 'depto.nombre', type: 'string'},
+                type: 'ComboRec',
+                id_grupo: 0,
+                form: true,
+                grid: true
+            },
+
+            {
+                config: {
+                    name: 'id_cuenta_bancaria',
+                    fieldLabel: 'Cuenta Bancaria Pago (BOA)',
+                    allowBlank: false,
+                    resizable: true,
+                    emptyText: 'Elija una Cuenta...',
+                    store: new Ext.data.JsonStore(
+                        {
+                            url: '../../sis_tesoreria/control/CuentaBancaria/listarCuentaBancariaUsuario',
+                            id: 'id_cuenta_bancaria',
+                            root: 'datos',
+                            sortInfo: {
+                                field: 'id_cuenta_bancaria',
+                                direction: 'ASC'
+                            },
+                            totalProperty: 'total',
+                            fields: ['id_cuenta_bancaria', 'nro_cuenta', 'nombre_institucion', 'codigo_moneda', 'centro', 'denominacion'],
+                            remoteSort: true,
+                            baseParams: {
+                                par_filtro: 'nro_cuenta', centro: 'exterior'
+                            }
+                        }),
+                    tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>{nro_cuenta}</b></p><p>Moneda: {codigo_moneda}, {nombre_institucion}</p><p>{denominacion}, Centro: {centro}</p></div></tpl>',
+                    valueField: 'id_cuenta_bancaria',
+                    hiddenValue: 'id_cuenta_bancaria',
+                    displayField: 'nro_cuenta',
+                    gdisplayField: 'desc_cuenta_bancaria',
+                    listWidth: '280',
+                    forceSelection: true,
+                    typeAhead: false,
+                    triggerAction: 'all',
+                    lazyRender: true,
+                    mode: 'remote',
+                    pageSize: 20,
+                    queryDelay: 500,
+                    gwidth: 250,
+                    width: 250,
+                    minChars: 2,
+                    renderer: function (value, p, record) {
+                        return String.format('{0}', record.data['desc_cuenta_bancaria']);
+                    }
+                },
+                type: 'ComboBox',
+                filters: {pfiltro: 'cb.nro_cuenta', type: 'string'},
+                id_grupo: 0,
+                grid: true,
+                form: true
+            },
+
+            {
                 config: {
                     name: 'fecha_costo_ini',
                     fieldLabel: 'Fecha Inicial',
@@ -1178,7 +1266,28 @@ header("content-type: text/javascript; charset=UTF-8");
                 id_grupo: 0,
                 grid: true,
                 form: false
-            }],
+            },
+            {
+                config: {
+                    name: 'id_service_request',
+                    fieldLabel: 'Id. Service Request',
+                    allowBlank: true,
+                    readOnly: true,
+                    anchor: '90%',
+                    gwidth: 70,
+                    maxLength: 20,
+                    decimalPrecision: 6
+                },
+                type: 'NumberField',
+                filters: {
+                    pfiltro: 'incbte.id_service_request',
+                    type: 'numeric'
+                },
+                id_grupo: 0,
+                grid: true,
+                form: false
+            }
+            ],
 
         Grupos: [{
             layout: 'column',
@@ -1346,13 +1455,14 @@ header("content-type: text/javascript; charset=UTF-8");
             'desc_tipo_relacion_comprobante', 'id_int_comprobante_fks', 'manual',
             'id_tipo_relacion_comprobante', 'tipo_cambio_2', 'id_moneda_tri', 'tipo_cambio_3', 'id_moneda_act',
             'sw_tipo_cambio', 'id_config_cambiaria', 'ope_1', 'ope_2', 'ope_3',
-            'desc_moneda_tri', 'localidad', 'sw_editable', 'cbte_reversion', 'volcado', 'c31', 'fecha_c31', 'forma_cambio', 'id_service_request'],
+            'desc_moneda_tri', 'localidad', 'sw_editable', 'cbte_reversion', 'volcado', 'c31', 'fecha_c31', 'forma_cambio', 'id_service_request',
+            'id_depto_libro', 'id_cuenta_bancaria','desc_cuenta_bancaria','desc_depto_lb', 'tipo_cbte'],
 
         rowExpander: new Ext.ux.grid.RowExpander({
             tpl: new Ext.Template('<br>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Departamento:&nbsp;&nbsp;</b> {desc_depto} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Clase cbte:&nbsp;&nbsp;</b> {desc_clase_comprobante}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Origen:&nbsp;&nbsp;</b> {desc_subsistema}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Beneficiario:&nbsp;&nbsp;</b> {beneficiario}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Glosa:&nbsp;&nbsp;</b> {glosa1} {glosa2}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Frima 1:&nbsp;&nbsp;</b> {desc_firma1} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Firma 2:&nbsp;&nbsp;</b> {desc_firma2} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Firma 3:&nbsp;&nbsp;</b> {desc_firma3} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:&nbsp;&nbsp;</b> {usr_reg}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Estado Registro:&nbsp;&nbsp;</b> {estado_reg}</p><br>')
         }),
 
-        arrayDefaultColumHidden: ['id_funcionario_firma1', 'id_funcionario_firma2', 'id_funcionario_firma3', 'id_subsistema', 'id_tipo_relacion_comprobante', 'fecha_mod', 'usr_reg', 'usr_mod', 'id_depto', 'estado', 'glosa1', 'momento', 'glosa2', 'desc_subsistema', 'desc_clase_comprobante', 'estado_reg', 'fecha_reg'],
+        arrayDefaultColumHidden: ['id_funcionario_firma1', 'id_funcionario_firma2', 'id_funcionario_firma3', 'id_subsistema', 'id_tipo_relacion_comprobante', 'fecha_mod', 'usr_reg', 'usr_mod', 'id_depto', 'estado', 'glosa1', 'momento', 'glosa2', 'desc_subsistema', 'desc_clase_comprobante', 'estado_reg', 'fecha_reg', 'id_service_request'],
 
         sortInfo: {
             field: 'id_int_comprobante',

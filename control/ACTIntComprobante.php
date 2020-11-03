@@ -31,8 +31,12 @@ class ACTIntComprobante extends ACTbase{
             $this->objParam->addFiltro("incbte.estado_reg in (''borrador'')");
         }else if($this->objParam->getParametro('estado_cbte') == 'verificado'){
             $this->objParam->addFiltro("incbte.estado_reg in (''verificado'')");
+        }else if($this->objParam->getParametro('estado_cbte') == 'elaborado'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''elaborado'')");
         }else if($this->objParam->getParametro('estado_cbte') == 'aprobado'){
             $this->objParam->addFiltro("incbte.estado_reg in (''aprobado'')");
+        }else if($this->objParam->getParametro('estado_cbte') == 'validado'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''validado'')");
         }else if($this->objParam->getParametro('estado_cbte') == 'borrador_elaborado'){
             $this->objParam->addFiltro("incbte.estado_reg in (''borrador'',''elaborado'')");
         }
@@ -69,7 +73,7 @@ class ACTIntComprobante extends ACTbase{
             }else{
                 //(may)25-09-2019 para que enliste el nuevo estado vbfin y vbconta
                 // $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
-                $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'',''elaborado'')");
+                $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
             }
 
         }
@@ -820,6 +824,13 @@ class ACTIntComprobante extends ACTbase{
     function cbteIncrementoCbte(){
         $this->objFunc=$this->create('MODIntComprobante');
         $this->res=$this->objFunc->cbteIncrementoCbte($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //{develop: franklin.espinoza date: 12/10/2020, description: Guarda Preventivo,Compromiso,Devengado para procesos con Preventivo}
+    function guardarDocumentoSigep(){
+        $this->objFunc=$this->create('MODIntComprobante');
+        $this->res=$this->objFunc->guardarDocumentoSigep($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 

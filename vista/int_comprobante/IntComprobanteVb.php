@@ -29,12 +29,12 @@ Phx.vista.IntComprobanteVb = {
         
         me.addButtonCustom(config.idContenedor,'ant_estado', { argument: { estado: 'anterior'}, text:'Rechazar',iconCls: 'batras', disabled: true, handler: this.antEstado, tooltip: '<b>Pasar al Anterior Estado</b>' });
         me.addButtonCustom(config.idContenedor, 'sig_estado', { text: 'Aprobar', iconCls: 'badelante', disabled: true, handler: this.sigEstado, tooltip: '<b>Pasar al Siguiente Estado</b>' });
-        
+
         Phx.vista.IntComprobanteVb.superclass.constructor.call(me,config);
         
         
         //this.addButtonCustom('medio', 'sig_estado', { text: 'Aprobar', iconCls: 'badelante', disabled: true, handler: this.sigEstado, tooltip: '<b>Pasar al Siguiente Estado</b>' });
-        
+
 	    this.addButton('chkdep', {	text:'Dependencias',
 				iconCls:  'blist',
 				disabled: true,

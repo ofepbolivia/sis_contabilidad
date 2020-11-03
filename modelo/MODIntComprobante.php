@@ -89,7 +89,13 @@ class MODIntComprobante extends MODbase{
         $this->captura('ope_3','varchar');
         $this->captura('tipo_cambio_3','numeric');
         $this->captura('id_moneda_act','int4');
+        //franklin.espinoza 27/09/2020
         $this->captura('id_service_request','integer');
+        $this->captura('id_depto_libro','integer');
+        $this->captura('id_cuenta_bancaria','integer');
+        $this->captura('desc_cuenta_bancaria','text');
+        $this->captura('desc_depto_lb','varchar');
+        $this->captura('tipo_cbte','varchar');
 
 
 
@@ -258,6 +264,9 @@ class MODIntComprobante extends MODbase{
         $this->setParametro('id_config_cambiaria','id_config_cambiaria','integer');
         $this->setParametro('forma_cambio','forma_cambio','varchar');
 
+        //franklin.espinoza 27/09/2020
+        $this->setParametro('id_depto_libro','id_depto_libro','integer');
+        $this->setParametro('id_cuenta_bancaria','id_cuenta_bancaria','integer');
 
 
         //Ejecuta la instruccion
@@ -310,6 +319,10 @@ class MODIntComprobante extends MODbase{
         $this->setParametro('tipo_cambio_3','tipo_cambio_3','numeric');
         $this->setParametro('id_config_cambiaria','id_config_cambiaria','integer');
         $this->setParametro('forma_cambio','forma_cambio','varchar');
+
+        //franklin.espinoza 27/09/2020
+        $this->setParametro('id_depto_libro','id_depto_libro','integer');
+        $this->setParametro('id_cuenta_bancaria','id_cuenta_bancaria','integer');
 
 
         //Ejecuta la instruccion
@@ -977,6 +990,24 @@ class MODIntComprobante extends MODbase{
         //Define los parametros para la funcion
         $this->setParametro('id_int_comprobante','id_int_comprobante','int4');
         $this->setParametro('sw_validar','sw_validar','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    //{develop: franklin.espinoza date: 12/10/2020, description: Guarda Preventivo,Compromiso,Devengado para procesos con Preventivo}
+    function guardarDocumentoSigep(){
+        //swEditable de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_int_comprobante_ime';
+        $this->transaccion='CONTA_DOCSIGEP_IME';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_int_comprobante','id_int_comprobante','integer');
+        $this->setParametro('preventivo','preventivo','integer');
 
         //Ejecuta la instruccion
         $this->armarConsulta();

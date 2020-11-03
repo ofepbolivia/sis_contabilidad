@@ -5177,3 +5177,70 @@ ALTER TABLE conta.tint_comprobante
 COMMENT ON COLUMN conta.tint_comprobante.id_service_request
 IS 'Identificador del bus de servicios SIGEP.';
 /***********************************F-SCP-FEA-CONTA-0-07/09/2020****************************************/
+
+/***********************************I-SCP-FEA-CONTA-0-27/09/2020****************************************/
+
+ALTER TABLE conta.tentrega
+  ADD COLUMN id_service_request INTEGER;
+
+COMMENT ON COLUMN conta.tentrega.id_service_request
+IS 'Identificador del bus de servicios SIGEP.';
+
+/***********************************F-SCP-FEA-CONTA-0-27/09/2020****************************************/
+
+
+/***********************************I-SCP-FEA-CONTA-0-09/10/2020****************************************/
+
+ALTER TABLE conta.tentrega
+  ADD COLUMN glosa TEXT;
+
+COMMENT ON COLUMN conta.tentrega.glosa
+IS 'Glosa que describe la agrupación de comprobantes.';
+
+ALTER TABLE conta.tentrega
+  ADD COLUMN tipo VARCHAR(32);
+
+COMMENT ON COLUMN conta.tentrega.tipo
+IS 'Tipo de Entrega que indica si una entrega tiene clase de gasto mixta.';
+
+/***********************************F-SCP-FEA-CONTA-0-09/10/2020****************************************/
+
+
+/***********************************I-SCP-FEA-CONTA-0-12/10/2020****************************************/
+CREATE TABLE conta.tdocumento_sigep (
+  id_documento_sigep SERIAL,
+  nro_preventivo INTEGER,
+  nro_compromiso INTEGER,
+  nro_devengado INTEGER,
+  nro_pago INTEGER,
+  nro_secuencia INTEGER,
+  CONSTRAINT tdocumento_sigep_pkey PRIMARY KEY(id_documento_sigep)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+COMMENT ON COLUMN conta.tdocumento_sigep.nro_preventivo
+IS 'dato sigep para procesos con preventivo, mandatorio para CIP.';
+
+COMMENT ON COLUMN conta.tdocumento_sigep.nro_compromiso
+IS 'dato sigep para procesos con preventivo.';
+
+COMMENT ON COLUMN conta.tdocumento_sigep.nro_devengado
+IS 'dato sigep para procesos con preventivo, mandatorio para SIP.';
+
+COMMENT ON COLUMN conta.tdocumento_sigep.nro_pago
+IS 'dato sigep para procesos con preventivo default 0.';
+
+COMMENT ON COLUMN conta.tdocumento_sigep.nro_secuencia
+IS 'dato sigep para procesos con preventivo default 0.';
+
+/***********************************F-SCP-FEA-CONTA-0-12/10/2020****************************************/
+
+
+/***********************************I-SCP-FEA-CONTA-0-29/10/2020****************************************/
+ALTER TABLE conta.tint_comprobante
+  ADD COLUMN tipo_cbte VARCHAR(32);
+
+COMMENT ON COLUMN conta.tint_comprobante.tipo_cbte
+IS 'Campo que sirve para identificar el tipo de CBTE para integracion sigep.';
+
+/***********************************F-SCP-FEA-CONTA-0-29/10/2020****************************************/
