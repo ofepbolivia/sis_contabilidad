@@ -599,14 +599,12 @@ BEGIN
 						left join pre.tpartida par on par.id_partida = transa.id_partida
 						left join param.vcentro_costo cc on cc.id_centro_costo = transa.id_centro_costo
 						left join conta.tauxiliar aux on aux.id_auxiliar = transa.id_auxiliar
-                        left join conta.torden_trabajo ot on ot.id_orden_trabajo =  transa.id_orden_trabajo
+            left join conta.torden_trabajo ot on ot.id_orden_trabajo =  transa.id_orden_trabajo
 
-                        left join conta.tdoc_compra_venta cv on cv.id_int_comprobante = transa.id_int_comprobante
-
-				        where icbte.estado_reg = ''validado''
-                              and ' ||v_filtro_cuentas||'
-                              and '||v_filtro_ordenes||'
-                              and '||v_filtro_tipo_cc||' and';
+		        where icbte.estado_reg = ''validado''
+                          and ' ||v_filtro_cuentas||'
+                          and '||v_filtro_ordenes||'
+                          and '||v_filtro_tipo_cc||' and';
 
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
