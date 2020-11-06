@@ -582,6 +582,14 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: '<b>Revisar Dependencias </b><p>Revisar dependencias del comprobante</p>'
             });
 
+            this.addButton('repExcel', {
+                text: 'Reporte Excel',
+                iconCls: 'bexcel',
+                disabled: true,
+                handler: this.reporteExcel,
+                tooltip: '<b>Reporte Excel</b>'
+            });
+
             this.addButton('btnChequeoDocumentosWf',
                 {
                     text: 'Documentos',
@@ -681,7 +689,7 @@ header("content-type: text/javascript; charset=UTF-8");
             { name:'nro_documentos', type: 'string'}
 
         ],
-	
+
 
         rowExpander: new Ext.ux.grid.RowExpander({
             tpl: new Ext.Template(
@@ -726,7 +734,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('btnImprimir').enable();
                 this.getBoton('chkpresupuesto').enable();
                 this.getBoton('btnDocCmpVnt').enable();
-
+                this.getBoton('repExcel').enable();
                 return tb;
             } else {
                 this.getBoton('chkdep').disable();
@@ -734,6 +742,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('btnImprimir').disable();
                 this.getBoton('chkpresupuesto').disable();
                 this.getBoton('btnDocCmpVnt').disable();
+                this.getBoton('repExcel').disable();
+
             }
 
             return undefined;
@@ -745,6 +755,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('btnImprimir').disable();
             this.getBoton('chkpresupuesto').disable();
             this.getBoton('btnDocCmpVnt').disable();
+            this.getBoton('repExcel').disable();
 
 
         },
@@ -780,6 +791,37 @@ header("content-type: text/javascript; charset=UTF-8");
                 'CbteDependencias');
 
         },
+        /*Aumentando para generar el reporte Excel (Ismael Valdivia 04/11/2020)*/
+        reporteExcel: function () {
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url: '../../sis_contabilidad/control/IntTransaccion/ReporteLibMayExcel',
+                params: {
+                    id_gestion: this.store.baseParams.id_gestion,
+                    id_config_tipo_cuenta: this.store.baseParams.id_config_tipo_cuenta,
+                    id_config_subtipo_cuenta: this.store.baseParams.id_config_subtipo_cuenta,
+                    id_depto: this.store.baseParams.id_depto,
+                    id_partida: this.store.baseParams.id_partida,
+                    id_suborden:this.store.baseParams.id_suborden,
+                    id_auxiliar:this.store.baseParams.id_auxiliar,
+                    id_centro_costo:this.store.baseParams.id_centro_costo,
+                    nro_tramite:this.store.baseParams.nro_tramite,
+                    desde:this.store.baseParams.desde,
+                    hasta: this.store.baseParams.hasta,
+                    id_cuenta: this.store.baseParams.id_cuenta,
+                    id_orden_trabajo: this.store.baseParams.id_orden_trabajo,
+                    id_tipo_cc: this.store.baseParams.id_tipo_cc,
+                    gest: this.store.baseParams.gest
+                },
+                success: this.successExport,
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope: this
+            });
+        },
+
+
+        /************************************************************************/
         imprimirCbte: function () {
             var rec = this.sm.getSelected();
             var data = rec.data;
@@ -930,7 +972,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     ]
                 }
             });
-            this.tbar.add(this.menuLibroMayor);
+            //this.tbar.add(this.menuLibroMayor);
         },
         //
         formfiltro: function () {
@@ -1016,8 +1058,8 @@ header("content-type: text/javascript; charset=UTF-8");
         //
         bnew: false,
         bedit: false,
-        bdel: false
+        bdel: false,
+        bexcel:false,
+      	btest:false,
     })
 </script>
-		
-		
