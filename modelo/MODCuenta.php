@@ -52,7 +52,7 @@ class MODCuenta extends MODbase{
 		$this->captura('tipo_act','varchar');
 		
 		//Ejecuta la instruccion
-		$this->armarConsulta();
+        $this->armarConsulta();
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta

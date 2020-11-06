@@ -10,8 +10,8 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
     Phx.vista.IntTransaccion=Ext.extend(Phx.gridInterfaz,{
-        fheight : '90%',
-        fwidth : '60%',
+        fheight : '60%',
+        fwidth : '580',
 
         constructor:function(config){
 
@@ -228,7 +228,7 @@ header("content-type: text/javascript; charset=UTF-8");
             {
                 config:{
                     name:'id_orden_trabajo',
-                    fieldLabel: 'Orden',
+                    fieldLabel: 'Linea OT',
                     sysorigen:'sis_contabilidad',
                     origen:'OT',
                     allowBlank:false,
@@ -260,59 +260,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 filters:{pfiltro:'suo.codigo#suo.nombre',type:'string'},
                 grid:false,
                 form:true
-            },
-            {
-                config: {
-                    name: 'importe_gasto',
-                    fieldLabel: 'Gasto',
-                    qtip:'Monto para ejecutar el gasto  presupuestario',
-                    allowBlank: true,
-                    width: '100%',
-                    gwidth: 100,
-                    width: 380,
-                    galign: 'right ',
-                    maxLength: 100,
-                    renderer:function (value,p,record){
-                        if(record.data.tipo_reg != 'summary'){
-                            return  String.format('{0}', Ext.util.Format.number(value,'0,000.00'));
-                        }
-                        else{
-                            return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
-                        }
-                    }
-                },
-                type: 'NumberField',
-                filters: {pfiltro: 'transa.importe_gasto',type: 'numeric'},
-                id_grupo: 1,
-                grid: true,
-                bottom_filter: true,
-                form: true
-            },
-            {
-                config: {
-                    name: 'importe_recurso',
-                    fieldLabel: 'Recurso',
-                    qtip:'Monto para ejecutar el recurso presupeustario',
-                    allowBlank: true,
-                    width: 380,
-                    gwidth: 100,
-                    galign: 'right ',
-                    maxLength: 100,
-                    renderer:function (value,p,record){
-                        if(record.data.tipo_reg != 'summary'){
-                            return  String.format('{0}', Ext.util.Format.number(value,'0,000.00'));
-                        }
-                        else{
-                            return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
-                        }
-                    }
-                },
-                type: 'NumberField',
-                filters: {pfiltro: 'transa.importe_recurso',type: 'numeric'},
-                id_grupo: 1,
-                grid: true,
-                bottom_filter: true,
-                form: true
             },
 
             {
@@ -349,7 +296,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     queryDelay:1000,
                     listWidth:380,
                     resizable:true,
-                    gwidth: 800,
+                    gwidth: 150,
                     width: 380,
                     renderer:function(value, p, record){return String.format('{0}', record.data['desc_ingas']);}
                 },
@@ -362,13 +309,68 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid:true,
                 form:true
             },
+            
+            {
+                config: {
+                    name: 'importe_gasto',
+                    fieldLabel: 'Gasto',
+                    qtip:'Monto para ejecutar el Gasto Presupuestario',
+                    allowBlank: true,
+                    width: '100%',
+                    gwidth: 100,
+                    width: 200,
+                    galign: 'right ',
+                    maxLength: 100,
+                    renderer:function (value,p,record){
+                        if(record.data.tipo_reg != 'summary'){
+                            return  String.format('{0}', Ext.util.Format.number(value,'0,000.00'));
+                        }
+                        else{
+                            return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'transa.importe_gasto',type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                bottom_filter: true,
+                form: true
+            },
+            {
+                config: {
+                    name: 'importe_recurso',
+                    fieldLabel: 'Recurso',
+                    qtip:'Monto para ejecutar el Recurso Presupeustario',
+                    allowBlank: true,
+                    width: '100%',
+                    gwidth: 100,
+                    width: 200,
+                    galign: 'right ',
+                    maxLength: 100,
+                    renderer:function (value,p,record){
+                        if(record.data.tipo_reg != 'summary'){
+                            return  String.format('{0}', Ext.util.Format.number(value,'0,000.00'));
+                        }
+                        else{
+                            return  String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value,'0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'transa.importe_recurso',type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                bottom_filter: true,
+                form: true
+            },
 
             {
                 config: {
                     name: 'importe_debe',
                     fieldLabel: 'Debe',
                     allowBlank: true,
-                    width: 380,
+                    width: 200,
                     gwidth: 100,
                     galign: 'right ',
                     maxLength: 100,
@@ -393,7 +395,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     name: 'importe_haber',
                     fieldLabel: 'Haber',
                     allowBlank: true,
-                    width: 380,
+                    width: 200,
                     gwidth: 100,
                     galign: 'right ',
                     maxLength: 100,
@@ -565,7 +567,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     name : 'tipo_cambio',
                     fieldLabel : 'TC 1',
                     allowBlank : false,
-                    width: 380,
+                    width: 180,
                     gwidth : 70,
                     galign: 'right ',
                     maxLength : 20,
@@ -584,7 +586,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     name : 'tipo_cambio_2',
                     fieldLabel : 'TC 2',
                     allowBlank : false,
-                    width: 380,
+                    width: 180,
                     galign: 'right ',
                     gwidth : 70,
                     maxLength : 20,
@@ -603,7 +605,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     name : 'tipo_cambio_3',
                     fieldLabel : 'TC 3',
                     allowBlank : false,
-                    width: 380,
+                    width: 180,
                     galign: 'right ',
                     gwidth : 70,
                     maxLength : 20,
