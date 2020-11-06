@@ -128,7 +128,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     scope: this,
                     menu: [
                         {
-                            text: 'Editar C31',
+                            text: 'Editar Glosa C31',
                             iconCls: 'bnew-sigep',
                             argument: {
                                 'news': true,
@@ -916,8 +916,13 @@ header("content-type: text/javascript; charset=UTF-8");
                     if (rec.tipo_cbte == 'internacional'){
                         this.onSigepReguC(wizard, resp, 'REGULARIZAC');
                     }else{
-                        console.log('onSigepCIP');
-                        this.onSigepCIP(wizard, resp, 'CON_IMPUTACION');
+                        if( rec.tipo_cbte == 'pago_exterior' ){
+                            this.onSigepCIPEXT(wizard, resp, 'CON_IMPUTACION_EXT');
+                        }else{
+                            console.log('onSigepCIP');
+                            this.onSigepCIP(wizard, resp, 'CON_IMPUTACION');
+                        }
+
                     }
                 }else if (rec.id_clase_comprobante == 1){
                     if (rec.tipo_cbte == 'internacional'){
@@ -955,6 +960,30 @@ header("content-type: text/javascript; charset=UTF-8");
             });
         },
         /*================================= END PROCESOS CIP =======================================*/
+
+        /*================================= BEGIN PROCESOS CIP PAGO EXTERIOR =======================================*/
+        onSigepCIPEXT:function(wizard,resp, momento){
+            var rec = this.sm.getSelected().data;
+            console.log('ENTREGA SIGEP PAGO EXTERIOR:',wizard,'respSIGP:',resp, rec, 'MOMENTO', momento);
+            resp.sigep_adq='vbsigepconta';
+            Phx.CP.loadingShow();
+
+            Ext.Ajax.request({
+                url: '../../sis_sigep/control/SigepAdqDet/cargarEntregaSigepCip',
+                params: {
+                    id_proceso_wf: rec.id_proceso_wf,
+                    momento: momento,
+                    sigep_adq: resp.sigep_adq,
+                    localidad: rec.tipo_cbte
+                },
+                success: this.successConsu, //successConsu
+                failure: this.failureCheck, //chequea si esta en verificacion presupeusto para enviar correo de transferencia
+                argument: {wizard: wizard, resp : resp, momento: momento},
+                timeout: this.timeout,
+                scope: this
+            });
+        },
+        /*================================= END PROCESOS CIP PAGO EXTERIOR =======================================*/
 
         /*================================= BEGIN FUNCIONES REGULARICACION PROCESO SIGEP =======================================*/
 
@@ -1013,7 +1042,7 @@ header("content-type: text/javascript; charset=UTF-8");
             var id = reg.ROOT.datos.id_sigep;
             this.ids = id;
             var porciones = id.split(',');
-            if( opt.argument.momento == 'REGULARIZAC' || opt.argument.momento == 'REGULARIZAS' || opt.argument.momento == 'CON_IMPUTACION' ){
+            if( opt.argument.momento == 'REGULARIZAC' || opt.argument.momento == 'REGULARIZAS' || opt.argument.momento == 'CON_IMPUTACION' || opt.argument.momento == 'CON_IMPUTACION_EXT' ){
                 for (let i=0 ; i < porciones.length ; i++) {
                     console.log('identify:', porciones[i]);
                     Ext.Ajax.request({
@@ -1061,6 +1090,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 service_code = 'REGULARIZAS';
             }else if( opt.argument.momento == 'CON_IMPUTACION' ){
                 service_code = 'CON_IMPUTACION';
+            }else if( opt.argument.momento == 'CON_IMPUTACION_EXT' ){
+                service_code = 'CON_IMPUTACION_EXT';
             }
             /*else{
                 service_code = 'CON_IMPUTACION_V';
@@ -1161,7 +1192,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         buttons: Ext.Msg.OK, //<- Botones de SI y NO
                         fn: this.callback //<- la función que se ejecuta cuando se da clic
                     });
-                }else if( opt.argument.momento == 'REGULARIZAC' || opt.argument.momento == 'REGULARIZAS' || opt.argument.momento == 'CON_IMPUTACION' ){
+                }else if( opt.argument.momento == 'REGULARIZAC' || opt.argument.momento == 'REGULARIZAS' || opt.argument.momento == 'CON_IMPUTACION' || opt.argument.momento == 'CON_IMPUTACION_EXT'){
                     if(rest.nro_preventivo == '' && rest.nro_comprometido == ''){rest.nro_preventivo = 0; rest.nro_comprometido = 0;}
                     Phx.CP.loadingHide();
                     Ext.Ajax.request({

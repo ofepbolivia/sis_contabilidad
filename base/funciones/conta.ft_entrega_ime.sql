@@ -1295,6 +1295,18 @@ BEGIN
                                           JOIN param.tdepto de ON de.id_depto = ent.id_depto_conta
                                           where ed.id_entrega =  v_parametros.id_entrega and cbte.estado_reg = 'validado' ) LOOP
 
+
+            	delete from pre.tpartida_ejecucion
+            	where id_int_comprobante = v_registros_int_cbte.id_int_comprobante;
+
+                update conta.tint_transaccion set
+                	id_partida_ejecucion = null
+                where id_int_comprobante = v_registros_int_cbte.id_int_comprobante;
+
+                update conta.tint_comprobante set
+                	nro_cbte = null
+                where id_int_comprobante = v_registros_int_cbte.id_int_comprobante;
+
             	--------------------------------------------------
                 --Retrocede al estado inmediatamente anterior
                 -------------------------------------------------

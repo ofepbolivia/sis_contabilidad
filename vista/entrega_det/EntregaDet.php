@@ -14,6 +14,8 @@ Phx.vista.EntregaDet=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
 		this.maestro=config.maestro;
+
+        this.tipo_maestro = Phx.CP.getPagina(config.idContenedorPadre).mycls;
     	//llama al constructor de la clase padre
 		Phx.vista.EntregaDet.superclass.constructor.call(this,config);
 		this.addButton('chkdep',{	text:'Dependencias',
@@ -364,7 +366,7 @@ Phx.vista.EntregaDet=Ext.extend(Phx.gridInterfaz,{
 										 'CbteDependencias');			   
 	},
 	onReloadPage:function(m){
-		this.maestro=m;						
+		this.maestro=m;
 		this.store.baseParams={id_entrega:this.maestro.id_entrega};
 		this.load({params:{start:0, limit:this.tam_pag}});
 	},
@@ -378,7 +380,7 @@ Phx.vista.EntregaDet=Ext.extend(Phx.gridInterfaz,{
 	preparaMenu : function(n) {
 			var tb = Phx.vista.EntregaDet.superclass.preparaMenu.call(this);
 			this.getBoton('chkdep').enable();
-			if(this.maestro.estado == 'borrador'){
+			if(this.maestro.estado == 'borrador' && this.tipo_maestro!= 'EntregaConsulta'){
 				this.getBoton('new').enable();
 				this.getBoton('del').enable();
 			}
@@ -394,6 +396,10 @@ Phx.vista.EntregaDet=Ext.extend(Phx.gridInterfaz,{
 			if(this.maestro.estado != 'borrador'){
 				this.getBoton('new').disable();
 			}
+
+			if(this.tipo_maestro == 'EntregaConsulta'){
+                this.getBoton('new').disable();
+            }
 	}
 })
 </script>

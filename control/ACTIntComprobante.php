@@ -73,7 +73,12 @@ class ACTIntComprobante extends ACTbase{
             }else{
                 //(may)25-09-2019 para que enliste el nuevo estado vbfin y vbconta
                 // $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
-                $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
+                if( $this->objParam->getParametro('nombreVista') == 'IntComprobanteConsulta'){
+                    $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''validado'')");
+                }else{
+                    $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
+                }
+
             }
 
         }
