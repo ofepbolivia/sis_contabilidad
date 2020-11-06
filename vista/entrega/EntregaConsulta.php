@@ -87,7 +87,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             this.maestro=config.maestro;
             //llama al constructor de la clase padre
-            this.initButtons = [this.cmbDepto];
+            this.initButtons = [this.cmbDepto, this.cmbGestion];
             Phx.vista.EntregaConsulta.superclass.constructor.call(this,config);
             this.store.baseParams.pes_estado = ' ';
 
@@ -184,6 +184,15 @@ header("content-type: text/javascript; charset=UTF-8");
                 );
             }
 
+            this.addButtonIndex(6,'consulta', {
+                text: 'Consulta CBT',
+                grupo: [0, 1, 2, 3, 4],
+                iconCls: 'brenew',
+                disabled: false,
+                handler: this.consultaCBTE,
+                tooltip: '<b>Consulta de Comprobantes</b>'
+            });
+
 
             this.init();
 
@@ -197,6 +206,112 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.capturaFiltros();
             }, this);
 
+        },
+
+        cmbDepto: new Ext.form.AwesomeCombo({
+            name: 'id_depto',
+            grupo: [0, 1, 2, 3, 4],
+            fieldLabel: 'Depto',
+            typeAhead: false,
+            forceSelection: true,
+            allowBlank: false,
+            disableSearchButton: true,
+            msgTarget: 'side',
+            emptyText: 'Depto Contable',
+            store: new Ext.data.JsonStore({
+                url: '../../sis_parametros/control/Depto/listarDeptoFiltradoPrioridadEXT',
+                id: 'id_depto',
+                root: 'datos',
+                sortInfo: {
+                    field: 'deppto.nombre',
+                    direction: 'ASC'
+                },
+                totalProperty: 'total',
+                fields: ['id_depto', 'nombre', 'codigo'],
+                // turn on remote sorting
+                remoteSort: true,
+                baseParams: {
+                    par_filtro: 'deppto.nombre#deppto.codigo',
+                    estado: 'activo',
+                    codigo_subsistema: 'CONTA'
+                }
+            }),
+            valueField: 'id_depto',
+            displayField: 'nombre',
+            hiddenName: 'id_depto',
+            enableMultiSelect: false,
+            triggerAction: 'all',
+            lazyRender: true,
+            mode: 'remote',
+            pageSize: 20,
+            queryDelay: 200,
+            anchor: '80%',
+            listWidth: '280',
+            resizable: true,
+            minChars: 2
+        }),
+
+
+        cmbGestion: new Ext.form.ComboBox({
+            fieldLabel: 'Gestión',
+            grupo: [0, 1, 2, 3, 4],
+            allowBlank: false,
+            blankText: 'Seleccione gestión',
+            emptyText: 'Gestión',
+            name: 'id_gestion',
+            msgTarget: 'side',
+            store: new Ext.data.JsonStore(
+                {
+                    url: '../../sis_parametros/control/Gestion/listarGestion',
+                    id: 'id_gestion',
+                    root: 'datos',
+                    sortInfo: {
+                        field: 'gestion',
+                        direction: 'DESC'
+                    },
+                    totalProperty: 'total',
+                    fields: ['id_gestion', 'gestion'],
+                    // turn on remote sorting
+                    remoteSort: true,
+                    baseParams: {par_filtro: 'gestion'}
+                }),
+            valueField: 'id_gestion',
+            triggerAction: 'all',
+            displayField: 'gestion',
+            hiddenName: 'id_gestion',
+            mode: 'remote',
+            pageSize: 50,
+            queryDelay: 500,
+            listWidth: '280',
+            width: 80
+        }),
+
+        consultaCBTE: function(){
+
+            if( this.cmbDepto.getValue() != '' && this.cmbGestion.getValue() != '' ) { //console.log('combos',this.cmbDepto.getValue(), this.cmbGestion.getValue());
+                var rec = {maestro: this};
+                rec.id_depto = this.cmbDepto.getValue();
+                rec.id_gestion = this.cmbGestion.getValue();
+
+                Phx.CP.loadWindows('../../../sis_contabilidad/vista/int_comprobante/IntComprobanteConsulta.php',
+                    'Consulta de Comprobantes',
+                    {
+                        width: '90%',
+                        height: '85%'
+                    },
+                    rec,
+                    this.idContenedor,
+                    'IntComprobanteConsulta'
+                );
+            }else{
+                Ext.Msg.show({
+                    title: 'Información',
+                    msg: '<b>Estimado Funcionario: '+'\n'+' Debe seleccionar el departamento y la gestión correspiente.</b>',
+                    buttons: Ext.Msg.OK,
+                    width: 512,
+                    icon: Ext.Msg.INFO
+                });
+            }
         },
 
         revertirProcesoSigep : function (){
@@ -263,11 +378,11 @@ header("content-type: text/javascript; charset=UTF-8");
                     var datos = reg.ROOT.datos;
                     Phx.CP.loadingHide();
                     console.log('datos fuera',datos);
-                    if(datos.process){
+                    if(!reg.ROOT.error){
                         console.log('datos',datos);
                         Ext.Msg.show({
                             title: 'Estado SIGEP',
-                            msg: '<b>Estimado Funcionario: '+'\n'+'La información se guardo satisfactoriamente en el SIGEP.</b>',
+                            msg: '<b>Estimado Funcionario: '+'\n'+'Los comprobantes de la entrega (ID: '+record.id_entrega+') se validaron correctamente en el ERP.</b>',
                             buttons: Ext.Msg.OK,
                             width: 512,
                             icon: Ext.Msg.INFO
@@ -277,7 +392,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
                         Ext.Msg.show({
                             title: 'Estado SIGEP',
-                            msg: '<b>Estimado Funcionario: '+'\n'+'Hubo algunos inconvenientes al guardar información en el SIGEP.</b>',
+                            msg: '<b>Estimado Funcionario: '+'\n'+'Hubo algunos inconvenientes al validar los comprobantes de la entrega (ID: '+record.id_entrega+')</b>',
                             buttons: Ext.Msg.OK,
                             width: 512,
                             icon: Ext.Msg.INFO
@@ -305,11 +420,11 @@ header("content-type: text/javascript; charset=UTF-8");
                     var datos = reg.ROOT.datos;
                     Phx.CP.loadingHide();
                     console.log('datos fuera',datos);
-                    if(datos.process){
+                    if(!reg.ROOT.error){
                         console.log('datos',datos);
                         Ext.Msg.show({
                             title: 'Estado SIGEP',
-                            msg: '<b>Estimado Funcionario: '+'\n'+'La información se guardo satisfactoriamente en el SIGEP.</b>',
+                            msg: '<b>Estimado Funcionario: '+'\n'+'Los comprobantes de la entrega (ID: '+record.id_entrega+') se desvalidaron correctamente en el ERP.</b>',
                             buttons: Ext.Msg.OK,
                             width: 512,
                             icon: Ext.Msg.INFO
@@ -319,7 +434,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
                         Ext.Msg.show({
                             title: 'Estado SIGEP',
-                            msg: '<b>Estimado Funcionario: '+'\n'+'Hubo algunos inconvenientes al guardar información en el SIGEP.</b>',
+                            msg: '<b>Estimado Funcionario: '+'\n'+'Hubo algunos inconvenientes al desvalidar los comprobantes de la entrega (ID: '+record.id_entrega+')</b>',
                             buttons: Ext.Msg.OK,
                             width: 512,
                             icon: Ext.Msg.INFO
@@ -350,7 +465,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.load({params: {start: 0, limit: 50}});
         },
 
-        cmbDepto : new Ext.form.AwesomeCombo({
+        /*cmbDepto : new Ext.form.AwesomeCombo({
             name : 'id_depto_consulta',
             fieldLabel : 'Depto',
             typeAhead : false,
@@ -389,7 +504,7 @@ header("content-type: text/javascript; charset=UTF-8");
             listWidth : '280',
             resizable : true,
             minChars : 2
-        }),
+        }),*/
 
         Atributos:[
             {

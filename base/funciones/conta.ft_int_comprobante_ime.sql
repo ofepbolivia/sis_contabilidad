@@ -377,7 +377,7 @@ BEGIN
             else
 
           --begin (franklin.espinoza) 08/10/2020
-          if v_parametros.id_depto IN (49, 79, 80) then
+          if v_parametros.id_depto IN (49, 79, 80, 81) then
             v_localidad = 'internacional';
           else
             v_localidad = 'nacional';
@@ -394,7 +394,7 @@ BEGIN
             END IF;
             --end franklin.espinoza 09/10/2020
           --if v_id_dl is null and v_id_cb is null then
-          if v_parametros.id_depto NOT IN (49, 79, 80) then
+          if v_parametros.id_depto NOT IN (49, 79, 80, 81) then
             insert into conta.tint_comprobante(
                   id_clase_comprobante,
                   id_subsistema,
