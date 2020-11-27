@@ -123,7 +123,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         xtype: 'splitbutton',
                         grupo: [0, 1,2,3,4],
                         tooltip: '<b>Acciones para validar y desvalidar, comprobante ERP.</b>',
-                        text: 'ACTION ERP',
+                        text: 'ACCIÓN ERP',
                         //handler: this.onButtonExcel,
                         argument: {
                             'news': true,
@@ -132,7 +132,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         scope: this,
                         menu: [
                             {
-                                text: 'Validar CBTE',
+                                text: '<b style="color: red">Validar CBTES</b>',
                                 iconCls: 'bver-sigep',
                                 argument: {
                                     'news': true,
@@ -142,7 +142,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                 scope: this
                             },
                             {
-                                text: 'Desvalidar CBTE',
+                                text: '<b style="color: red">Desvalidar CBTES</b>',
                                 iconCls: 'bdes-sigep',
                                 argument: {
                                     'news': true,
@@ -150,18 +150,38 @@ header("content-type: text/javascript; charset=UTF-8");
                                 },
                                 handler: this.onDesvalidar,
                                 scope: this
+                            },
+                            {
+                                text: '<b style="color: red">Revertir ENTREGA</b>',
+                                iconCls: 'brever-sigep',
+                                argument: {
+                                    'news': true,
+                                    def: 'csv'
+                                },
+                                handler: this.onRevertir,
+                                scope: this
+                            },
+                            {
+                                text: '<b style="color: red">Clonar ENTREGA</b>',
+                                iconCls: 'bnew-sigep',
+                                argument: {
+                                    'news': true,
+                                    def: 'csv'
+                                },
+                                handler: this.onClonar,
+                                scope: this
                             }
                         ]
                     }
                 );
 
-                this.addButtonIndex(7,'sigep_ext_entrega',
+                this.addButtonIndex(8,'sigep_ext_entrega',
                     {
                         iconCls: 'bball_green',
                         xtype: 'splitbutton',
                         grupo: [0, 1,2,3,4],
                         tooltip: '<b>Acciones para procesar SIGEP</b>',
-                        text: 'ACTION SIGEP',
+                        text: 'ACCIÓN SIGEP',
                         //handler: this.onButtonExcel,
                         argument: {
                             'news': true,
@@ -176,7 +196,17 @@ header("content-type: text/javascript; charset=UTF-8");
                                     'news': true,
                                     def: 'csv'
                                 },
-                                handler: this.revertirProcesoSigep,
+                                handler: this.antEstado,
+                                scope: this
+                            },
+                            {
+                                text: 'Estado C31',
+                                iconCls: 'bdes-sigep',
+                                argument: {
+                                    'news': true,
+                                    def: 'csv'
+                                },
+                                handler: this.estadoSigep,
                                 scope: this
                             }
                         ]
@@ -208,7 +238,126 @@ header("content-type: text/javascript; charset=UTF-8");
 
         },
 
-        cmbDepto: new Ext.form.AwesomeCombo({
+        onRevertir: function(){
+
+            Ext.Msg.show({
+                title: 'REVERSIÓN ENTREGA',
+                msg: '<b style="color: red;">Esta seguro de Revertir la Entreta ERP.</b>',
+                fn: function (btn){
+                    if(btn == 'ok'){
+
+                                var rec = this.getSelectedData();
+                                Phx.CP.loadingShow();
+                                Ext.Ajax.request({
+                                    url: '../../sis_contabilidad/control/Entrega/volcarEntrega',
+                                    params: {
+                                        id_entrega : rec.id_entrega
+                                    },
+                                    success: function (resp) {
+                                        Phx.CP.loadingHide();
+                                        var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                                        if (reg.ROOT.error) {
+                                            Ext.Msg.alert('Error', 'Al volcar el cbte: ' + reg.ROOT.error)
+                                        } else {
+                                            this.reload()
+                                        }
+                                    },
+                                    failure: this.conexionFailure,
+                                    timeout: this.timeout,
+                                    scope: this
+                                });
+                    }
+                },
+                buttons: Ext.Msg.OKCANCEL,
+                width: 350,
+                maxWidth:500,
+                icon: Ext.Msg.WARNING,
+                scope:this
+            });
+
+        },
+        onClonar: function(){
+            Ext.Msg.show({
+                title: 'CLONAR ENTREGA',
+                msg: '<b style="color: red;">Esta seguro de Clonar la entrega ERP.</b>',
+                fn: function (btn){
+                    if(btn == 'ok'){
+                        var record = this.getSelectedData();
+                        Phx.CP.loadingShow();
+
+                        Ext.Ajax.request({
+                            url: '../../sis_contabilidad/control/Entrega/clonarEntrega',
+                            params: {
+                                id_entrega : record.id_entrega
+                            },
+                            success: function (resp) {
+                                Phx.CP.loadingHide();
+                                var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                                if (reg.ROOT.error) {
+                                    Ext.Msg.alert('Error', 'Al clonar el cbte: ' + reg.ROOT.error)
+                                } else {
+                                    this.reload();
+                                }
+                            },
+                            failure: this.conexionFailure,
+                            timeout: this.timeout,
+                            scope: this
+                        });
+
+                    }
+                },
+                buttons: Ext.Msg.OKCANCEL,
+                width: 350,
+                maxWidth:500,
+                icon: Ext.Msg.WARNING,
+                scope:this
+            });
+        },
+
+        cmbDepto : new Ext.form.AwesomeCombo({
+            id: 'id_depto_ent_ext_con',
+            name : 'id_depto_ent_ext_con',
+            grupo: [0, 1, 2, 3, 4],
+            fieldLabel : 'Depto',
+            typeAhead : false,
+            forceSelection : true,
+            allowBlank : false,
+            disableSearchButton : true,
+            emptyText : 'Depto Contable',
+            store : new Ext.data.JsonStore({
+                url : '../../sis_parametros/control/Depto/listarDeptoFiltradoDeptoUsuario',//../../sis_parametros/control/Depto/listarDeptoFiltradoPrioridadEXT
+                id : 'id_depto',
+                root : 'datos',
+                sortInfo : {
+                    field : 'deppto.nombre',
+                    direction : 'ASC'
+                },
+                totalProperty : 'total',
+                fields : ['id_depto', 'nombre', 'codigo'],
+                // turn on remote sorting
+                remoteSort : true,
+                baseParams : {
+                    par_filtro : 'deppto.nombre#deppto.codigo',
+                    estado : 'activo',
+                    codigo_subsistema : 'CONTA'
+                }
+            }),
+            valueField : 'id_depto',
+            displayField : 'nombre',
+            hiddenName : 'id_depto',
+            enableMultiSelect : false,
+            triggerAction : 'all',
+            lazyRender : true,
+            mode : 'remote',
+            pageSize : 20,
+            queryDelay : 200,
+            anchor : '80%',
+            listWidth : '280',
+            resizable : true,
+            minChars : 2
+        }),
+
+        /*cmbDepto: new Ext.form.AwesomeCombo({
             name: 'id_depto',
             grupo: [0, 1, 2, 3, 4],
             fieldLabel: 'Depto',
@@ -249,7 +398,7 @@ header("content-type: text/javascript; charset=UTF-8");
             listWidth: '280',
             resizable: true,
             minChars: 2
-        }),
+        }),*/
 
 
         cmbGestion: new Ext.form.ComboBox({
@@ -314,7 +463,107 @@ header("content-type: text/javascript; charset=UTF-8");
             }
         },
 
-        revertirProcesoSigep : function (){
+        /*===================================================BEGIN REVERTIR ESTADO ANTERIOR======================================================*/
+        antEstado:function(res){
+            var rec=this.sm.getSelected();
+            Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/AntFormEstadoWf.php',
+                'Estado de Wf',
+                {
+                    modal:true,
+                    width:450,
+                    height:250
+                }, {
+                    data:rec.data,
+                    estado_destino: res.argument.estado
+                },
+                this.idContenedor,'AntFormEstadoWf',
+                {
+                    config:[{
+                        event:'beforesave',
+                        delegate: this.onAntEstado,
+                    }
+                    ],
+                    scope:this
+                })
+        },
+
+        onAntEstado: function(wizard,resp){
+            var record = this.getSelectedData();
+            console.log('onAntEstado', record.estado);
+            Phx.CP.loadingShow();
+            if(record.estado == 'verificado'){
+                this.desverificaProcesoSigep(wizard,resp);
+            }else {
+                /*Ext.Ajax.request({
+                    url:'../../sis_contabilidad/control/Entrega/retrosederEstado',
+                    params:{
+                        id_proceso_wf: resp.id_proceso_wf,
+                        id_estado_wf:  resp.id_estado_wf,
+                        obs: resp.obs,
+                        estado_destino: resp.estado_destino
+                    },
+                    argument:{wizard:wizard},
+                    success:this.successEstadoSinc,
+                    failure: this.conexionFailure,
+                    timeout:this.timeout,
+                    scope:this
+                });*/
+            }
+        },
+
+        desverificaProcesoSigep : function (wizard,response){
+            var record = this.getSelectedData();
+            console.log('record Desverifica', record);
+            Ext.Ajax.request({
+                url:'../../sis_sigep/control/SigepAdq/readyProcesoSigep',
+                params:{
+                    id_service_request : record.id_service_request,
+                    estado_reg : record.estado,
+                    momento : 'pass',
+                    direction : 'previous'
+                },
+                success: function (resp) {
+                    var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
+                    var datos = reg.ROOT.datos;
+                    console.log('desverificaProcesoSigep',datos);
+                    if(datos.process){
+
+                        Phx.CP.loadingHide();
+                        Ext.Ajax.request({
+                            url:'../../sis_contabilidad/control/Entrega/retrosederEstado',
+                            params:{
+                                id_proceso_wf: response.id_proceso_wf,
+                                id_estado_wf:  response.id_estado_wf,
+                                obs: response.obs,
+                                estado_destino: response.estado_destino
+                            },
+                            argument:{wizard:wizard},
+                            success:this.successEstadoSinc,
+                            failure: this.conexionFailure,
+                            timeout:this.timeout,
+                            scope:this
+                        });
+                    }else{
+                        Phx.CP.loadingHide();
+                        wizard.panel.destroy();
+                        this.reload();
+                    }
+                },
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope:this
+            });
+        },
+
+        successEstadoSinc:function(resp){
+            Phx.CP.loadingHide();
+            resp.argument.wizard.panel.destroy();
+            this.reload();
+        },
+
+        /*===================================================END REVERTIR ESTADO ANTERIOR======================================================*/
+
+        /*revertirProcesoSigep : function (){
             var record = this.getSelectedData();
             Phx.CP.loadingShow();
             Ext.Ajax.request({
@@ -357,7 +606,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 timeout: this.timeout,
                 scope:this
             });
-        },
+        },*/
 
         successEstadoSinc:function(resp){
             Phx.CP.loadingHide();
@@ -365,95 +614,127 @@ header("content-type: text/javascript; charset=UTF-8");
         },
 
         onValidar : function(){
-            Phx.CP.loadingShow();
-            let record = this.getSelectedData();
-            //console.log('record', record, 'wizard', wizard, 'response', response);
-            Ext.Ajax.request({
-                url:'../../sis_contabilidad/control/Entrega/validarGrupoComprobantes',
-                params:{
-                    id_entrega : record.id_entrega
-                },
-                success: function (resp) {
-                    var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
-                    var datos = reg.ROOT.datos;
-                    Phx.CP.loadingHide();
-                    console.log('datos fuera',datos);
-                    if(!reg.ROOT.error){
-                        console.log('datos',datos);
-                        Ext.Msg.show({
-                            title: 'Estado SIGEP',
-                            msg: '<b>Estimado Funcionario: '+'\n'+'Los comprobantes de la entrega (ID: '+record.id_entrega+') se validaron correctamente en el ERP.</b>',
-                            buttons: Ext.Msg.OK,
-                            width: 512,
-                            icon: Ext.Msg.INFO
-                        });
-                    }else{
-                        Phx.CP.loadingHide();
 
-                        Ext.Msg.show({
-                            title: 'Estado SIGEP',
-                            msg: '<b>Estimado Funcionario: '+'\n'+'Hubo algunos inconvenientes al validar los comprobantes de la entrega (ID: '+record.id_entrega+')</b>',
-                            buttons: Ext.Msg.OK,
-                            width: 512,
-                            icon: Ext.Msg.INFO
+            /*Phx.CP.loadingShow();
+            let record = this.getSelectedData();*/
+
+            Ext.Msg.show({
+                title: 'COMPROBANTE ERP',
+                msg: '<b style="color: red;">Esta seguro de validar los comprobantes asociados a esta Entrega.</b>',
+                fn: function (btn){
+                    if(btn == 'ok'){
+                        Phx.CP.loadingShow();
+                        let record = this.getSelectedData();
+
+                        Ext.Ajax.request({
+                            url:'../../sis_contabilidad/control/Entrega/validarGrupoComprobantes',
+                            params:{
+                                id_entrega : record.id_entrega
+                            },
+                            success: function (resp) {
+                                var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
+                                var datos = reg.ROOT.datos;
+                                Phx.CP.loadingHide();
+                                console.log('datos fuera',datos);
+                                if(!reg.ROOT.error){
+                                    console.log('datos',datos);
+                                    Ext.Msg.show({
+                                        title: 'Estado SIGEP',
+                                        msg: '<b>Estimado Funcionario: '+'\n'+'Los comprobantes de la entrega (ID: '+record.id_entrega+') se validaron correctamente en el ERP.</b>',
+                                        buttons: Ext.Msg.OK,
+                                        width: 512,
+                                        icon: Ext.Msg.INFO
+                                    });
+                                }else{
+                                    Phx.CP.loadingHide();
+
+                                    Ext.Msg.show({
+                                        title: 'Estado SIGEP',
+                                        msg: '<b>Estimado Funcionario: '+'\n'+'Hubo algunos inconvenientes al validar los comprobantes de la entrega (ID: '+record.id_entrega+')</b>',
+                                        buttons: Ext.Msg.OK,
+                                        width: 512,
+                                        icon: Ext.Msg.INFO
+                                    });
+                                }
+                            },
+                            failure: this.conexionFailure,
+                            timeout: this.timeout,
+                            scope:this
                         });
                     }
                 },
-                failure: this.conexionFailure,
-                timeout: this.timeout,
+                buttons: Ext.Msg.OKCANCEL,
+                width: 350,
+                maxWidth:500,
+                icon: Ext.Msg.WARNING,
                 scope:this
             });
-
         },
 
         onDesvalidar : function(){
-            Phx.CP.loadingShow();
-            let record = this.getSelectedData();
-            //console.log('record', record, 'wizard', wizard, 'response', response);
-            Ext.Ajax.request({
-                url:'../../sis_contabilidad/control/Entrega/desvalidarGrupoComprobantes',
-                params:{
-                    id_entrega : record.id_entrega
-                },
-                success: function (resp) {
-                    var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
-                    var datos = reg.ROOT.datos;
-                    Phx.CP.loadingHide();
-                    console.log('datos fuera',datos);
-                    if(!reg.ROOT.error){
-                        console.log('datos',datos);
-                        Ext.Msg.show({
-                            title: 'Estado SIGEP',
-                            msg: '<b>Estimado Funcionario: '+'\n'+'Los comprobantes de la entrega (ID: '+record.id_entrega+') se desvalidaron correctamente en el ERP.</b>',
-                            buttons: Ext.Msg.OK,
-                            width: 512,
-                            icon: Ext.Msg.INFO
-                        });
-                    }else{
-                        Phx.CP.loadingHide();
+            /*Phx.CP.loadingShow();
+            let record = this.getSelectedData();*/
 
-                        Ext.Msg.show({
-                            title: 'Estado SIGEP',
-                            msg: '<b>Estimado Funcionario: '+'\n'+'Hubo algunos inconvenientes al desvalidar los comprobantes de la entrega (ID: '+record.id_entrega+')</b>',
-                            buttons: Ext.Msg.OK,
-                            width: 512,
-                            icon: Ext.Msg.INFO
+            Ext.Msg.show({
+                title: 'COMPROBANTE ERP',
+                msg: '<b style="color: red;">Esta seguro de desvalidar los comprobantes asociados a esta Entrega.</b>',
+                fn: function (btn){
+                    if(btn == 'ok'){
+
+                        Phx.CP.loadingShow();
+                        let record = this.getSelectedData();
+
+                        Ext.Ajax.request({
+                            url:'../../sis_contabilidad/control/Entrega/desvalidarGrupoComprobantes',
+                            params:{
+                                id_entrega : record.id_entrega
+                            },
+                            success: function (resp) {
+                                var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
+                                var datos = reg.ROOT.datos;
+                                Phx.CP.loadingHide();
+                                console.log('datos fuera',datos);
+                                if(!reg.ROOT.error){
+                                    console.log('datos',datos);
+                                    Ext.Msg.show({
+                                        title: 'Estado SIGEP',
+                                        msg: '<b>Estimado Funcionario: '+'\n'+'Los comprobantes de la entrega (ID: '+record.id_entrega+') se desvalidaron correctamente en el ERP.</b>',
+                                        buttons: Ext.Msg.OK,
+                                        width: 512,
+                                        icon: Ext.Msg.INFO
+                                    });
+                                }else{
+                                    Phx.CP.loadingHide();
+
+                                    Ext.Msg.show({
+                                        title: 'Estado SIGEP',
+                                        msg: '<b>Estimado Funcionario: '+'\n'+'Hubo algunos inconvenientes al desvalidar los comprobantes de la entrega (ID: '+record.id_entrega+')</b>',
+                                        buttons: Ext.Msg.OK,
+                                        width: 512,
+                                        icon: Ext.Msg.INFO
+                                    });
+                                }
+                            },
+                            failure: this.conexionFailure,
+                            timeout: this.timeout,
+                            scope:this
                         });
                     }
                 },
-                failure: this.conexionFailure,
-                timeout: this.timeout,
+                buttons: Ext.Msg.OKCANCEL,
+                width: 350,
+                maxWidth:500,
+                icon: Ext.Msg.WARNING,
                 scope:this
             });
-
         },
 
         gruposBarraTareas: [
-            {name:  'borrador', title: '<h1 style="text-align:center; color:#4682B4;"><i class="fa fa-user fa-2x" aria-hidden="true"></i> BORRADOR</h1>',grupo: 0, height: 1} ,
-            {name: 'elaborado', title: '<h1 style="text-align: center; color: #586E7E ;"><i class="fa fa-user fa-2x" aria-hidden="true"></i> ELABORADO</h1>', grupo: 1, height: 1},
-            {name: 'verificado', title: '<h1 style="text-align: center; color: #00B167;"><i class="fa fa-user fa-2x" aria-hidden="true"></i> VERIFICADO</h1>', grupo: 2, height: 1},
-            {name: 'aprobado', title: '<h1 style="text-align: center; color: #B066BB;"><i class="fa fa-user fa-2x" aria-hidden="true"></i> APROBADO</h1>', grupo: 3, height: 1},
-            {name: 'finalizado', title: '<h1 style="text-align: center; color: #FF8F85;"><i class="fa fa-user fa-2x" aria-hidden="true"></i> FINALIZADO</h1>', grupo: 4, height: 1}
+            {name:  'borrador', title: '<h1 style="text-align:center; color:#4682B4;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> BORRADOR</h1>',grupo: 0, height: 1} ,
+            {name: 'elaborado', title: '<h1 style="text-align: center; color: #586E7E ;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> ELABORADO</h1>', grupo: 1, height: 1},
+            {name: 'verificado', title: '<h1 style="text-align: center; color: #00B167;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> VERIFICADO</h1>', grupo: 2, height: 1},
+            {name: 'aprobado', title: '<h1 style="text-align: center; color: #B066BB;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> APROBADO</h1>', grupo: 3, height: 1},
+            {name: 'finalizado', title: '<h1 style="text-align: center; color: #FF8F85;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> FINALIZADO</h1>', grupo: 4, height: 1}
         ],
 
         bactGroups:[0,1,2,3,4],

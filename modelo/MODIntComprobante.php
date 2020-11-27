@@ -96,6 +96,7 @@ class MODIntComprobante extends MODbase{
         $this->captura('desc_cuenta_bancaria','text');
         $this->captura('desc_depto_lb','varchar');
         $this->captura('tipo_cbte','varchar');
+        $this->captura('reversion','varchar');
 
 
 
@@ -267,6 +268,7 @@ class MODIntComprobante extends MODbase{
         //franklin.espinoza 27/09/2020
         $this->setParametro('id_depto_libro','id_depto_libro','integer');
         $this->setParametro('id_cuenta_bancaria','id_cuenta_bancaria','integer');
+        $this->setParametro('reversion','reversion','varchar');
 
 
         //Ejecuta la instruccion
@@ -323,6 +325,7 @@ class MODIntComprobante extends MODbase{
         //franklin.espinoza 27/09/2020
         $this->setParametro('id_depto_libro','id_depto_libro','integer');
         $this->setParametro('id_cuenta_bancaria','id_cuenta_bancaria','integer');
+        $this->setParametro('reversion','reversion','varchar');
 
 
         //Ejecuta la instruccion

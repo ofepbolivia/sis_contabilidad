@@ -40,6 +40,12 @@ class ACTEntrega extends ACTbase
             $this->objParam->addFiltro("ent.estado in (''borrador'',''elaborado'')");
         }
 
+        if($this->objParam->getParametro('tipo_entrega') == 'normal'){
+            $this->objParam->addFiltro("coalesce(tic.reversion,''no'') in (''no'')");
+        }else if($this->objParam->getParametro('tipo_entrega') == 'reversion'){
+            $this->objParam->addFiltro("coalesce(tic.reversion,''no'') in (''si'')");
+        }
+
 
         if ($this->objParam->getParametro('tipoReporte') == 'excel_grid' || $this->objParam->getParametro('tipoReporte') == 'pdf_grid') {
             $this->objReporte = new Reporte($this->objParam, $this);
@@ -220,6 +226,20 @@ class ACTEntrega extends ACTbase
     function desvalidarGrupoComprobantes(){
         $this->objFunc = $this->create('MODEntrega');
         $this->res = $this->objFunc->desvalidarGrupoComprobantes($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    
+    //{develop:franklin.espinoza date:20/11/2020}
+    function volcarEntrega(){
+        $this->objFunc=$this->create('MODEntrega');
+        $this->res=$this->objFunc->volcarEntrega($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //{develop:franklin.espinoza date:20/11/2020}
+    function clonarEntrega(){
+        $this->objFunc=$this->create('MODEntrega');
+        $this->res=$this->objFunc->clonarEntrega($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 

@@ -107,6 +107,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             this.addButton('sig_estado', {
                 text : 'Siguiente',
+                grupo: [0, 1, 2, 3],
                 iconCls : 'badelante',
                 disabled : true,
                 handler : this.sigEstado,
@@ -117,7 +118,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     iconCls: 'bball_green',
                     xtype: 'splitbutton',
-                    grupo: [0,4],
+                    grupo: [0, 1, 2, 3],
                     tooltip: '<b>Acciones para procesar SIGEP</b>',
                     text: 'ACTION SIGEP',
                     //handler: this.onButtonExcel,
@@ -146,7 +147,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     iconCls: 'bball_green',
                     disabled: true,
                     xtype: 'splitbutton',
-                    grupo: [0,4],
+                    grupo: [0, 1, 2, 3],
                     tooltip: '<b>Acciones para validar y desvalidar, comprobante ERP.</b>',
                     text: 'ACTION ERP',
                     //handler: this.onButtonExcel,
@@ -192,6 +193,7 @@ header("content-type: text/javascript; charset=UTF-8");
             });
             this.addButton('fin_entrega', {
                 text : 'Registrar Entrega',
+                grupo: [0, 1, 2, 3],
                 iconCls : 'btag_accept',
                 disabled : true,
                 handler : this.cambiarEstado,
@@ -201,6 +203,7 @@ header("content-type: text/javascript; charset=UTF-8");
             //Botón para Imprimir el Comprobante
             this.addButton('btnImprimir', {
                 text : 'Imprimir',
+                grupo: [0, 1, 2, 3],
                 iconCls : 'bprint',
                 disabled : true,
                 handler : this.imprimirCbte,
@@ -235,6 +238,23 @@ header("content-type: text/javascript; charset=UTF-8");
             this.sm.on('rowselect', this.selectRecord,this);
             this.sm.on('rowdeselect', this.deselectRecord,this);
 
+        },
+
+        bactGroups:[0,1,2,3,4],
+        bexcelGroups:[0,1,2,3,4],
+        beditGroups:[0,1,2,3,4],
+        bdelGroups:[0,1,2,3,4],
+
+        gruposBarraTareas: [
+            {name: 'normal', title: '<h1 style="text-align: center; color: #00B167;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> NORMAL</h1>', grupo: 0, height: 1},
+            {name: 'reversion', title: '<h1 style="text-align: center; color: #FF8F85;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> REVERSIÓN</h1>', grupo: 1, height: 1}
+        ],
+
+        actualizarSegunTab: function(name, indice){ console.log('depto', this.cmbDepto.getValue());
+            this.store.baseParams.tipo_entrega = name;
+            if( this.cmbDepto.getValue() != undefined ) {
+                this.load({params: {start: 0, limit: 50}});
+            }
         },
 
         selectRecord : function(grid, rowIndex, rec) {
@@ -392,6 +412,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         cmbDepto : new Ext.form.AwesomeCombo({
             id: 'id_depto_ent_ext',
+            grupo: [0, 1, 2, 3],
             name : 'id_depto_ent_ext',
             fieldLabel : 'Depto',
             typeAhead : false,
@@ -497,7 +518,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 filters:{pfiltro:'ent.fecha_c31',type:'date'},
                 id_grupo:1,
                 grid:true,
-                form:false//true
+                form:true//true
             },
 
             {
@@ -507,7 +528,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     allowBlank: false,
                     anchor: '90%',
                     gwidth: 250,
-                    maxLength: 1500,
+                    maxLength: 500,
                     msgTarget: 'side'
                 },
                 type: 'TextArea',
@@ -708,8 +729,8 @@ header("content-type: text/javascript; charset=UTF-8");
             'glosa',
             'tipo',
             'validado',
-            'tipo_cbte'
-
+            'tipo_cbte',
+            'reversion'
         ],
         sortInfo:{
             field: 'id_entrega',
@@ -905,7 +926,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             var rec = this.getSelectedData();
 
-            if(rec.estado == 'borrador') {
+            if(rec.estado == 'borrador' && rec.reversion == 'no') {
                 if (rec.id_clase_comprobante == 5) {
                     if (rec.tipo_cbte == 'internacional'){
                         this.onSigepReguS(wizard, resp, 'REGULARIZAS');
@@ -932,6 +953,39 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.onSigepCIP(wizard, resp, 'CON_IMPUTACION');
                     }
                 }
+            }else{
+
+
+                if (rec.id_clase_comprobante == 5) {
+                    if (rec.tipo_cbte == 'internacional'){
+                        this.onSigepReguReversionS(wizard, resp, 'REGULARIZAS_REV');
+                    }
+                    /*else{
+                        this.onSigepSip(wizard, resp);
+                    }*/
+                }else if (rec.id_clase_comprobante == 3){
+                    if (rec.tipo_cbte == 'internacional'){
+                        this.onSigepReguC(wizard, resp, 'REGULARIZAC');
+                    }
+                    /*else{
+                        if( rec.tipo_cbte == 'pago_exterior' ){
+                            this.onSigepCIPEXT(wizard, resp, 'CON_IMPUTACION_EXT');
+                        }else{
+                            console.log('onSigepCIP');
+                            this.onSigepCIP(wizard, resp, 'CON_IMPUTACION');
+                        }
+
+                    }*/
+                }else if (rec.id_clase_comprobante == 1){
+                    if (rec.tipo_cbte == 'internacional'){
+                        this.onSigepReguReversionC(wizard, resp, 'REGULARIZAC_REV');
+                    }
+                    /*else{
+                        console.log('onSigepCIP');
+                        this.onSigepCIP(wizard, resp, 'CON_IMPUTACION');
+                    }*/
+                }
+
             }
         },
 
@@ -1034,6 +1088,54 @@ header("content-type: text/javascript; charset=UTF-8");
             });
         },
 
+        onSigepReguReversionC:function(wizard, resp, momento){
+
+            var rec = this.getSelectedData();
+            console.log('wizardSIGP ENTREGA REGULARIZACION:',wizard,'respSIGP:',resp, rec);
+            resp.sigep_adq='vbsigepcontaregu';
+            resp.momento = momento;
+            Phx.CP.loadingShow();
+
+            Ext.Ajax.request({
+                url: '../../sis_sigep/control/SigepAdqDet/cargarEntregaSigepReguReverCip',
+                params: {
+                    id_proceso_wf : rec.id_proceso_wf,
+                    momento : resp.momento,
+                    sigep_adq : resp.sigep_adq,
+                    localidad : rec.tipo_cbte
+                },
+                success: this.successConsu,
+                failure: this.failureC, //chequea si esta en verificacion presupeusto para enviar correo de transferencia
+                argument: {wizard: wizard, resp : resp, momento: momento},
+                timeout: this.timeout,
+                scope: this
+            });
+        },
+
+        onSigepReguReversionS:function(wizard, resp, momento){
+
+            var rec = this.getSelectedData();
+            console.log('wizardSIGP ENTREGA REVERSION SIP:',wizard,'respSIGP:',resp, rec);
+            resp.sigep_adq='vbsigepcontaregu';
+            resp.momento = momento;
+            Phx.CP.loadingShow();
+
+            Ext.Ajax.request({
+                url: '../../sis_sigep/control/SigepAdqDet/cargarEntregaSigepReguReverSip',
+                params: {
+                    id_proceso_wf : rec.id_proceso_wf,
+                    momento : resp.momento,
+                    sigep_adq : resp.sigep_adq,
+                    localidad : rec.tipo_cbte
+                },
+                success: this.successConsu,
+                failure: this.failureC, //chequea si esta en verificacion presupeusto para enviar correo de transferencia
+                argument: {wizard: wizard, resp : resp, momento: momento},
+                timeout: this.timeout,
+                scope: this
+            });
+        },
+
         successConsu:function(resp, opt){
             Phx.CP.loadingShow();
             var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
@@ -1042,7 +1144,7 @@ header("content-type: text/javascript; charset=UTF-8");
             var id = reg.ROOT.datos.id_sigep;
             this.ids = id;
             var porciones = id.split(',');
-            if( opt.argument.momento == 'REGULARIZAC' || opt.argument.momento == 'REGULARIZAS' || opt.argument.momento == 'CON_IMPUTACION' || opt.argument.momento == 'CON_IMPUTACION_EXT' ){
+            if( opt.argument.momento == 'REGULARIZAC' || opt.argument.momento == 'REGULARIZAS' || opt.argument.momento == 'CON_IMPUTACION' || opt.argument.momento == 'CON_IMPUTACION_EXT' || opt.argument.momento == 'REGULARIZAC_REV' || opt.argument.momento == 'REGULARIZAS_REV'){
                 for (let i=0 ; i < porciones.length ; i++) {
                     console.log('identify:', porciones[i]);
                     Ext.Ajax.request({
@@ -1092,6 +1194,10 @@ header("content-type: text/javascript; charset=UTF-8");
                 service_code = 'CON_IMPUTACION';
             }else if( opt.argument.momento == 'CON_IMPUTACION_EXT' ){
                 service_code = 'CON_IMPUTACION_EXT';
+            }else if( opt.argument.momento == 'REGULARIZAC_REV' ){
+                service_code = 'REGULARIZAC_REV';
+            }else if( opt.argument.momento == 'REGULARIZAS_REV' ){
+                service_code = 'REGULARIZAS_REV';
             }
             /*else{
                 service_code = 'CON_IMPUTACION_V';
@@ -1151,8 +1257,8 @@ header("content-type: text/javascript; charset=UTF-8");
             var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
 
             var rest = reg.ROOT.datos;
-
-            console.log('successSta 2020: ==========================',rest);
+            var record = this.getSelectedData();
+            console.log('successSta 2020: ==========================',rest, 'getSelectedData', record);
 
             if(reg.ROOT.datos.error || reg.ROOT.datos.error == ''){
                 Phx.CP.loadingHide();
@@ -1192,7 +1298,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         buttons: Ext.Msg.OK, //<- Botones de SI y NO
                         fn: this.callback //<- la función que se ejecuta cuando se da clic
                     });
-                }else if( opt.argument.momento == 'REGULARIZAC' || opt.argument.momento == 'REGULARIZAS' || opt.argument.momento == 'CON_IMPUTACION' || opt.argument.momento == 'CON_IMPUTACION_EXT'){
+                }else if( opt.argument.momento == 'REGULARIZAC' || opt.argument.momento == 'REGULARIZAS' || opt.argument.momento == 'CON_IMPUTACION' || opt.argument.momento == 'CON_IMPUTACION_EXT' || opt.argument.momento == 'REGULARIZAC_REV' || opt.argument.momento == 'REGULARIZAS_REV'){
                     if(rest.nro_preventivo == '' && rest.nro_comprometido == ''){rest.nro_preventivo = 0; rest.nro_comprometido = 0;}
                     Phx.CP.loadingHide();
                     Ext.Ajax.request({
@@ -1201,7 +1307,8 @@ header("content-type: text/javascript; charset=UTF-8");
                             id_sigep_adq: rest.id_sigep_adq,
                             nro_preventivo: rest.nro_preventivo,
                             nro_comprometido: rest.nro_comprometido,
-                            nro_devengado: rest.nro_devengado,
+                            nro_devengado: rest.nro_devengado/*,
+                            id_entrega : record.id_entrega*/
                         },
                         success: this.successP,
                         failure: this.failureC, //chequea si esta en verificacion presupeusto para enviar correo de transferencia

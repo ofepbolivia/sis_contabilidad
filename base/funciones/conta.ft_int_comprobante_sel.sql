@@ -179,6 +179,7 @@ BEGIN
                               ,coalesce(cb.nombre_institucion,''S/N'') ||'' (''||coalesce(cb.nro_cuenta,''S/C'')||'')'' as desc_cuenta_bancaria
                               ,depto.nombre as desc_depto_lb
                               ,tic.tipo_cbte
+                              ,pxp.f_iif(tic.reversion::text = ''si''::text, ''true''::character varying, ''false''::character varying) AS reversion
                           from conta.vint_comprobante incbte
                           inner join conta.tint_comprobante tic on tic.id_int_comprobante  = incbte.id_int_comprobante
 

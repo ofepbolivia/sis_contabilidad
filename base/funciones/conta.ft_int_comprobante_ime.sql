@@ -130,6 +130,7 @@ DECLARE
 	  v_id_cb							  integer;
 
     v_localidad						varchar;
+    v_reversion						varchar;
 
 BEGIN
 
@@ -201,6 +202,7 @@ BEGIN
             IF v_parametros.momento_pagado = 'true' THEN
              v_momento_pagado = 'si';
             END IF;
+
 
             --segun la clase  del comprobante definir si es presupeustario o contable
             select
@@ -488,6 +490,13 @@ BEGIN
 
         )RETURNING id_int_comprobante into v_id_int_comprobante;
       else
+      		v_reversion = 'no';
+
+      		--franklin.espinoza 06/11/2020 bandera que indica si un comprobante es de reversion
+            IF v_parametros.reversion = 'true' THEN
+             v_reversion = 'si';
+            END IF;
+
             	insert into conta.tint_comprobante(
                   id_clase_comprobante,
                   id_subsistema,
@@ -534,7 +543,8 @@ BEGIN
                   tipo_cambio_3,
                   id_cuenta_bancaria,
                   id_depto_libro,
-                  tipo_cbte
+                  tipo_cbte,
+                  reversion
           		) values(
                   v_parametros.id_clase_comprobante,
                   v_id_subsistema,
@@ -581,7 +591,8 @@ BEGIN
                   v_parametros.tipo_cambio_3,
                   v_parametros.id_cuenta_bancaria,
                   v_parametros.id_depto_libro,
-                  v_localidad
+                  v_localidad,
+                  v_reversion
 
 				)RETURNING id_int_comprobante into v_id_int_comprobante;
       end if;
@@ -842,6 +853,11 @@ BEGIN
         where id_int_comprobante = v_parametros.id_int_comprobante;
 
       else
+      	IF v_parametros.reversion = 'true' THEN
+           v_reversion = 'si';
+        ELSE
+           v_reversion = 'no';
+        END IF;
             	update conta.tint_comprobante set
                   id_clase_comprobante = v_parametros.id_clase_comprobante,
                   id_tipo_relacion_comprobante = v_parametros.id_tipo_relacion_comprobante,
@@ -877,7 +893,8 @@ BEGIN
                   forma_cambio = v_parametros.forma_cambio,
                   --franklin.espinoza 27/09/2020
                   id_cuenta_bancaria = v_parametros.id_cuenta_bancaria,
-                  id_depto_libro = v_parametros.id_depto_libro
+                  id_depto_libro = v_parametros.id_depto_libro,
+                  reversion = v_reversion
 
               where id_int_comprobante = v_parametros.id_int_comprobante;
       end if;

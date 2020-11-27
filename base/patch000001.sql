@@ -5244,3 +5244,15 @@ COMMENT ON COLUMN conta.tint_comprobante.tipo_cbte
 IS 'Campo que sirve para identificar el tipo de CBTE para integracion sigep.';
 
 /***********************************F-SCP-FEA-CONTA-0-29/10/2020****************************************/
+
+
+/***********************************I-SCP-FEA-CONTA-0-06/11/2020****************************************/
+ALTER TABLE conta.tint_comprobante
+  ADD COLUMN reversion VARCHAR(4);
+
+ALTER TABLE conta.tint_comprobante
+  ALTER COLUMN reversion SET DEFAULT 'no';
+
+COMMENT ON COLUMN conta.tint_comprobante.reversion
+IS 'Bandera que indica si un comprobante sera de reversión para integración sigep.';
+/***********************************F-SCP-FEA-CONTA-0-06/11/2020****************************************/

@@ -115,7 +115,8 @@ BEGIN
                             ent.glosa,
                             ent.tipo,
                             ent.validado,
-                            tic.tipo_cbte
+                            tic.tipo_cbte,
+                            coalesce(tic.reversion,''no'') as reversion
 
 						from conta.tentrega ent
 						inner join segu.tusuario usu1 on usu1.id_usuario = ent.id_usuario_reg

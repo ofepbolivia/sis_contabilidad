@@ -49,6 +49,7 @@ class MODEntrega extends MODbase{
         $this->captura('tipo','varchar');
         $this->captura('validado','varchar');
         $this->captura('tipo_cbte','varchar');
+        $this->captura('reversion','varchar');
 
 
         //Ejecuta la instruccion
@@ -365,6 +366,40 @@ class MODEntrega extends MODbase{
 
         //Ejecuta la instruccion
         $this->armarConsulta(); //echo $this->consulta;exit;
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    //{develop:franklin.espinoza date:20/11/2020}
+    function volcarEntrega(){
+        //swEditable de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_entrega_ime';
+        $this->transaccion='CONTA_VOLCAR_ENT_IME';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_entrega','id_entrega','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    //{develop:franklin.espinoza date:20/11/2020}
+    function clonarEntrega(){
+        //swEditable de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_entrega_ime';
+        $this->transaccion='CONTA_CLONAR_ENT_IME';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_entrega','id_entrega','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
         $this->ejecutarConsulta();
 
         //Devuelve la respuesta

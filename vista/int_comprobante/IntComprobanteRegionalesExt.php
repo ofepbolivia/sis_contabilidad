@@ -403,6 +403,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 config: {
                     name: 'id_depto',
                     hiddenName: 'id_depto',
+                    msgTarget: 'side',
                     url: '../../sis_parametros/control/Depto/listarDeptoFiltradoPrioridadEXT',
                     origen: 'DEPTO',
                     allowBlank: false,
@@ -464,6 +465,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     anchor: '100%',
                     gwidth: 150,
                     minChars: 2,
+                    msgTarget: 'side',
                     renderer: function (value, p, record) {
                         return String.format('{0}', record.data['desc_clase_comprobante']);
                     }
@@ -489,6 +491,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     lazyRender: true,
                     mode: 'local',
                     valueField: 'inicio',
+                    msgTarget: 'side',
                     store: ['contable', 'presupuestario']
                 },
                 type: 'ComboBox',
@@ -580,6 +583,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     anchor: '100%',
                     gwidth: 150,
                     minChars: 2,
+                    msgTarget: 'side',
                     renderer: function (value, p, record) {
                         return String.format('{0}', record.data['desc_tipo_relacion_comprobante']);
                     }
@@ -634,12 +638,29 @@ header("content-type: text/javascript; charset=UTF-8");
                     gwidth: 150,
                     minChars: 2,
                     resizable: true,
+                    msgTarget: 'side',
                     renderer: function (value, p, record) {
                         // return String.format('{0}', record.data['desc_tipo_relacion_comprobante']);
                         return String.format('{0}', record.data['id_int_comprobante_fks']);
                     }
                 },
                 type: 'AwesomeCombo',
+                id_grupo: 1,
+                grid: true,
+                form: true
+            },
+
+            {
+                config: {
+                    name: 'reversion',
+                    fieldLabel: 'Reversión',
+                    renderer: function (value, p, record) {
+                        return record.data['reversion'] == 'true' ? 'si' : 'no';
+                    },
+                    gwidth: 50,
+
+                },
+                type: 'Checkbox',
                 id_grupo: 1,
                 grid: true,
                 form: true
@@ -738,6 +759,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     width: 170,
                     gwidth: 100,
                     minChars: 2,
+                    msgTarget: 'side',
                     renderer: function (value, p, record) {
                         return String.format('{0}', record.data['desc_moneda']);
                     }
@@ -765,6 +787,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     lazyRender: true,
                     mode: 'local',
                     valueField: 'oficial',
+                    msgTarget: 'side',
                     store: ['oficial', 'compra', 'venta', 'convenido']
                 },
                 type: 'ComboBox',
@@ -787,6 +810,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     anchor: '90%',
                     gwidth: 70,
                     maxLength: 20,
+                    msgTarget: 'side',
                     decimalPrecision: 10
                 },
                 type: 'NumberField',
@@ -807,6 +831,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     anchor: '90%',
                     gwidth: 70,
                     maxLength: 20,
+                    msgTarget: 'side',
                     decimalPrecision: 6
                 },
                 type: 'NumberField',
@@ -827,6 +852,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     anchor: '90%',
                     gwidth: 70,
                     maxLength: 20,
+                    msgTarget: 'side',
                     decimalPrecision: 6
                 },
                 type: 'NumberField',
@@ -872,7 +898,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     allowBlank: false,
                     anchor: '100%',
                     gwidth: 250,
-                    maxLength: 1500
+                    msgTarget: 'side',
+                    maxLength: 500
                 },
                 type: 'TextArea',
                 filters: {
@@ -909,6 +936,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     allowBlank: false,
                     anchor: '100%',
                     gwidth: 250,
+                    msgTarget: 'side',
                     maxLength: 500
                 },
                 type: 'TextField',
@@ -1077,6 +1105,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     baseParams: {estado: 'activo', codigo_subsistema: 'TES', modulo: 'LB', tipo_filtro: 'DEPTO_UO'},
                     gdisplayField: 'desc_depto_lb',
                     gwidth: 120,
+                    msgTarget: 'side',
                     width: 250
                 },
                 //type:'TrigguerCombo',
@@ -1126,6 +1155,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     gwidth: 250,
                     width: 250,
                     minChars: 2,
+                    msgTarget: 'side',
                     renderer: function (value, p, record) {
                         return String.format('{0}', record.data['desc_cuenta_bancaria']);
                     }
@@ -1141,7 +1171,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 config: {
                     name: 'fecha_costo_ini',
                     fieldLabel: 'Fecha Inicial',
-                    allowBlank: true,
+                    allowBlank: false,
+                    msgTarget: 'side',
                     width: 100,
                     gwidth: 100,
                     format: 'd/m/Y',
@@ -1162,7 +1193,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 config: {
                     name: 'fecha_costo_fin',
                     fieldLabel: 'Fecha Final',
-                    allowBlank: true,
+                    allowBlank: false,
+                    msgTarget: 'side',
                     width: 100,
                     gwidth: 100,
                     format: 'd/m/Y',
@@ -1456,7 +1488,7 @@ header("content-type: text/javascript; charset=UTF-8");
             'id_tipo_relacion_comprobante', 'tipo_cambio_2', 'id_moneda_tri', 'tipo_cambio_3', 'id_moneda_act',
             'sw_tipo_cambio', 'id_config_cambiaria', 'ope_1', 'ope_2', 'ope_3',
             'desc_moneda_tri', 'localidad', 'sw_editable', 'cbte_reversion', 'volcado', 'c31', 'fecha_c31', 'forma_cambio', 'id_service_request',
-            'id_depto_libro', 'id_cuenta_bancaria','desc_cuenta_bancaria','desc_depto_lb', 'tipo_cbte'],
+            'id_depto_libro', 'id_cuenta_bancaria','desc_cuenta_bancaria','desc_depto_lb', 'tipo_cbte', 'reversion'],
 
         rowExpander: new Ext.ux.grid.RowExpander({
             tpl: new Ext.Template('<br>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Departamento:&nbsp;&nbsp;</b> {desc_depto} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Clase cbte:&nbsp;&nbsp;</b> {desc_clase_comprobante}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Origen:&nbsp;&nbsp;</b> {desc_subsistema}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Beneficiario:&nbsp;&nbsp;</b> {beneficiario}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Glosa:&nbsp;&nbsp;</b> {glosa1} {glosa2}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Frima 1:&nbsp;&nbsp;</b> {desc_firma1} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Firma 2:&nbsp;&nbsp;</b> {desc_firma2} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Firma 3:&nbsp;&nbsp;</b> {desc_firma3} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:&nbsp;&nbsp;</b> {usr_reg}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Estado Registro:&nbsp;&nbsp;</b> {estado_reg}</p><br>')
