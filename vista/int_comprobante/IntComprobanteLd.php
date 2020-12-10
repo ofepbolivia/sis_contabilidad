@@ -14,7 +14,7 @@ header("content-type: text/javascript; charset=UTF-8");
     Phx.vista.IntComprobanteLd = {
         bedit: false,
         bnew: false,
-        bsave: false,
+        bsave: true,
         bdel: true,
         require: '../../../sis_contabilidad/vista/int_comprobante/IntComprobante.php',
         requireclase: 'Phx.vista.IntComprobante',
