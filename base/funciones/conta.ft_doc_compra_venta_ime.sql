@@ -275,7 +275,7 @@ END IF;
                        raise exception 'Ya existe un Documento/Factura registrado con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
 				  ELSE
                   		--08-07-2020 (may)validacion para controlar duplicidad de las facturas
-                  		IF (v_parametros.id_plantilla in (1,31,25,34,27,15,33,4,37) ) THEN
+                  		IF (v_parametros.id_plantilla in (1,31,25,34,27,15,33,4,36,37) ) THEN
 
                   			IF EXISTS(select 1
                                       from conta.tdoc_compra_venta dcv
@@ -1170,7 +1170,7 @@ END IF;
 
                   ELSE
                   		--08-07-2020 (may)validacion para controlar duplicidad de las facturas
-                  		IF (v_parametros.id_plantilla in (1,31,25,34,27,15,33,4,37) ) THEN
+                  		IF (v_parametros.id_plantilla in (1,31,25,34,27,15,33,4,36,37) ) THEN
 
                   			IF EXISTS(select 1
                                       from conta.tdoc_compra_venta dcv
@@ -2488,7 +2488,7 @@ END IF;
                          raise exception 'Ya existe un Documento/Factura registrado con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
                     ELSE
                           --08-07-2020 (may)validacion para controlar duplicidad de las facturas
-                          IF (v_parametros.id_plantilla in (1,31,25,34,27,15,33,4,37) ) THEN
+                          IF (v_parametros.id_plantilla in (1,31,25,34,27,15,33,4,36,37) ) THEN
 
                               IF EXISTS(select 1
                                         from conta.tdoc_compra_venta dcv
