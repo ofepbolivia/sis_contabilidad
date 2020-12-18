@@ -81,8 +81,8 @@ BEGIN
                                          (''Periodo: ''||pp.fecha_costo_ini||'' - ''||pp.fecha_costo_fin)::varchar as detalle_periodo,
                                          (ci.desc_ingas||'' - ''||pp.obs_monto_no_pagado ||'' - Periodo: ''||(to_char(pp.fecha_costo_ini,''DD/MM/YYYY''))||'' - ''||(to_char(pp.fecha_costo_fin,''DD/MM/YYYY'')))::varchar as detalle_gasto,
                                          cbte.nro_cheque::varchar,
-                             			(CASE WHEN cbte.id_moneda = 2 THEN (tra.importe_debe_mt) else 0 END)::numeric as monto_dolares,
-                                        (CASE WHEN cbte.id_moneda != 2 THEN (tra.importe_debe_mb) else 0 END)::numeric as monto,
+                             			(CASE WHEN cbte.id_moneda = 2 THEN (SELECT sum(tra.importe_debe_mt) FROM conta.tint_transaccion tra WHERE tra.id_int_comprobante = cbte.id_int_comprobante) else 0 END)::numeric as monto_dolares,
+                                        (CASE WHEN cbte.id_moneda != 2 THEN (SELECT sum(tra.importe_debe_mb) FROM conta.tint_transaccion tra WHERE tra.id_int_comprobante = cbte.id_int_comprobante) else 0 END)::numeric as monto,
                                         (cb.nro_cuenta||'' - ''||cb.denominacion)::varchar as cuenta_bancaria,
                              			('' '')::varchar as glosa
 
@@ -107,31 +107,8 @@ BEGIN
 
                 WHERE cbte.estado_reg = ''validado'' and cbte.fecha BETWEEN  '''||v_parametros.fecha_ini||''' and '''||v_parametros.fecha_fin ||'''
                   '||v_filtro||' '||v_filtro_fun||'
-                GROUP BY  cbte.nro_cbte,
-                           cbte.fecha,
-                           cbte.tipo_cambio_2,
-                           prov.desc_proveedor,
-                           plan.desc_plantilla,
-                  		   ci.desc_ingas,
-                           od.descripcion,
-                           cc.codigo_cc,
-                           ot.desc_orden,
-                           par.codigo,
-                           par.nombre_partida,
-                           pp.fecha_costo_ini,
-                           pp.fecha_costo_fin,
-                           pp.obs_monto_no_pagado,
-                           cbte.id_moneda,
-                           cb.denominacion,
-                           cbte.nro_cheque,
-                           cb.nro_cuenta,
-                           tra.importe_debe_mt,
-                           tra.importe_debe_mb,
-                           dc.nro_documento,
-                           pp.forma_pago ,
-                           cbte.id_int_comprobante
 
- 					ORDER BY cbte.id_int_comprobante ASC
+ 				ORDER BY cbte.id_int_comprobante ASC
 
                 ';
 
