@@ -43,13 +43,13 @@ BEGIN
     v_parametros = pxp.f_get_record(p_tabla);
 
 	 /*********************************
-        #TRANSACCION:  'CONTA_REPDETGASTO_SEL'
+        #TRANSACCION:  'CONTA_REPDETG_SEL'
         #DESCRIPCION:	Reporte de documentos compra y venta del ext
         #AUTOR:		Maylee Perez Pastor
         #FECHA:		28-02-2020
         ***********************************/
 
-        if(p_transaccion='CONTA_REPDETGASTO_SEL')then
+        if(p_transaccion='CONTA_REPDETG_SEL')then
 
              begin
 

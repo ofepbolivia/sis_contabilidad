@@ -12,7 +12,7 @@ class MODReporteExt extends MODbase
     {
         //Definicion de variables para ejecucion del procedimientp
         $this->procedimiento = 'conta.ft_reporte_ext_sel';
-        $this->transaccion = 'CONTA_REPDETGASTO_SEL';
+        $this->transaccion = 'CONTA_REPDETG_SEL';
         $this->tipo_procedimiento = 'SEL';//tipo de transaccion
         $this->setCount(false);
 
