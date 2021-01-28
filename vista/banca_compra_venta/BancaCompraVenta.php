@@ -1649,7 +1649,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 			config: {
 				name: 'tipo_documento_pago',
 				fieldLabel: 'Tipo de Documento de Pago',
-                disabled: true,
+                disabled: false,
 				allowBlank: false,
 				emptyText: 'Elija una opción...',
 				store: new Ext.data.JsonStore({
