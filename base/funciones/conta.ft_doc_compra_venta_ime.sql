@@ -78,6 +78,18 @@ DECLARE
   v_plan_pago				INTEGER;
   v_id_doc_compra_venta_ext	integer;
 
+  --franklin.espinoza 25/01/2021 Modificacion tabla factura dblink
+    v_host 				varchar;
+    v_puerto 			varchar;
+    v_dbname 			varchar;
+    p_user 				varchar;
+    v_password 			varchar;
+    v_cadena_factura	varchar;
+    v_fecha_factura		date;
+	v_conexion 			varchar;
+    v_gestion			integer;
+    v_consulta			varchar;
+
 BEGIN
 
   v_nombre_funcion = 'conta.ft_doc_compra_venta_ime';
@@ -2836,8 +2848,56 @@ END IF;
 
       end;
 
+  /*********************************
+   #TRANSACCION:  'CONTA_UPD_FACTU_IME'
+   #DESCRIPCION:	Actualiza el Nit, Razon Social BD facturas
+   #AUTOR:		franklin.espinoza
+   #FECHA:		25-01-2021 09:14:14
+  ***********************************/
+
+  elsif(p_transaccion='CONTA_UPD_FACTU_IME')then
+
+    begin
+    	--raise 'param: %, %, %',v_parametros.nit_ci_cli,v_parametros.razon_social_cli,v_parametros.id_factura;
+    	v_fecha_factura = v_parametros.fecha_factura;
+        v_gestion =  date_part('year',v_fecha_factura);
+
+        v_host     = pxp.f_get_variable_global('sincroniza_ip_facturacion');
+        v_puerto   = pxp.f_get_variable_global('sincroniza_puerto_facturacion');
+        v_dbname   = 'db_facturas_'||v_gestion;
+        p_user     = pxp.f_get_variable_global('sincronizar_user_facturacion');
+        v_password = pxp.f_get_variable_global('sincronizar_password_facturacion');
+
+        v_cadena_factura = 'hostaddr='||v_host||' port='||v_puerto||' dbname='||v_dbname||' user='||p_user||' password='||v_password;
+
+        v_conexion = (select dblink_connect('db_facturas',v_cadena_factura));
+
+		--Sentencia de la consulta
+        v_consulta = 'update sfe.tfactura set
+        			  nit_ci_cli = '''||trim(v_parametros.nit_ci_cli)||''',
+                      razon_social_cli = '''||trim(v_parametros.razon_social_cli)||''',
+                      revision_nit = ''CORREGIDO''
+                      where  id_factura = '''||v_parametros.id_factura||''';';
 
 
+        if v_conexion != 'OK' then
+              raise exception 'ERROR DE CONEXION A LA BASE DE DATOS CON DBLINK';
+        else
+
+          perform dblink_exec(v_cadena_factura,v_consulta,TRUE);
+
+          v_conexion = (select dblink_disconnect('db_facturas'));
+
+        end if;
+
+      --Definicion de la respuesta
+      v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se modifico con exito la factura '||v_parametros.id_factura);
+      v_resp = pxp.f_agrega_clave(v_resp,'id_factura',v_parametros.id_factura::varchar);
+
+      --Devuelve la respuesta
+      return v_resp;
+
+    end;
   else
 
     raise exception 'Transaccion inexistente: %',p_transaccion;

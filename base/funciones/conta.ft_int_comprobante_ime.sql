@@ -132,6 +132,12 @@ DECLARE
     v_localidad						varchar;
     v_reversion						varchar;
 
+
+	v_registros_int_cbte			record;
+    v_id_tipo_proceso				integer;
+
+    v_id_depto_libro				integer;
+
 BEGIN
 
     v_nombre_funcion = 'conta.ft_int_comprobante_ime';
@@ -493,8 +499,17 @@ BEGIN
       		v_reversion = 'no';
 
       		--franklin.espinoza 06/11/2020 bandera que indica si un comprobante es de reversion
-            IF v_parametros.reversion = 'true' THEN
-             v_reversion = 'si';
+            IF  pxp.f_existe_parametro(p_tabla , 'reversion')  THEN
+              IF v_parametros.reversion = 'true' THEN
+               v_reversion = 'si';
+              END IF;
+            END IF;
+
+            IF  pxp.f_existe_parametro(p_tabla , 'id_depto_libro')  THEN
+            	v_id_depto_libro = v_parametros.id_depto_libro;
+            END IF;
+            IF  pxp.f_existe_parametro(p_tabla , 'id_cuenta_bancaria')  THEN
+    			v_id_cuenta_bancaria = v_parametros.id_cuenta_bancaria;
             END IF;
 
             	insert into conta.tint_comprobante(
@@ -589,8 +604,8 @@ BEGIN
                   v_parametros.forma_cambio,
                   v_id_moneda_act,
                   v_parametros.tipo_cambio_3,
-                  v_parametros.id_cuenta_bancaria,
-                  v_parametros.id_depto_libro,
+                  v_id_cuenta_bancaria,
+                  v_id_depto_libro,
                   v_localidad,
                   v_reversion
 
@@ -3475,6 +3490,135 @@ BEGIN
                       raise exception 'No puede generar el nuevo comprobante';
 
                       end;
+      /*********************************
+      #TRANSACCION:  'CONTA_DESV_CBT_IME'
+      #DESCRIPCION:	Devalida un comprobante
+      #AUTOR:		frankin.espinoza
+      #FECHA:		17-12-2020 00:28:30
+      ***********************************/
+
+      elsif(p_transaccion='CONTA_DESV_CBT_IME')then
+
+        begin
+          --raise 'validado: %',v_parametros.id_proceso_wf;
+            select
+              cbte.id_int_comprobante,
+              cbte.id_estado_wf,
+              cbte.id_proceso_wf,
+              cbte.id_usuario_ai,
+              cbte.usuario_ai
+              into v_registros_int_cbte
+            from conta.tint_comprobante cbte
+            where cbte.id_proceso_wf = v_parametros.id_proceso_wf and cbte.estado_reg = 'validado';
+
+            SELECT
+               cbte.id_estado_wf,
+
+              pw.id_tipo_proceso,
+              pw.id_proceso_wf
+
+             into
+              v_id_estado_wf,
+              v_id_tipo_proceso,
+              v_id_proceso_wf
+
+             FROM conta.tint_comprobante cbte
+             inner join wf.tproceso_wf pw on pw.id_proceso_wf = cbte.id_proceso_wf
+             inner join wf.testado_wf ewf on ewf.id_estado_wf = cbte.id_estado_wf
+             WHERE  cbte.id_proceso_wf = v_parametros.id_proceso_wf;
+
+
+            delete from pre.tpartida_ejecucion
+            where id_int_comprobante = v_registros_int_cbte.id_int_comprobante;
+
+            update conta.tint_transaccion set
+                id_partida_ejecucion = null
+            where id_int_comprobante = v_registros_int_cbte.id_int_comprobante;
+
+            update conta.tint_comprobante set
+                nro_cbte = null
+            where id_int_comprobante = v_registros_int_cbte.id_int_comprobante;
+
+            SELECT
+             ps_id_tipo_estado,
+             ps_codigo_estado
+           into
+             v_id_tipo_estado,
+             v_codigo_estado
+           FROM wf.f_obtener_tipo_estado_inicial_del_tipo_proceso(v_id_tipo_proceso);
+
+            --------------------------------------------------
+            --Retrocede al estado inmediatamente anterior
+            -------------------------------------------------
+            --recuperaq estado anterior segun Log del WF
+
+
+            SELECT
+               ps_id_funcionario,
+               ps_codigo_estado ,
+               ps_id_depto
+             into
+              v_id_funcionario,
+              v_codigo_estado,
+              v_id_depto
+             FROM wf.f_obtener_estado_segun_log_wf(v_id_estado_wf, v_id_tipo_estado);
+
+
+
+            --configurar acceso directo para la alarma
+            v_acceso_directo = '';
+            v_clase = '';
+            v_parametros_ad = '';
+            v_tipo_noti = 'notificacion';
+            v_titulo  = 'Notificacion';
+
+
+            IF   v_codigo_estado_siguiente not in('borrador','supconta','vbconta','finalizado')   THEN
+                  v_acceso_directo = '../../../sis_contabilidad/vista/entrega/Entrega.php';
+                  v_clase = 'Entrega';
+                  v_parametros_ad = '{filtro_directo:{campo:"conta.id_proceso_wf",valor:"'||v_parametros.id_proceso_wf_act::varchar||'"}}';
+                  v_tipo_noti = 'notificacion';
+                  v_titulo  = 'Notificacion';
+             END IF;
+
+
+            -- registra nuevo estado
+
+            v_id_estado_actual = wf.f_registra_estado_wf(
+            v_id_tipo_estado,
+            v_id_funcionario,
+            v_registros_int_cbte.id_estado_wf,
+            v_id_proceso_wf,
+            p_id_usuario,
+            v_registros_int_cbte.id_usuario_ai,
+            v_registros_int_cbte.usuario_ai,
+            v_id_depto,
+            '[RETROCESO] Corrección datos',
+            v_acceso_directo,
+            v_clase,
+            v_parametros_ad,
+            v_tipo_noti,
+            v_titulo);
+
+            update conta.tint_comprobante   set
+             id_estado_wf =  v_id_estado_actual,
+             estado_reg = v_codigo_estado,
+             id_usuario_mod = p_id_usuario,
+             fecha_mod = now(),
+             id_usuario_ai = v_parametros._id_usuario_ai,
+             usuario_ai = v_parametros._nombre_usuario_ai
+            where id_proceso_wf = v_parametros.id_proceso_wf;
+
+
+
+
+          --Definicion de la respuesta
+          v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Comprobante desvalidado con exito (id_int_comprobante'||v_registros_int_cbte.id_int_comprobante||')');
+          v_resp = pxp.f_agrega_clave(v_resp,'id_int_comprobante',v_registros_int_cbte.id_int_comprobante::varchar);
+
+          --Devuelve la respuesta
+          return v_resp;
+      end;
 
     else
 

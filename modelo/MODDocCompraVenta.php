@@ -7,6 +7,9 @@
  * @date 18-08-2015 15:57:09
  * @description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
  */
+
+include_once(dirname(__FILE__).'/../../lib/lib_modelo/ConexionSqlServer.php');
+
 class MODDocCompraVenta extends MODbase
 {
 
@@ -2631,6 +2634,166 @@ class MODDocCompraVenta extends MODbase
         //Devuelve la respuesta
         return $this->respuesta;
     }
+    /**{developer:franklin.espinoza, date:10/01/2021, description: Reporte Libro de Ventas}**/
+    function listarRepLibroVentas(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento = 'conta.ft_doc_compra_venta_sel';
+        $this->transaccion = 'CONTA_R_LIB_VEN_SEL';
+        $this->tipo_procedimiento = 'SEL';//tipo de transaccion
+        $this->setCount(false);
+
+        if($this->objParam->getParametro('filtro_sql') == 'periodo'){
+            $this->setParametro('filtro_sql', 'filtro_sql', 'VARCHAR');
+            $this->setParametro('tipo_lcv', 'tipo_lcv', 'VARCHAR');
+            $this->setParametro('id_periodo', 'id_periodo', 'INTEGER');
+            $this->setParametro('id_gestion', 'id_gestion', 'INTEGER');
+
+        }else{
+            $this->setParametro('filtro_sql', 'filtro_sql', 'VARCHAR');
+            $this->setParametro('tipo_lcv', 'tipo_lcv', 'VARCHAR');
+            $this->setParametro('fecha_ini', 'fecha_ini', 'date');
+            $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+        }
+
+        //Definicion de la lista del resultado del query
+
+        $this->captura('id_factura', 'integer');
+        $this->captura('fecha_factura', 'date');
+        $this->captura('nro_factura', 'varchar');
+        $this->captura('nro_autorizacion', 'varchar');
+        $this->captura('estado', 'varchar');
+        $this->captura('nit_ci_cli', 'varchar');
+        $this->captura('razon_social_cli', 'varchar');
+
+        $this->captura('importe_total_venta', 'numeric');
+        $this->captura('importe_otros_no_suj_iva', 'numeric');
+        $this->captura('exportacion_excentas', 'numeric');
+        $this->captura('ventas_tasa_cero', 'numeric');
+        $this->captura('descuento_rebaja_suj_iva', 'numeric');
+        $this->captura('importe_debito_fiscal', 'numeric');
+
+        $this->captura('codigo_control', 'varchar');
+        $this->captura('tipo_factura', 'varchar');
+        $this->captura('id_origen', 'integer');
+        $this->captura('sistema_origen', 'varchar');
+
+
+        //Ejecuta la instruccion
+        $this->armarConsulta(); //echo ($this->consulta);exit;
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    /**{developer:franklin.espinoza, date:10/01/2021, description: Reporte Libro de Ventas}**/
+
+    /**{developer:franklin.espinoza, date:20/01/2021, description: Obtener Datos de Factura DBLink}**/
+    function getDataDocVenta(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento = 'conta.ft_doc_compra_venta_sel';
+        $this->transaccion = 'CONTA_GET_VENTA_SEL';
+        $this->tipo_procedimiento = 'SEL';//tipo de transaccion
+
+        $this->setCount(false);
+
+        $this->setParametro('fecha_desde', 'fecha_desde', 'date');
+        $this->setParametro('fecha_hasta', 'fecha_hasta', 'date');
+        $this->setParametro('tipo_show', 'tipo_show', 'varchar');
+
+
+        //Definicion de la lista del resultado del query
+
+        $this->captura('id_factura', 'integer');
+        $this->captura('fecha_factura', 'date');
+        $this->captura('nro_factura', 'varchar');
+        $this->captura('nro_autorizacion', 'varchar');
+        $this->captura('estado', 'varchar');
+        $this->captura('nit_ci_cli', 'varchar');
+        $this->captura('razon_social_cli', 'varchar');
+
+        $this->captura('importe_total_venta', 'numeric');
+        $this->captura('importe_otros_no_suj_iva', 'numeric');
+        $this->captura('exportacion_excentas', 'numeric');
+        $this->captura('ventas_tasa_cero', 'numeric');
+        $this->captura('descuento_rebaja_suj_iva', 'numeric');
+        $this->captura('importe_debito_fiscal', 'numeric');
+
+        $this->captura('codigo_control', 'varchar');
+        $this->captura('tipo_factura', 'varchar');
+        $this->captura('id_origen', 'integer');
+        $this->captura('sistema_origen', 'varchar');
+        $this->captura('desc_ruta', 'varchar');
+        $this->captura('revision_nit', 'varchar');
+        //$this->captura('importe_exento', 'numeric');
+
+
+        //Ejecuta la instruccion
+        $this->armarConsulta(); //echo ($this->consulta);exit;
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    /**{developer:franklin.espinoza, date:20/01/2021, description: Obtener Datos de Factura DBLink}**/
+
+    /**{developer:franklin.espinoza, date:25/01/2021, description: Modificacar Nit, Razon Social mediante procedimiento SQL}**/
+    function modificarNitRazonSocial(){
+
+
+        $ticketNumber = $this->objParam->getParametro('nro_factura');
+        $issueDate = $fecha_desde = implode('',array_reverse(explode('/',$this->objParam->getParametro('fecha_factura'))));
+        $nit = $this->objParam->getParametro('nit_ci_cli');
+        $bussinesName = $this->objParam->getParametro('razon_social_cli');
+
+        $this->respuesta = new Mensaje();
+
+        //variables para la conexion sql server.
+        $bandera_conex = '';
+        $conn = '';
+        $param_conex = array();
+        $conexion = '';
+
+        if ($conn != '') {
+            $conexion->closeSQL();
+        }
+
+        $conexion = new ConexionSqlServer('172.17.110.6', 'SPConnection', 'Passw0rd', 'DBStage');//172.17.58.22
+        $conn = $conexion->conectarSQL();
+
+
+        if ($conn == 'connect') {
+            $error = 'connect';
+            throw new Exception("connect: La conexión a la bd SQL Server " . $param_conex[1] . " ha fallado.");
+        } else if ($conn == 'select_db') {
+            $error = 'select_db';
+            throw new Exception("select_db: La seleccion de la bd SQL Server " . $param_conex[1] . " ha fallado.");
+        } else {
+
+            $query = @mssql_query("exec DBStage.dbo.spa_updateNitBussinesName '$ticketNumber','$issueDate','$nit','$bussinesName';", $conn);
+
+            $this->respuesta->datos = array();
+
+            mssql_free_result($query);
+            $conexion->closeSQL();
+        }
+
+        $this->procedimiento='conta.ft_doc_compra_venta_ime';
+        $this->transaccion='CONTA_UPD_FACTU_IME';
+        $this->tipo_procedimiento='IME';//tipo de transaccion
+
+        $this->setParametro('id_factura', 'id_factura', 'integer');
+        $this->setParametro('nro_factura','nro_factura','varchar');
+        $this->setParametro('fecha_factura','fecha_factura','date');
+        $this->setParametro('nit_ci_cli','nit_ci_cli','varchar');
+        $this->setParametro('razon_social_cli','razon_social_cli','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta(); //var_dump('consulta',$this->consulta);exit;
+        $this->ejecutarConsulta();
+
+        return $this->respuesta;
+    }
+    /**{developer:franklin.espinoza, date:25/01/2021, description: Modificacar Nit, Razon Social mediante procedimiento SQL}**/
 
 }
 

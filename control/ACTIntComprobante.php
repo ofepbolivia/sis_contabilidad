@@ -839,6 +839,12 @@ class ACTIntComprobante extends ACTbase{
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 
+    function desvalidarCBTE(){
+        $this->objFunc=$this->create('MODIntComprobante');
+        $this->res=$this->objFunc->desvalidarCBTE($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
 }
 
 ?>

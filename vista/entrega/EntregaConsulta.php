@@ -87,7 +87,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             this.maestro=config.maestro;
             //llama al constructor de la clase padre
-            this.initButtons = [this.cmbDepto, this.cmbGestion];
+            this.initButtons = [this.cmbDepto/*, this.cmbGestion*/];
             Phx.vista.EntregaConsulta.superclass.constructor.call(this,config);
             this.store.baseParams.pes_estado = ' ';
 
@@ -223,6 +223,17 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: '<b>Consulta de Comprobantes</b>'
             });
 
+            this.addButton('ant_estado',{
+                grupo: [0,1,2,3,4,5],
+                argument: {estado: 'anterior'},
+                text: 'Anterior',
+                iconCls: 'batras',
+                disabled: true,
+                /*hidden:true,*/
+                handler: this.antEstadoA,
+                tooltip: '<b>Volver al Anterior Estado</b>'
+            });
+
 
             this.init();
 
@@ -236,6 +247,165 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.capturaFiltros();
             }, this);
 
+        },
+
+        gruposBarraTareas: [
+            {name:  'borrador', title: '<h1 style="text-align:center; color:#4682B4;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> BORRADOR</h1>',grupo: 0, height: 1} ,
+            {name: 'elaborado', title: '<h1 style="text-align: center; color: #586E7E ;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> ELABORADO</h1>', grupo: 1, height: 1},
+            {name: 'verificado', title: '<h1 style="text-align: center; color: #00B167;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> VERIFICADO</h1>', grupo: 2, height: 1},
+            {name: 'aprobado', title: '<h1 style="text-align: center; color: #B066BB;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> APROBADO</h1>', grupo: 3, height: 1},
+            {name: 'finalizado', title: '<h1 style="text-align: center; color: #FF8F85;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> FINALIZADO</h1>', grupo: 4, height: 1}
+        ],
+
+        bactGroups:[0,1,2,3,4],
+        bexcelGroups:[0,1,2,3,4],
+
+        actualizarSegunTab: function(name, indice){
+
+            this.store.baseParams.estado_entrega = name;
+            if(this.cmbDepto.getValue() != '' && this.cmbDepto.getValue() != undefined) {
+                this.load({params: {start: 0, limit: 50}});
+            }
+        },
+
+        antEstadoA:function(res){
+            var rec=this.sm.getSelected();
+            Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/AntFormEstadoWf.php',
+                'Estado de Wf',
+                {
+                    modal:true,
+                    width:450,
+                    height:250
+                }, { data:rec.data}, this.idContenedor,'AntFormEstadoWf',
+                {
+                    config:[{
+                        event:'beforesave',
+                        delegate: this.onAntEstadoA,
+                    }
+                    ],
+                    scope:this
+                })
+        },
+        onAntEstadoA: function(wizard,resp){
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url:'../../sis_contabilidad/control/Entrega/retrosederEstado',
+                params:{
+                    id_proceso_wf: resp.id_proceso_wf,
+                    id_estado_wf:  resp.id_estado_wf,
+                    obs: resp.obs,
+                    estado_destino: resp.estado_destino
+                },
+                argument:{wizard:wizard},
+                success:this.successEstadoSincA,
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+            });
+        },
+
+        successEstadoSincA:function(resp){
+            Phx.CP.loadingHide();
+            resp.argument.wizard.panel.destroy();
+            this.reload();
+        },
+        /*===================================================BEGIN REVERTIR ESTADO ANTERIOR======================================================*/
+        antEstado:function(res){
+            var rec=this.sm.getSelected();
+            Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/AntFormEstadoWf.php',
+                'Estado de Wf',
+                {
+                    modal:true,
+                    width:450,
+                    height:250
+                }, {
+                    data:rec.data,
+                    estado_destino: res.argument.estado
+                },
+                this.idContenedor,'AntFormEstadoWf',
+                {
+                    config:[{
+                        event:'beforesave',
+                        delegate: this.onAntEstado,
+                    }
+                    ],
+                    scope:this
+                })
+        },
+
+        onAntEstado: function(wizard,resp){
+            var record = this.getSelectedData();
+            console.log('onAntEstado', record.estado);
+            Phx.CP.loadingShow();
+            if(record.estado == 'verificado'){
+                this.desverificaProcesoSigep(wizard,resp);
+            }else {
+                /*Ext.Ajax.request({
+                    url:'../../sis_contabilidad/control/Entrega/retrosederEstado',
+                    params:{
+                        id_proceso_wf: resp.id_proceso_wf,
+                        id_estado_wf:  resp.id_estado_wf,
+                        obs: resp.obs,
+                        estado_destino: resp.estado_destino
+                    },
+                    argument:{wizard:wizard},
+                    success:this.successEstadoSinc,
+                    failure: this.conexionFailure,
+                    timeout:this.timeout,
+                    scope:this
+                });*/
+            }
+        },
+
+        desverificaProcesoSigep : function (wizard,response){
+            var record = this.getSelectedData();
+            console.log('record Desverifica', record);
+            Ext.Ajax.request({
+                url:'../../sis_sigep/control/SigepAdq/readyProcesoSigep',
+                params:{
+                    id_service_request : record.id_service_request,
+                    estado_reg : record.estado,
+                    momento : 'pass',
+                    direction : 'previous'
+                },
+                success: function (resp) {
+                    var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
+                    var datos = reg.ROOT.datos;
+                    console.log('desverificaProcesoSigep',datos);
+                    if(datos.process){
+
+                        Phx.CP.loadingHide();
+                        Ext.Ajax.request({
+                            url:'../../sis_contabilidad/control/Entrega/retrosederEstado',
+                            params:{
+                                id_proceso_wf: response.id_proceso_wf,
+                                id_estado_wf:  response.id_estado_wf,
+                                obs: response.obs,
+                                estado_destino: response.estado_destino
+                            },
+                            argument:{wizard:wizard},
+                            success:this.successEstadoSinc,
+                            failure: this.conexionFailure,
+                            timeout:this.timeout,
+                            scope:this
+                        });
+                    }else{
+                        Phx.CP.loadingHide();
+                        wizard.panel.destroy();
+                        this.reload();
+                    }
+                },
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope:this
+            });
+        },
+        /*===================================================END REVERTIR ESTADO ANTERIOR======================================================*/
+
+        successEstadoSinc:function(resp){
+            Phx.CP.loadingHide();
+            resp.argument.wizard.panel.destroy()
+            this.reload();
         },
 
         onRevertir: function(){
@@ -437,7 +607,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         consultaCBTE: function(){
 
-            if( this.cmbDepto.getValue() != '' && this.cmbGestion.getValue() != '' ) { //console.log('combos',this.cmbDepto.getValue(), this.cmbGestion.getValue());
+            if( this.cmbDepto.getValue() != '' && this.cmbDepto.getValue() != undefined/*&& this.cmbGestion.getValue() != '' */) { //console.log('combos',this.cmbDepto.getValue(), this.cmbGestion.getValue());
                 var rec = {maestro: this};
                 rec.id_depto = this.cmbDepto.getValue();
                 rec.id_gestion = this.cmbGestion.getValue();
@@ -455,7 +625,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }else{
                 Ext.Msg.show({
                     title: 'Información',
-                    msg: '<b>Estimado Funcionario: '+'\n'+' Debe seleccionar el departamento y la gestión correspiente.</b>',
+                    msg: '<b>Estimado Funcionario: '+'\n'+' Debe seleccionar el departamento correspiente.</b>',
                     buttons: Ext.Msg.OK,
                     width: 512,
                     icon: Ext.Msg.INFO
@@ -463,105 +633,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }
         },
 
-        /*===================================================BEGIN REVERTIR ESTADO ANTERIOR======================================================*/
-        antEstado:function(res){
-            var rec=this.sm.getSelected();
-            Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/AntFormEstadoWf.php',
-                'Estado de Wf',
-                {
-                    modal:true,
-                    width:450,
-                    height:250
-                }, {
-                    data:rec.data,
-                    estado_destino: res.argument.estado
-                },
-                this.idContenedor,'AntFormEstadoWf',
-                {
-                    config:[{
-                        event:'beforesave',
-                        delegate: this.onAntEstado,
-                    }
-                    ],
-                    scope:this
-                })
-        },
 
-        onAntEstado: function(wizard,resp){
-            var record = this.getSelectedData();
-            console.log('onAntEstado', record.estado);
-            Phx.CP.loadingShow();
-            if(record.estado == 'verificado'){
-                this.desverificaProcesoSigep(wizard,resp);
-            }else {
-                /*Ext.Ajax.request({
-                    url:'../../sis_contabilidad/control/Entrega/retrosederEstado',
-                    params:{
-                        id_proceso_wf: resp.id_proceso_wf,
-                        id_estado_wf:  resp.id_estado_wf,
-                        obs: resp.obs,
-                        estado_destino: resp.estado_destino
-                    },
-                    argument:{wizard:wizard},
-                    success:this.successEstadoSinc,
-                    failure: this.conexionFailure,
-                    timeout:this.timeout,
-                    scope:this
-                });*/
-            }
-        },
-
-        desverificaProcesoSigep : function (wizard,response){
-            var record = this.getSelectedData();
-            console.log('record Desverifica', record);
-            Ext.Ajax.request({
-                url:'../../sis_sigep/control/SigepAdq/readyProcesoSigep',
-                params:{
-                    id_service_request : record.id_service_request,
-                    estado_reg : record.estado,
-                    momento : 'pass',
-                    direction : 'previous'
-                },
-                success: function (resp) {
-                    var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
-                    var datos = reg.ROOT.datos;
-                    console.log('desverificaProcesoSigep',datos);
-                    if(datos.process){
-
-                        Phx.CP.loadingHide();
-                        Ext.Ajax.request({
-                            url:'../../sis_contabilidad/control/Entrega/retrosederEstado',
-                            params:{
-                                id_proceso_wf: response.id_proceso_wf,
-                                id_estado_wf:  response.id_estado_wf,
-                                obs: response.obs,
-                                estado_destino: response.estado_destino
-                            },
-                            argument:{wizard:wizard},
-                            success:this.successEstadoSinc,
-                            failure: this.conexionFailure,
-                            timeout:this.timeout,
-                            scope:this
-                        });
-                    }else{
-                        Phx.CP.loadingHide();
-                        wizard.panel.destroy();
-                        this.reload();
-                    }
-                },
-                failure: this.conexionFailure,
-                timeout: this.timeout,
-                scope:this
-            });
-        },
-
-        successEstadoSinc:function(resp){
-            Phx.CP.loadingHide();
-            resp.argument.wizard.panel.destroy();
-            this.reload();
-        },
-
-        /*===================================================END REVERTIR ESTADO ANTERIOR======================================================*/
 
         /*revertirProcesoSigep : function (){
             var record = this.getSelectedData();
@@ -608,10 +680,10 @@ header("content-type: text/javascript; charset=UTF-8");
             });
         },*/
 
-        successEstadoSinc:function(resp){
+        /*successEstadoSinc:function(resp){
             Phx.CP.loadingHide();
             this.reload();
-        },
+        },*/
 
         onValidar : function(){
 
@@ -727,23 +799,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 icon: Ext.Msg.WARNING,
                 scope:this
             });
-        },
-
-        gruposBarraTareas: [
-            {name:  'borrador', title: '<h1 style="text-align:center; color:#4682B4;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> BORRADOR</h1>',grupo: 0, height: 1} ,
-            {name: 'elaborado', title: '<h1 style="text-align: center; color: #586E7E ;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> ELABORADO</h1>', grupo: 1, height: 1},
-            {name: 'verificado', title: '<h1 style="text-align: center; color: #00B167;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> VERIFICADO</h1>', grupo: 2, height: 1},
-            {name: 'aprobado', title: '<h1 style="text-align: center; color: #B066BB;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> APROBADO</h1>', grupo: 3, height: 1},
-            {name: 'finalizado', title: '<h1 style="text-align: center; color: #FF8F85;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> FINALIZADO</h1>', grupo: 4, height: 1}
-        ],
-
-        bactGroups:[0,1,2,3,4],
-        bexcelGroups:[0,1,2,3,  4],
-
-        actualizarSegunTab: function(name, indice){
-
-            this.store.baseParams.estado_entrega = name;
-            this.load({params: {start: 0, limit: 50}});
         },
 
         /*cmbDepto : new Ext.form.AwesomeCombo({
@@ -1064,6 +1119,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('sigep_ext_entrega').enable();
                 this.getBoton('erp_ext_entrega').enable();
             }
+            this.getBoton('ant_estado').enable();
             return tb;
         },
         liberaMenu : function() {
@@ -1075,9 +1131,10 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('sigep_ext_entrega').disable();
                 this.getBoton('erp_ext_entrega').disable();
             }
+            this.getBoton('ant_estado').disable();
         },
         capturaFiltros : function(combo, record, index) {
-            this.desbloquearOrdenamientoGrid();
+
             this.store.baseParams.id_depto = this.cmbDepto.getValue();
             this.store.baseParams.nombreVista = this.nombreVista
             this.load();

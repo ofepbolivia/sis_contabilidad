@@ -940,6 +940,25 @@ class ACTDocCompraVenta extends ACTbase
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 
+    /**{developer:franklin.espinoza, date:20/01/2021, description: Obtener Datos de Factura DBLink}**/
+    function getDataDocVenta(){
+
+        $this->objParam->defecto('ordenacion', 'fecha_factura');
+        $this->objParam->defecto('dir_ordenacion', 'asc');
+        $this->objFunc = $this->create('MODDocCompraVenta');
+        $this->res = $this->objFunc->getDataDocVenta($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    /**{developer:franklin.espinoza, date:20/01/2021, description: Obtener Datos de Factura DBLink}**/
+
+    /**{developer:franklin.espinoza, date:25/01/2021, description: Modificacar Nit, Razon Social mediante procedimiento SQL}**/
+    function modificarNitRazonSocial(){
+        $this->objFunc = $this->create('MODDocCompraVenta');
+        $this->res = $this->objFunc->modificarNitRazonSocial($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    /**{developer:franklin.espinoza, date:25/01/2021, description: Modificacar Nit, Razon Social mediante procedimiento SQL}**/
+
 }
 
 ?>

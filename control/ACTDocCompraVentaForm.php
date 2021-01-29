@@ -13,6 +13,8 @@ require_once(dirname(__FILE__).'/../reportes/RLcvVentas.php');
 require_once(dirname(__FILE__).'/../reportes/RLcvXls.php');
 require_once(dirname(__FILE__).'/../reportes/RLibroComprasNCDPDF.php');
 require_once(dirname(__FILE__).'/../reportes/RLibroComprasNCDXLS.php');
+require_once(dirname(__FILE__).'/../reportes/RLibroDeVentas.php');
+require_once(dirname(__FILE__).'/../reportes/RLibroDeVentasXLS.php');
 
 class ACTDocCompraVentaForm extends ACTbase{    
 			
@@ -82,7 +84,13 @@ class ACTDocCompraVentaForm extends ACTbase{
                 if($this->objParam->getParametro('tipo_lcv')=='endesis_erp'){
                     $dataSource = $this->recuperarDatosErpEndensisLCV();
                 }else{
-                    $dataSource = $this->recuperarDatosLCV();
+                    if ( 'lcv_ventas' == $this->objParam->getParametro('tipo_lcv')){
+                        $this->objFunc = $this->create('MODDocCompraVenta');
+                        $dataSource = $this->objFunc->listarRepLibroVentas($this->objParam);
+                        //$this->datos = $this->res->getDatos();
+                    }else {
+                        $dataSource = $this->recuperarDatosLCV();
+                    }
                 }
                 $dataEntidad = $this->recuperarDatosEntidad();
                 $dataPeriodo = $this->recuperarDatosPeriodo();
@@ -119,7 +127,11 @@ class ACTDocCompraVentaForm extends ACTbase{
                 if ($this->objParam->getParametro('tipo_lcv') == 'lcv_compras' || $this->objParam->getParametro('tipo_lcv') == 'endesis_erp') {
                     $reporte = new RLcv($this->objParam);
                 } else {
-                    $reporte = new RLcvVentas($this->objParam);
+                    if ( 'lcv_ventas' == $this->objParam->getParametro('tipo_lcv')){
+                        $reporte = new RLibroDeVentas($this->objParam);
+                    }else {
+                        $reporte = new RLcvVentas($this->objParam);
+                    }
                 }
                 $reporte->datosHeader($dataSource->getDatos(), $dataSource->extraData, $dataEntidad->getDatos(), $dataPeriodo->getDatos());
             }else{
@@ -144,7 +156,12 @@ class ACTDocCompraVentaForm extends ACTbase{
                 if($this->objParam->getParametro('tipo_lcv')=='endesis_erp'){
                     $this->res = $this->objFun->listarRepLCVFormErpEndesis();
                 }else{
-                    $this->res = $this->objFun->listarRepLCVForm();
+                    if ( 'lcv_ventas' == $this->objParam->getParametro('tipo_lcv')){
+                        $this->objFunc = $this->create('MODDocCompraVenta');
+                        $this->res = $this->objFunc->listarRepLibroVentas($this->objParam);
+                    }else {
+                        $this->res = $this->objFun->listarRepLCVForm();
+                    }
                 }
 
                 if($this->res->getTipo()=='ERROR'){
@@ -152,7 +169,11 @@ class ACTDocCompraVentaForm extends ACTbase{
                     exit;
                 }
                 //obtener titulo de reporte
-                $titulo ='Lcv';
+                if ( 'lcv_ventas' == $this->objParam->getParametro('tipo_lcv')){
+                    $titulo = 'LibroDeVentas';
+                }else {
+                    $titulo = 'Lcv';
+                }
                 //Genera el nombre del archivo (aleatorio + titulo)
                 $nombreArchivo=uniqid(md5(session_id()).$titulo);
                 $nombreArchivo.='.xls';
@@ -160,7 +181,11 @@ class ACTDocCompraVentaForm extends ACTbase{
                 $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
                 $this->objParam->addParametro('datos',$this->res->datos);
                 //Instancia la clase de excel
-                $this->objReporteFormato=new RLcvXls($this->objParam);
+                if ( 'lcv_ventas' == $this->objParam->getParametro('tipo_lcv')){
+                    $this->objReporteFormato = new RLibroDeVentasXLS($this->objParam);
+                }else {
+                    $this->objReporteFormato = new RLcvXls($this->objParam);
+                }
             }else{
 
                 if( 'lcncd' == $this->objParam->getParametro('tipo_lcv') ){
@@ -190,7 +215,28 @@ class ACTDocCompraVentaForm extends ACTbase{
         }
         if($this->objParam->getParametro('formato_reporte')!='pdf' && $this->objParam->getParametro('formato_reporte')!='xls'){
             if( 'lcncd' != $this->objParam->getParametro('tipo_lcv') ) {
-                $this->exportarTxtLcvLCV();
+                if( 'lcv_ventas' == $this->objParam->getParametro('tipo_lcv') ) {
+
+                    $this->objFunc = $this->create('MODDocCompraVenta');
+                    $this->res = $this->objFunc->listarRepLibroVentas($this->objParam);
+
+                    if($this->res->getTipo()=='ERROR'){
+                        $this->res->imprimirRespuesta($this->res->generarJson());
+                        exit;
+                    }
+
+                    $nombreArchivo = $this->crearArchivoExportacionLibroVenta($this->res, $this->objParam);
+
+                    $this->mensajeExito=new Mensaje();
+                    $this->mensajeExito->setMensaje('EXITO','Reporte.php','Se genero con exito el archivo Libro de Ventas'.$nombreArchivo,
+                        'Se genero con exito el archivo Libro de Ventas'.$nombreArchivo,'control');
+                    $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+
+                    $this->res->imprimirRespuesta($this->mensajeExito->generarJson());
+
+                }else{
+                    $this->exportarTxtLcvLCV();
+                }
             }else{
                 $this->objFunc = $this->create('MODDocCompraVenta');
                 $this->res = $this->objFunc->reporteLibroCompraNCD($this->objParam);
@@ -570,6 +616,128 @@ class ACTDocCompraVentaForm extends ACTbase{
          
      
 				
+		fclose($file);
+		return $fileName;
+	}
+
+	function crearArchivoExportacionLibroVenta($res, $Obj) {
+
+		$separador = '|';
+		if($this->objParam->getParametro('formato_reporte') =='txt'){
+			$separador = "|";
+			$ext = '.txt';
+		}else{
+			$separador = ",";
+			$ext = '.csv';
+		}
+
+
+		/*******************************
+		 *  FORMATEA NOMBRE DE ARCHIVO
+		 * compras_MMAAAA_NIT.txt
+		 * o
+		 * ventas_MMAAAA_NIT.txt
+		 *
+		 * ********************************/
+
+		$dataEntidad = $this->recuperarDatosEntidad();
+		$dataEntidadArray = $dataEntidad->getDatos();
+		$NIT = 	$dataEntidadArray['nit'];
+
+		if($this->objParam->getParametro('filtro_sql')=='periodo'){
+			$dataPeriodo = $this->recuperarDatosPeriodo();
+			$dataPeriodoArray = $dataPeriodo->getDatos();
+		    $sufijo = $dataPeriodoArray['periodo'].$dataPeriodoArray['gestion'];
+		}
+		else{
+			$sufijo=$this->objParam->getParametro('fecha_ini').'_'.$this->objParam->getParametro('fecha_fin');
+		}
+
+
+
+		$nombre = 'ventas_'.$sufijo.'_'.$NIT;
+
+
+		$nombre=str_replace("/", "", $nombre);
+
+        //var_dump('$sufijo', $sufijo, $NIT, $nombre);exit;
+
+		$data = $res -> getDatos();
+		$fileName = $nombre.$ext;
+		//create file
+		$file = fopen("../../../reportes_generados/$fileName","w+");
+		$ctd = 1;
+
+		if($this->objParam->getParametro('formato_reporte') !='txt'){
+			//AÑADE EL BOMM PARA NO TENER PROBLEMAS AL LEER DE APLICACIONES EXTERNAS
+		    fwrite($file, pack("CCC",0xef,0xbb,0xbf));
+		}
+
+
+
+
+		/******************************
+		 *  IMPRIME CABECERA PARA CSV
+		 *****************************/
+		if($this->objParam->getParametro('formato_reporte') !='txt') {
+
+
+            fwrite ($file,  "-".$separador.
+                    'N#'.$separador.
+                    'FECHA DE LA FACTURA'.$separador.
+                    'N° DE LA FACTURA'.$separador.
+                    'N° DE AUTORIZACION'.$separador.
+                    'ESTADO'.$separador.
+                    'NIT/CI CLIENTE'.$separador.
+                    'NOMBRE O RAZON SOCIAL'.$separador.
+                    "IMPORTE TOTAL DE LA VENTA A".$separador.
+                    "IMPORTE ICE/ IEHD/ TASAS B".$separador.
+                    "EXPORTACION Y OPERACIONES EXENTAS C".$separador.
+                    "VENTAS GRAVADAS TASA CERO D".$separador.
+                    "SUBTOTAL E = A-B-C-D".$separador.
+                    "DESCUENTOS BONOS Y REBAJAS SUJETAS AL IVA F".$separador.
+                    "IMPORTE BASE DEBITO FISCAL G = E-F".$separador.
+                    "DEBITO FISCAL H = G*13%".$separador.
+                    'CODIGO DE CONTROL'."\r\n");
+
+		}
+
+		/**************************
+		 *  IMPRIME CUERPO
+		 **************************/
+
+		foreach ($data as $val) {
+
+		    $subtotal = $val['importe_total_venta'] - $val['importe_otros_no_suj_iva'] - $val['exportacion_excentas'] - $val['ventas_tasa_cero'];
+		    $importe_debito = $subtotal - $val['descuento_rebaja_suj_iva'];
+		    $debito_fiscal = $importe_debito * 0.13;
+		    $newDate = date("d/m/Y", strtotime( $val['fecha_factura']));
+
+            fwrite ($file,  "3".$separador.
+                    $ctd.$separador.
+                    $newDate.$separador.
+                    $val['nro_factura'].$separador.
+                    $val['nro_autorizacion'].$separador.
+                    $val['estado'].$separador.
+                    $val['nit_ci_cli'].$separador.
+                    $val['razon_social_cli'].$separador.
+
+                    $val['importe_total_venta'].$separador.
+                    $val['importe_otros_no_suj_iva'].$separador.
+                    $val['exportacion_excentas'].$separador.
+                    $val['ventas_tasa_cero'].$separador.
+
+                    $subtotal.$separador.
+                    $val['descuento_rebaja_suj_iva'].$separador.
+                    $importe_debito.$separador.
+                    $debito_fiscal.$separador.
+                    $val['codigo_control']."\r\n");
+
+			 $ctd = $ctd + 1;
+         } //end for
+
+
+
 		fclose($file);
 		return $fileName;
 	}

@@ -6,20 +6,20 @@ CREATE OR REPLACE FUNCTION conta.ft_plan_pago_documento_airbp_ime (
 )
 RETURNS varchar AS
 $body$
-  /**************************************************************************
- SISTEMA:		Sistema de Contabilidad
- FUNCION: 		conta.ft_plan_pago_documento_airbp_ime
- DESCRIPCION:   Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'conta.tplan_pago_documento_airbp'
- AUTOR: 		 (admin)
- FECHA:	        30-01-2017 13:13:21
- COMENTARIOS:
-***************************************************************************
- HISTORIAL DE MODIFICACIONES:
+/**************************************************************************
+   SISTEMA:		Sistema de Contabilidad
+   FUNCION: 		conta.ft_plan_pago_documento_airbp_ime
+   DESCRIPCION:   Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'conta.tplan_pago_documento_airbp'
+   AUTOR: 		 (admin)
+   FECHA:	        30-01-2017 13:13:21
+   COMENTARIOS:
+  ***************************************************************************
+   HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:
- AUTOR:
- FECHA:
-***************************************************************************/
+   DESCRIPCION:
+   AUTOR:
+   FECHA:
+  ***************************************************************************/
 
 DECLARE
 
@@ -271,7 +271,7 @@ BEGIN
 
                       from conta.tdoc_compra_venta doc
                   left join conta.tplan_pago_documento_airbp relacionado on relacionado.id_documento = doc.id_doc_compra_venta
-                  where doc.nit =''1015497027'' and doc.fecha > ''2017-12-31'' and doc.fecha < ''2019-01-01''
+                  where doc.nit =''1015497027'' and doc.fecha > ''2019-12-31'' and doc.fecha < ''2021-01-01''
 
         ';
 

@@ -38,6 +38,16 @@ DECLARE
     v_gestion			integer;
     v_periodo			integer;
 
+    --franklin.espinoza 10/01/2020 variable libro diario
+    v_host 				varchar;
+    v_puerto 			varchar;
+    v_dbname 			varchar;
+    p_user 				varchar;
+    v_password 			varchar;
+    v_cadena_factura	varchar;
+    v_fecha_ini			date;
+    v_fecha_fin			date;
+	v_conexion 			varchar;
 BEGIN
 
 	v_nombre_funcion = 'conta.ft_doc_compra_venta_sel';
@@ -1393,7 +1403,7 @@ BEGIN
 	elsif(p_transaccion='CONTA_DFACXFUN_SEL')then
 
     	begin
-            
+
     		--Sentencia de la consulta
 			v_consulta:='select
                             dcv.id_doc_compra_venta,
@@ -1483,7 +1493,7 @@ BEGIN
      /*********************************
  	#TRANSACCION:  'CONTA_DFACXFUN_CONT'
  	#DESCRIPCION:	Conteo de registros facturas registradas por funcionario
- 	#AUTOR:		breydi vasquez 
+ 	#AUTOR:		breydi vasquez
  	#FECHA:		07-05-2020
 	***********************************/
 
@@ -1522,13 +1532,13 @@ BEGIN
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			--Devuelve la respuesta
-			return v_consulta;            
+			return v_consulta;
 
 		end;
-        
+
 /*******************************
  #TRANSACCION:  CONTA_DEPFUNCON_SEL
- #DESCRIPCION:	Listado de departamento filtrados por los usuarios para registro facturas 
+ #DESCRIPCION:	Listado de departamento filtrados por los usuarios para registro facturas
  #AUTOR:		breydi vasquez
  #FECHA:		08-05-2020
 ***********************************/
@@ -1557,7 +1567,7 @@ BEGIN
                             INNER JOIN segu.vpersona PERREG on PERREG.id_persona=USUREG.id_persona
                             LEFT JOIN segu.tusuario USUMOD on USUMOD.id_usuario=DEPPTO.id_usuario_mod
                             LEFT JOIN segu.vpersona PERMOD on PERMOD.id_persona=USUMOD.id_persona
-                            WHERE DEPPTO.estado_reg =''activo'' and 
+                            WHERE DEPPTO.estado_reg =''activo'' and
                             SUBSIS.codigo = ''' ||v_parametros.codigo_subsistema||''' and ';
 
                v_consulta:=v_consulta||v_parametros.filtro;
@@ -1570,8 +1580,8 @@ BEGIN
 
  /*******************************
  #TRANSACCION:  CONTA_DEPFUNCON_CONT
- #DESCRIPCION:	Conteo de la cantidad de departamentos por usuario para registro facturas 
- #AUTOR:		breydi vasquez 
+ #DESCRIPCION:	Conteo de la cantidad de departamentos por usuario para registro facturas
+ #AUTOR:		breydi vasquez
  #FECHA:		08-05-2020
 ***********************************/
 
@@ -1586,9 +1596,9 @@ BEGIN
                             INNER JOIN segu.vpersona PERREG on PERREG.id_persona=USUREG.id_persona
                             LEFT JOIN segu.tusuario USUMOD on USUMOD.id_usuario=DEPPTO.id_usuario_mod
                             LEFT JOIN segu.vpersona PERMOD on PERMOD.id_persona=USUMOD.id_persona
-                            WHERE DEPPTO.estado_reg =''activo'' and 
+                            WHERE DEPPTO.estado_reg =''activo'' and
                             SUBSIS.codigo = ''' ||v_parametros.codigo_subsistema||''' and ';
-                            
+
                v_consulta:=v_consulta||v_parametros.filtro;
                return v_consulta;
          END;
@@ -1660,6 +1670,299 @@ BEGIN
             return v_consulta;
 
         end;
+    /*********************************
+ 	#TRANSACCION:  'CONTA_R_LIB_VEN_SEL'
+ 	#DESCRIPCION:	listado para reporte de libro de ventas  desde formualrio
+ 	#AUTOR:		franklin.espinoza
+ 	#FECHA:		10-01-2021 15:57:09
+	***********************************/
+
+	ELSEIF(p_transaccion='CONTA_R_LIB_VEN_SEL')then
+
+    	begin
+			--raise 'llega';
+			if v_parametros.filtro_sql = 'periodo' then
+
+                SELECT gestion into v_gestion
+               	FROM param.tgestion
+               	WHERE id_gestion=v_parametros.id_gestion;
+
+              	SELECT tp.fecha_ini, tp.fecha_fin
+                into v_fecha_ini, v_fecha_fin
+               	FROM param.tperiodo tp
+               	WHERE tp.id_periodo = v_parametros.id_periodo;
+            else
+            	v_fecha_ini = v_parametros.fecha_ini;
+                v_fecha_fin = v_parametros.fecha_fin;
+
+                v_gestion =  date_part('year',v_fecha_ini);
+            end if;
+
+        	v_host     = pxp.f_get_variable_global('sincroniza_ip_facturacion');
+          	v_puerto   = pxp.f_get_variable_global('sincroniza_puerto_facturacion');
+          	v_dbname   = 'db_facturas_'||v_gestion;
+          	p_user     = pxp.f_get_variable_global('sincronizar_user_facturacion');
+          	v_password = pxp.f_get_variable_global('sincronizar_password_facturacion');
+
+          	v_cadena_factura = 'hostaddr='||v_host||' port='||v_puerto||' dbname='||v_dbname||' user='||p_user||' password='||v_password;
+
+            --raise notice 'v_cadena_factura: %, %, %',v_fecha_ini, v_fecha_fin, v_cadena_factura;
+            --raise 'fin';
+            v_conexion = (select dblink_connect('db_facturas',v_cadena_factura));
+
+           	--Sentencia de la consulta
+		  	v_consulta = 'select id_factura,
+                                fecha_factura,
+                                trim(nro_factura) nro_factura,
+                                trim(nro_autorizacion) nro_autorizacion,
+                                trim(estado) estado,
+                                trim(nit_ci_cli) nit_ci_cli,
+                                trim(razon_social_cli) razon_social_cli,
+
+                                (coalesce(importe_total_venta,0.00::numeric))::numeric importe_total_venta,
+                                (coalesce(importe_otros_no_suj_iva,0.00::numeric))::numeric importe_otros_no_suj_iva,
+                                (coalesce(exportacion_excentas,0.00::numeric))::numeric exportacion_excentas,
+                                (coalesce(ventas_tasa_cero,0.00::numeric))::numeric ventas_tasa_cero,
+                                (coalesce(descuento_rebaja_suj_iva,0.00::numeric))::numeric descuento_rebaja_suj_iva,
+                                (coalesce(importe_debito_fiscal,0.00::numeric))::numeric importe_debito_fiscal,
+
+                                (coalesce(codigo_control,''''''''))::varchar codigo_control,
+                                (coalesce(tipo_factura,''''''''))::varchar tipo_factura,
+                                id_origen,
+                                sistema_origen
+                        from sfe.tfactura tfa
+                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date
+                        order by tfa.fecha_factura asc';
+
+
+                if v_conexion != 'OK' then
+                      raise exception 'ERROR DE CONEXION A LA BASE DE DATOS CON DBLINK';
+                else
+
+                  --perform dblink_exec(v_cadena_factura,v_consulta,TRUE);
+
+                  v_consulta = 'select  id_factura,
+                   						fecha_factura,
+
+                                        coalesce(nro_factura,''''::varchar) nro_factura,
+                                        coalesce(nro_autorizacion,''''::varchar) nro_autorizacion,
+                                        coalesce(estado,''''::varchar) estado,
+                                        coalesce(nit_ci_cli,''''::varchar) nit_ci_cli,
+                                        coalesce(razon_social_cli,''''::varchar) razon_social_cli,
+
+                                        /*(coalesce(importe_total_venta::numeric,0::numeric))::numeric*/ importe_total_venta,
+                                        /*(coalesce(importe_otros_no_suj_iva::numeric,0::numeric))::numeric*/ importe_otros_no_suj_iva,
+                                        /*(coalesce(exportacion_excentas::numeric,0::numeric))::numeric*/ exportacion_excentas,
+                                        /*(coalesce(ventas_tasa_cero::numeric,0::numeric))::numeric*/ ventas_tasa_cero,
+                                        /*(coalesce(descuento_rebaja_suj_iva::numeric,0::numeric))::numeric*/ descuento_rebaja_suj_iva,
+                                        /*(coalesce(importe_debito_fiscal::numeric,0::numeric))::numeric*/ importe_debito_fiscal,
+
+                                        codigo_control,
+                                        tipo_factura,
+                                        id_origen,
+                                        sistema_origen
+
+                                 from dblink(''' || v_cadena_factura || ''', '''|| v_consulta ||''') as
+                            		fac(
+                            			id_factura integer,
+                                        fecha_factura date,
+                                        nro_factura varchar,
+                                        nro_autorizacion varchar,
+                                        estado varchar,
+                                        nit_ci_cli varchar,
+                                        razon_social_cli varchar,
+
+                                        importe_total_venta numeric,
+                                        importe_otros_no_suj_iva numeric,
+                                        exportacion_excentas numeric,
+                                        ventas_tasa_cero numeric,
+                                        descuento_rebaja_suj_iva numeric,
+                                        importe_debito_fiscal numeric,
+
+                                        codigo_control varchar,
+                                        tipo_factura varchar,
+                                        id_origen integer,
+                                        sistema_origen varchar
+                                    )
+                                 order by fecha_factura asc
+                            ';
+
+                  v_conexion = (select dblink_disconnect('db_facturas'));
+
+                end if;
+
+			raise notice '%', v_consulta;
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+
+    /*********************************
+ 	#TRANSACCION:  'CONTA_GET_DOC_VEN_SEL'
+ 	#DESCRIPCION:	listado para reporte de libro de ventas  desde formualrio
+ 	#AUTOR:		franklin.espinoza
+ 	#FECHA:		10-01-2021 15:57:09
+	***********************************/
+
+	ELSEIF(p_transaccion='CONTA_GET_VENTA_SEL')then
+
+    	begin
+
+            v_fecha_ini = v_parametros.fecha_desde;
+            v_fecha_fin = v_parametros.fecha_hasta;
+            v_gestion =  date_part('year',v_fecha_ini);
+
+        	v_host     = pxp.f_get_variable_global('sincroniza_ip_facturacion');
+          	v_puerto   = pxp.f_get_variable_global('sincroniza_puerto_facturacion');
+          	v_dbname   = 'db_facturas_'||v_gestion;
+          	p_user     = pxp.f_get_variable_global('sincronizar_user_facturacion');
+          	v_password = pxp.f_get_variable_global('sincronizar_password_facturacion');
+
+          	v_cadena_factura = 'hostaddr='||v_host||' port='||v_puerto||' dbname='||v_dbname||' user='||p_user||' password='||v_password;
+
+            v_conexion = (select dblink_connect('db_facturas',v_cadena_factura));
+
+           	--Sentencia de la consulta
+		  	v_consulta = 'select id_factura,
+                                fecha_factura,
+                                nro_factura,
+                                nro_autorizacion,
+                                estado,
+                                nit_ci_cli,
+                                razon_social_cli,
+                                importe_total_venta,
+                                importe_otros_no_suj_iva,
+                                exportacion_excentas,
+                                ventas_tasa_cero,
+                                descuento_rebaja_suj_iva,
+                                importe_debito_fiscal,
+                                codigo_control,
+                                tipo_factura,
+                                id_origen,
+                                sistema_origen,
+                                desc_ruta,
+                                revision_nit
+                        from sfe.tfactura tfa
+                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.revision_nit = '''''||v_parametros.tipo_show||'''''
+                        order by tfa.fecha_factura asc';
+
+
+                if v_conexion != 'OK' then
+                      raise exception 'ERROR DE CONEXION A LA BASE DE DATOS CON DBLINK';
+                else
+
+                  --perform dblink_exec(v_cadena_factura,v_consulta,TRUE);
+
+                  v_consulta = 'select  id_factura,
+                   						fecha_factura,
+                                        nro_factura,
+                                        nro_autorizacion,
+                                        estado,
+                                        nit_ci_cli,
+                                        razon_social_cli,
+                                        coalesce(importe_total_venta,0) importe_total_venta,
+                                        coalesce(importe_otros_no_suj_iva,0) importe_otros_no_suj_iva,
+                                        coalesce(exportacion_excentas,0) exportacion_excentas,
+                                        coalesce(ventas_tasa_cero,0) ventas_tasa_cero,
+                                        coalesce(descuento_rebaja_suj_iva,0) descuento_rebaja_suj_iva,
+                                        coalesce(importe_debito_fiscal,0) importe_debito_fiscal,
+                                        coalesce(codigo_control,''''::varchar) codigo_control,
+                                        tipo_factura,
+                                        id_origen,
+                                        sistema_origen,
+                                        desc_ruta,
+                                		revision_nit
+
+                                 from dblink(''' || v_cadena_factura || ''', '''|| v_consulta ||''') as
+                            		fac(
+                            			id_factura integer,
+                                        fecha_factura date,
+                                        nro_factura varchar,
+                                        nro_autorizacion varchar,
+                                        estado varchar,
+                                        nit_ci_cli varchar,
+                                        razon_social_cli varchar,
+                                        importe_total_venta numeric,
+                                        importe_otros_no_suj_iva numeric,
+                                        exportacion_excentas numeric,
+                                        ventas_tasa_cero numeric,
+                                        descuento_rebaja_suj_iva numeric,
+                                        importe_debito_fiscal numeric,
+                                        codigo_control varchar,
+                                        tipo_factura varchar,
+                                        id_origen integer,
+                                        sistema_origen varchar,
+                                        desc_ruta varchar,
+                                		revision_nit varchar
+                                    )
+                            ';
+
+                  v_conexion = (select dblink_disconnect('db_facturas'));
+
+                end if;
+
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+
+	/*********************************
+ 	#TRANSACCION:  'CONTA_GET_VENTA_CONT'
+ 	#DESCRIPCION:	listado para reporte de libro de ventas  desde formualrio
+ 	#AUTOR:		franklin.espinoza
+ 	#FECHA:		10-01-2021 15:57:09
+	***********************************/
+
+	/*ELSEIF(p_transaccion='CONTA_GET_VENTA_CONT')then
+
+    	begin
+        	--raise 'v_parametros: %', v_parametros;
+            v_fecha_ini = v_parametros.fecha_desde;
+            v_fecha_fin = v_parametros.fecha_hasta;
+            v_gestion =  date_part('year',v_fecha_ini);
+
+        	v_host     = pxp.f_get_variable_global('sincroniza_ip_facturacion');
+          	v_puerto   = pxp.f_get_variable_global('sincroniza_puerto_facturacion');
+          	v_dbname   = 'db_facturas_'||v_gestion;
+          	p_user     = pxp.f_get_variable_global('sincronizar_user_facturacion');
+          	v_password = pxp.f_get_variable_global('sincronizar_password_facturacion');
+
+          	v_cadena_factura = 'hostaddr='||v_host||' port='||v_puerto||' dbname='||v_dbname||' user='||p_user||' password='||v_password;
+
+            v_conexion = (select dblink_connect('db_facturas',v_cadena_factura));
+
+           	--Sentencia de la consulta
+		  	v_consulta = 'select count(id_factura) as contador
+                        from sfe.tfactura tfa
+                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date
+                        --order by tfa.fecha_factura asc';
+
+
+                if v_conexion != 'OK' then
+                      raise exception 'ERROR DE CONEXION A LA BASE DE DATOS CON DBLINK';
+                else
+
+                  --perform dblink_exec(v_cadena_factura,v_consulta,TRUE);
+
+                  v_consulta = 'select  contador
+
+                                 from dblink(''' || v_cadena_factura || ''', '''|| v_consulta ||''') as
+                            		fac(
+                            			contador integer
+                                    )
+                                 --order by fecha_factura
+                            ';
+
+                  v_conexion = (select dblink_disconnect('db_facturas'));
+
+                end if;
+
+			raise notice '%', v_consulta;
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;*/
 
     else
 

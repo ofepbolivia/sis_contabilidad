@@ -1446,8 +1446,8 @@ header("content-type: text/javascript; charset=UTF-8");
 
         onAntEstado: function(wizard,resp){
 
-            Phx.CP.loadingShow();
-            /*Ext.Ajax.request({
+            /*Phx.CP.loadingShow();
+            Ext.Ajax.request({
                 url:'../../sis_contabilidad/control/Entrega/retrosederEstado',
                 params:{
                     id_proceso_wf: resp.id_proceso_wf,

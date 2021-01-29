@@ -323,6 +323,7 @@ header("content-type: text/javascript; charset=UTF-8");
         botones : false,
         labelSubmit : 'Generar',
         tooltipSubmit : '<b>Reporte LCV - IVA</b>',
+        timeout: 3000000,
 
         constructor : function(config) {
             Phx.vista.ReporteLibroComprasVentasIVA.superclass.constructor.call(this, config);

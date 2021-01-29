@@ -106,6 +106,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             this.addButton('sig_estado', {
                 text : 'Siguiente',
+                grupo: [0, 1, 2, 3],
                 iconCls : 'badelante',
                 disabled : true,
                 handler : this.sigEstado,
@@ -133,6 +134,7 @@ header("content-type: text/javascript; charset=UTF-8");
             //Botón para Imprimir el Comprobante
             this.addButton('btnImprimir', {
                 text : 'Imprimir',
+                grupo: [0, 1, 2, 3],
                 iconCls : 'bprint',
                 disabled : true,
                 handler : this.imprimirCbte,
@@ -163,11 +165,27 @@ header("content-type: text/javascript; charset=UTF-8");
 
         },
 
+        bactGroups:[0,1,2,3,4],
+        bexcelGroups:[0,1,2,3,4],
+
+        gruposBarraTareas: [
+            {name: 'normal', title: '<h1 style="text-align: center; color: #00B167;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> NORMAL</h1>', grupo: 0, height: 1},
+            {name: 'reversion', title: '<h1 style="text-align: center; color: #FF8F85;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> REVERSIÓN</h1>', grupo: 1, height: 1}
+        ],
+
+        actualizarSegunTab: function(name, indice){ console.log('depto', this.cmbDepto.getValue());
+            this.store.baseParams.tipo_entrega = name;
+            if( this.cmbDepto.getValue() != undefined ) {
+                this.load({params: {start: 0, limit: 50}});
+            }
+        },
+
 
 
         cmbDepto : new Ext.form.AwesomeCombo({
             
             name : 'id_depto_ent_ext_vb',
+            grupo: [0, 1, 2, 3],
             fieldLabel : 'Depto',
             typeAhead : false,
             forceSelection : true,
