@@ -959,6 +959,16 @@ class ACTDocCompraVenta extends ACTbase
     }
     /**{developer:franklin.espinoza, date:25/01/2021, description: Modificacar Nit, Razon Social mediante procedimiento SQL}**/
 
+    function listaCorreccionVenta(){
+
+
+        $this->objParam->defecto('ordenacion','fecha_reg');
+        $this->objParam->defecto('dir_ordenacion','desc');
+
+        $this->objFunc = $this->create('MODDocCompraVenta');
+        $this->res = $this->objFunc->listaCorreccionVenta($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 }
 
 ?>

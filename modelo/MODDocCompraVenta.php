@@ -2694,7 +2694,7 @@ class MODDocCompraVenta extends MODbase
         $this->transaccion = 'CONTA_GET_VENTA_SEL';
         $this->tipo_procedimiento = 'SEL';//tipo de transaccion
 
-        $this->setCount(false);
+        $this->setCount(true);
 
         $this->setParametro('fecha_desde', 'fecha_desde', 'date');
         $this->setParametro('fecha_hasta', 'fecha_hasta', 'date');
@@ -2794,6 +2794,35 @@ class MODDocCompraVenta extends MODbase
         return $this->respuesta;
     }
     /**{developer:franklin.espinoza, date:25/01/2021, description: Modificacar Nit, Razon Social mediante procedimiento SQL}**/
+
+    function listaCorreccionVenta(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento = 'conta.ft_doc_compra_venta_sel';
+        $this->transaccion = 'CONTA_CORRECION_SEL';
+        $this->tipo_procedimiento = 'SEL';//tipo de transaccion
+
+        $this->setCount(true);
+
+        $this->setParametro('id_factura', 'id_factura', 'integer');
+
+        //Definicion de la lista del resultado del query
+
+        $this->captura('id_correcion_doc', 'integer');
+        $this->captura('id_factura', 'integer');
+        $this->captura('nit_ci_cli', 'varchar');
+        $this->captura('razon_social_cli', 'varchar');
+        $this->captura('fecha_reg', 'timestamp');
+        $this->captura('id_usuario_reg', 'integer');
+        $this->captura('usr_reg', 'varchar');
+        $this->captura('estado_reg', 'varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta(); //echo ($this->consulta);exit;
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 
 }
 

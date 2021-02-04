@@ -51,7 +51,7 @@ class RLibroDeVentas extends  ReportePDF {
         $newDate = date("d-m-Y", strtotime($this->objParam->getParametro('hasta')));
 
         //cabecera del reporte
-        $this->Image(dirname(__FILE__).'/../../lib/imagenes/logos/logo.jpg', 10,5,40,20);
+        //$this->Image(dirname(__FILE__).'/../../lib/imagenes/logos/logo.jpg', 10,5,40,20);
         $this->ln(5);
 
 
@@ -85,27 +85,27 @@ class RLibroDeVentas extends  ReportePDF {
             $this->Cell($width1, $height, '', 0, 0, 'L', false, '', 0, false, 'T', 'C');
             $this->Cell($width_c1, $height, 'DEL:', 0, 0, 'L', false, '', 0, false, 'T', 'C');
             $this->SetFont('', '');
-            $this->SetFillColor(192,192,192, true);
-            $this->Cell($width_c2, $height, $fecha_ini, $black, 0, 'L', true, '', 0, false, 'T', 'C');
+            //$this->SetFillColor(192,192,192, true);
+            $this->Cell($width_c2, $height, $fecha_ini, 0, 0, 'L', false, '', 0, false, 'T', 'C');
 
             $this->Cell($esp_width, $height, '', 0, 0, 'L', false, '', 0, false, 'T', 'C');
             $this->Cell(20, $height,'HASTA:', 0, 0, 'L', false, '', 0, false, 'T', 'C');
             $this->SetFont('', '');
-            $this->SetFillColor(192,192,192, true);
-            $this->Cell(50, $height, $fecha_fin, $black, 0, 'L', true, '', 0, false, 'T', 'C');
+            //$this->SetFillColor(192,192,192, true);
+            $this->Cell(50, $height, $fecha_fin, 0, 0, 'L', false, '', 0, false, 'T', 'C');
         }
         else{
             $this->Cell($width1, $height, '', 0, 0, 'L', false, '', 0, false, 'T', 'C');
             $this->Cell($width_c1, $height, 'AÑO:', 0, 0, 'L', false, '', 0, false, 'T', 'C');
             $this->SetFont('', '');
-            $this->SetFillColor(192,192,192, true);
-            $this->Cell($width_c2, $height, $this->datos_periodo['gestion'], $black, 0, 'L', true, '', 0, false, 'T', 'C');
+            //$this->SetFillColor(192,192,192, true);
+            $this->Cell($width_c2, $height, $this->datos_periodo['gestion'], 0, 0, 'L', false, '', 0, false, 'T', 'C');
 
             $this->Cell($esp_width, $height, '', 0, 0, 'L', false, '', 0, false, 'T', 'C');
             $this->Cell(20, $height,'MES:', 0, 0, 'L', false, '', 0, false, 'T', 'C');
             $this->SetFont('', '');
-            $this->SetFillColor(192,192,192, true);
-            $this->Cell(50, $height, $this->datos_periodo['literal_periodo'], $black, 0, 'L', true, '', 0, false, 'T', 'C');
+            //$this->SetFillColor(192,192,192, true);
+            $this->Cell(50, $height, $this->datos_periodo['literal_periodo'], 0, 0, 'L', false, '', 0, false, 'T', 'C');
         }
 
 
@@ -114,14 +114,14 @@ class RLibroDeVentas extends  ReportePDF {
         $this->Cell($width1, $height, '', 0, 0, 'L', false, '', 0, false, 'T', 'C');
         $this->Cell($width_c1, $height, 'NOMBRE O RAZON SOCIAL:', 0, 0, 'L', false, '', 0, false, 'T', 'C');
         $this->SetFont('', '');
-        $this->SetFillColor(192,192,192, true);
-        $this->Cell($width_c2, $height, $this->datos_entidad['nombre'].' ('.$this->datos_entidad['direccion_matriz'].')', $black, 0, 'L', true, '', 0, false, 'T', 'C');
+        //$this->SetFillColor(192,192,192, true);
+        $this->Cell($width_c2, $height, $this->datos_entidad['nombre'].' ('.$this->datos_entidad['direccion_matriz'].')', 0, 0, 'L', false, '', 0, false, 'T', 'C');
 
         $this->Cell($esp_width, $height, '', 0, 0, 'L', false, '', 0, false, 'T', 'C');
         $this->Cell(20, $height,'NIT:', 0, 0, 'L', false, '', 0, false, 'T', 'C');
         $this->SetFont('', '');
-        $this->SetFillColor(192,192,192, true);
-        $this->Cell(50, $height, $this->datos_entidad['nit'], $black, 0, 'L', true, '', 0, false, 'T', 'C');
+        //$this->SetFillColor(192,192,192, true);
+        $this->Cell(50, $height, $this->datos_entidad['nit'], 0, 0, 'L', false, '', 0, false, 'T', 'C');
 
 
 
@@ -270,7 +270,7 @@ class RLibroDeVentas extends  ReportePDF {
             's14' => $debito_fiscal * 0.13,
             's15' => $val['codigo_control']);
 
-        $this-> MultiRow($RowArray,$fill,0);
+        $this-> MultiRow($RowArray,false,0);
 
     }
 

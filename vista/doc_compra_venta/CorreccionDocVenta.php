@@ -54,7 +54,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.tipo_show = 'PENDIENTE';
             this.etiqueta_ini = new Ext.form.Label({
                 name: 'etiqueta_ini',
-                grupo: [0,1,2],
+                grupo: [0,1,2,3,4],
                 fieldLabel: 'Fecha Inicio:',
                 text: 'Fecha Inicio:',
                 //style: {color: 'green', font_size: '12pt'},
@@ -67,7 +67,7 @@ header("content-type: text/javascript; charset=UTF-8");
             });
             this.fecha_ini = new Ext.form.DateField({
                 name: 'fecha_ini',
-                grupo: [0,1,2],
+                grupo: [0,1,2,3,4],
                 fieldLabel: 'Fecha',
                 allowBlank: false,
                 anchor: '60%',
@@ -79,7 +79,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             this.etiqueta_fin = new Ext.form.Label({
                 name: 'etiqueta_fin',
-                grupo: [0,1,2],
+                grupo: [0,1,2,3,4],
                 fieldLabel: 'Fecha Fin',
                 text: 'Fecha Fin:',
                 //style: {color: 'red', font_size: '12pt'},
@@ -92,7 +92,7 @@ header("content-type: text/javascript; charset=UTF-8");
             });
             this.fecha_fin = new Ext.form.DateField({
                 name: 'fecha_fin',
-                grupo: [0,1,2],
+                grupo: [0,1,2,3,4],
                 fieldLabel: 'Fecha',
                 allowBlank: false,
                 anchor: '60%',
@@ -126,29 +126,30 @@ header("content-type: text/javascript; charset=UTF-8");
             if (fieldName == 'nro_factura' && (this.tipo_show == 'PENDIENTE' || this.tipo_show == 'CORREGIDO')) {
 
                 var rec = {maestro: this.getSelectedData()};
-                alert('Detalle Log');
-                /*Phx.CP.loadWindows('../../../sis_obingresos/vista/reporte/DetalleVueloA7.php',
-                    'Detalle Vuelo A7',
+                Phx.CP.loadWindows('../../../sis_contabilidad/vista/doc_compra_venta/CorreccionDocVentaLog.php',
+                    'Log. Correcciones',
                     {
-                        width: 700,
+                        width: 750,
                         height:400
                     },
                     rec,
                     this.idContenedor,
-                    'DetalleVueloA7'
-                );*/
+                    'CorreccionDocVentaLog'
+                );
             }
 
         },
 
-        bactGroups:[0,1,2],
-        bexcelGroups:[0,1,2],
+        bactGroups:[0,1,2,3,4],
+        bexcelGroups:[0,1,2,3,4],
         beditGroups:[0,1],
 
         gruposBarraTareas: [
             {name: 'PENDIENTE', title: '<h1 style="text-align: center; color: #FF8F85;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>PENDIENTE</h1>', grupo: 0, height: 1},
             {name: 'CORREGIDO', title: '<h1 style="text-align: center; color: #00B167;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>CORREGIDO</h1>',grupo: 1, height: 0},
-            {name: 'CORRECTO', title: '<h1 style="text-align: center; color: #4682B4;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>CORRECTO</h1>', grupo: 2, height: 1}
+            {name: 'CORRECTO', title: '<h1 style="text-align: center; color: #4682B4;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>CORRECTO</h1>', grupo: 2, height: 1},
+            //{name: 'BOLETOS', title: '<h1 style="text-align: center; color: #586E7E;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>BOLETOS</h1>', grupo: 3, height: 1},
+            //{name: 'CARGA', title: '<h1 style="text-align: center; color: #B066BB;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>CARGA</h1>', grupo: 4, height: 1}
         ],
 
         iniciarEventos: function(){
@@ -258,8 +259,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     }
                 },
                 type:'TextField',
-                //filters:{pfiltro:'tca.nombre',type:'string'},
-                //bottom_filter : true,
+                filters:{pfiltro:'nro_factura',type:'string'},
+                bottom_filter : true,
                 id_grupo:1,
                 grid:true,
                 form:true
@@ -339,7 +340,7 @@ header("content-type: text/javascript; charset=UTF-8");
             {
                 config:{
                     fieldLabel: "Razon Social",
-                    gwidth: 90,
+                    gwidth: 250,
                     name: 'razon_social_cli',
                     allowBlank:true,
                     maxLength:100,
@@ -605,8 +606,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     }
                 },
                 type:'NumberField',
-                filters:{pfiltro:'tca.nombre',type:'string'},
-                bottom_filter : true,
+                //filters:{pfiltro:'tca.nombre',type:'string'},
+                //bottom_filter : true,
                 id_grupo:1,
                 grid:true,
                 form:false
@@ -770,7 +771,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }
 
         ],
-        title:'Calculo A7',
+        title:'Corrección (Nit, Razon Social)',
         ActList:'../../sis_contabilidad/control/DocCompraVenta/getDataDocVenta',
         ActSave: '../../sis_contabilidad/control/DocCompraVenta/modificarNitRazonSocial',
         id_store:'id_factura',
