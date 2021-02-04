@@ -2872,6 +2872,22 @@ END IF;
 
         v_conexion = (select dblink_connect('db_facturas',v_cadena_factura));
 
+        insert into conta.tcorrecion_doc(
+			nit_ci_cli,
+			razon_social_cli,
+			id_factura,
+			estado_reg,
+			id_usuario_reg,
+			fecha_reg
+        ) values(
+			v_parametros.nit_ci_cli,
+			v_parametros.razon_social_cli,
+			v_parametros.id_factura,
+			'activo',
+			p_id_usuario,
+			now()
+		);
+
 		--Sentencia de la consulta
         v_consulta = 'update sfe.tfactura set
         			  nit_ci_cli = '''||trim(v_parametros.nit_ci_cli)||''',

@@ -48,6 +48,9 @@ DECLARE
     v_fecha_ini			date;
     v_fecha_fin			date;
 	v_conexion 			varchar;
+
+    v_id_periodo		integer;
+    v_id_gestion		integer;
 BEGIN
 
 	v_nombre_funcion = 'conta.ft_doc_compra_venta_sel';
@@ -1619,22 +1622,29 @@ BEGIN
                   where tper.id_periodo = v_parametros.id_periodo;
                   v_filtro = 'tnc.fecha between '''||v_registros.fecha_ini||'''::date and '''||v_registros.fecha_fin||'''::date';
 
+                  v_id_periodo = v_parametros.id_periodo;
+
                   v_gestion = date_part('year', v_registros.fecha_ini);
             	  v_periodo = date_part('month', v_registros.fecha_ini);
               elsif 'fechas' = v_parametros.filtro_sql then
-                  v_filtro = 'tnc.fecha between '''||v_parametros.fecha_ini||'''::date and '||v_parametros.fecha_fin||'''::date';
+                  v_filtro = 'tnc.fecha between '''||v_parametros.fecha_ini||'''::date and '''||v_parametros.fecha_fin||'''::date';
 
                   v_gestion = date_part('year', v_parametros.fecha_ini);
             	  v_periodo = date_part('month', v_parametros.fecha_ini);
 
+                  select tg.id_gestion
+                  into v_id_gestion
+                  from param.tgestion tg
+                  where tg.gestion = v_gestion;
+
                   select tper.id_periodo
-                  into v_parametros.id_periodo
+                  into v_id_periodo
                   from param.tperiodo tper
-                  where tper.v_parametros.fecha_ini;
+                  where tper.id_gestion = v_id_gestion and tper.periodo = v_periodo;
 
               end if;
             end if;
-
+--raise 'v_id_gestion: %, v_id_periodo: %',v_id_gestion,v_id_periodo;
 
             select tem.nombre, tem.nit
             into v_registros
@@ -1658,7 +1668,7 @@ BEGIN
               tnc.nroaut_anterior,
               (tnc.total_devuelto + tnc.excento)::numeric as importe_total,
               '||v_gestion||'::integer as gestion,
-              param.f_literal_periodo('||v_parametros.id_periodo||') as periodo,
+              param.f_literal_periodo('||v_id_periodo||') as periodo,
               '''||v_registros.nombre||'''::varchar as razon_empresa,
               '''||v_registros.nit||'''::varchar as nit_empresa,
               '''||v_periodo||'''::varchar as periodo_num
@@ -1745,7 +1755,11 @@ BEGIN
                    						fecha_factura,
 
                                         coalesce(nro_factura,''''::varchar) nro_factura,
-                                        coalesce(nro_autorizacion,''''::varchar) nro_autorizacion,
+
+                                        (case when tipo_factura = ''manual'' and sistema_origen = ''ERP'' then
+                                        (select tdos.nroaut from vef.tventa tve inner join vef.tdosificacion tdos on tdos.id_dosificacion = tve.id_dosificacion where tve.id_venta = id_origen)::varchar
+                                        else coalesce(nro_autorizacion,''''::varchar) end) nro_autorizacion,
+
                                         coalesce(estado,''''::varchar) estado,
                                         coalesce(nit_ci_cli,''''::varchar) nit_ci_cli,
                                         coalesce(razon_social_cli,''''::varchar) razon_social_cli,
@@ -1843,9 +1857,10 @@ BEGIN
                                 desc_ruta,
                                 revision_nit
                         from sfe.tfactura tfa
-                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.revision_nit = '''''||v_parametros.tipo_show||'''''
-                        order by tfa.fecha_factura asc';
-
+                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.revision_nit = '''''||v_parametros.tipo_show||''''' and ';--order by tfa.fecha_factura asc
+            v_parametros.filtro = regexp_replace(v_parametros.filtro, '''', '''''', 'g');
+            v_consulta = v_consulta||v_parametros.filtro;
+			v_consulta = v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
                 if v_conexion != 'OK' then
                       raise exception 'ERROR DE CONEXION A LA BASE DE DATOS CON DBLINK';
@@ -1901,7 +1916,7 @@ BEGIN
 
                 end if;
 
-			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+			--v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 			--Devuelve la respuesta
 			return v_consulta;
 
@@ -1914,7 +1929,7 @@ BEGIN
  	#FECHA:		10-01-2021 15:57:09
 	***********************************/
 
-	/*ELSEIF(p_transaccion='CONTA_GET_VENTA_CONT')then
+	ELSEIF(p_transaccion='CONTA_GET_VENTA_CONT')then
 
     	begin
         	--raise 'v_parametros: %', v_parametros;
@@ -1935,9 +1950,10 @@ BEGIN
            	--Sentencia de la consulta
 		  	v_consulta = 'select count(id_factura) as contador
                         from sfe.tfactura tfa
-                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date
-                        --order by tfa.fecha_factura asc';
+                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and ';--order by tfa.fecha_factura asc
 
+            v_parametros.filtro = regexp_replace(v_parametros.filtro, '''', '''''', 'g');
+            v_consulta = v_consulta||v_parametros.filtro;
 
                 if v_conexion != 'OK' then
                       raise exception 'ERROR DE CONEXION A LA BASE DE DATOS CON DBLINK';
@@ -1949,9 +1965,8 @@ BEGIN
 
                                  from dblink(''' || v_cadena_factura || ''', '''|| v_consulta ||''') as
                             		fac(
-                            			contador integer
+                            			contador bigint
                                     )
-                                 --order by fecha_factura
                             ';
 
                   v_conexion = (select dblink_disconnect('db_facturas'));
@@ -1962,7 +1977,73 @@ BEGIN
 			--Devuelve la respuesta
 			return v_consulta;
 
-		end;*/
+		end;
+
+    /*********************************
+ 	#TRANSACCION:  'CONTA_CORRECION_SEL'
+ 	#DESCRIPCION:	listado para reporte de libro de ventas  desde formualrio
+ 	#AUTOR:		franklin.espinoza
+ 	#FECHA:		10-01-2021 15:57:09
+	***********************************/
+
+	ELSEIF(p_transaccion='CONTA_CORRECION_SEL')then
+
+    	begin
+
+
+
+           	--Sentencia de la consulta
+		  	v_consulta = 'select tcd.id_correcion_doc,
+                                tcd.id_factura,
+                                tcd.nit_ci_cli,
+                                tcd.razon_social_cli,
+                                tcd.fecha_reg,
+                                tcd.id_usuario_reg,
+                                vf.desc_funcionario2::varchar as usr_reg,
+                                tcd.estado_reg
+
+                        from conta.tcorrecion_doc tcd
+
+                        inner join segu.tusuario usu1 on usu1.id_usuario = tcd.id_usuario_reg
+                        inner join orga.vfuncionario vf on vf.id_persona = usu1.id_persona
+
+                        where tcd.id_factura = '||v_parametros.id_factura;
+
+
+			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+			raise notice 'v_consulta: %',v_consulta;
+            --Devuelve la respuesta
+			return v_consulta;
+
+		end;
+
+    /*********************************
+ 	#TRANSACCION:  'CONTA_CORRECION_CONT'
+ 	#DESCRIPCION:	Conteo de registros
+ 	#AUTOR:		admin
+ 	#FECHA:		12-08-2016 14:29:16
+	***********************************/
+
+	elsif(p_transaccion='CONTA_CORRECION_CONT')then
+
+		begin
+			--Sentencia de la consulta de conteo de registros
+			v_consulta = 'select count(id_correcion_doc)
+
+                        from conta.tcorrecion_doc tcd
+
+                        inner join segu.tusuario usu1 on usu1.id_usuario = tcd.id_usuario_reg
+						left join segu.tusuario usu2 on usu2.id_usuario = tcd.id_usuario_mod
+
+                        where tcd.id_factura = '||v_parametros.id_factura;
+
+			--Definicion de la respuesta
+			--v_consulta:=v_consulta||v_parametros.filtro;
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
 
     else
 

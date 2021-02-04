@@ -415,8 +415,8 @@ BEGIN
              v_ids = string_to_array(v_parametros.id_int_comprobantes,',');
              v_i = 1;
 
-            SELECT cbte.fecha
-            INTO	v_fecha_cbte
+            SELECT cbte.fecha, cbte.estado_reg
+            INTO	v_fecha_cbte, v_entrega_validado
             FROM  conta.tint_comprobante cbte
             WHERE cbte.id_int_comprobante::integer = v_ids[v_i]::integer;
 
@@ -433,7 +433,8 @@ BEGIN
                       id_usuario_mod,
                       id_depto_conta,
                       id_proceso_wf,
-					  id_estado_wf
+					  id_estado_wf,
+                      validado
                   ) values(
                       --17-03-2020 (may) modificacion para que inserte con la fecha de los cbtes
                       --now(),
@@ -449,7 +450,8 @@ BEGIN
                       null,
                       v_parametros.id_depto_conta,
                       v_id_proceso_wf,
-                      v_id_estado_wf
+                      v_id_estado_wf,
+                      case when v_entrega_validado = 'validado' then 'si' else 'no' end
 			)RETURNING id_entrega into v_id_entrega;
             --
 
