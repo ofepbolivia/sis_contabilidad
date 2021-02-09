@@ -1,5 +1,7 @@
 <?php
 // Extend the TCPDF class to create custom MultiRow
+set_time_limit(0);//avoid timeout
+ini_set('memory_limit','-1');
 class RLibroDeVentas extends  ReportePDF {
     var $datos_titulo;
     var $datos_detalle;
@@ -51,7 +53,7 @@ class RLibroDeVentas extends  ReportePDF {
         $newDate = date("d-m-Y", strtotime($this->objParam->getParametro('hasta')));
 
         //cabecera del reporte
-        //$this->Image(dirname(__FILE__).'/../../lib/imagenes/logos/logo.jpg', 10,5,40,20);
+        $this->Image(dirname(__FILE__).'/../../lib/imagenes/logos/logo.jpg', 10,5,40,20);
         $this->ln(5);
 
 
@@ -134,6 +136,7 @@ class RLibroDeVentas extends  ReportePDF {
     }
 
     function generarReporte() {
+
         $this->setFontSubsetting(false);
         $this->AddPage();
 

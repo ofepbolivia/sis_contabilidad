@@ -2724,7 +2724,7 @@ class MODDocCompraVenta extends MODbase
         $this->captura('sistema_origen', 'varchar');
         $this->captura('desc_ruta', 'varchar');
         $this->captura('revision_nit', 'varchar');
-        //$this->captura('importe_exento', 'numeric');
+        $this->captura('otr', 'text');
 
 
         //Ejecuta la instruccion

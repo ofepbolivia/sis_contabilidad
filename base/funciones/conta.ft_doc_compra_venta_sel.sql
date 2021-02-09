@@ -1725,7 +1725,13 @@ BEGIN
                                 fecha_factura,
                                 trim(nro_factura) nro_factura,
                                 trim(nro_autorizacion) nro_autorizacion,
-                                trim(estado) estado,
+                                (case when trim(estado) = ''''ANULADA'''' then ''''A''''
+                                	  when trim(estado) = ''''VIGENTE'''' or trim(estado) = ''''VÁLIDA''''  then ''''V''''
+                                      when trim(estado) = ''''EXTRAVIADA'''' then ''''E''''
+                                      when trim(estado) = ''''NO UTILIZADA'''' then ''''N''''
+                                      when trim(estado) = ''''CONTINGENCIA'''' then ''''C''''
+                                      when trim(estado) = ''''LIBRE CONSIGNACION'''' then ''''L''''
+                                      else trim(estado) end)::varchar estado,
                                 trim(nit_ci_cli) nit_ci_cli,
                                 trim(razon_social_cli) razon_social_cli,
 
@@ -1742,7 +1748,7 @@ BEGIN
                                 sistema_origen
                         from sfe.tfactura tfa
                         where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date
-                        order by tfa.fecha_factura asc';
+                        order by tfa.fecha_factura asc --limit 100';
 
 
                 if v_conexion != 'OK' then
@@ -1855,9 +1861,11 @@ BEGIN
                                 id_origen,
                                 sistema_origen,
                                 desc_ruta,
-                                revision_nit
+                                revision_nit,
+                                otr
                         from sfe.tfactura tfa
                         where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.revision_nit = '''''||v_parametros.tipo_show||''''' and ';--order by tfa.fecha_factura asc
+            --raise 'cantidad: %, offset: %', v_parametros.cantidad, v_parametros.puntero;
             v_parametros.filtro = regexp_replace(v_parametros.filtro, '''', '''''', 'g');
             v_consulta = v_consulta||v_parametros.filtro;
 			v_consulta = v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
@@ -1886,7 +1894,8 @@ BEGIN
                                         id_origen,
                                         sistema_origen,
                                         desc_ruta,
-                                		revision_nit
+                                		revision_nit,
+                                        otr
 
                                  from dblink(''' || v_cadena_factura || ''', '''|| v_consulta ||''') as
                             		fac(
@@ -1908,7 +1917,8 @@ BEGIN
                                         id_origen integer,
                                         sistema_origen varchar,
                                         desc_ruta varchar,
-                                		revision_nit varchar
+                                		revision_nit varchar,
+                                        otr text
                                     )
                             ';
 

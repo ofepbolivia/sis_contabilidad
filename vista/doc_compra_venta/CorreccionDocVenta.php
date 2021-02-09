@@ -146,8 +146,8 @@ header("content-type: text/javascript; charset=UTF-8");
 
         gruposBarraTareas: [
             {name: 'PENDIENTE', title: '<h1 style="text-align: center; color: #FF8F85;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>PENDIENTE</h1>', grupo: 0, height: 1},
-            {name: 'CORREGIDO', title: '<h1 style="text-align: center; color: #00B167;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>CORREGIDO</h1>',grupo: 1, height: 0},
-            {name: 'CORRECTO', title: '<h1 style="text-align: center; color: #4682B4;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>CORRECTO</h1>', grupo: 2, height: 1},
+            {name: 'CORREGIDO', title: '<h1 style="text-align: center; color: #4682B4;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>CORREGIDO</h1>',grupo: 1, height: 0},
+            {name: 'CORRECTO', title: '<h1 style="text-align: center; color: #00B167;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>CORRECTO</h1>', grupo: 2, height: 1},
             //{name: 'BOLETOS', title: '<h1 style="text-align: center; color: #586E7E;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>BOLETOS</h1>', grupo: 3, height: 1},
             //{name: 'CARGA', title: '<h1 style="text-align: center; color: #B066BB;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>CARGA</h1>', grupo: 4, height: 1}
         ],
@@ -230,7 +230,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     anchor:'100%',
                     format:'d/m/Y',
                     disabled: true,
-                    style: 'color: blue; background-color: orange;',
+                    style: 'color: blue; background-color: #00B167;',
                     renderer: function (value, p, record){
                         return value ? value.dateFormat('d/m/Y') : ''
                     }
@@ -253,7 +253,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     minLength:1,
                     anchor:'100%',
                     disabled: true,
-                    style: 'color: blue; background-color: orange;',
+                    style: 'color: blue; background-color: #00B167;',
                     renderer: function (value, p, record){
                         return String.format('<div style="color: #00B167; font-weight: bold; cursor:pointer;">{0} <i class="fa fa-eye fa-2x"></i> </div>', value);
                     }
@@ -324,7 +324,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     minLength:1,
                     anchor:'100%',
                     disabled: false,
-                    style: 'color: blue; background-color: orange;',
+                    style: 'color: blue; background-color: #FF8F85;',
                     renderer: function (value, p, record){
                         return String.format('<div style="color: #FF8F85; font-weight: bold;">{0}</div>', value);
                     }
@@ -347,7 +347,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     minLength:1,
                     anchor:'100%',
                     disabled: false,
-                    style: 'color: blue; background-color: orange;',
+                    style: 'color: blue; background-color: #FF8F85;',
                     renderer: function (value, p, record){
                         return String.format('<div style="color: #FF8F85; font-weight: bold;">{0}</div>', value);
                     }
@@ -768,6 +768,29 @@ header("content-type: text/javascript; charset=UTF-8");
                 id_grupo:1,
                 grid:true,
                 form:false
+            },
+
+            {
+                config:{
+                    fieldLabel: "OTR",
+                    gwidth: 100,
+                    name: 'otr',
+                    allowBlank:true,
+                    maxLength:100,
+                    minLength:1,
+                    anchor:'100%',
+                    disabled: true,
+                    style: 'color: blue; background-color: #00B167;',
+                    renderer: function (value, p, record){
+                        return String.format('<div style="color: #586E7E; font-weight: bold;">{0}</div>', value);
+                    }
+                },
+                type:'TextField',
+                //filters:{pfiltro:'tca.nombre',type:'string'},
+                //bottom_filter : true,
+                id_grupo:1,
+                grid:true,
+                form:true
             }
 
         ],
@@ -798,6 +821,7 @@ header("content-type: text/javascript; charset=UTF-8");
             {name:'desc_ruta', type: 'string'},
             {name:'revision_nit', type: 'string'},
             {name:'importe_exento', type: 'numeric'},
+            {name:'otr', type: 'string'}
         ],
         /*sortInfo:{
             field: 'PERSON.nombre_completo2',
