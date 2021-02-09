@@ -12,6 +12,24 @@ header("content-type: text/javascript; charset=UTF-8");
     Phx.vista.ReporteLibroComprasVentasIVA = Ext.extend(Phx.frmInterfaz, {
 
         Atributos : [
+          {
+      			config:{
+      					labelSeparator:'',
+      					inputType:'hidden',
+      					name: 'nit_linea_aerea'
+      			},
+      			type:'Field',
+      			form:true
+      		},
+          {
+      			config:{
+      					labelSeparator:'',
+      					inputType:'hidden',
+      					name: 'cod_iata'
+      			},
+      			type:'Field',
+      			form:true
+      		},
             {
                 config:{
                     name: 'id_entidad',
@@ -30,7 +48,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                 direction: 'ASC'
                             },
                             totalProperty: 'total',
-                            fields: ['id_entidad','nit','nombre'],
+                            fields: ['id_entidad','nit','nombre','cod_iata_linea_aerea'],
                             // turn on remote sorting
                             remoteSort: true,
                             baseParams: { par_filtro:'nit#nombre' }
@@ -80,7 +98,8 @@ header("content-type: text/javascript; charset=UTF-8");
                             ['lcv_compras','Libro de Compras Estandar'],
                             ['lcv_ventas','Libro de Ventas Estandar'],
                             //['LCNCD','Libro de Compras NCD'],
-                            ['lcncd','Libro de Compras Notas Credito-Debito']
+                            ['lcncd','Libro de Compras Notas Credito-Debito'],
+                            ['repo_iata', 'Iata']
                         ]
                     }),
                     valueField:'ID',
@@ -313,7 +332,32 @@ header("content-type: text/javascript; charset=UTF-8");
                 type:'ComboBox',
                 id_grupo:1,
                 form:true
-            }],
+            },
+            {
+                config:{
+                    name:'formato_reporte_iata',
+                    fieldLabel:'Formato del Reporte',
+                    typeAhead: true,
+                    allowBlank:true,
+                    triggerAction: 'all',
+                    emptyText:'Formato...',
+                    mode:'local',
+                    msgTarget: 'side',
+                    store:new Ext.data.ArrayStore({
+                        fields: ['ID', 'valor'],
+                        data :	[['txt','TXT'],
+                                ['csv','CSV']]
+                    }),
+                    valueField:'ID',
+                    displayField:'valor',
+                    width:280,
+
+                },
+                type:'ComboBox',
+                id_grupo:1,
+                form:true
+            }
+          ],
 
 
         title : 'Reporte Libro Compras Ventas IVA',
@@ -333,17 +377,25 @@ header("content-type: text/javascript; charset=UTF-8");
             this.ocultarComponente(this.Cmp.fecha_ini);
             this.ocultarComponente(this.Cmp.id_gestion);
             this.ocultarComponente(this.Cmp.id_periodo);
-
+            this.ocultarComponente(this.Cmp.formato_reporte_iata);
             this.iniciarEventos();
         },
 
         iniciarEventos:function(){
 
             this.Cmp.id_entidad.store.load({params:{start:0, limit:10}, scope:this, callback: function (param,op,suc) {
+                    this.Cmp.nit_linea_aerea.setValue(param[0].data.nit);
+                    this.Cmp.cod_iata.setValue(param[0].data.cod_iata_linea_aerea);
                     this.Cmp.id_entidad.setValue(param[0].data.id_entidad);
                     this.Cmp.id_entidad.collapse();
                     this.Cmp.tipo_lcv.focus(false,  5);
                 }});
+
+            this.Cmp.id_entidad.on('select', function(combo,record,index){
+              this.Cmp.nit_linea_aerea.setValue(record.data.nit);
+              this.Cmp.cod_iata.setValue(record.data.cod_iata_linea_aerea);
+              this.Cmp.id_entidad.setValue(record.data.id_entidad);
+            },this)
 
             this.Cmp.tipo_lcv.on('select', function (combo,record,index){
                 console.log('record.data.ID', record.data.ID);
@@ -353,10 +405,21 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.id_usuario.reset();
                     this.Cmp.id_usuario.modificado = true;
                     this.Cmp.id_usuario.allowBlank = true;
-
+                    this.ocultarComponente(this.Cmp.formato_reporte_iata);
+                    this.mostrarComponente(this.Cmp.formato_reporte);
+                }else if ('repo_iata' == record.data.ID){
+                    this.Cmp.id_usuario.setVisible(false);
+                    this.Cmp.id_usuario.reset();
+                    this.Cmp.id_usuario.modificado = true;
+                    this.Cmp.id_usuario.allowBlank = true;
+                    this.mostrarComponente(this.Cmp.formato_reporte_iata);
+                    this.ocultarComponente(this.Cmp.formato_reporte);
                 }else{
+                    this.mostrarComponente(this.Cmp.id_usuario);
                     this.Cmp.id_usuario.setVisible(true);
                     this.Cmp.id_usuario.allowBlank = false;
+                    this.ocultarComponente(this.Cmp.formato_reporte_iata);
+                    this.mostrarComponente(this.Cmp.formato_reporte);
                 }
             },this);
 
@@ -377,12 +440,20 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.ocultarComponente(this.Cmp.fecha_ini);
                     this.mostrarComponente(this.Cmp.id_gestion);
                     this.mostrarComponente(this.Cmp.id_periodo);
+                    this.Cmp.id_gestion.allowBlank = false;
+                    this.Cmp.id_periodo.allowBlank = false;
+                    this.Cmp.fecha_ini.allowBlank = true;
+                    this.Cmp.fecha_fin.allowBlank = true;
                 }
                 else{
                     this.mostrarComponente(this.Cmp.fecha_fin);
                     this.mostrarComponente(this.Cmp.fecha_ini);
                     this.ocultarComponente(this.Cmp.id_gestion);
                     this.ocultarComponente(this.Cmp.id_periodo);
+                    this.Cmp.id_gestion.allowBlank = true;
+                    this.Cmp.id_periodo.allowBlank = true;
+                    this.Cmp.fecha_ini.allowBlank = false;
+                    this.Cmp.fecha_fin.allowBlank = false;
                 }
 
             }, this);
@@ -451,7 +522,14 @@ header("content-type: text/javascript; charset=UTF-8");
 
             if(this.Cmp.formato_reporte.getValue()=='pdf'){
                 window.open('../../../lib/lib_control/Intermediario.php?r='+nomRep+'&t='+new Date().toLocaleTimeString())
-            }else{
+            }
+            else if(this.Cmp.formato_reporte_iata.getValue()=='txt' && this.Cmp.tipo_lcv.getValue()=='repo_iata'){
+                          var data = "&extension=txt";
+            							  data += "&name_file="+nomRep;
+            								data += "&url=../../../reportes_generados/"+nomRep;
+            								window.open('../../../lib/lib_control/CTOpenFile.php?' + data);
+            }
+            else{
                 window.open('../../../reportes_generados/'+nomRep+'?t='+new Date().toLocaleTimeString())
             }
 

@@ -16,61 +16,61 @@ require_once(dirname(__FILE__).'/../reportes/RLibroComprasNCDXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RLibroDeVentas.php');
 require_once(dirname(__FILE__).'/../reportes/RLibroDeVentasXLS.php');
 
-class ACTDocCompraVentaForm extends ACTbase{    
-			
-	
-	
-	
-	function recuperarDatosLCV(){    	
+class ACTDocCompraVentaForm extends ACTbase{
+
+
+
+
+	function recuperarDatosLCV(){
 		$this->objFunc = $this->create('MODDocCompraVenta');
 		$cbteHeader = $this->objFunc->listarRepLCVForm($this->objParam);
-		if($cbteHeader->getTipo() == 'EXITO'){				
+		if($cbteHeader->getTipo() == 'EXITO'){
 			return $cbteHeader;
 		}
         else{
 		    $cbteHeader->imprimirRespuesta($cbteHeader->generarJson());
 			exit;
-		}              
-		
+		}
+
     }
-	
-	function recuperarDatosErpEndensisLCV(){    	
+
+	function recuperarDatosErpEndensisLCV(){
 		$this->objFunc = $this->create('MODDocCompraVenta');
 		$cbteHeader = $this->objFunc->listarRepLCVFormErpEndesis($this->objParam);
-		if($cbteHeader->getTipo() == 'EXITO'){				
+		if($cbteHeader->getTipo() == 'EXITO'){
 			return $cbteHeader;
 		}
         else{
 		    $cbteHeader->imprimirRespuesta($cbteHeader->generarJson());
 			exit;
-		}              
-		
+		}
+
     }
-	
-	function recuperarDatosEntidad(){    	
+
+	function recuperarDatosEntidad(){
 		$this->objFunc = $this->create('sis_parametros/MODEntidad');
 		$cbteHeader = $this->objFunc->getEntidad($this->objParam);
-		if($cbteHeader->getTipo() == 'EXITO'){				
+		if($cbteHeader->getTipo() == 'EXITO'){
 			return $cbteHeader;
 		}
         else{
 		    $cbteHeader->imprimirRespuesta($cbteHeader->generarJson());
 			exit;
-		}              
-		
+		}
+
     }
-	
-	function recuperarDatosPeriodo(){    	
+
+	function recuperarDatosPeriodo(){
 		$this->objFunc = $this->create('sis_parametros/MODPeriodo');
 		$cbteHeader = $this->objFunc->getPeriodoById($this->objParam);
-		if($cbteHeader->getTipo() == 'EXITO'){				
+		if($cbteHeader->getTipo() == 'EXITO'){
 			return $cbteHeader;
 		}
         else{
 		    $cbteHeader->imprimirRespuesta($cbteHeader->generarJson());
 			exit;
-		}              
-		
+		}
+
     }
 
 
@@ -234,7 +234,13 @@ class ACTDocCompraVentaForm extends ACTbase{
 
                     $this->res->imprimirRespuesta($this->mensajeExito->generarJson());
 
-                }else{
+                }
+								/**breydi.vasquez*/
+								else if('repo_iata' == $this->objParam->getParametro('tipo_lcv') ){
+												$this->reporteIata();
+								}
+								/***/
+								else{
                     $this->exportarTxtLcvLCV();
                 }
             }else{
@@ -405,37 +411,37 @@ class ACTDocCompraVentaForm extends ACTbase{
     }
 
     function exportarTxtLcvLCV(){
-		
+
 		//crea el objetoFunProcesoMacro que contiene todos los metodos del sistema de workflow
-		$this->objFun=$this->create('MODDocCompraVenta');		
-		
+		$this->objFun=$this->create('MODDocCompraVenta');
+
 		if($this->objParam->getParametro('tipo_lcv')=='endesis_erp'){
 			$this->res = $this->objFun->listarRepLCVFormErpEndesis();
 		}else{
 			$this->res = $this->objFun->listarRepLCVForm();
 		}
-		
+
 		if($this->res->getTipo()=='ERROR'){
 			$this->res->imprimirRespuesta($this->res->generarJson());
 			exit;
 		}
-		
+
 		$nombreArchivo = $this->crearArchivoExportacion($this->res, $this->objParam);
-		
+
 		$this->mensajeExito=new Mensaje();
 		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Se genero con exito el archivo LCV'.$nombreArchivo,
 										'Se genero con exito el archivo LCV'.$nombreArchivo,'control');
 		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
-		
+
 		$this->res->imprimirRespuesta($this->mensajeExito->generarJson());
 
 	}
-	
+
 	function crearArchivoExportacion($res, $Obj) {
-			
-			
-		
-		
+
+
+
+
 		$separador = '|';
 		if($this->objParam->getParametro('formato_reporte') =='txt')
 		{
@@ -446,20 +452,20 @@ class ACTDocCompraVentaForm extends ACTbase{
 			$separador = ",";
 			$ext = '.csv';
 		}
-		
-		
+
+
 		/*******************************
 		 *  FORMATEA NOMBRE DE ARCHIVO
-		 * compras_MMAAAA_NIT.txt     
-		 * o    
+		 * compras_MMAAAA_NIT.txt
+		 * o
 		 * ventas_MMAAAA_NIT.txt
-		 * 
+		 *
 		 * ********************************/
-		 
+
 		$dataEntidad = $this->recuperarDatosEntidad();
 		$dataEntidadArray = $dataEntidad->getDatos();
 		$NIT = 	$dataEntidadArray['nit'];
-		 
+
 		if($this->objParam->getParametro('filtro_sql')=='periodo'){
 			$dataPeriodo = $this->recuperarDatosPeriodo();
 			$dataPeriodoArray = $dataPeriodo->getDatos();
@@ -468,37 +474,37 @@ class ACTDocCompraVentaForm extends ACTbase{
 		else{
 			$sufijo=$this->objParam->getParametro('fecha_ini').'_'.$this->objParam->getParametro('fecha_fin');
 		}
-		
-		if($this->objParam->getParametro('tipo_lcv')=='lcv_compras' || $this->objParam->getParametro('tipo_lcv')=='endesis_erp'){			
+
+		if($this->objParam->getParametro('tipo_lcv')=='lcv_compras' || $this->objParam->getParametro('tipo_lcv')=='endesis_erp'){
 			 $nombre = 'compras_'.$sufijo.'_'.$NIT;
 		}
 		else{
 			 $nombre = 'ventas_'.$sufijo.'_'.$NIT;
 		}
-		
+
 		$nombre=str_replace("/", "", $nombre);
-		
-		
+
+
 		$data = $res -> getDatos();
 		$fileName = $nombre.$ext;
 		//create file
 		$file = fopen("../../../reportes_generados/$fileName","w+");
 		$ctd = 1;
-		
+
 		if($this->objParam->getParametro('formato_reporte') !='txt'){
 			//AÑADE EL BOMM PARA NO TENER PROBLEMAS AL LEER DE APLICACIONES EXTERNAS
 		    fwrite($file, pack("CCC",0xef,0xbb,0xbf));
 		}
-		
-		
-		
-		
+
+
+
+
 		/******************************
 		 *  IMPRIME CABECERA PARA CSV
 		 *****************************/
 		if($this->objParam->getParametro('formato_reporte') !='txt')
 		{
-			
+
 			if($this->objParam->getParametro('tipo_lcv')=='lcv_compras' || $this->objParam->getParametro('tipo_lcv')=='endesis_erp'){
 
 					if($dataPeriodoArray['gestion']<2017) {
@@ -536,44 +542,44 @@ class ACTDocCompraVentaForm extends ACTbase{
 								'CODIGO DE CONTROL' . $separador .
 								'TIPO DE COMPRA' . "\r\n");
 					}
-									
+
 			 }
 			 else{
 				 	fwrite ($file,  "-".$separador.
 				 	        'N#'.$separador.
 	                        'FECHA DE LA FACTURA'.$separador.
 	                        'N# de LA FACTURA'.$separador.
-	                        'N# de AUTORIZACION'.$separador.        
+	                        'N# de AUTORIZACION'.$separador.
 							'ESTADO'.$separador.
-	                        'NIT CLIENTE'.$separador.      
-	                        'NOMBRE O RAZON SOCIAL'.$separador.      
+	                        'NIT CLIENTE'.$separador.
+	                        'NOMBRE O RAZON SOCIAL'.$separador.
 	                        "IMPORTE TOTAL DE LA VENTA A".$separador.
-	                        "IMPORTE ICE/ IEHD/ TASAS B".$separador.          
+	                        "IMPORTE ICE/ IEHD/ TASAS B".$separador.
 	                        "EXPORTACIO. Y OPERACIONES EXENTAS C".$separador.
-	                        "VENTAS GRAVADAS TASA CERO D".$separador.    
-	                        "SUBTOTAL E = A-B-C-D".$separador.  
-	                        "DESCUENTOS BONOS Y REBAJAS OTORGADAS F".$separador.     
-	                        "IMPORTE BASE DEBITO FISCAL G = E-F".$separador.   
-	                        "DEBITO FISCAL H = G*13%".$separador.   
+	                        "VENTAS GRAVADAS TASA CERO D".$separador.
+	                        "SUBTOTAL E = A-B-C-D".$separador.
+	                        "DESCUENTOS BONOS Y REBAJAS OTORGADAS F".$separador.
+	                        "IMPORTE BASE DEBITO FISCAL G = E-F".$separador.
+	                        "DEBITO FISCAL H = G*13%".$separador.
 	                        'CODIGO DE CONTROL'."\r\n");
 				 }
 		}
-		
+
 		/**************************
 		 *  IMPRIME CUERPO
 		 **************************/
-		
-		foreach ($data as $val) {			
-			
-			 $newDate = date("d/m/Y", strtotime( $val['fecha']));			 
+
+		foreach ($data as $val) {
+
+			 $newDate = date("d/m/Y", strtotime( $val['fecha']));
 			 if($this->objParam->getParametro('tipo_lcv')=='lcv_compras' || $this->objParam->getParametro('tipo_lcv')=='endesis_erp'){
-						
-					
+
+
 					fwrite ($file,  "1".$separador.
 				 	                $ctd.$separador.
 			                        $newDate.$separador.
 			                        $val['nit'].$separador.
-			                        $val['razon_social'].$separador. 
+			                        $val['razon_social'].$separador.
 			                        $val['nro_documento'].$separador.
 									$val['nro_dui'].$separador.
 			                        $val['nro_autorizacion'].$separador.
@@ -585,37 +591,37 @@ class ACTDocCompraVentaForm extends ACTbase{
 									$val['importe_iva'].$separador.
 									$val['codigo_control'].$separador.
 			                        $val['tipo_doc']."\r\n");
-		              			
+
 			 }
 			 else{
 				 	fwrite ($file,  "3".$separador.
 				 	        $ctd.$separador.
 	                        $newDate.$separador.
 	                        $val['nro_documento'].$separador.
-	                        $val['nro_autorizacion'].$separador.        
+	                        $val['nro_autorizacion'].$separador.
 							$val['tipo_doc'].$separador.
-	                        $val['nit'].$separador.      
-	                        $val['razon_social'].$separador.	                            
+	                        $val['nit'].$separador.
+	                        $val['razon_social'].$separador.
 	                        $val['importe_doc'].$separador.
-	                        $val['importe_ice'].$separador.          
+	                        $val['importe_ice'].$separador.
 	                        $val['importe_excento'].$separador.
-	                        $val['venta_gravada_cero'].$separador.    
-	                        $val['subtotal_venta'].$separador.  
-	                        $val['importe_descuento'].$separador.     
-	                        $val['sujeto_df'].$separador.   
-	                        $val['importe_iva'].$separador.   
-	                        $val['codigo_control']."\r\n");		
-	                        
-	                  				
-				
+	                        $val['venta_gravada_cero'].$separador.
+	                        $val['subtotal_venta'].$separador.
+	                        $val['importe_descuento'].$separador.
+	                        $val['sujeto_df'].$separador.
+	                        $val['importe_iva'].$separador.
+	                        $val['codigo_control']."\r\n");
+
+
+
 			 }
-			 
-			 	  		
+
+
 			 $ctd = $ctd + 1;
          } //end for
-         
-     
-				
+
+
+
 		fclose($file);
 		return $fileName;
 	}
@@ -841,10 +847,70 @@ class ACTDocCompraVentaForm extends ACTbase{
 		fclose($file);
 		return $fileName;
 	}
-	
-	
-	
-			
+
+	function reporteIata () {
+
+	$this->objFun=$this->create('MODDocCompraVenta');
+	$this->res = $this->objFun->getDataIata();
+
+	if($this->res->getTipo()=='ERROR'){
+		$this->res->imprimirRespuesta($this->res->generarJson());
+		exit;
+	}
+
+	$nombreArchivo = $this->crearArchivoExportacionIata($this->res->getDatos(), $this->objParam, $this->objParam->getParametro('nit_linea_aerea'), $this->objParam->getParametro('cod_iata'));
+
+	$this->mensajeExito=new Mensaje();
+	$this->mensajeExito->setMensaje('EXITO','Reporte.php','Se genero con exito el archivo'.$nombreArchivo,
+									'Se genero con exito el archivo'.$nombreArchivo,'control');
+	$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+
+	$this->res->imprimirRespuesta($this->mensajeExito->generarJson());
+}
+
+function crearArchivoExportacionIata($datos, $parm, $nit_linea_aerea, $cod_iata) {
+	$separador = '|';
+	$data = json_decode($datos[0]['jsondata']);
+
+	if (count($data->data) <= 0) {
+		throw new \Exception("No se tiene registros para el reporte", 1);
+	}
+
+	if($this->objParam->getParametro('formato_reporte_iata') =='txt'){
+		$separador = "|";
+		$fileName = 'IATA_'.$nit_linea_aerea.'.txt';
+	}else{
+		$separador = "|";
+		$fileName = 'IATA_'.$nit_linea_aerea.'.csv';
+
+	}
+
+
+	$file = fopen("../../../reportes_generados/$fileName", 'w');
+
+	 // var_dump($data->data);exit;
+	foreach ($data->data as $val) {
+				fwrite ($file,
+				$val->presentacion.$separador.
+				$val->tipo_transaccion.$separador.
+				$val->nro_factura.$separador.
+				$val->origen_servicio.$separador.
+				$val->fecha_transaccion.$separador.
+				$nit_linea_aerea.$separador.
+				$cod_iata.$separador.
+				$val->nombre_pasajero.$separador.
+				$val->t_iva.$separador.
+				$val->moneda.$separador.
+				$val->nit_ci_beneficiario.$separador."0".
+				"\r\n"
+			);
+		}
+
+	 return $fileName;
+	}
+
+
+
 }
 
 ?>

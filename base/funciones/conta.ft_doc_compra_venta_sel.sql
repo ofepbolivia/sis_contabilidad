@@ -51,6 +51,10 @@ DECLARE
 
     v_id_periodo		integer;
     v_id_gestion		integer;
+    --breydi.vasquez 09/02/2021 variable reporte Iata
+    v_gestion_ini		integer;
+    v_gestion_fin		integer;
+
 BEGIN
 
 	v_nombre_funcion = 'conta.ft_doc_compra_venta_sel';
@@ -2054,6 +2058,128 @@ BEGIN
 			return v_consulta;
 
 		end;
+
+    /*********************************
+    #TRANSACCION:  'CONTA_IATAREP_SEL'
+    #DESCRIPCION:	Reporte iata boletos
+    #AUTOR:		breydi.vasquez
+    #FECHA:		03-02-2021
+    ***********************************/
+    elsif(p_transaccion = 'CONTA_IATAREP_SEL')then
+    	begin
+
+        	v_filtro = ' 0=0 ';
+
+              IF 'periodo' = v_parametros.filtro_sql THEN
+
+                  select tper.fecha_ini, tper.fecha_fin
+                  into v_registros
+                  from param.tperiodo tper
+                  where tper.id_periodo = v_parametros.id_periodo;
+                  v_filtro = ' fecha_factura between '''||v_registros.fecha_ini||'''::date and '''||v_registros.fecha_fin::date||'''::date';
+
+                  v_gestion_ini = date_part('year', v_registros.fecha_ini);
+                  v_gestion_fin = date_part('year', v_registros.fecha_fin);
+
+              ELSIF 'fechas' = v_parametros.filtro_sql THEN
+
+                  v_filtro = ' fecha_factura between '''||v_parametros.fecha_ini||'''::date and '''||v_parametros.fecha_fin::date||'''::date';
+
+                  v_gestion_ini = date_part('year', v_parametros.fecha_ini::date);
+                  v_gestion_fin = date_part('year', v_parametros.fecha_fin::date);
+
+              END IF;
+
+
+            IF (v_gestion_ini != v_gestion_fin) then
+              raise exception 'Solo se puede recuperar información de la misma Gestión favor verifique los datos.';
+            END if;
+
+
+
+             --raise 'parametros: %', v_filtro;
+          create temp table tfactura_temp_iata (presentacion			varchar,
+                                                tipo_transaccion		varchar,
+                                                nro_factura 			varchar(13),
+                                                origen_servicio 		varchar(3),
+                                                fecha_transaccion 		varchar,
+                                                nit_linea_aerea 		varchar(14),
+                                                nombre_pasajero			text,
+                                                t_iva					numeric(18,2),
+                                                moneda					varchar(3),
+                                                nit_ci_beneficiario		varchar
+
+        	)on commit drop;
+
+        	v_host     = pxp.f_get_variable_global('sincroniza_ip_facturacion');
+          	v_puerto   = pxp.f_get_variable_global('sincroniza_puerto_facturacion');
+          	v_dbname   = 'db_facturas_'||v_gestion_ini;
+          	p_user     = pxp.f_get_variable_global('sincronizar_user_facturacion');
+          	v_password = pxp.f_get_variable_global('sincronizar_password_facturacion');
+
+          	v_cadena_factura = 'hostaddr='||v_host||' port='||v_puerto||' dbname='||v_dbname||' user='||p_user||' password='||v_password;
+
+            v_conexion = (select dblink_connect('db_facturas',v_cadena_factura));
+
+            IF v_conexion != 'OK' then
+
+                      raise exception 'ERROR DE CONEXION A LA BASE DE DATOS CON DBLINK';
+            ELSE
+
+			insert into tfactura_temp_iata
+            SELECT *
+                            FROM dblink(v_cadena_factura,
+                                        'SELECT ''0''::varchar as presentacion,
+                                        		''1''::varchar as tipo_transaccion,
+                                                nro_factura,
+                                                origen_servicio,
+                                                to_char(fecha_factura,''DD/MM/YYYY''),
+                                                '||v_parametros.nit_linea_aerea||',
+                                                nombre_pasajero,
+                                                importe_debito_fiscal,
+                                                moneda,
+                                                nit_ci_cli
+
+                                         FROM sfe.tfactura
+                                         WHERE  estado_reg = ''activo''
+									                               AND  sistema_origen = ''STAGE DB''
+                                                 AND  estado = ''VIGENTE''
+                                                 AND  tipo_venta in (''ATO'', ''NO-IATA'', ''CTO'')
+                                         AND '||v_filtro||'
+                                         order by fecha_factura ASC, nro_factura ASC
+                                         ')
+                            AS t1(presentacion			varchar,
+                            	  tipo_transaccion		varchar,
+                            	  nro_factura 			varchar(13),
+                                  origen_servicio 		varchar(3),
+                                  fecha_transaccion 	varchar,
+                                  nit_linea_aerea 		varchar(14),
+                                  nombre_pasajero		text,
+                                  t_iva					numeric(18,2),
+                                  moneda				varchar(3),
+                                  nit_ci_beneficiario	varchar);
+
+            v_conexion = (select dblink_disconnect('db_facturas'));
+
+          	END IF;
+
+            v_consulta:='
+                        SELECT TO_JSON(ROW_TO_JSON(jsonD) :: TEXT) #>> ''{}'' AS jsonData
+                        FROM (
+                               SELECT
+                                 (
+                                   SELECT ARRAY_TO_JSON(ARRAY_AGG(ROW_TO_JSON(t_iata))) as data
+                                   FROM
+                                     ( SELECT * FROM tfactura_temp_iata
+                                     ) t_iata
+                                 )
+                             ) jsonD';
+
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+        end;
 
     else
 

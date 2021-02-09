@@ -1309,7 +1309,7 @@ class MODDocCompraVenta extends MODbase
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-        
+
         //Devuelve la respuesta
         return $this->respuesta;
     }
@@ -2556,7 +2556,7 @@ class MODDocCompraVenta extends MODbase
         //Ejecuta la instruccion
         $this->armarConsulta();
         //echo($this->consulta);exit;
-        $this->ejecutarConsulta();        
+        $this->ejecutarConsulta();
         //Devuelve la respuesta
         return $this->respuesta;
     }
@@ -2568,8 +2568,8 @@ class MODDocCompraVenta extends MODbase
         $this->tipo_procedimiento='SEL';//tipo de transaccion
 
 
-        //Definicion de la lista del resultado del query        
-        $this->setParametro('codigo_subsistema','codigo_subsistema','varchar');        
+        //Definicion de la lista del resultado del query
+        $this->setParametro('codigo_subsistema','codigo_subsistema','varchar');
 
         //defino varialbes que se captran como retornod e la funcion
         $this->captura('id_depto','integer');
@@ -2822,6 +2822,31 @@ class MODDocCompraVenta extends MODbase
 
         //Devuelve la respuesta
         return $this->respuesta;
+    }
+    /**{developer:breydi.vasquez, date:05/02/2021, description: reporte Iata}**/
+
+    function getDataIata(){
+      $this->procedimiento='conta.ft_doc_compra_venta_sel';
+      $this->transaccion='CONTA_IATAREP_SEL';
+      $this->tipo_procedimiento='SEL';//tipo de transaccion
+
+      $this->setCount(false);
+      $this->setParametro('nit_linea_aerea','nit_linea_aerea','varchar');
+      $this->setParametro('cod_iata','cod_iata','varchar');
+      $this->setParametro('filtro_sql', 'filtro_sql', 'VARCHAR');
+      $this->setParametro('id_periodo', 'id_periodo', 'INTEGER');
+      $this->setParametro('tipo_lcv', 'tipo_lcv', 'VARCHAR');
+      $this->setParametro('fecha_ini', 'fecha_ini', 'date');
+      $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+
+			$this->captura('jsonData','text');
+
+      //Ejecuta la instruccion
+      $this->armarConsulta();
+      // echo $this->consulta;exit;
+      $this->ejecutarConsulta();
+
+      return $this->respuesta;
     }
 
 }
