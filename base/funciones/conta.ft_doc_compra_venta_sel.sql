@@ -2136,7 +2136,7 @@ BEGIN
                                                 to_char(fecha_factura,''DD/MM/YYYY''),
                                                 '||v_parametros.nit_linea_aerea||',
                                                 nombre_pasajero,
-                                                importe_debito_fiscal,
+                                                importe_total_venta,
                                                 moneda,
                                                 nit_ci_cli
 

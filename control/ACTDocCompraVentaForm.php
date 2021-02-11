@@ -871,6 +871,16 @@ class ACTDocCompraVentaForm extends ACTbase{
 function crearArchivoExportacionIata($datos, $parm, $nit_linea_aerea, $cod_iata) {
 	$separador = '|';
 	$data = json_decode($datos[0]['jsondata']);
+	if($this->objParam->getParametro('filtro_sql')=='fechas'){
+		$fecha = $this->objParam->getParametro('fecha_ini');
+		$anio = substr($fecha, 6, 4);
+		$mes = substr($fecha, 3, 2);
+	}else{
+		$dataPeriodo = $this->recuperarDatosPeriodo();
+		$dataPeriodoArray = $dataPeriodo->getDatos();
+		$anio = $dataPeriodoArray['gestion'];
+		$mes = $dataPeriodoArray['periodo'];
+	}
 
 	if (count($data->data) <= 0) {
 		throw new \Exception("No se tiene registros para el reporte", 1);
@@ -878,10 +888,10 @@ function crearArchivoExportacionIata($datos, $parm, $nit_linea_aerea, $cod_iata)
 
 	if($this->objParam->getParametro('formato_reporte_iata') =='txt'){
 		$separador = "|";
-		$fileName = 'IATA_'.$nit_linea_aerea.'.txt';
+		$fileName = 'IATA_'.$nit_linea_aerea.$mes.$anio.'.txt';
 	}else{
 		$separador = "|";
-		$fileName = 'IATA_'.$nit_linea_aerea.'.csv';
+		$fileName = 'IATA_'.$nit_linea_aerea.$mes.$anio.'.csv';
 
 	}
 
