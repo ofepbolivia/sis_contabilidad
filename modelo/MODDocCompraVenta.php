@@ -1376,13 +1376,18 @@ class MODDocCompraVenta extends MODbase
         $this->tipo_procedimiento = 'SEL';//tipo de transaccion
         $this->setCount(false);
 
+        if($this->objParam->getParametro('filtro_sql') == 'periodo'){
+            $this->setParametro('filtro_sql', 'filtro_sql', 'VARCHAR');
+            $this->setParametro('tipo_lcv', 'tipo_lcv', 'VARCHAR');
+            $this->setParametro('id_periodo', 'id_periodo', 'INTEGER');
+            $this->setParametro('id_gestion', 'id_gestion', 'INTEGER');
 
-        $this->setParametro('filtro_sql', 'filtro_sql', 'VARCHAR');
-        $this->setParametro('id_periodo', 'id_periodo', 'INTEGER');
-        $this->setParametro('tipo_lcv', 'tipo_lcv', 'VARCHAR');
-        $this->setParametro('fecha_ini', 'fecha_ini', 'date');
-        $this->setParametro('fecha_fin', 'fecha_fin', 'date');
-        $this->setParametro('id_gestion', 'id_gestion', 'INTEGER');
+        }else{
+            $this->setParametro('filtro_sql', 'filtro_sql', 'VARCHAR');
+            $this->setParametro('tipo_lcv', 'tipo_lcv', 'VARCHAR');
+            $this->setParametro('fecha_ini', 'fecha_ini', 'date');
+            $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+        }
 
 
         //captura parametros adicionales para el count
@@ -1430,7 +1435,7 @@ class MODDocCompraVenta extends MODbase
 
 
         //Ejecuta la instruccion
-        $this->armarConsulta();
+        $this->armarConsulta(); //echo ($this->consulta);exit;
         $this->ejecutarConsulta();
 
         //Devuelve la respuesta
@@ -2724,7 +2729,7 @@ class MODDocCompraVenta extends MODbase
         $this->captura('sistema_origen', 'varchar');
         $this->captura('desc_ruta', 'varchar');
         $this->captura('revision_nit', 'varchar');
-        $this->captura('otr', 'text');
+        $this->captura('otr', 'varchar');
 
 
         //Ejecuta la instruccion
@@ -2848,6 +2853,37 @@ class MODDocCompraVenta extends MODbase
 
       return $this->respuesta;
     }
+
+    /**{developer:franklin.espinoza, date:05/02/2021, description: Listado de los archivos generados PDF}**/
+    function listaDocumentoGenerado(){
+        $this->procedimiento='conta.ft_doc_compra_venta_sel';
+        $this->transaccion='CONTA_DOC_GEN_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+
+        $this->setCount(true);
+
+        $this->captura('id_documento_generado', 'integer');
+        $this->captura('url_documento', 'varchar');
+        $this->captura('nombre_documento', 'varchar');
+        $this->captura('size', 'varchar');
+
+        $this->captura('estado_reg', 'varchar');
+        $this->captura('fecha_reg', 'timestamp');
+        $this->captura('fecha_generacion', 'timestamp');
+        $this->captura('usr_reg', 'varchar');
+        $this->captura('fecha_ini', 'date');
+        $this->captura('fecha_fin', 'date');
+        $this->captura('format', 'varchar');
+
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        // echo $this->consulta;exit;
+        $this->ejecutarConsulta();
+
+        return $this->respuesta;
+    }
+    /**{developer:franklin.espinoza, date:05/02/2021, description: Listado de los archivos generados PDF}**/
 
 }
 

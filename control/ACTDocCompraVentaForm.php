@@ -88,6 +88,7 @@ class ACTDocCompraVentaForm extends ACTbase{
                         $this->objFunc = $this->create('MODDocCompraVenta');
                         $dataSource = $this->objFunc->listarRepLibroVentas($this->objParam);
                         //$this->datos = $this->res->getDatos();
+						$nombreArchivo = uniqid('LibroVentasEstandar').'.pdf';
                     }else {
                         $dataSource = $this->recuperarDatosLCV();
                     }
@@ -111,7 +112,11 @@ class ACTDocCompraVentaForm extends ACTbase{
             $orientacion = 'L';
 
             if( 'lcncd' != $this->objParam->getParametro('tipo_lcv') ) {
-                $titulo = 'Consolidado';
+				if('lcv_ventas' == $this->objParam->getParametro('tipo_lcv')){
+					$titulo = 'LibroVentasEstandar';
+				}else{
+					$titulo = 'Consolidado';
+				}
             }else{
                 $titulo = 'Libro Compras Notas C-D';
             }
@@ -121,7 +126,33 @@ class ACTDocCompraVentaForm extends ACTbase{
             $this->objParam->addParametro('titulo_archivo',$titulo);
             $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
 
-//var_dump('$dataSource->getDatos()', $dataSource->getDatos());exit;
+			if ( 'lcv_ventas' == $this->objParam->getParametro('tipo_lcv') && true){
+
+				$NEW_LINE = "\r\n";
+
+				ignore_user_abort(true);
+
+				header('Connection: close' . $NEW_LINE);
+				header('Content-Encoding: none' . $NEW_LINE);
+				ob_start();
+
+				$this->mensajeExito=new Mensaje();
+				$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado '.$nombreArchivo,'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+				$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+				$size = ob_get_length();
+				header('Content-Length: ' . $size, TRUE);
+				ob_end_flush();
+				ob_flush();
+				flush();
+				session_write_close();
+				//fastcgi_finish_request();
+				//set_time_limit(0);//avoid timeout
+				//ini_set('memory_limit','-1'); //avoid insufficient memory
+
+
+			}
+
             if( 'lcncd' != $this->objParam->getParametro('tipo_lcv') ) {
                 //Instancia la clase de pdf
                 if ($this->objParam->getParametro('tipo_lcv') == 'lcv_compras' || $this->objParam->getParametro('tipo_lcv') == 'endesis_erp') {
@@ -139,9 +170,74 @@ class ACTDocCompraVentaForm extends ACTbase{
                 $reporte->setDatos($this->datos);
             }
 
+			$reporte->generarReporte();
 
-            $reporte->generarReporte();
-            $reporte->output($reporte->url_archivo,'F');
+			if ( 'lcv_ventas' == $this->objParam->getParametro('tipo_lcv') && true){
+				$url_absolute = $reporte->url_archivo;
+				$reporte->output($reporte->url_archivo,'F');
+
+				/** Convertir a megas **/
+				$file_size = filesize($url_absolute);
+				$units = array('B', 'KB', 'MB', 'GB', 'TB');
+
+				$bytes = max($file_size, 0);
+				$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+				$pow = min($pow, count($units) - 1);
+
+				// $bytes /= pow(1024, $pow);
+				// $bytes /= (1 << (10 * $pow));
+
+				$file_size = round($bytes, 2) . ' ' . $units[$pow];
+				/** Convertir a megas **/
+
+				$url_absolute = './../../../reportes_generados/'.$nombreArchivo;
+
+				$cone = new conexion();
+				$link = $cone->conectarpdo();
+
+				$sql = "UPDATE  conta.tdocumento_generado SET
+                      estado_reg = 'OLD'
+                    WHERE format = 'pdf' and estado_reg!= 'inactivo'" ;
+
+				$stmt = $link->prepare($sql);
+				$stmt->execute();
+				$fecha_ini = $this->objParam->getParametro('fecha_ini');
+				$fecha_fin = $this->objParam->getParametro('fecha_fin');
+
+				$sql = "INSERT INTO conta.tdocumento_generado(id_usuario_reg, url, size, fecha_generacion, file_name, format, estado_reg, fecha_ini, fecha_fin) VALUES (".$_SESSION["ss_id_usuario"]."::integer, '".$url_absolute."', '".$file_size."', now(), '".$nombreArchivo."', 'pdf', 'NEW', '".$fecha_ini."'::date, '".$fecha_fin."'::date) ";
+
+				$stmt = $link->prepare($sql);
+				$stmt->execute();
+
+				/**enviar alert al usuario para indicar que el reporte ha sido generado**/
+				$evento = "enviarMensajeUsuario";
+
+				//mandamos datos al websocket
+				$data = array(
+					"mensaje" => 'Su Reporte ya ha sido generado: '.$nombreArchivo,
+					"tipo_mensaje" => 'alert',
+					"titulo" => 'Alerta Reporte',
+					"id_usuario" => $_SESSION["ss_id_usuario"],
+					"destino" => 'Unico',
+					"evento" => $evento,
+					"url" => 'url_prueba'
+				);
+
+				$send = array(
+					"tipo" => "enviarMensajeUsuario",
+					"data" => $data
+				);
+
+				$usuarios_socket = $this->dispararEventoWS($send);
+
+				$usuarios_socket =json_decode($usuarios_socket, true);
+				/**enviar alert al usuario para indicar que el reporte ha sido generado**/
+				//chmod($url_move, 0777);
+				//copy ( $url_move, '/var/www/html/kerp/uploaded_files/sis_workflow/DocumentoWf/');
+				//copy ( $url_move, '/var/www/html/kerp/uploaded_files/sis_contabilidad/');
+			}else{
+				$reporte->output($reporte->url_archivo,'F');
+			}
 
             $this->mensajeExito=new Mensaje();
             $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');

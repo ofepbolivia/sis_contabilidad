@@ -216,7 +216,7 @@ class RLibroDeVentas extends  ReportePDF {
         $this->s4 = 0;
         $this->s5 = 0;
         $this->s6 = 0;
-
+        //var_dump('$detalle 22222', $detalle);exit;
         foreach ($detalle as $val) {
 
             $this->imprimirLinea($val,$count,$fill);

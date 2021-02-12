@@ -54,7 +54,6 @@ DECLARE
     --breydi.vasquez 09/02/2021 variable reporte Iata
     v_gestion_ini		integer;
     v_gestion_fin		integer;
-
 BEGIN
 
 	v_nombre_funcion = 'conta.ft_doc_compra_venta_sel';
@@ -556,12 +555,15 @@ BEGIN
 
     	begin
 
-
            v_sincronizar = pxp.f_get_variable_global('sincronizar');
 
-           SELECT gestion into v_gestion
-           FROM param.tgestion
-           WHERE id_gestion=v_parametros.id_gestion;
+           if v_parametros.filtro_sql = 'fechas' then
+           	v_gestion = date_part('year',v_parametros.fecha_ini);
+           else
+           	SELECT gestion into v_gestion
+           	FROM param.tgestion
+           	WHERE id_gestion=v_parametros.id_gestion;
+           end if;
 
            IF v_gestion < 2017  THEN
               v_tabla_origen = 'conta.tlcv_endesis';
@@ -1922,7 +1924,7 @@ BEGIN
                                         sistema_origen varchar,
                                         desc_ruta varchar,
                                 		revision_nit varchar,
-                                        otr text
+                                        otr varchar
                                     )
                             ';
 
@@ -1964,7 +1966,7 @@ BEGIN
            	--Sentencia de la consulta
 		  	v_consulta = 'select count(id_factura) as contador
                         from sfe.tfactura tfa
-                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and ';--order by tfa.fecha_factura asc
+                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.revision_nit = '''''||v_parametros.tipo_show||''''' and  ';--order by tfa.fecha_factura asc
 
             v_parametros.filtro = regexp_replace(v_parametros.filtro, '''', '''''', 'g');
             v_consulta = v_consulta||v_parametros.filtro;
@@ -2139,7 +2141,6 @@ BEGIN
                                                 importe_total_venta,
                                                 moneda,
                                                 nit_ci_cli
-
                                          FROM sfe.tfactura
                                          WHERE  estado_reg = ''activo''
 									                               AND  sistema_origen = ''STAGE DB''
@@ -2180,6 +2181,70 @@ BEGIN
 			return v_consulta;
 
         end;
+     /*********************************
+ 	#TRANSACCION:  'CONTA_DOC_GEN_SEL'
+ 	#DESCRIPCION:	listado de documentos generados
+ 	#AUTOR:		franklin.espinoza
+ 	#FECHA:		10-01-2021 15:57:09
+	***********************************/
+
+	ELSEIF(p_transaccion='CONTA_DOC_GEN_SEL')then
+
+    	begin
+
+           	--Sentencia de la consulta
+		  	v_consulta = 'select tcd.id_documento_generado,
+                                tcd.url url_documento,
+                                tcd.file_name nombre_documento,
+                                tcd.size,
+                                tcd.estado_reg,
+                                tcd.fecha_reg,
+                                tcd.fecha_generacion,
+                                vf.desc_funcionario2::varchar as usr_reg,
+                                tcd.fecha_ini,
+                                tcd.fecha_fin,
+                                tcd.format
+
+                        from conta.tdocumento_generado tcd
+
+                        inner join segu.tusuario usu1 on usu1.id_usuario = tcd.id_usuario_reg
+                        inner join orga.vfuncionario vf on vf.id_persona = usu1.id_persona
+
+                        where tcd.id_usuario_reg = '||p_id_usuario||' and tcd.estado_reg != ''inactivo'' and '||v_parametros.filtro;
+
+
+			v_consulta = v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+			raise notice 'v_consulta: %',v_consulta;
+            --Devuelve la respuesta
+			return v_consulta;
+
+		end;
+
+    /*********************************
+ 	#TRANSACCION:  'CONTA_DOC_GEN_CONT'
+ 	#DESCRIPCION:	Conteo de registros
+ 	#AUTOR:		admin
+ 	#FECHA:		12-08-2016 14:29:16
+	***********************************/
+
+	elsif(p_transaccion='CONTA_DOC_GEN_CONT')then
+
+		begin
+			--Sentencia de la consulta de conteo de registros
+			v_consulta = 'select count(id_documento_generado)
+
+                        from conta.tdocumento_generado tcd
+
+                        inner join segu.tusuario usu1 on usu1.id_usuario = tcd.id_usuario_reg
+                        inner join orga.vfuncionario vf on vf.id_persona = usu1.id_persona
+
+                        where tcd.id_usuario_reg = '||p_id_usuario||' and tcd.estado_reg = ''inactivo'' and '||v_parametros.filtro;
+
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
 
     else
 

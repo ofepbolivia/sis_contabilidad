@@ -945,8 +945,16 @@ class ACTDocCompraVenta extends ACTbase
 
         $this->objParam->defecto('ordenacion', 'fecha_factura');
         $this->objParam->defecto('dir_ordenacion', 'asc');
-        $this->objFunc = $this->create('MODDocCompraVenta');
-        $this->res = $this->objFunc->getDataDocVenta($this->objParam);
+
+
+        if ($this->objParam->getParametro('tipoReporte') == 'excel_grid' || $this->objParam->getParametro('tipoReporte') == 'pdf_grid') {
+            $this->objReporte = new Reporte($this->objParam, $this);
+            $this->res = $this->objReporte->generarReporteListado('MODDocCompraVenta', 'getDataDocVenta');
+        } else {
+            $this->objFunc = $this->create('MODDocCompraVenta');
+            $this->res = $this->objFunc->getDataDocVenta($this->objParam);
+        }
+        
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
     /**{developer:franklin.espinoza, date:20/01/2021, description: Obtener Datos de Factura DBLink}**/
@@ -959,6 +967,7 @@ class ACTDocCompraVenta extends ACTbase
     }
     /**{developer:franklin.espinoza, date:25/01/2021, description: Modificacar Nit, Razon Social mediante procedimiento SQL}**/
 
+    /**{developer:franklin.espinoza, date:01/02/2021, description: Lista las facturas corregidas}**/
     function listaCorreccionVenta(){
 
 
@@ -969,6 +978,25 @@ class ACTDocCompraVenta extends ACTbase
         $this->res = $this->objFunc->listaCorreccionVenta($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+    /**{developer:franklin.espinoza, date:01/02/2021, description: Lista las facturas corregidas}**/
+
+
+    /**{developer:franklin.espinoza, date:05/02/2021, description: Listado de los archivos generados PDF}**/
+    function listaDocumentoGenerado(){
+
+
+        $this->objParam->defecto('ordenacion','fecha_reg');
+        $this->objParam->defecto('dir_ordenacion','desc');
+
+        if ($this->objParam->getParametro('formato') != '') {
+                $this->objParam->addFiltro("tcd.format = ''" . $this->objParam->getParametro('formato')."''");
+        }
+
+        $this->objFunc = $this->create('MODDocCompraVenta');
+        $this->res = $this->objFunc->listaDocumentoGenerado($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    /**{developer:franklin.espinoza, date:05/02/2021, description: Listado de los archivos generados PDF}**/
 }
 
 ?>
