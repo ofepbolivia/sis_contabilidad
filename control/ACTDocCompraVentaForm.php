@@ -75,7 +75,7 @@ class ACTDocCompraVentaForm extends ACTbase{
 
 
     function reporteLCV(){
-
+		
 
         if($this->objParam->getParametro('formato_reporte')=='pdf'){
 
@@ -201,8 +201,31 @@ class ACTDocCompraVentaForm extends ACTbase{
 
 				$stmt = $link->prepare($sql);
 				$stmt->execute();
-				$fecha_ini = $this->objParam->getParametro('fecha_ini');
-				$fecha_fin = $this->objParam->getParametro('fecha_fin');
+
+				$id_gestion = $this->objParam->getParametro('id_gestion');
+				$id_periodo = $this->objParam->getParametro('id_periodo');
+
+				if ( $id_gestion != '' && $id_periodo != '' ){
+
+					$sql = "select tper.periodo, tges.gestion
+                	from param.tperiodo tper
+                	inner join param.tgestion tges on tges.id_gestion = tper.id_gestion
+               	 	where  tper.id_periodo = ". $id_periodo." and tper.id_gestion = ".$id_gestion;
+
+					$registros = $link->prepare( $sql );
+					$registros->execute();
+					$registros = $registros->fetchAll( PDO::FETCH_OBJ );
+					$periodo = $registros[0]->periodo;
+					$gestion = $registros[0]->gestion;
+
+					$fecha_ini = date('d/m/Y', mktime(0,0,0, $periodo, 1, $gestion));
+					$dia = date("d", mktime(0,0,0, $periodo+1, 0, $gestion));
+					$fecha_fin = date('d/m/Y', mktime(0,0,0, $periodo, $dia, $gestion));
+
+				}else{
+					$fecha_ini = $this->objParam->getParametro('fecha_ini');
+					$fecha_fin = $this->objParam->getParametro('fecha_fin');
+				}
 
 				$sql = "INSERT INTO conta.tdocumento_generado(id_usuario_reg, url, size, fecha_generacion, file_name, format, estado_reg, fecha_ini, fecha_fin) VALUES (".$_SESSION["ss_id_usuario"]."::integer, '".$url_absolute."', '".$file_size."', now(), '".$nombreArchivo."', 'pdf', 'NEW', '".$fecha_ini."'::date, '".$fecha_fin."'::date) ";
 
@@ -214,7 +237,7 @@ class ACTDocCompraVentaForm extends ACTbase{
 
 				//mandamos datos al websocket
 				$data = array(
-					"mensaje" => 'Su Reporte ya ha sido generado: '.$nombreArchivo,
+					"mensaje" => 'Estimado Funcionario, su Reporte ya ha sido generado: '.$nombreArchivo,
 					"tipo_mensaje" => 'alert',
 					"titulo" => 'Alerta Reporte',
 					"id_usuario" => $_SESSION["ss_id_usuario"],

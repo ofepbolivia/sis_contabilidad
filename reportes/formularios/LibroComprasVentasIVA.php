@@ -398,7 +398,7 @@ header("content-type: text/javascript; charset=UTF-8");
             },this)
 
             this.Cmp.tipo_lcv.on('select', function (combo,record,index){
-                console.log('record.data.ID', record.data.ID);
+
                 if( 'lcncd' == record.data.ID ){
 
                     this.Cmp.id_usuario.setVisible(false);
@@ -444,8 +444,13 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.id_periodo.allowBlank = false;
                     this.Cmp.fecha_ini.allowBlank = true;
                     this.Cmp.fecha_fin.allowBlank = true;
-                }
-                else{
+
+                    this.Cmp.fecha_ini.reset();
+                    this.Cmp.fecha_ini.modificado = true;
+                    this.Cmp.fecha_fin.reset();
+                    this.Cmp.fecha_fin.modificado = true;
+
+                } else{
                     this.mostrarComponente(this.Cmp.fecha_fin);
                     this.mostrarComponente(this.Cmp.fecha_ini);
                     this.ocultarComponente(this.Cmp.id_gestion);
@@ -454,6 +459,11 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.id_periodo.allowBlank = true;
                     this.Cmp.fecha_ini.allowBlank = false;
                     this.Cmp.fecha_fin.allowBlank = false;
+
+                    this.Cmp.id_gestion.reset();
+                    this.Cmp.id_gestion.modificado = true;
+                    this.Cmp.id_periodo.reset();
+                    this.Cmp.id_periodo.modificado = true;
                 }
 
             }, this);
@@ -508,6 +518,17 @@ header("content-type: text/javascript; charset=UTF-8");
 
         successSave :function(resp){
             Phx.CP.loadingHide();
+
+            if ( this.Cmp.tipo_lcv.getValue() == 'lcv_ventas' && (this.Cmp.formato_reporte.getValue() == 'pdf' || this.Cmp.formato_reporte.getValue() == 'xls') ) {
+                Ext.Msg.show({
+                    title: 'Información',
+                    msg: '<b>Estimado Funcionario: ' + '\n' + ' El Reporte se esta Generando..........</b>',
+                    buttons: Ext.Msg.OK,
+                    width: 512,
+                    icon: Ext.Msg.INFO
+                });
+            }
+
             var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
             console.log('reg', reg);
             if (reg.ROOT.error) {
