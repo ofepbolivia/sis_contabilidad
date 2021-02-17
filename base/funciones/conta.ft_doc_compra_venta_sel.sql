@@ -2139,7 +2139,7 @@ BEGIN
                                                 '||v_parametros.nit_linea_aerea||',
                                                 nombre_pasajero,
                                                 importe_total_venta,
-                                                moneda,
+                                                ''BOB''::varchar,
                                                 nit_ci_cli
                                          FROM sfe.tfactura
                                          WHERE  estado_reg = ''activo''
