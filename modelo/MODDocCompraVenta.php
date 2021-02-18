@@ -2885,6 +2885,56 @@ class MODDocCompraVenta extends MODbase
     }
     /**{developer:franklin.espinoza, date:05/02/2021, description: Listado de los archivos generados PDF}**/
 
+
+    /**{developer:franklin.espinoza, date:20/01/2021, description: Obtener Datos por Tipo Factura DBLink}**/
+    function getDataTipoDocumento(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento = 'conta.ft_doc_compra_venta_sel';
+        $this->transaccion = 'CONTA_G_FAC_TIP_SEL';
+        $this->tipo_procedimiento = 'SEL';//tipo de transaccion
+
+        $this->setCount(true);
+
+        $this->setParametro('fecha_desde', 'fecha_desde', 'date');
+        $this->setParametro('fecha_hasta', 'fecha_hasta', 'date');
+        $this->setParametro('tipo_show', 'tipo_show', 'varchar');
+
+
+        //Definicion de la lista del resultado del query
+
+        $this->captura('id_factura', 'integer');
+        $this->captura('fecha_factura', 'date');
+        $this->captura('nro_factura', 'varchar');
+        $this->captura('nro_autorizacion', 'varchar');
+        $this->captura('estado', 'varchar');
+        $this->captura('nit_ci_cli', 'varchar');
+        $this->captura('razon_social_cli', 'varchar');
+
+        $this->captura('importe_total_venta', 'numeric');
+        $this->captura('importe_otros_no_suj_iva', 'numeric');
+        $this->captura('exportacion_excentas', 'numeric');
+        $this->captura('ventas_tasa_cero', 'numeric');
+        $this->captura('descuento_rebaja_suj_iva', 'numeric');
+        $this->captura('importe_debito_fiscal', 'numeric');
+
+        $this->captura('codigo_control', 'varchar');
+        $this->captura('tipo_factura', 'varchar');
+        $this->captura('id_origen', 'integer');
+        $this->captura('sistema_origen', 'varchar');
+        $this->captura('desc_ruta', 'varchar');
+        $this->captura('revision_nit', 'varchar');
+        $this->captura('otr', 'varchar');
+
+
+        //Ejecuta la instruccion
+        $this->armarConsulta(); //echo ($this->consulta);exit;
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    /**{developer:franklin.espinoza, date:20/01/2021, description: Obtener Datos por Tipo Factura DBLink}**/
+
 }
 
 ?>

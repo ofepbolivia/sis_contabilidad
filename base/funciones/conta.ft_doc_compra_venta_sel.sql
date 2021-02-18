@@ -54,6 +54,7 @@ DECLARE
     --breydi.vasquez 09/02/2021 variable reporte Iata
     v_gestion_ini		integer;
     v_gestion_fin		integer;
+    v_filtro_correccion	varchar;
 BEGIN
 
 	v_nombre_funcion = 'conta.ft_doc_compra_venta_sel';
@@ -1681,6 +1682,7 @@ BEGIN
             from decr.tnota tnc
             where '||v_filtro;
 
+			v_consulta = v_consulta||' order by tnc.fecha asc, tnc.nro_nota::integer asc ';
             raise notice '%', v_consulta;
             --Devuelve la respuesta
             return v_consulta;
@@ -1753,7 +1755,7 @@ BEGIN
                                 id_origen,
                                 sistema_origen
                         from sfe.tfactura tfa
-                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date
+                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.estado_reg = ''''activo''''
                         order by tfa.fecha_factura asc --limit 100';
 
 
@@ -1770,7 +1772,9 @@ BEGIN
 
                                         (case when tipo_factura = ''manual'' and sistema_origen = ''ERP'' then
                                         (select tdos.nroaut from vef.tventa tve inner join vef.tdosificacion tdos on tdos.id_dosificacion = tve.id_dosificacion where tve.id_venta = id_origen)::varchar
-                                        else coalesce(nro_autorizacion,''''::varchar) end) nro_autorizacion,
+                                         when tipo_factura = ''computarizada'' and sistema_origen = ''ERP'' and estado = ''A'' and nro_autorizacion is null then
+                                        (select tdos.nroaut from vef.tventa tve inner join vef.tdosificacion tdos on tdos.id_dosificacion = tve.id_dosificacion where tve.id_venta = id_origen)::varchar
+                                        else coalesce(nro_autorizacion,''''::varchar) end ) nro_autorizacion,
 
                                         coalesce(estado,''''::varchar) estado,
                                         coalesce(nit_ci_cli,''''::varchar) nit_ci_cli,
@@ -1783,7 +1787,8 @@ BEGIN
                                         /*(coalesce(descuento_rebaja_suj_iva::numeric,0::numeric))::numeric*/ descuento_rebaja_suj_iva,
                                         /*(coalesce(importe_debito_fiscal::numeric,0::numeric))::numeric*/ importe_debito_fiscal,
 
-                                        codigo_control,
+                                        (case when codigo_control is null or codigo_control = '''' then ''0''
+                                        else codigo_control end ) codigo_control,
                                         tipo_factura,
                                         id_origen,
                                         sistema_origen
@@ -1847,6 +1852,8 @@ BEGIN
           	v_cadena_factura = 'hostaddr='||v_host||' port='||v_puerto||' dbname='||v_dbname||' user='||p_user||' password='||v_password;
 
             v_conexion = (select dblink_connect('db_facturas',v_cadena_factura));
+
+
 
            	--Sentencia de la consulta
 		  	v_consulta = 'select id_factura,
@@ -2239,9 +2246,188 @@ BEGIN
                         inner join segu.tusuario usu1 on usu1.id_usuario = tcd.id_usuario_reg
                         inner join orga.vfuncionario vf on vf.id_persona = usu1.id_persona
 
-                        where tcd.id_usuario_reg = '||p_id_usuario||' and tcd.estado_reg = ''inactivo'' and '||v_parametros.filtro;
+                        where tcd.id_usuario_reg = '||p_id_usuario||' and tcd.estado_reg != ''inactivo'' and '||v_parametros.filtro;
 
 
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+
+    /*********************************
+ 	#TRANSACCION:  'CONTA_G_FAC_TIPO_SEL'
+ 	#DESCRIPCION:	listado facturas de libro de ventas
+ 	#AUTOR:		franklin.espinoza
+ 	#FECHA:		10-01-2021 15:57:09
+	***********************************/
+
+	ELSEIF(p_transaccion='CONTA_G_FAC_TIP_SEL')then
+
+    	begin
+
+            v_fecha_ini = v_parametros.fecha_desde;
+            v_fecha_fin = v_parametros.fecha_hasta;
+            v_gestion =  date_part('year',v_fecha_ini);
+
+        	v_host     = pxp.f_get_variable_global('sincroniza_ip_facturacion');
+          	v_puerto   = pxp.f_get_variable_global('sincroniza_puerto_facturacion');
+          	v_dbname   = 'db_facturas_'||v_gestion;
+          	p_user     = pxp.f_get_variable_global('sincronizar_user_facturacion');
+          	v_password = pxp.f_get_variable_global('sincronizar_password_facturacion');
+
+          	v_cadena_factura = 'hostaddr='||v_host||' port='||v_puerto||' dbname='||v_dbname||' user='||p_user||' password='||v_password;
+
+            v_conexion = (select dblink_connect('db_facturas',v_cadena_factura));
+
+           	--Sentencia de la consulta
+		  	v_consulta = 'select id_factura,
+                                fecha_factura,
+                                nro_factura,
+                                nro_autorizacion,
+                                estado,
+                                nit_ci_cli,
+                                razon_social_cli,
+                                importe_total_venta,
+                                importe_otros_no_suj_iva,
+                                exportacion_excentas,
+                                ventas_tasa_cero,
+                                descuento_rebaja_suj_iva,
+                                importe_debito_fiscal,
+                                codigo_control,
+                                tipo_factura,
+                                id_origen,
+                                sistema_origen,
+                                desc_ruta,
+                                revision_nit,
+                                otr
+                        from sfe.tfactura tfa
+                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.estado_reg = ''''activo'''' and ';--order by tfa.fecha_factura asc
+            --raise 'cantidad: %, offset: %', v_parametros.cantidad, v_parametros.puntero;
+            v_parametros.filtro = regexp_replace(v_parametros.filtro, '''', '''''', 'g');
+            v_consulta = v_consulta||v_parametros.filtro;
+			v_consulta = v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+			--raise notice 'v_consulta: %',v_consulta;
+                if v_conexion != 'OK' then
+                      raise exception 'ERROR DE CONEXION A LA BASE DE DATOS CON DBLINK';
+                else
+
+                  --perform dblink_exec(v_cadena_factura,v_consulta,TRUE);
+
+                  v_consulta = 'select  id_factura,
+                   						fecha_factura,
+                                        nro_factura,
+                                        --nro_autorizacion,
+
+                                        (case when tipo_factura = ''manual'' and sistema_origen = ''ERP'' then
+                                        (select tdos.nroaut from vef.tventa tve inner join vef.tdosificacion tdos on tdos.id_dosificacion = tve.id_dosificacion where tve.id_venta = id_origen)::varchar
+                                         when tipo_factura = ''computarizada'' and sistema_origen = ''ERP'' and estado = ''ANULADA'' and nro_autorizacion is null then
+                                        (select tdos.nroaut from vef.tventa tve inner join vef.tdosificacion tdos on tdos.id_dosificacion = tve.id_dosificacion where tve.id_venta = id_origen)::varchar
+                                        else coalesce(nro_autorizacion,''''::varchar) end ) nro_autorizacion,
+
+                                        estado,
+                                        nit_ci_cli,
+                                        razon_social_cli,
+                                        coalesce(importe_total_venta,0) importe_total_venta,
+                                        coalesce(importe_otros_no_suj_iva,0) importe_otros_no_suj_iva,
+                                        coalesce(exportacion_excentas,0) exportacion_excentas,
+                                        coalesce(ventas_tasa_cero,0) ventas_tasa_cero,
+                                        coalesce(descuento_rebaja_suj_iva,0) descuento_rebaja_suj_iva,
+                                        coalesce(importe_debito_fiscal,0) importe_debito_fiscal,
+                                        coalesce(codigo_control,''''::varchar) codigo_control,
+                                        tipo_factura,
+                                        id_origen,
+                                        sistema_origen,
+                                        desc_ruta,
+                                		revision_nit,
+                                        otr
+
+                                 from dblink(''' || v_cadena_factura || ''', '''|| v_consulta ||''') as
+                            		fac(
+                            			id_factura integer,
+                                        fecha_factura date,
+                                        nro_factura varchar,
+                                        nro_autorizacion varchar,
+                                        estado varchar,
+                                        nit_ci_cli varchar,
+                                        razon_social_cli varchar,
+                                        importe_total_venta numeric,
+                                        importe_otros_no_suj_iva numeric,
+                                        exportacion_excentas numeric,
+                                        ventas_tasa_cero numeric,
+                                        descuento_rebaja_suj_iva numeric,
+                                        importe_debito_fiscal numeric,
+                                        codigo_control varchar,
+                                        tipo_factura varchar,
+                                        id_origen integer,
+                                        sistema_origen varchar,
+                                        desc_ruta varchar,
+                                		revision_nit varchar,
+                                        otr varchar
+                                    )
+                            ';
+
+                  v_conexion = (select dblink_disconnect('db_facturas'));
+
+                end if;
+
+			--v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+
+	/*********************************
+ 	#TRANSACCION:  'CONTA_GET_VENTA_CONT'
+ 	#DESCRIPCION:	listado para reporte de libro de ventas  desde formualrio
+ 	#AUTOR:		franklin.espinoza
+ 	#FECHA:		10-01-2021 15:57:09
+	***********************************/
+
+	ELSEIF(p_transaccion='CONTA_G_FAC_TIP_CONT')then
+
+    	begin
+        	--raise 'v_parametros: %', v_parametros;
+            v_fecha_ini = v_parametros.fecha_desde;
+            v_fecha_fin = v_parametros.fecha_hasta;
+            v_gestion =  date_part('year',v_fecha_ini);
+
+        	v_host     = pxp.f_get_variable_global('sincroniza_ip_facturacion');
+          	v_puerto   = pxp.f_get_variable_global('sincroniza_puerto_facturacion');
+          	v_dbname   = 'db_facturas_'||v_gestion;
+          	p_user     = pxp.f_get_variable_global('sincronizar_user_facturacion');
+          	v_password = pxp.f_get_variable_global('sincronizar_password_facturacion');
+
+          	v_cadena_factura = 'hostaddr='||v_host||' port='||v_puerto||' dbname='||v_dbname||' user='||p_user||' password='||v_password;
+
+            v_conexion = (select dblink_connect('db_facturas',v_cadena_factura));
+
+           	--Sentencia de la consulta
+		  	v_consulta = 'select count(id_factura) as contador
+                        from sfe.tfactura tfa
+                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and ';--order by tfa.fecha_factura asc
+
+            v_parametros.filtro = regexp_replace(v_parametros.filtro, '''', '''''', 'g');
+            v_consulta = v_consulta||v_parametros.filtro;
+
+                if v_conexion != 'OK' then
+                      raise exception 'ERROR DE CONEXION A LA BASE DE DATOS CON DBLINK';
+                else
+
+                  --perform dblink_exec(v_cadena_factura,v_consulta,TRUE);
+
+                  v_consulta = 'select  contador
+
+                                 from dblink(''' || v_cadena_factura || ''', '''|| v_consulta ||''') as
+                            		fac(
+                            			contador bigint
+                                    )
+                            ';
+
+                  v_conexion = (select dblink_disconnect('db_facturas'));
+
+                end if;
+
+			raise notice '%', v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
 

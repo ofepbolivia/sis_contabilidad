@@ -164,7 +164,7 @@ class RLibroDeVentas extends  ReportePDF {
 
 
         //armca caecera de la tabla
-        $conf_par_tablewidths=array(6,15,13,24,13,17,29,17,16,16,16,16,16,16,16,20);
+        $conf_par_tablewidths=array(10,15,16,24,10,15,29,17,16,16,16,16,16,16,16,20);
         $conf_par_tablealigns=array('C','C','C','C','C','C','C','C','C','C','C','C','C','C','C','C');
         $conf_par_tablenumbers=array(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
         $conf_tableborders=array();
@@ -237,7 +237,7 @@ class RLibroDeVentas extends  ReportePDF {
         $this->SetTextColor(0);
         $this->SetFont('','',6);
 
-        $conf_par_tablewidths=array(6,15,13,24,13,17,29,17,16,16,16,16,16,16,16,20);
+        $conf_par_tablewidths=array(10,15,16,24,10,15,29,17,16,16,16,16,16,16,16,20);
         $conf_par_tablealigns=array('C','C','L','C','C','L','L','R','R','R','R','R','R','R','R','L');
         $conf_par_tablenumbers=array(0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0);
         $conf_tableborders=array();//array('LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR');

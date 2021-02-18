@@ -97,8 +97,8 @@ header("content-type: text/javascript; charset=UTF-8");
                             //['endesis_erp','Libro de Compras Estandar'],
                             ['lcv_compras','Libro de Compras Estandar'],
                             ['lcv_ventas','Libro de Ventas Estandar'],
-                            //['LCNCD','Libro de Compras NCD'],
                             ['lcncd','Libro de Compras Notas Credito-Debito'],
+                            ['lvncd','Libro de Ventas Notas Credito-Debito'],
                             ['repo_iata', 'Iata']
                         ]
                     }),
