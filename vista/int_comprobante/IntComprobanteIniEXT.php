@@ -270,6 +270,10 @@ header("content-type: text/javascript; charset=UTF-8");
                 name: 'id_int_comprobante'
             },
             type: 'Field',
+            filters: {
+                pfiltro: 'incbte.id_int_comprobante',
+                type: 'string'
+            },
             bottom_filtro: true,
             form: false,
             grid: true
