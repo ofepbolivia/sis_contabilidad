@@ -2873,7 +2873,7 @@ class MODDocCompraVenta extends MODbase
         $this->captura('usr_reg', 'varchar');
         $this->captura('fecha_ini', 'date');
         $this->captura('fecha_fin', 'date');
-        $this->captura('format', 'varchar');
+        $this->captura('formato', 'varchar');
 
 
         //Ejecuta la instruccion
@@ -2893,11 +2893,19 @@ class MODDocCompraVenta extends MODbase
         $this->transaccion = 'CONTA_G_FAC_TIP_SEL';
         $this->tipo_procedimiento = 'SEL';//tipo de transaccion
 
-        $this->setCount(true);
-
         $this->setParametro('fecha_desde', 'fecha_desde', 'date');
         $this->setParametro('fecha_hasta', 'fecha_hasta', 'date');
         $this->setParametro('tipo_show', 'tipo_show', 'varchar');
+
+        $this->setCount(true);
+        $this->capturaCount('importe_total_venta','numeric');
+        $this->capturaCount('importe_otros_no_suj_iva','numeric');
+        $this->capturaCount('exportacion_excentas','numeric');
+        $this->capturaCount('ventas_tasa_cero','numeric');
+        $this->capturaCount('descuento_rebaja_suj_iva','numeric');
+        $this->capturaCount('importe_debito_fiscal','numeric');
+
+
 
 
         //Definicion de la lista del resultado del query
@@ -2934,6 +2942,49 @@ class MODDocCompraVenta extends MODbase
         return $this->respuesta;
     }
     /**{developer:franklin.espinoza, date:20/01/2021, description: Obtener Datos por Tipo Factura DBLink}**/
+
+    /**{developer:franklin.espinoza, date:20/01/2021 , description: Obtener Datos para el reporte Libro De Ventas NCD}**/
+    function reporteLibroVentaNCD(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento = 'conta.ft_doc_compra_venta_sel';
+        $this->transaccion = 'CONTA_LIBROVNCD_SEL';
+        $this->tipo_procedimiento = 'SEL';//tipo de transaccion
+
+        $this->setParametro('filtro_sql', 'filtro_sql', 'varchar');
+        $this->setParametro('id_periodo', 'id_periodo', 'integer');
+        $this->setParametro('tipo_lcv', 'tipo_lcv', 'varchar');
+        $this->setParametro('fecha_ini', 'fecha_ini', 'date');
+        $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+
+
+        //Definicion de la lista del resultado del query
+        $this->captura('fecha_nota', 'date');
+        $this->captura('num_nota', 'varchar');
+        $this->captura('num_autorizacion', 'bigint');
+        $this->captura('estado', 'varchar');
+        $this->captura('nit', 'varchar');
+        $this->captura('razon_social', 'varchar');
+        $this->captura('total_devuelto', 'numeric');
+        $this->captura('rc_iva', 'numeric');
+        $this->captura('codigo_control', 'varchar');
+        $this->captura('fecha_original', 'date');
+        $this->captura('num_factura', 'bigint');
+        $this->captura('billete', 'varchar');
+        $this->captura('importe_total', 'numeric');
+        $this->captura('gestion', 'integer');
+        $this->captura('periodo', 'varchar');
+        $this->captura('razon_empresa', 'varchar');
+        $this->captura('nit_empresa', 'varchar');
+        $this->captura('periodo_num', 'varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        //echo($this->consulta); exit;
+        $this->ejecutarConsulta();
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    /**{developer:franklin.espinoza, date:20/01/2021 , description: Obtener Datos para el reporte Libro De Ventas NCD}**/
 
 }
 

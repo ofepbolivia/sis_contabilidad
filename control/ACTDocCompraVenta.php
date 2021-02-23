@@ -997,6 +997,65 @@ class ACTDocCompraVenta extends ACTbase
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
     /**{developer:franklin.espinoza, date:05/02/2021, description: Listado de los archivos generados PDF}**/
+
+
+    /**{developer:franklin.espinoza, date:20/01/2021, description: Obtener Datos por Tipo Factura DBLink}**/
+    function getDataTipoDocumento(){
+
+        $this->objParam->defecto('ordenacion', 'fecha_factura');
+        $this->objParam->defecto('dir_ordenacion', 'asc');
+
+        $show = $this->objParam->getParametro('tipo_show');
+
+        if ( $show == 'COMPUTARIZADA' ) {
+            $this->objParam->addFiltro("tfa.tipo_factura in (''computarizada'',''Computarizada'') and tfa.sistema_origen in (''CARGA'', ''ERP'') ");
+        }
+
+        if ( $show == 'CARGA' ) {
+            $this->objParam->addFiltro("tfa.tipo_factura in (''computarizada'',''Computarizada'') and tfa.sistema_origen = ''CARGA'' ");
+        }
+
+        if ( $show == 'ERP' ) {
+            $this->objParam->addFiltro("tfa.tipo_factura in (''computarizada'',''Computarizada'') and tfa.sistema_origen = ''ERP''");
+        }
+
+        if ( $show == 'manual' ) {
+            $this->objParam->addFiltro("tfa.tipo_factura in (''" . $show ."'') and tfa.sistema_origen = ''ERP''");
+        }
+
+        if ( $show == 'BOLETOS' ) {
+            $this->objParam->addFiltro("tfa.tipo_factura in (''CANX'',''TKTT'',''CANN'',''EMDS'')");
+        }
+
+        if ( $show != 'COMPUTARIZADA' && $show != 'CARGA' && $show != 'ERP'  && $show != 'manual' && $show != 'BOLETOS') {
+            $this->objParam->addFiltro("tfa.tipo_factura in (''" . $this->objParam->getParametro('tipo_show')."'')");
+        }
+
+        if ($this->objParam->getParametro('tipoReporte') == 'excel_grid' || $this->objParam->getParametro('tipoReporte') == 'pdf_grid') {
+            $this->objReporte = new Reporte($this->objParam, $this);
+            $this->res = $this->objReporte->generarReporteListado('MODDocCompraVenta', 'getDataTipoDocumento');
+        } else {
+            $this->objFunc = $this->create('MODDocCompraVenta');
+            $this->res = $this->objFunc->getDataTipoDocumento($this->objParam);
+
+            $temp = Array();
+            $temp['razon_social_cli'] = 'TOTAL: ';
+            $temp['importe_total_venta'] = $this->res->extraData['importe_total_venta'];
+            $temp['importe_otros_no_suj_iva'] = $this->res->extraData['importe_otros_no_suj_iva'];
+            $temp['exportacion_excentas'] = $this->res->extraData['exportacion_excentas'];
+            $temp['ventas_tasa_cero'] = $this->res->extraData['ventas_tasa_cero'];
+            $temp['descuento_rebaja_suj_iva'] = $this->res->extraData['descuento_rebaja_suj_iva'];
+            $temp['importe_debito_fiscal'] = $this->res->extraData['importe_debito_fiscal'];
+
+            $temp['tipo_reg'] = 'summary';
+
+            //$this->res->total++;
+            $this->res->addLastRecDatos($temp);
+        }
+
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    /**{developer:franklin.espinoza, date:20/01/2021, description: Obtener Datos por Tipo Factura DBLink}**/
 }
 
 ?>

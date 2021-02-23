@@ -12,6 +12,7 @@ require_once(dirname(__FILE__).'/../reportes/RLcv.php');
 require_once(dirname(__FILE__).'/../reportes/RLcvVentas.php');
 require_once(dirname(__FILE__).'/../reportes/RLcvXls.php');
 require_once(dirname(__FILE__).'/../reportes/RLibroComprasNCDPDF.php');
+require_once(dirname(__FILE__).'/../reportes/RLibroVentasNCDPDF.php');
 require_once(dirname(__FILE__).'/../reportes/RLibroComprasNCDXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RLibroDeVentas.php');
 require_once(dirname(__FILE__).'/../reportes/RLibroDeVentasXLS.php');
@@ -75,11 +76,11 @@ class ACTDocCompraVentaForm extends ACTbase{
 
 
     function reporteLCV(){
-		
+
 
         if($this->objParam->getParametro('formato_reporte')=='pdf'){
 
-            if( 'lcncd' != $this->objParam->getParametro('tipo_lcv') ) {
+            if( 'lcncd' != $this->objParam->getParametro('tipo_lcv') && 'lvncd' != $this->objParam->getParametro('tipo_lcv') ) {
                 $nombreArchivo = uniqid(md5(session_id()).'Egresos') . '.pdf';
                 if($this->objParam->getParametro('tipo_lcv')=='endesis_erp'){
                     $dataSource = $this->recuperarDatosErpEndensisLCV();
@@ -99,11 +100,14 @@ class ACTDocCompraVentaForm extends ACTbase{
 
                 if( 'lcncd' == $this->objParam->getParametro('tipo_lcv') ){
                     $nombreArchivo = uniqid(md5(session_id()).'Libro Compras Notas C-D') . '.pdf';
+					$this->objFunc = $this->create('MODDocCompraVenta');
+					$this->res = $this->objFunc->reporteLibroCompraNCD($this->objParam);
                 }else{
                     $nombreArchivo = uniqid(md5(session_id()).'Libro Ventas Notas C-D') . '.pdf';
+					$this->objFunc = $this->create('MODDocCompraVenta');
+					$this->res = $this->objFunc->reporteLibroVentaNCD($this->objParam);
                 }
-                $this->objFunc = $this->create('MODDocCompraVenta');
-                $this->res = $this->objFunc->reporteLibroCompraNCD($this->objParam);
+
                 $this->datos = $this->res->getDatos();
             }
 
@@ -111,15 +115,19 @@ class ACTDocCompraVentaForm extends ACTbase{
             $tamano = 'LETTER';
             $orientacion = 'L';
 
-            if( 'lcncd' != $this->objParam->getParametro('tipo_lcv') ) {
+            if( 'lcncd' != $this->objParam->getParametro('tipo_lcv') && 'lvncd' != $this->objParam->getParametro('tipo_lcv')) {
 				if('lcv_ventas' == $this->objParam->getParametro('tipo_lcv')){
 					$titulo = 'LibroVentasEstandar';
 				}else{
 					$titulo = 'Consolidado';
 				}
             }else{
-                $titulo = 'Libro Compras Notas C-D';
-            }
+            	if ( 'lcncd' == $this->objParam->getParametro('tipo_lcv') ) {
+					$titulo = 'Libro Compras Notas C-D';
+				}else {
+					$titulo = 'Libro Ventas Notas C-D';
+				}
+			}
 
             $this->objParam->addParametro('orientacion',$orientacion);
             $this->objParam->addParametro('tamano',$tamano);
@@ -153,7 +161,7 @@ class ACTDocCompraVentaForm extends ACTbase{
 
 			}
 
-            if( 'lcncd' != $this->objParam->getParametro('tipo_lcv') ) {
+            if( 'lcncd' != $this->objParam->getParametro('tipo_lcv') && 'lvncd' != $this->objParam->getParametro('tipo_lcv') ) {
                 //Instancia la clase de pdf
                 if ($this->objParam->getParametro('tipo_lcv') == 'lcv_compras' || $this->objParam->getParametro('tipo_lcv') == 'endesis_erp') {
                     $reporte = new RLcv($this->objParam);
@@ -166,8 +174,13 @@ class ACTDocCompraVentaForm extends ACTbase{
                 }
                 $reporte->datosHeader($dataSource->getDatos(), $dataSource->extraData, $dataEntidad->getDatos(), $dataPeriodo->getDatos());
             }else{
-                $reporte = new RLibroComprasNCDPDF($this->objParam);
-                $reporte->setDatos($this->datos);
+            	if ('lcncd' == $this->objParam->getParametro('tipo_lcv')) {
+					$reporte = new RLibroComprasNCDPDF($this->objParam);
+					$reporte->setDatos($this->datos);
+				}else{
+					$reporte = new RLibroVentasNCDPDF($this->objParam);
+					$reporte->setDatos($this->datos);
+				}
             }
 
 			$reporte->generarReporte();
@@ -289,16 +302,41 @@ class ACTDocCompraVentaForm extends ACTbase{
                 }
                 //obtener titulo de reporte
                 if ( 'lcv_ventas' == $this->objParam->getParametro('tipo_lcv')){
-                    $titulo = 'LibroDeVentas';
+                    $titulo = 'LibroVentasEstandar';
                 }else {
                     $titulo = 'Lcv';
                 }
                 //Genera el nombre del archivo (aleatorio + titulo)
-                $nombreArchivo=uniqid(md5(session_id()).$titulo);
-                $nombreArchivo.='.xls';
+                //$nombreArchivo=uniqid(md5(session_id()).$titulo);
+				$nombreArchivo = uniqid('LibroVentasEstandar').'.xls';
+                //$nombreArchivo.='.xls';
 
                 $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
                 $this->objParam->addParametro('datos',$this->res->datos);
+
+				if ( 'lcv_ventas' == $this->objParam->getParametro('tipo_lcv') && true){
+
+					$NEW_LINE = "\r\n";
+
+					ignore_user_abort(true);
+
+					header('Connection: close' . $NEW_LINE);
+					header('Content-Encoding: none' . $NEW_LINE);
+					ob_start();
+
+					$this->mensajeExito=new Mensaje();
+					$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado '.$nombreArchivo,'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+					$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+					$size = ob_get_length();
+					header('Content-Length: ' . $size, TRUE);
+					ob_end_flush();
+					ob_flush();
+					flush();
+					session_write_close();
+
+				}
+
                 //Instancia la clase de excel
                 if ( 'lcv_ventas' == $this->objParam->getParametro('tipo_lcv')){
                     $this->objReporteFormato = new RLibroDeVentasXLS($this->objParam);
@@ -324,7 +362,94 @@ class ACTDocCompraVentaForm extends ACTbase{
             }
 
             $this->objReporteFormato->generarDatos();
-            $this->objReporteFormato->generarReporte();
+
+            $url_file_xls = $this->objReporteFormato->generarReporte(); //var_dump('$url_file',$url_file);exit;
+
+			if ( 'lcv_ventas' == $this->objParam->getParametro('tipo_lcv') && true){
+
+
+				/** Convertir a megas **/
+				$file_size = filesize($url_file_xls);
+				$units = array('B', 'KB', 'MB', 'GB', 'TB');
+
+				$bytes = max($file_size, 0);
+				$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+				$pow = min($pow, count($units) - 1);
+
+
+				$file_size = round($bytes, 2) . ' ' . $units[$pow];
+				/** Convertir a megas **/
+
+				//$url_absolute = './../../../reportes_generados/'.$nombreArchivo;
+				$url_absolute = $url_file_xls;
+
+				$cone = new conexion();
+				$link = $cone->conectarpdo();
+
+				$sql = "UPDATE  conta.tdocumento_generado SET
+                      estado_reg = 'OLD'
+                    WHERE format = 'xls' and estado_reg != 'inactivo'" ;
+
+				$stmt = $link->prepare($sql);
+				$stmt->execute();
+
+				$id_gestion = $this->objParam->getParametro('id_gestion');
+				$id_periodo = $this->objParam->getParametro('id_periodo');
+
+				if ( $id_gestion != '' && $id_periodo != '' ){
+
+					$sql = "select tper.periodo, tges.gestion
+                	from param.tperiodo tper
+                	inner join param.tgestion tges on tges.id_gestion = tper.id_gestion
+               	 	where  tper.id_periodo = ". $id_periodo." and tper.id_gestion = ".$id_gestion;
+
+					$registros = $link->prepare( $sql );
+					$registros->execute();
+					$registros = $registros->fetchAll( PDO::FETCH_OBJ );
+					$periodo = $registros[0]->periodo;
+					$gestion = $registros[0]->gestion;
+
+					$fecha_ini = date('d/m/Y', mktime(0,0,0, $periodo, 1, $gestion));
+					$dia = date("d", mktime(0,0,0, $periodo+1, 0, $gestion));
+					$fecha_fin = date('d/m/Y', mktime(0,0,0, $periodo, $dia, $gestion));
+
+				}else{
+					$fecha_ini = $this->objParam->getParametro('fecha_ini');
+					$fecha_fin = $this->objParam->getParametro('fecha_fin');
+				}
+
+				$sql = "INSERT INTO conta.tdocumento_generado(id_usuario_reg, url, size, fecha_generacion, file_name, format, estado_reg, fecha_ini, fecha_fin) VALUES (".$_SESSION["ss_id_usuario"]."::integer, '".$url_absolute."', '".$file_size."', now(), '".$nombreArchivo."', 'xls', 'NEW', '".$fecha_ini."'::date, '".$fecha_fin."'::date) ";
+
+				$stmt = $link->prepare($sql);
+				$stmt->execute();
+
+				/**enviar alert al usuario para indicar que el reporte ha sido generado**/
+				$evento = "enviarMensajeUsuario";
+
+				//mandamos datos al websocket
+				$data = array(
+					"mensaje" => 'Estimado Funcionario, su Reporte ya ha sido generado: '.$nombreArchivo,
+					"tipo_mensaje" => 'alert',
+					"titulo" => 'Alerta Reporte',
+					"id_usuario" => $_SESSION["ss_id_usuario"],
+					"destino" => 'Unico',
+					"evento" => $evento,
+					"url" => 'url_prueba'
+				);
+
+				$send = array(
+					"tipo" => "enviarMensajeUsuario",
+					"data" => $data
+				);
+
+				$usuarios_socket = $this->dispararEventoWS($send);
+
+				$usuarios_socket =json_decode($usuarios_socket, true);
+				/**enviar alert al usuario para indicar que el reporte ha sido generado**/
+				//chmod($url_move, 0777);
+				//copy ( $url_move, '/var/www/html/kerp/uploaded_files/sis_workflow/DocumentoWf/');
+				//copy ( $url_move, '/var/www/html/kerp/uploaded_files/sis_contabilidad/');
+			}
 
             $this->mensajeExito=new Mensaje();
             $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado', 'Se generó con éxito el reporte: '.$nombreArchivo,'control');
@@ -485,7 +610,7 @@ class ACTDocCompraVentaForm extends ACTbase{
          *  IMPRIME CUERPO
          **************************/
         foreach ($data as $val) {
-
+			$fecha_original = $val['fecha_original']==null ? '0': date("d/m/Y", strtotime( $val['fecha_original']));
             if($this->objParam->getParametro('tipo_lcv')=='lcncd'){
                 fwrite ($file,  "2".$separador.
                     $ctd.$separador.
@@ -498,7 +623,7 @@ class ACTDocCompraVentaForm extends ACTbase{
                     number_format($val['total_devuelto'],2,'.', '') .$separador.
                     number_format($val['rc_iva'],2,'.', '') .$separador.
                     $val['codigo_control'].$separador.
-                    date("d/m/Y", strtotime( $val['fecha_original'])).$separador.
+					$fecha_original.$separador.
                     $val['num_factura'].$separador.
                     $val['nroaut_anterior'].$separador.
                     number_format($val['importe_total'],2,'.', '')."\r\n");
@@ -880,11 +1005,11 @@ class ACTDocCompraVentaForm extends ACTbase{
 
 		foreach ($data as $val) {
 
-		    $subtotal = $val['importe_total_venta'] - $val['importe_otros_no_suj_iva'] - $val['exportacion_excentas'] - $val['ventas_tasa_cero'];
-		    $importe_debito = $subtotal - $val['descuento_rebaja_suj_iva'];
-		    $debito_fiscal = $importe_debito * 0.13;
+		    $subtotal = round($val['importe_total_venta'] - $val['importe_otros_no_suj_iva'] - $val['exportacion_excentas'] - $val['ventas_tasa_cero'], 2);
+		    $importe_debito = round($subtotal - $val['descuento_rebaja_suj_iva'], 2);
+		    $debito_fiscal = round($importe_debito * 0.13,2);
 		    $newDate = date("d/m/Y", strtotime( $val['fecha_factura']));
-
+			$codigo_control = $val['codigo_control']==null || $val['codigo_control']==NULL || $val['codigo_control'] == ''?'0':$val['codigo_control'];
 		    /*if ($this->objParam->getParametro('formato_reporte') == 'txt' && $row_counter <= 34){
                 fwrite ($file,  $ctd.
                     "    ".$newDate." ".
@@ -916,7 +1041,7 @@ class ACTDocCompraVentaForm extends ACTbase{
                     $val['descuento_rebaja_suj_iva'] . $separador .
                     $importe_debito . $separador .
                     $debito_fiscal . $separador .
-                    $val['codigo_control'] . "\r\n");
+					$codigo_control . "\r\n");
             //}
 		    /*if(in_array($row_counter/34,$lista)){
                 fwrite ($file,  "------------------------------------------------------------------------------------------------------------------------------------"."\r\n\n\n\n\n");

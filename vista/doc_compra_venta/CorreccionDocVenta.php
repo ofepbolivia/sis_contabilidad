@@ -121,9 +121,9 @@ header("content-type: text/javascript; charset=UTF-8");
             var record = this.store.getAt(rowIndex);
             var fieldName = grid.getColumnModel().getDataIndex(columnIndex); // Get field name
 
+console.log('grid', grid);
 
-
-            if (fieldName == 'nro_factura' && (this.tipo_show == 'PENDIENTE' || this.tipo_show == 'CORREGIDO')) {
+            if (fieldName == 'nro_factura' &&  (this.tipo_show == 'PENDIENTE' || this.tipo_show == 'CORREGIDO')) {
 
                 var rec = {maestro: this.getSelectedData()};
                 Phx.CP.loadWindows('../../../sis_contabilidad/vista/doc_compra_venta/CorreccionDocVentaLog.php',

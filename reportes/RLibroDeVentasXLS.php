@@ -1,4 +1,6 @@
 <?php
+set_time_limit(0);//avoid timeout
+ini_set('memory_limit','-1');
 class RLibroDeVentasXLS
 {
     private $docexcel;
@@ -11,8 +13,8 @@ class RLibroDeVentasXLS
     {
         $this->objParam = $objParam;
         $this->url_archivo = "../../../reportes_generados/".$this->objParam->getParametro('nombre_archivo');
-        ini_set('memory_limit','2G');
-        set_time_limit(1800);
+        //ini_set('memory_limit','2G');
+        //set_time_limit(1800);
         $cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_to_phpTemp;
         $cacheSettings = array('memoryCacheSize'  => '64MB');
         PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);
@@ -196,12 +198,11 @@ class RLibroDeVentasXLS
         }
     }
     function generarReporte(){
-
-        //$this->docexcel->setActiveSheetIndex(0);
+        //var_dump('$this->url_archivo', $this->url_archivo);exit;
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->docexcel, 'Excel2007');
         $this->objWriter->save($this->url_archivo);
         $this->imprimeCabecera(0);
-
+        return $this->url_archivo;
     }
 
 }

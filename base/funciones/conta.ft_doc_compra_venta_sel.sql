@@ -55,6 +55,8 @@ DECLARE
     v_gestion_ini		integer;
     v_gestion_fin		integer;
     v_filtro_correccion	varchar;
+
+    v_boletos_filtro    varchar = '';
 BEGIN
 
 	v_nombre_funcion = 'conta.ft_doc_compra_venta_sel';
@@ -1665,14 +1667,14 @@ BEGIN
               tnc.nro_nota::varchar as num_nota,
               tnc.nroaut as num_autorizacion,
               (case when tnc.estado = ''1'' then ''V'' else ''A'' end)::varchar as estado,
-              tnc.nit,
+              case when tnc.estado != ''1'' then ''0'' else tnc.nit end nit,
               (case when tnc.estado = ''1'' then tnc.razon else ''ANULADA'' end)::varchar as razon_social,
               tnc.total_devuelto::numeric,
               tnc.credfis::numeric as rc_iva,
-              tnc.codigo_control,
-              tnc.fecha_fac::date as fecha_original,
-              tnc.nrofac as num_factura,
-              tnc.nroaut_anterior,
+              case when tnc.estado != ''1'' then ''0'' else tnc.codigo_control end codigo_control,
+              case when tnc.estado != ''1'' then null else tnc.fecha_fac::date end fecha_original,
+              case when tnc.estado != ''1'' then ''0'' else tnc.nrofac end num_factura,
+              case when tnc.estado != ''1'' then ''0'' else tnc.nroaut_anterior end nroaut_anterior,
               (tnc.total_devuelto + tnc.excento)::numeric as importe_total,
               '||v_gestion||'::integer as gestion,
               param.f_literal_periodo('||v_id_periodo||') as periodo,
@@ -1688,6 +1690,83 @@ BEGIN
             return v_consulta;
 
         end;
+
+	/*********************************
+    #TRANSACCION:  'CONTA_LIBROVNCD_SEL'
+    #DESCRIPCION:	Reporte Libro de Ventas Notas de Credito-Debito
+    #AUTOR:		franklin.espinoza
+    #FECHA:		20-1-2021 10:10:09
+    ***********************************/
+    elsif(p_transaccion = 'CONTA_LIBROVNCD_SEL')then
+    	begin
+
+            if pxp.f_existe_parametro(p_tabla, 'filtro_sql') then
+              if 'periodo' = v_parametros.filtro_sql then
+                  select tper.fecha_ini, tper.fecha_fin
+                  into v_registros
+                  from param.tperiodo tper
+                  where tper.id_periodo = v_parametros.id_periodo;
+                  v_filtro = 'tnc.fecha between '''||v_registros.fecha_ini||'''::date and '''||v_registros.fecha_fin||'''::date';
+
+                  v_id_periodo = v_parametros.id_periodo;
+
+                  v_gestion = date_part('year', v_registros.fecha_ini);
+            	  v_periodo = date_part('month', v_registros.fecha_ini);
+              elsif 'fechas' = v_parametros.filtro_sql then
+                  v_filtro = 'tnc.fecha between '''||v_parametros.fecha_ini||'''::date and '''||v_parametros.fecha_fin||'''::date';
+
+                  v_gestion = date_part('year', v_parametros.fecha_ini);
+            	  v_periodo = date_part('month', v_parametros.fecha_ini);
+
+                  select tg.id_gestion
+                  into v_id_gestion
+                  from param.tgestion tg
+                  where tg.gestion = v_gestion;
+
+                  select tper.id_periodo
+                  into v_id_periodo
+                  from param.tperiodo tper
+                  where tper.id_gestion = v_id_gestion and tper.periodo = v_periodo;
+
+              end if;
+            end if;
+
+            select tem.nombre, tem.nit
+            into v_registros
+            from param.tempresa tem
+            where tem.codigo = '578';
+
+            --Sentencia de la consulta de conteo de registros
+            v_consulta:='select
+              tnc.fecha::date as fecha_nota,
+              tnc.nro_nota::varchar as num_nota,
+              tnc.nroaut as num_autorizacion,
+              (case when tnc.estado = ''1'' then ''V'' else ''A'' end)::varchar as estado,
+              tnc.nit,
+              (case when tnc.estado = ''1'' then tnc.razon else ''ANULADA'' end)::varchar as razon_social,
+
+              tnc.total_devuelto::numeric,
+              tnc.credfis::numeric as rc_iva,
+              tnc.codigo_control,
+              tnc.fecha_fac::date as fecha_original,
+              tnc.nrofac as num_factura,
+              tnc.billete,
+              (tnc.total_devuelto + tnc.excento)::numeric as importe_total,
+              '||v_gestion||'::integer as gestion,
+              param.f_literal_periodo('||v_id_periodo||') as periodo,
+              '''||v_registros.nombre||'''::varchar as razon_empresa,
+              '''||v_registros.nit||'''::varchar as nit_empresa,
+              '''||v_periodo||'''::varchar as periodo_num
+            from decr.tnota_agencia tnc
+            where '||v_filtro;
+
+			v_consulta = v_consulta||' order by tnc.fecha asc, tnc.nro_nota::integer asc ';
+            raise notice '%', v_consulta;
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+
     /*********************************
  	#TRANSACCION:  'CONTA_R_LIB_VEN_SEL'
  	#DESCRIPCION:	listado para reporte de libro de ventas  desde formualrio
@@ -1728,19 +1807,40 @@ BEGIN
             --raise 'fin';
             v_conexion = (select dblink_connect('db_facturas',v_cadena_factura));
 
+            v_boletos_filtro = 'nro_factura not in (
+            										''''9302404259855'''', ''''9302404527013'''', ''''9302404527028'''', ''''9302404527029'''', ''''9302404527101'''',
+                                                    ''''9302404527408'''', ''''9302404527409'''', ''''9302404527410'''', ''''9302404617007'''', ''''9302404617008'''',
+                                                    ''''9302404527411'''', ''''9302404527458'''', ''''9302404527530'''', ''''9302404527535'''', ''''9302404527536'''',
+                                                    ''''9302404527670'''', ''''9302404597893'''', ''''9302404597894'''', ''''9302404628354'''', ''''9303852514552'''',
+                                                    ''''9302404597915'''', ''''9302404597916'''', ''''9302404597918'''', ''''9302404612749'''', ''''9302404617006'''',
+                                                    ''''9302404534843'''', ''''9302404534845'''', ''''9302404534848'''', ''''9304550144895'''', ''''9304550144896'''',
+                                                    ''''9302404533178'''', ''''9302404533179'''', ''''9302404533180'''', ''''9302404533181'''', ''''9302404533182'''',
+                                                    ''''9302404533183'''', ''''9302404533184'''', ''''9302404533185'''', ''''9302404533186'''', ''''9302404533187'''',
+                                                    ''''9302404533188'''', ''''9302404533189'''', ''''9302404533190'''', ''''9302404533191'''', ''''9302404533192'''',
+                                                    ''''9302404533193'''', ''''9302404533194'''', ''''9304550144897'''', ''''9302404551977'''', ''''9302404551978'''',
+                                                    ''''9302404551979'''', ''''9302404591149'''', ''''9302404527408'''', ''''9302404527409'''', ''''9302404527410'''',
+                                                    ''''9302404527411'''', ''''9307592617064'''', ''''9307592617065'''', ''''9302404527458'''', ''''9302404591528'''',
+													''''9302404591529'''', ''''9302404527530'''', ''''9302404527535'''', ''''9302404527536'''', ''''9307592763246'''',
+													''''9307592763247'''', ''''9307592763248'''', ''''9307592763249'''', ''''9307592763250'''', ''''9302404597918'''',
+                                                    ''''9302404244964'''', ''''9302404244965'''', ''''9302404244966'''', ''''9302404244967'''', ''''9302404244968'''',
+                                                    ''''9302404244969'''', ''''9302404617006'''', ''''9302404617007'''', ''''9302404617008'''', ''''9302404597893'''',
+                                                    ''''9302404597894'''', ''''9302404597915'''', ''''9302404597916'''', ''''9302404628354'''', ''''9302404614748'''',
+                                                    ''''9302404527670'''', ''''9302404641101'''', ''''9302404641102'''')';
+
            	--Sentencia de la consulta
 		  	v_consulta = 'select id_factura,
                                 fecha_factura,
                                 trim(nro_factura) nro_factura,
-                                trim(nro_autorizacion) nro_autorizacion,
+                                case when nro_autorizacion is null or trim(nro_autorizacion) = '''''''' then ''''0'''' else trim(nro_autorizacion) end nro_autorizacion,
                                 (case when trim(estado) = ''''ANULADA'''' then ''''A''''
                                 	  when trim(estado) = ''''VIGENTE'''' or trim(estado) = ''''VÁLIDA''''  then ''''V''''
                                       when trim(estado) = ''''EXTRAVIADA'''' then ''''E''''
                                       when trim(estado) = ''''NO UTILIZADA'''' then ''''N''''
+                                      when trim(estado) = ''''CONTINGENCIA'''' and (coalesce(importe_total_venta,0.00::numeric))::numeric = 0 then ''''A''''
                                       when trim(estado) = ''''CONTINGENCIA'''' then ''''C''''
                                       when trim(estado) = ''''LIBRE CONSIGNACION'''' then ''''L''''
                                       else trim(estado) end)::varchar estado,
-                                trim(nit_ci_cli) nit_ci_cli,
+                                case when length( nit_ci_cli) > 13 then substr(nit_ci_cli,1,13) else trim(nit_ci_cli) end nit_ci_cli,
                                 trim(razon_social_cli) razon_social_cli,
 
                                 (coalesce(importe_total_venta,0.00::numeric))::numeric importe_total_venta,
@@ -1750,12 +1850,12 @@ BEGIN
                                 (coalesce(descuento_rebaja_suj_iva,0.00::numeric))::numeric descuento_rebaja_suj_iva,
                                 (coalesce(importe_debito_fiscal,0.00::numeric))::numeric importe_debito_fiscal,
 
-                                (coalesce(codigo_control,''''''''))::varchar codigo_control,
+                                case when (coalesce(codigo_control,''''0''''))::varchar = ''''NULL''''  then ''''0'''' else (coalesce(codigo_control,''''0''''))::varchar end  codigo_control,
                                 (coalesce(tipo_factura,''''''''))::varchar tipo_factura,
                                 id_origen,
                                 sistema_origen
                         from sfe.tfactura tfa
-                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.estado_reg = ''''activo''''
+                        where '||v_boletos_filtro||' and tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.estado_reg = ''''activo''''
                         order by tfa.fecha_factura asc --limit 100';
 
 
@@ -1770,7 +1870,47 @@ BEGIN
 
                                         coalesce(nro_factura,''''::varchar) nro_factura,
 
-                                        (case when tipo_factura = ''manual'' and sistema_origen = ''ERP'' then
+                                        (case when tipo_factura = ''manual'' and sistema_origen = ''ERP'' and id_factura not in (''1201'',
+''1211'',
+''1213'',
+''1215'',
+''1216'',
+''1217'',
+''1224'',
+''1226'',
+''1229'',
+''1230'',
+''1232'',
+''1233'',
+''1234'',
+''1235'',
+''1236'',
+''1237'',
+''1238'',
+''1241'',
+''1242'',
+''1243'',
+''1244'',
+''1245'',
+''1246'',
+''1247'',
+''1248'',
+''1249'',
+''1250'',
+''1254'',
+''1255'',
+''1256'',
+''1257'',
+''1259'',
+''1260'',
+''1659'',
+
+''177536'',
+''177537'',
+''177526'',
+''177527'',
+''177534'',
+''177535'') then
                                         (select tdos.nroaut from vef.tventa tve inner join vef.tdosificacion tdos on tdos.id_dosificacion = tve.id_dosificacion where tve.id_venta = id_origen)::varchar
                                          when tipo_factura = ''computarizada'' and sistema_origen = ''ERP'' and estado = ''A'' and nro_autorizacion is null then
                                         (select tdos.nroaut from vef.tventa tve inner join vef.tdosificacion tdos on tdos.id_dosificacion = tve.id_dosificacion where tve.id_venta = id_origen)::varchar
@@ -1814,8 +1954,8 @@ BEGIN
                                         tipo_factura varchar,
                                         id_origen integer,
                                         sistema_origen varchar
-                                    )
-                                 order by fecha_factura asc
+                                    )--where  nro_factura not in (select from vef.tboletos_asociados_fact  where fecha_factura between '''||v_fecha_ini||'''::date and '''||v_fecha_fin||'''::date )
+                                    order by fecha_factura asc, nro_factura asc
                             ';
 
                   v_conexion = (select dblink_disconnect('db_facturas'));
@@ -1877,7 +2017,7 @@ BEGIN
                                 revision_nit,
                                 otr
                         from sfe.tfactura tfa
-                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.revision_nit = '''''||v_parametros.tipo_show||''''' and ';--order by tfa.fecha_factura asc
+                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and case when '''''||v_parametros.tipo_show||''''' = ''''CORRECTO'''' then tfa.revision_nit in (''''CORREGIDO'''',''''CORRECTO'''') else tfa.revision_nit = '''''||v_parametros.tipo_show||''''' end and ';
             --raise 'cantidad: %, offset: %', v_parametros.cantidad, v_parametros.puntero;
             v_parametros.filtro = regexp_replace(v_parametros.filtro, '''', '''''', 'g');
             v_consulta = v_consulta||v_parametros.filtro;
@@ -1973,7 +2113,7 @@ BEGIN
            	--Sentencia de la consulta
 		  	v_consulta = 'select count(id_factura) as contador
                         from sfe.tfactura tfa
-                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.revision_nit = '''''||v_parametros.tipo_show||''''' and  ';--order by tfa.fecha_factura asc
+                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and case when '''''||v_parametros.tipo_show||''''' = ''''CORRECTO'''' then tfa.revision_nit in (''''CORREGIDO'''',''''CORRECTO'''') else tfa.revision_nit = '''''||v_parametros.tipo_show||''''' end and  ';--order by tfa.fecha_factura asc
 
             v_parametros.filtro = regexp_replace(v_parametros.filtro, '''', '''''', 'g');
             v_consulta = v_consulta||v_parametros.filtro;
@@ -2147,7 +2287,7 @@ BEGIN
                                                 nombre_pasajero,
                                                 importe_total_venta,
                                                 ''BOB''::varchar,
-                                                nit_ci_cli
+                                                case when length( nit_ci_cli) > 13 then substr(nit_ci_cli,1,13) else trim(nit_ci_cli) end nit_ci_cli
                                          FROM sfe.tfactura
                                          WHERE  estado_reg = ''activo''
 									                               AND  sistema_origen = ''STAGE DB''
@@ -2211,7 +2351,7 @@ BEGIN
                                 vf.desc_funcionario2::varchar as usr_reg,
                                 tcd.fecha_ini,
                                 tcd.fecha_fin,
-                                tcd.format
+                                tcd.format formato
 
                         from conta.tdocumento_generado tcd
 
@@ -2279,6 +2419,27 @@ BEGIN
 
             v_conexion = (select dblink_connect('db_facturas',v_cadena_factura));
 
+			v_boletos_filtro = 'nro_factura not in (
+            										''''9302404259855'''', ''''9302404527013'''', ''''9302404527028'''', ''''9302404527029'''', ''''9302404527101'''',
+                                                    ''''9302404527408'''', ''''9302404527409'''', ''''9302404527410'''', ''''9302404617007'''', ''''9302404617008'''',
+                                                    ''''9302404527411'''', ''''9302404527458'''', ''''9302404527530'''', ''''9302404527535'''', ''''9302404527536'''',
+                                                    ''''9302404527670'''', ''''9302404597893'''', ''''9302404597894'''', ''''9302404628354'''', ''''9303852514552'''',
+                                                    ''''9302404597915'''', ''''9302404597916'''', ''''9302404597918'''', ''''9302404612749'''', ''''9302404617006'''',
+                                                    ''''9302404534843'''', ''''9302404534845'''', ''''9302404534848'''', ''''9304550144895'''', ''''9304550144896'''',
+                                                    ''''9302404533178'''', ''''9302404533179'''', ''''9302404533180'''', ''''9302404533181'''', ''''9302404533182'''',
+                                                    ''''9302404533183'''', ''''9302404533184'''', ''''9302404533185'''', ''''9302404533186'''', ''''9302404533187'''',
+                                                    ''''9302404533188'''', ''''9302404533189'''', ''''9302404533190'''', ''''9302404533191'''', ''''9302404533192'''',
+                                                    ''''9302404533193'''', ''''9302404533194'''', ''''9304550144897'''', ''''9302404551977'''', ''''9302404551978'''',
+                                                    ''''9302404551979'''', ''''9302404591149'''', ''''9302404527408'''', ''''9302404527409'''', ''''9302404527410'''',
+                                                    ''''9302404527411'''', ''''9307592617064'''', ''''9307592617065'''', ''''9302404527458'''', ''''9302404591528'''',
+													''''9302404591529'''', ''''9302404527530'''', ''''9302404527535'''', ''''9302404527536'''', ''''9307592763246'''',
+													''''9307592763247'''', ''''9307592763248'''', ''''9307592763249'''', ''''9307592763250'''', ''''9302404597918'''',
+                                                    ''''9302404244964'''', ''''9302404244965'''', ''''9302404244966'''', ''''9302404244967'''', ''''9302404244968'''',
+                                                    ''''9302404244969'''', ''''9302404617006'''', ''''9302404617007'''', ''''9302404617008'''', ''''9302404597893'''',
+                                                    ''''9302404597894'''', ''''9302404597915'''', ''''9302404597916'''', ''''9302404628354'''', ''''9302404614748'''',
+                                                    ''''9302404527670'''', ''''9302404641101'''', ''''9302404641102''''
+                                                    )';
+
            	--Sentencia de la consulta
 		  	v_consulta = 'select id_factura,
                                 fecha_factura,
@@ -2301,7 +2462,7 @@ BEGIN
                                 revision_nit,
                                 otr
                         from sfe.tfactura tfa
-                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.estado_reg = ''''activo'''' and ';--order by tfa.fecha_factura asc
+                        where '||v_boletos_filtro||' and tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.estado_reg = ''''activo'''' and ';--order by tfa.fecha_factura asc
             --raise 'cantidad: %, offset: %', v_parametros.cantidad, v_parametros.puntero;
             v_parametros.filtro = regexp_replace(v_parametros.filtro, '''', '''''', 'g');
             v_consulta = v_consulta||v_parametros.filtro;
@@ -2310,6 +2471,7 @@ BEGIN
                 if v_conexion != 'OK' then
                       raise exception 'ERROR DE CONEXION A LA BASE DE DATOS CON DBLINK';
                 else
+
 
                   --perform dblink_exec(v_cadena_factura,v_consulta,TRUE);
 
@@ -2322,7 +2484,7 @@ BEGIN
                                         (select tdos.nroaut from vef.tventa tve inner join vef.tdosificacion tdos on tdos.id_dosificacion = tve.id_dosificacion where tve.id_venta = id_origen)::varchar
                                          when tipo_factura = ''computarizada'' and sistema_origen = ''ERP'' and estado = ''ANULADA'' and nro_autorizacion is null then
                                         (select tdos.nroaut from vef.tventa tve inner join vef.tdosificacion tdos on tdos.id_dosificacion = tve.id_dosificacion where tve.id_venta = id_origen)::varchar
-                                        else coalesce(nro_autorizacion,''''::varchar) end ) nro_autorizacion,
+                                        else coalesce(nro_autorizacion,''0''::varchar) end ) nro_autorizacion,
 
                                         estado,
                                         nit_ci_cli,
@@ -2333,7 +2495,7 @@ BEGIN
                                         coalesce(ventas_tasa_cero,0) ventas_tasa_cero,
                                         coalesce(descuento_rebaja_suj_iva,0) descuento_rebaja_suj_iva,
                                         coalesce(importe_debito_fiscal,0) importe_debito_fiscal,
-                                        coalesce(codigo_control,''''::varchar) codigo_control,
+                                        coalesce(codigo_control,''0''::varchar) codigo_control,
                                         tipo_factura,
                                         id_origen,
                                         sistema_origen,
@@ -2363,7 +2525,7 @@ BEGIN
                                         desc_ruta varchar,
                                 		revision_nit varchar,
                                         otr varchar
-                                    )
+                                    ) order by fecha_factura asc, nro_factura asc
                             ';
 
                   v_conexion = (select dblink_disconnect('db_facturas'));
@@ -2377,7 +2539,7 @@ BEGIN
 		end;
 
 	/*********************************
- 	#TRANSACCION:  'CONTA_GET_VENTA_CONT'
+ 	#TRANSACCION:  'CONTA_G_FAC_TIP_CONT'
  	#DESCRIPCION:	listado para reporte de libro de ventas  desde formualrio
  	#AUTOR:		franklin.espinoza
  	#FECHA:		10-01-2021 15:57:09
@@ -2401,10 +2563,40 @@ BEGIN
 
             v_conexion = (select dblink_connect('db_facturas',v_cadena_factura));
 
+
+            v_boletos_filtro = 'nro_factura not in (
+            										''''9302404259855'''', ''''9302404527013'''', ''''9302404527028'''', ''''9302404527029'''', ''''9302404527101'''',
+                                                    ''''9302404527408'''', ''''9302404527409'''', ''''9302404527410'''', ''''9302404617007'''', ''''9302404617008'''',
+                                                    ''''9302404527411'''', ''''9302404527458'''', ''''9302404527530'''', ''''9302404527535'''', ''''9302404527536'''',
+                                                    ''''9302404527670'''', ''''9302404597893'''', ''''9302404597894'''', ''''9302404628354'''', ''''9303852514552'''',
+                                                    ''''9302404597915'''', ''''9302404597916'''', ''''9302404597918'''', ''''9302404612749'''', ''''9302404617006'''',
+                                                    ''''9302404534843'''', ''''9302404534845'''', ''''9302404534848'''', ''''9304550144895'''', ''''9304550144896'''',
+                                                    ''''9302404533178'''', ''''9302404533179'''', ''''9302404533180'''', ''''9302404533181'''', ''''9302404533182'''',
+                                                    ''''9302404533183'''', ''''9302404533184'''', ''''9302404533185'''', ''''9302404533186'''', ''''9302404533187'''',
+                                                    ''''9302404533188'''', ''''9302404533189'''', ''''9302404533190'''', ''''9302404533191'''', ''''9302404533192'''',
+                                                    ''''9302404533193'''', ''''9302404533194'''', ''''9304550144897'''', ''''9302404551977'''', ''''9302404551978'''',
+                                                    ''''9302404551979'''', ''''9302404591149'''', ''''9302404527408'''', ''''9302404527409'''', ''''9302404527410'''',
+                                                    ''''9302404527411'''', ''''9307592617064'''', ''''9307592617065'''', ''''9302404527458'''', ''''9302404591528'''',
+													''''9302404591529'''', ''''9302404527530'''', ''''9302404527535'''', ''''9302404527536'''', ''''9307592763246'''',
+													''''9307592763247'''', ''''9307592763248'''', ''''9307592763249'''', ''''9307592763250'''', ''''9302404597918'''',
+                                                    ''''9302404244964'''', ''''9302404244965'''', ''''9302404244966'''', ''''9302404244967'''', ''''9302404244968'''',
+                                                    ''''9302404244969'''', ''''9302404617006'''', ''''9302404617007'''', ''''9302404617008'''', ''''9302404597893'''',
+                                                    ''''9302404597894'''', ''''9302404597915'''', ''''9302404597916'''', ''''9302404628354'''', ''''9302404614748'''',
+                                                    ''''9302404527670'''', ''''9302404641101'''', ''''9302404641102''''
+                                                    )';
+
            	--Sentencia de la consulta
-		  	v_consulta = 'select count(id_factura) as contador
+		  	v_consulta = 'select count(id_factura) as contador,
+
+              			  sum(importe_total_venta) importe_total_venta,
+                          sum(importe_otros_no_suj_iva) importe_otros_no_suj_iva,
+                          sum(exportacion_excentas) exportacion_excentas,
+                          sum(ventas_tasa_cero) ventas_tasa_cero,
+                          sum(descuento_rebaja_suj_iva) descuento_rebaja_suj_iva,
+                          sum(importe_debito_fiscal) importe_debito_fiscal
+
                         from sfe.tfactura tfa
-                        where tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and ';--order by tfa.fecha_factura asc
+                        where '||v_boletos_filtro||' and tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.estado_reg = ''''activo'''' and ';--order by tfa.fecha_factura asc
 
             v_parametros.filtro = regexp_replace(v_parametros.filtro, '''', '''''', 'g');
             v_consulta = v_consulta||v_parametros.filtro;
@@ -2415,13 +2607,24 @@ BEGIN
 
                   --perform dblink_exec(v_cadena_factura,v_consulta,TRUE);
 
-                  v_consulta = 'select  contador
+                  v_consulta = 'select  contador,
+                  						importe_total_venta,
+                  						importe_otros_no_suj_iva,
+                                        exportacion_excentas,
+                                        ventas_tasa_cero,
+                                        descuento_rebaja_suj_iva,
+                                        importe_debito_fiscal
 
                                  from dblink(''' || v_cadena_factura || ''', '''|| v_consulta ||''') as
                             		fac(
-                            			contador bigint
-                                    )
-                            ';
+                            			contador bigint,
+                                        importe_total_venta numeric,
+                                        importe_otros_no_suj_iva numeric,
+                                        exportacion_excentas numeric,
+                                        ventas_tasa_cero numeric,
+                                        descuento_rebaja_suj_iva numeric,
+                                        importe_debito_fiscal numeric
+                                    )';
 
                   v_conexion = (select dblink_disconnect('db_facturas'));
 
