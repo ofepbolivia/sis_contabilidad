@@ -2292,7 +2292,7 @@ BEGIN
                                          WHERE  estado_reg = ''activo''
 									                               AND  sistema_origen = ''STAGE DB''
                                                  AND  estado = ''VIGENTE''
-                                                 AND  tipo_venta in (''ATO'', ''NO-IATA'', ''CTO'')
+                                                 AND  tipo_venta in (''ATO'', ''NO-IATA'', ''CTO'', ''EMPRESAS'', ''GOBIERNO'', ''FERIA'', ''HELP DESK'', ''TRAINING'', ''CONTACT CENTER'', ''ARC'', ''WEB'')
                                                  AND tipo_factura = ''TKTT''
                                          AND '||v_filtro||'
                                          order by fecha_factura ASC, nro_factura ASC
