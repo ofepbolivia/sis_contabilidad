@@ -2237,7 +2237,7 @@ BEGIN
                   v_filtro = ' fecha_factura between '''||v_parametros.fecha_ini||'''::date and '''||v_parametros.fecha_fin::date||'''::date';
 
                   v_gestion_ini = date_part('year', v_parametros.fecha_ini::date);
-                  v_gestion_fin = date_part('year', v_parametros.fecha_fin::date
+                  v_gestion_fin = date_part('year', v_parametros.fecha_fin::date);
 
                   v_fecha_ini = v_parametros.fecha_ini;
 
