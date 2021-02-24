@@ -2230,12 +2230,16 @@ BEGIN
                   v_gestion_ini = date_part('year', v_registros.fecha_ini);
                   v_gestion_fin = date_part('year', v_registros.fecha_fin);
 
+                  v_fecha_ini = v_registros.fecha_ini;
+
               ELSIF 'fechas' = v_parametros.filtro_sql THEN
 
                   v_filtro = ' fecha_factura between '''||v_parametros.fecha_ini||'''::date and '''||v_parametros.fecha_fin::date||'''::date';
 
                   v_gestion_ini = date_part('year', v_parametros.fecha_ini::date);
-                  v_gestion_fin = date_part('year', v_parametros.fecha_fin::date);
+                  v_gestion_fin = date_part('year', v_parametros.fecha_fin::date
+
+                  v_fecha_ini = v_parametros.fecha_ini;
 
               END IF;
 
@@ -2256,7 +2260,9 @@ BEGIN
                                                 nombre_pasajero			text,
                                                 t_iva					numeric(18,2),
                                                 moneda					varchar(3),
-                                                nit_ci_beneficiario		varchar
+                                                nit_ci_beneficiario		varchar,
+                                                venta_propia      varchar(50),
+                                                id_origen         integer
 
         	)on commit drop;
 
@@ -2287,13 +2293,18 @@ BEGIN
                                                 nombre_pasajero,
                                                 importe_total_venta,
                                                 ''BOB''::varchar,
-                                                case when length( nit_ci_cli) > 13 then substr(nit_ci_cli,1,13) else trim(nit_ci_cli) end nit_ci_cli
-                                         FROM sfe.tfactura
-                                         WHERE  estado_reg = ''activo''
-									                               AND  sistema_origen = ''STAGE DB''
-                                                 AND  estado = ''VIGENTE''
-                                                 AND  tipo_venta in (''ATO'', ''NO-IATA'', ''CTO'', ''EMPRESAS'', ''GOBIERNO'', ''FERIA'', ''HELP DESK'', ''TRAINING'', ''CONTACT CENTER'', ''ARC'', ''WEB'')
-                                                 AND tipo_factura = ''TKTT''
+                                                case when length( nit_ci_cli) > 13 then substr(nit_ci_cli,1,13) else trim(nit_ci_cli) end nit_ci_cli,
+                                                case when tipo_venta in (''IATA'') and pais_emision = ''BO'' then
+                                                  ''no_propia''
+                                                else
+                                                  ''propia''
+                                                end venta_propia,
+                                                id_origen
+                                          FROM sfe.tfactura
+                                          WHERE  estado_reg = ''activo''
+                                          AND  sistema_origen = ''STAGE DB''
+                                          AND  estado = ''VIGENTE''
+                                          AND tipo_factura in (''TKTT'', ''EMDS'')
                                          AND '||v_filtro||'
                                          order by fecha_factura ASC, nro_factura ASC
                                          ')
@@ -2306,24 +2317,46 @@ BEGIN
                                   nombre_pasajero		text,
                                   t_iva					numeric(18,2),
                                   moneda				varchar(3),
-                                  nit_ci_beneficiario	varchar);
+                                  nit_ci_beneficiario	varchar,
+                                  venta_propia      varchar,
+                                  id_origen         integer);
 
             v_conexion = (select dblink_disconnect('db_facturas'));
 
           	END IF;
 
-            v_consulta:='
-                        SELECT TO_JSON(ROW_TO_JSON(jsonD) :: TEXT) #>> ''{}'' AS jsonData
-                        FROM (
-                               SELECT
-                                 (
-                                   SELECT ARRAY_TO_JSON(ARRAY_AGG(ROW_TO_JSON(t_iata))) as data
-                                   FROM
-                                     ( SELECT * FROM tfactura_temp_iata
-                                     ) t_iata
-                                 )
-                             ) jsonD';
+            IF v_fecha_ini < '2021-02-01' THEN
+                v_consulta:='
+                            SELECT TO_JSON(ROW_TO_JSON(jsonD) :: TEXT) #>> ''{}'' AS jsonData
+                            FROM (
+                                   SELECT
+                                     (
+                                       SELECT ARRAY_TO_JSON(ARRAY_AGG(ROW_TO_JSON(t_iata))) as data
+                                       FROM
+                                         ( SELECT * FROM tfactura_temp_iata
+                                                    where venta_propia = ''propia''
+                                         ) t_iata
+                                     )
+                                 ) jsonD';
+             ELSE
 
+             v_consulta:='
+                         SELECT TO_JSON(ROW_TO_JSON(jsonD) :: TEXT) #>> ''{}'' AS jsonData
+                         FROM (
+                                SELECT
+                                  (
+                                    SELECT ARRAY_TO_JSON(ARRAY_AGG(ROW_TO_JSON(t_iata))) as data
+                                    FROM
+                                      ( SELECT * FROM tfactura_temp_iata
+                                         where venta_propia = ''propia''
+
+                                         and nro_factura not in (select  bf.nro_boleto from vef.tboletos_asociados_fact bf
+                                           inner join vef.tventa v on v.id_venta = bf.id_venta
+                                           where v.estado = ''finalizado'' and v.tipo_factura in (''manual'', ''computarizada'')
+                                      ) t_iata
+                                  )
+                              ) jsonD';
+               END IF;
 
 			--Devuelve la respuesta
 			return v_consulta;

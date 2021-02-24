@@ -1132,7 +1132,7 @@ function crearArchivoExportacionIata($datos, $parm, $nit_linea_aerea, $cod_iata)
 
 	if($this->objParam->getParametro('formato_reporte_iata') =='txt'){
 		$separador = "|";
-		$fileName = 'IATA_'.$nit_linea_aerea.$mes.$anio.'.txt';
+		$fileName = 'IATA_'.$nit_linea_aerea.$mes.$anio;
 	}else{
 		$separador = "|";
 		$fileName = 'IATA_'.$nit_linea_aerea.$mes.$anio.'.csv';
