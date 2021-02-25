@@ -2291,7 +2291,7 @@ BEGIN
                                                 to_char(fecha_factura,''DD/MM/YYYY''),
                                                 '||v_parametros.nit_linea_aerea||',
                                                 nombre_pasajero,
-                                                importe_total_venta,
+                                                (coalesce(importe_total_venta, 0) - coalesce(importe_otros_no_suj_iva, 0)),
                                                 ''BOB''::varchar,
                                                 case when length( nit_ci_cli) > 13 then substr(nit_ci_cli,1,13) else trim(nit_ci_cli) end nit_ci_cli,
                                                 case when tipo_venta in (''IATA'') and pais_emision = ''BO'' then
