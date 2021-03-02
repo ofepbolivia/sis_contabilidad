@@ -2,7 +2,7 @@
 /**
  * @package pXP
  * @file    FormCompraVentaFuncionario.php
- * @author  breydi vasquez 
+ * @author  breydi vasquez
  * @date    07-05-2020
  * @description Registro de facturas por funcionario
  */
@@ -17,7 +17,7 @@ header("content-type: text/javascript; charset=UTF-8");
         mostrarFormaPago: true,
         mostrarPartidas: false,
         regitrarDetalle: 'si',
-        id_moneda_defecto: 0,  // 0 quiere decir todas las monedas        
+        id_moneda_defecto: 0,  // 0 quiere decir todas las monedas
         layout: 'fit',
         autoScroll: false,
         breset: false,
@@ -33,8 +33,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.addEvents('successsave');
             if (config.data.mostrarFormaPago === false) {
                 this.mostrarFormaPago = config.data.mostrarFormaPago;
-            }                        
-            
+            }
+
             Ext.apply(this, config);
             this.obtenerVariableGlobal(config);
             this.generarAtributos();
@@ -614,7 +614,7 @@ header("content-type: text/javascript; charset=UTF-8");
             });
         },
         buildGrupos: function () {
-            var me = this;                            
+            var me = this;
 
                 me.Grupos = [{
                     xtype: 'fieldset',
@@ -689,7 +689,7 @@ header("content-type: text/javascript; charset=UTF-8");
                             }]
                         }
                     ]
-                }];            
+                }];
 
         },
 
@@ -858,7 +858,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'Revisado',
                         allowBlank: true,
                         anchor: '80%',
-                        maxLength: 3                        
+                        maxLength: 3
                     },
                     type: 'TextField',
                     id_grupo: 1,
@@ -902,7 +902,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         mode: 'remote',
                         pageSize: 20,
                         queryDelay: 500,
-                        minChars: 2                        
+                        minChars: 2
                     },
                     type: 'ComboBox',
                     id_grupo: 0,
@@ -916,7 +916,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'QR',
                         allowBlank: true,
                         enableKeyEvents: true,
-                        anchor: '85%'                        
+                        anchor: '85%'
                     },
                     type: 'TextField',
                     id_grupo: 0,
@@ -933,7 +933,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         gdisplayField: 'desc_moneda',
                         gwidth: 100,
                         anchor: '85%',
-                        width: 180                        
+                        width: 180
                     },
                     type: 'ComboRec',
                     id_grupo: 0,
@@ -979,7 +979,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         queryDelay: 500,
                         minChars: 1,
                         maskRe: /[0-9/-]+/i,
-                        regex: /[0-9/-]+/i                        
+                        regex: /[0-9/-]+/i
                     },
                     type: 'ComboBox',
                     id_grupo: 0,
@@ -1023,7 +1023,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         pageSize: 20,
                         queryDelay: 500,
                         anchor: '85%',
-                        minChars: 1                        
+                        minChars: 1
                     },
                     type: 'ComboBox',
                     id_grupo: 0,
@@ -1038,7 +1038,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         allowBlank: true,
                         origen: 'PROVEEDOR',
                         listWidth: '280',
-                        resizable: true                        
+                        resizable: true
                     },
                     type: 'ComboRec',
                     id_grupo: 0,
@@ -1049,7 +1049,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     config: {
                         name: 'razon_social',
                         fieldLabel: 'Razón Social (Impuestos)',
-                        allowBlank: false,                        
+                        allowBlank: false,
                         style: 'text-transform:uppercase;',
                         anchor: '85%',
                         maxLength: 180
@@ -1066,11 +1066,11 @@ header("content-type: text/javascript; charset=UTF-8");
                         anchor: '85%',
                         allowDecimals: false,
                         maxLength: 100
-                    },                    
+                    },
                     type: 'TextField',
                     id_grupo: 1,
                     form: true
-                },                
+                },
                 {
                     config: {
                         name: 'dia',
@@ -1118,7 +1118,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'DateField',
                     id_grupo: 1,
                     form: true
-                },                
+                },
                 {
                     config: {
                         name: 'nro_dui',
@@ -1537,7 +1537,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 var dia = newValue > 9 ? newValue : '0' + newValue,
                     mes = this.data.tmpPeriodo > 9 ? this.data.tmpPeriodo : '0' + this.data.tmpPeriodo,
                     tmpFecha = dia + '/' + mes + '/' + this.data.tmpGestion;
-                resp = this.Cmp.fecha.setValue(tmpFecha);
+                    var vf = this.existeFecha(tmpFecha)
+                    if (!vf) {
+                      this.Cmp.fecha.reset()
+                      alert('La fecha calculada con el dia registrado es: '+tmpFecha+' la cual no es valida. Favor corregir el dia')
+                    }else{
+                        resp = this.Cmp.fecha.setValue(tmpFecha);
+                    }
             }, this);
 
             this.Cmp.nro_autorizacion.on('select', function (cmb, rec, i) {
@@ -1721,7 +1727,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.tipo_cambio.reset();
                         //this.Cmp.tipo_cambio.reset();
                     }
-                }, this);						  
+                }, this);
 
             }, this);
 
@@ -1841,7 +1847,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             }, this);
 
-            this.Cmp.fecha_vencimiento.setReadOnly(false);				  
+            this.Cmp.fecha_vencimiento.setReadOnly(false);
         },
 
         resetearMontos: function () {
@@ -2033,13 +2039,13 @@ header("content-type: text/javascript; charset=UTF-8");
         },
 		disableComponentes: function () {
             //03-01-2020 (may) modificacion porque mostraba a todos su codigo de control
-            //if(this.data.datosOriginales.data.isNewRelationEditable){            
-            
+            //if(this.data.datosOriginales.data.isNewRelationEditable){
+
             if(this.data.tipo_form != 'new' ){
-                //08-01-2020 (may) modificacion para que solo tenga bloqueado los campos de la factura en fondos en avance                
-                console.log('llegam22',this.data.objPadre.mycls );                
+                //08-01-2020 (may) modificacion para que solo tenga bloqueado los campos de la factura en fondos en avance
+                console.log('llegam22',this.data.objPadre.mycls );
                 if (this.data.objPadre.mycls == 'RendicionDetReg' && this.mycls == 'FormRendicionCD'){
-                    
+
                     if (this.data.datosOriginales.data.revisado == 'si' || this.data.boton_rendicion=='readOnly') {
                         this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
                         this.Cmp.mod_rev.setValue(this.data.datosOriginales.data.revisado);
@@ -2065,7 +2071,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.importe_doc.setDisabled(true);
 
                         if (this.data.datosOriginales.data.id_moneda == 2) {
-                            this.mostrarComponente(this.Cmp.tipo_cambio);                            
+                            this.mostrarComponente(this.Cmp.tipo_cambio);
                         }
                         else {
                             this.ocultarComponente(this.Cmp.tipo_cambio);
@@ -2087,11 +2093,11 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.mod_rev.setValue(this.data.datosOriginales.data.revisado);
                     this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
                     if (this.data.datosOriginales.data.id_moneda == 2) {
-                        this.mostrarComponente(this.Cmp.tipo_cambio);                            
+                        this.mostrarComponente(this.Cmp.tipo_cambio);
                     }
                     else {
                         this.ocultarComponente(this.Cmp.tipo_cambio);
-                    }                                        
+                    }
                 }
             }
         },
@@ -2174,11 +2180,11 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.nit.modificado = true;
             this.Cmp.nro_autorizacion.modificado = true;
             this.esconderImportes();
-                        
+
             this.Cmp.id_depto_conta.setValue(this.data.id_depto);
             this.Cmp.id_gestion.setValue(this.data.id_gestion);
-            this.Cmp.tipo.setValue(this.data.tipoDoc);            
-            
+            this.Cmp.tipo.setValue(this.data.tipoDoc);
+
             this.Cmp.id_plantilla.itemCt.dom.childNodes[1].style.margin = '5px';
             this.Cmp.codigo_qr.itemCt.dom.childNodes[1].style.margin = '5px';
             this.Cmp.id_moneda.itemCt.dom.childNodes[1].style.margin = '5px';

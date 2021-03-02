@@ -1629,7 +1629,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 var dia = newValue > 9 ? newValue : '0' + newValue,
                     mes = this.data.tmpPeriodo > 9 ? this.data.tmpPeriodo : '0' + this.data.tmpPeriodo,
                     tmpFecha = dia + '/' + mes + '/' + this.data.tmpGestion;
-                resp = this.Cmp.fecha.setValue(tmpFecha);
+                    var vf = this.existeFecha(tmpFecha)
+                    if (!vf) {
+                      this.Cmp.fecha.reset()
+                      alert('La fecha calculada con el dia registrado es: '+tmpFecha+' la cual no es valida. Favor corregir el dia')
+                    }else{
+                        resp = this.Cmp.fecha.setValue(tmpFecha);
+                    }
             }, this);
 
             this.Cmp.nro_autorizacion.on('select', function (cmb, rec, i) {
