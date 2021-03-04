@@ -2140,7 +2140,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 //console.log('llegam',this.data );
                 //console.log('llegam22',this.data.objPadre.mycls );
                 //console.log('llegam233',this.mycls);
-                if (this.data.objPadre.mycls == 'RendicionDetReg' && this.mycls == 'FormRendicionCD'){
+                if ((this.data.objPadre.mycls == 'RendicionDetReg' || this.data.objPadre.mycls== 'RendicionDetTes')  && this.mycls == 'FormRendicionCD'){
 
                     if (this.data.datosOriginales.data.revisado == 'si' || this.data.boton_rendicion=='readOnly') {
                         this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
