@@ -33,6 +33,23 @@ class ACTAuxiliar extends ACTbase{
 			$this->objFunc=$this->create('MODAuxiliar');
 			$this->res=$this->objFunc->listarAuxiliar($this->objParam);
 		}
+
+		/*Aqui para poner todos los puntos de ventas*/
+		if($this->objParam->getParametro('_adicionar')!=''){
+
+			$respuesta = $this->res->getDatos();
+
+
+			array_unshift ( $respuesta, array(  'id_auxiliar'=>'0',
+				  'codigo_auxiliar'=>'Todos',
+					'nombre_auxiliar'=>'Todos') );
+			//var_dump($respuesta);
+			$this->res->setDatos($respuesta);
+		}
+		/********************************************/
+
+
+
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 
