@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.f_gestionar_presupuesto_cbte_pxp (
   p_id_usuario integer,
   p_id_int_comprobante integer,
@@ -338,78 +336,85 @@ BEGIN
                                          -------------------------------------------------------------------------------------  
                                          --   si existe un factor a revertir y tenememos el id_partida_ejecucion, revertimos
                                          -------------------------------------------------------------------------------------
-                                         
+                                         /*------------
+                                         --04-03-2021 (may) modificacion QUITANDO EL CALCULO DE FACTOR REVERSION a solicitud de Grover segun reunion
+                                         desde la fecha
+                                         --------------*/
+
+                                       /*
                                          IF  v_registros.factor_reversion > 0 and v_registros.id_partida_ejecucion is not null THEN
-                                         
+
                                                    /*  regla de 3 para calcular  el monto a revertir en moneda base
                                                     *      200 -> 0.87
                                                     *      X   -> 0.13
                                                     */
-                                                   
+
                                                   IF v_sw_moneda_base = 'si' THEN
                                                       --si forzamos el calculo en moenda base
                                                       -- calcular el monto a revertir segun factor por regla de tres en moneda base
+
                                                       v_monto_cmp_mb = (v_monto_cmp * v_registros.factor_reversion)/(1 - v_registros.factor_reversion);
                                                       v_monto_cmp = v_monto_cmp_mb;
                                                   ELSEIF  v_registros_comprobante.id_moneda = v_id_moneda_base THEN
                                                        -- si la transaccion ya fue calculada en moneda
                                                        v_monto_cmp = v_registros.importe_reversion;
                                                        v_monto_cmp_mb  = v_registros.importe_reversion;
-                                                  ELSE  
+                                                  ELSE
                                                         --calculo en loa moenda original de la transaccion
                                                         v_monto_cmp = v_registros.importe_reversion;
+
                                                         v_monto_cmp_mb = (v_monto_cmp_mb * v_registros.factor_reversion)/(1 - v_registros.factor_reversion);
                                                   END IF;
-                                                  
+
                                                    -- llamar a la funcion para revertir el comprometido
-                                                 
+
                                                    v_resp_ges = pre.f_gestionar_presupuesto_v2(
-                                                                                            p_id_usuario, 
-                                                                                            NULL,  --tipo de cambio,  ya mandamos la moneda convertida 
-                                                                                            v_registros.id_presupuesto, 
-                                                                                            v_registros.id_partida, 
-                                                                                            v_id_moneda, 
+                                                                                            p_id_usuario,
+                                                                                            NULL,  --tipo de cambio,  ya mandamos la moneda convertida
+                                                                                            v_registros.id_presupuesto,
+                                                                                            v_registros.id_partida,
+                                                                                            v_id_moneda,
                                                                                             v_monto_cmp*(-1),
-                                                                                            v_monto_cmp_mb*(-1), 
-                                                                                            p_fecha_ejecucion, 
-                                                                                            'comprometido', 
-                                                                                            v_registros.id_partida_ejecucion, 
-                                                                                            'id_int_transaccion', 
-                                                                                            v_registros.id_int_transaccion,--p_fk_llave, 
-                                                                                            v_registros_comprobante.nro_tramite, 
-                                                                                            p_id_int_comprobante, 
-                                                                                            v_registros_comprobante.momento_comprometido, 
-                                                                                            v_registros_comprobante.momento_ejecutado, 
+                                                                                            v_monto_cmp_mb*(-1),
+                                                                                            p_fecha_ejecucion,
+                                                                                            'comprometido',
+                                                                                            v_registros.id_partida_ejecucion,
+                                                                                            'id_int_transaccion',
+                                                                                            v_registros.id_int_transaccion,--p_fk_llave,
+                                                                                            v_registros_comprobante.nro_tramite,
+                                                                                            p_id_int_comprobante,
+                                                                                            v_registros_comprobante.momento_comprometido,
+                                                                                            v_registros_comprobante.momento_ejecutado,
                                                                                             v_registros_comprobante.momento_pagado);
-                                                                                            
-                                                                                            
+
+
                                                      --  analizamos respuesta y retornamos error
                                                    IF v_resp_ges[1] = 0 THEN
-                                                   
+
                                                          --  recuperamos datos del presupuesto
-                                                         v_mensaje_error = v_mensaje_error || conta.f_armar_error_presupuesto(v_resp_ges, 
-                                                                                               v_registros.id_presupuesto, 
-                                                                                               v_registros.codigo_partida, 
-                                                                                               v_id_moneda, 
-                                                                                               v_id_moneda_base, 
-                                                                                               v_momento_presupeustario, 
+                                                         v_mensaje_error = v_mensaje_error || conta.f_armar_error_presupuesto(v_resp_ges,
+                                                                                               v_registros.id_presupuesto,
+                                                                                               v_registros.codigo_partida,
+                                                                                               v_id_moneda,
+                                                                                               v_id_moneda_base,
+                                                                                               v_momento_presupeustario,
                                                                                                v_monto_cmp_mb);
                                                          v_sw_error = true;
-                                                         
+
                                                   ELSE
-                                                  
+
                                                       update conta.tint_transaccion it set
                                                          id_partida_ejecucion_rev = v_resp_ges[2],   --partida de reversion
                                                          fecha_mod = now(),
                                                          id_usuario_mod = p_id_usuario
                                                       where it.id_int_transaccion  =   v_registros.id_int_transaccion;
-                                                     
-                                                  
-                                                  END IF; --fin id de error                                        
-                                         
+
+
+                                                  END IF; --fin id de error
+
                                        END IF; --if la transacion tiene reversion
-                                
-                                
+
+                                */
                                  END IF;  --fin if es partida presupuestaria
                                  
                           
