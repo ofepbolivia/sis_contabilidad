@@ -89,6 +89,8 @@ DECLARE
 	v_conexion 			varchar;
     v_gestion			integer;
     v_consulta			varchar;
+    v_id_plan_pago_pp	integer;
+    v_id_int_comprobante_pp	integer;
 
 BEGIN
 
@@ -430,10 +432,24 @@ END IF;
         	v_codigo_control = v_parametros.codigo_control;
         end if;
 
+        --17-03-2021 (may) para buscar su plan de pago
+        SELECT pp.id_plan_pago
+        into v_id_plan_pago_pp
+        FROM tes.tplan_pago pp
+        WHERE pp.id_int_comprobante = v_id_int_comprobante;
+
+
         --(MAY) para ver si corresponte a un plan de pago,cbte un documento
         --IF (v_parametros.id_int_comprobante is Null) THEN
         IF (v_id_int_comprobante is Null) THEN
         	v_plan_pago = v_id_plan_pago;
+
+            --17-03-2021 (may) para que se encuente el cbte si se registra desde el plan de pago
+      		SELECT pp.id_int_comprobante
+            INTO v_id_int_comprobante
+            FROM tes.tplan_pago pp
+            WHERE pp.id_plan_pago =  v_parametros.id_plan_pago;
+
 
         ELSE
         	v_plan_pago = v_id_plan_pago_dcv;
@@ -444,6 +460,10 @@ END IF;
                 if (pxp.f_existe_parametro(p_tabla, 'id_plan_pago'))then
                       v_plan_pago = v_parametros.id_plan_pago;
                 end if;
+
+                IF (v_plan_pago is null) THEN
+                	v_plan_pago = v_id_plan_pago_pp;
+                END IF;
               END IF;
             --END IF;
 
@@ -1768,7 +1788,7 @@ END IF;
 
   	 v_estacion = pxp.f_get_variable_global('ESTACION_inicio');
 
-        IF(v_estacion = 'BUE')THEN
+        IF(v_estacion != 'BOL')THEN
 
         	IF v_parametros.id_int_comprobante is not null then
                     IF not EXISTS(select
@@ -1785,9 +1805,17 @@ END IF;
                     from conta.tint_comprobante cbte
                     where cbte.id_int_comprobante = v_parametros.id_int_comprobante;
 
+                    --17-03-2021 (may) para actualizar el plaan de pago
+                    select pp.id_plan_pago
+                    into v_id_plan_pago_dcv
+                    from tes.tplan_pago pp
+                    inner join conta.tdoc_compra_venta dcv on dcv.id_plan_pago = pp.id_plan_pago
+                    where dcv.id_int_comprobante = v_parametros.id_int_comprobante;
+
                     update conta.tdoc_compra_venta d  set
                       id_int_comprobante =  v_parametros.id_int_comprobante,
-                      nro_tramite =   v_nro_tramite
+                      nro_tramite =   v_nro_tramite,
+                      id_plan_pago = v_id_plan_pago_dcv
                     where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
 
             ELSE
@@ -1800,7 +1828,7 @@ END IF;
                   WHERE pp.id_plan_pago = v_parametros.id_plan_pago;
 
 
-                IF(v_tipo_obligacion in ('sp','spd','pago_especial_spi', 'spi'))THEN
+                IF(v_tipo_obligacion in ('sp','spd','pago_especial_spi', 'spi', 'pgaext'))THEN
 
                    -- validamos que el documento no tenga otro comprobante
 
@@ -1813,15 +1841,16 @@ END IF;
                     END IF;
 
                     --recupera nro de tramite del cbte
-                    select op.num_tramite
-                    into v_num_tramite
+                    select op.num_tramite, pp.id_int_comprobante
+                    into v_num_tramite, v_id_int_comprobante_pp
                     from tes.tplan_pago pp
                     inner join tes.tobligacion_pago op on op.id_obligacion_pago = pp.id_obligacion_pago
                     where pp.id_plan_pago = v_parametros.id_plan_pago ;
 
                     update conta.tdoc_compra_venta d  set
                       id_plan_pago =  v_parametros.id_plan_pago,
-                      nro_tramite =   v_nro_tramite
+                      nro_tramite =   v_nro_tramite,
+                      id_int_comprobante = v_id_int_comprobante_pp
                     where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
 
                   ELSE
@@ -1853,9 +1882,17 @@ END IF;
             from conta.tint_comprobante cbte
             where cbte.id_int_comprobante = v_parametros.id_int_comprobante;
 
+            --17-03-2021 (may) para actualizar el plaan de pago
+            select pp.id_plan_pago
+            into v_id_plan_pago_dcv
+            from tes.tplan_pago pp
+            inner join conta.tdoc_compra_venta dcv on dcv.id_plan_pago = pp.id_plan_pago
+            where dcv.id_int_comprobante = v_parametros.id_int_comprobante;
+
             update conta.tdoc_compra_venta d  set
               id_int_comprobante =  v_parametros.id_int_comprobante,
-              nro_tramite =   v_nro_tramite
+              nro_tramite =   v_nro_tramite,
+              id_plan_pago = v_id_plan_pago_dcv
             where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
       END IF;
        --

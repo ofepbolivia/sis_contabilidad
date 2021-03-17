@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.f_eliminar_int_comprobante (
   p_id_usuario integer,
   p_id_usuario_ai integer,
@@ -25,7 +23,10 @@ DECLARE
     v_conexion							varchar;
     v_sql								varchar;
     v_pre_integrar_presupuestos			varchar;
- 
+
+    v_doc_compra_venta					record;
+
+
 BEGIN
   	
     v_nombre_funcion := 'conta.f_eliminar_int_comprobante';
@@ -97,9 +98,32 @@ BEGIN
                     volcado = 'no'
                  where id_int_comprobante =ANY( v_rec_cbte.id_int_comprobante_fks);
               END IF;
-    
-             
-    
+
+              --16-03-2021 (may) para estaciones internacionales no tiene que restringir si esta en doc_compra_venta esta registrado facturas
+              --				solo elimine su id de cbte en la tabla 	conta.doc_compra_venta
+
+              --17-03-2021 (may)para estacion central el control se quitara desde la fecha
+
+              	FOR v_doc_compra_venta in( select  cv.id_doc_compra_venta, cv.id_plan_pago, cv.nro_documento
+                                              from conta.tdoc_compra_venta cv
+                                              where cv.id_int_comprobante = p_id_int_comprobante) LOOP
+
+                	IF (v_doc_compra_venta.id_plan_pago is null)THEN
+                        raise exception 'Los Documentos de Compra y Venta no tiene relación con un Plan de Pago, verificar el número de documento %',v_doc_compra_venta.nro_documento ;
+                    ELSE
+                        update   conta.tdoc_compra_venta set
+                          id_int_comprobante = NULL
+                        where id_doc_compra_venta = v_doc_compra_venta.id_doc_compra_venta;
+                    END IF;
+
+
+                END LOOP;
+
+
+              ---
+
+
+
               IF v_rec_cbte.vbregional = 'no'  and v_rec_cbte.temporal = 'no'   THEN    
                       
                       --delete transacciones del comprobante intermedio

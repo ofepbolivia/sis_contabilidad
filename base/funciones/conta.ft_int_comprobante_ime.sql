@@ -979,12 +979,17 @@ BEGIN
 	elsif(p_transaccion='CONTA_INCBTE_ELI')then
 
 		begin
-            IF EXISTS(select 1
-                        from conta.tdoc_compra_venta dcv
-                        where dcv.estado_reg = 'activo' and  dcv.id_int_comprobante =  v_parametros.id_int_comprobante) then
 
-                        raise exception 'No puede Eliminar el Comprobante  %, primero Elimine sus Documentos/Facturas registrados.',v_parametros.id_int_comprobante;
-             END IF;
+          --17-03-2021 (may) se comenta el control , porque ya no sera necesario eliminar la relacion del cbte al eliminarlo , porque tambien tiene relacion con el plan de pago
+          --si no tiene plan de pago no se realiza la eliminacion
+
+           /*IF EXISTS(select 1
+                      from conta.tdoc_compra_venta dcv
+                      where dcv.estado_reg = 'activo' and  dcv.id_int_comprobante =  v_parametros.id_int_comprobante) then
+
+                      raise exception 'No puede Eliminar el Comprobante  %, primero Elimine sus Documentos/Facturas registrados.',v_parametros.id_int_comprobante;
+           END IF;*/
+
 
             v_result = conta.f_eliminar_int_comprobante(p_id_usuario,
                                                         v_parametros._id_usuario_ai,
