@@ -2353,7 +2353,7 @@ BEGIN
                                          and nro_factura not in (select  bf.nro_boleto from vef.tboletos_asociados_fact bf
                                            inner join vef.tventa v on v.id_venta = bf.id_venta
                                            where v.estado = ''finalizado'' and v.tipo_factura in (''manual'', ''computarizada'')
-                                           and bf.estado_reg = ''activo''
+                                           and bf.estado_reg = ''activo'')
                                       ) t_iata
                                   )
                               ) jsonD';
