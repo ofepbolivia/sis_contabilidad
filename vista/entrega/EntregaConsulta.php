@@ -223,16 +223,15 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: '<b>Consulta de Comprobantes</b>'
             });
 
-            this.addButton('ant_estado',{
+            /*this.addButton('ant_estado',{
                 grupo: [0,1,2,3,4,5],
                 argument: {estado: 'anterior'},
                 text: 'Anterior',
                 iconCls: 'batras',
-                disabled: true,
-                /*hidden:true,*/
+                disabled: false,
                 handler: this.antEstadoA,
                 tooltip: '<b>Volver al Anterior Estado</b>'
-            });
+            });*/
 
 
             this.init();
@@ -1119,7 +1118,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('sigep_ext_entrega').enable();
                 this.getBoton('erp_ext_entrega').enable();
             }
-            this.getBoton('ant_estado').enable();
+            //this.getBoton('ant_estado').enable();
             return tb;
         },
         liberaMenu : function() {
@@ -1131,7 +1130,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('sigep_ext_entrega').disable();
                 this.getBoton('erp_ext_entrega').disable();
             }
-            this.getBoton('ant_estado').disable();
+            //this.getBoton('ant_estado').disable();
         },
         capturaFiltros : function(combo, record, index) {
 

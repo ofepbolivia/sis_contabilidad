@@ -49,7 +49,7 @@ header("content-type: text/javascript; charset=UTF-8");
             /*this.addButton('desvalidar', {
                 text: 'Desvalidar CBTE',
                 iconCls: 'bgear',
-                disabled: true,
+                disabled: false,
                 handler: this.desvalidarCBTE,
                 scope: this,
                 tooltip: '<b>Desvalidar Comprobante</b><br/>Seleccione un comprobante para desvalidar.'
@@ -206,7 +206,6 @@ header("content-type: text/javascript; charset=UTF-8");
 
             this.getBoton('bregcbte').enable()
 
-            //this.getBoton('desvalidar').enable()
 
             // 02-09-2018 se comenta para que muestre la opcion de registro de documentos
             /*if(rec.data.momento =='presupuestario'){
@@ -234,7 +233,6 @@ header("content-type: text/javascript; charset=UTF-8");
 
             this.getBoton('bregcbte').disable();
 
-            //this.getBoton('desvalidar').disable();
         },
 
         addBotonesClonar: function () {

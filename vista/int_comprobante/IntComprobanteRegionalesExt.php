@@ -1501,7 +1501,7 @@ header("content-type: text/javascript; charset=UTF-8");
             direction: 'desc'
         },
 
-        bdel: false,
+        bdel: true,
         bsave: false,
         bedit: true,
         bnew: true,

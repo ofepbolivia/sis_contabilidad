@@ -76,13 +76,13 @@ class RLcv extends  ReportePDF {
 		
 		
 			$this->Cell($width1, $height, '', 0, 0, 'L', false, '', 0, false, 'T', 'C');
-	        $this->Cell($width_c1, $height, 'DEL:', 0, 0, 'L', false, '', 0, false, 'T', 'C');
+	        $this->Cell($width_c1, $height, 'DESDE:', 0, 0, 'L', false, '', 0, false, 'T', 'C');
 	        $this->SetFont('', '');
 	        $this->SetFillColor(192,192,192, true);
 	        $this->Cell($width_c2, $height, $fecha_ini, 0, 0, 'L', true, '', 0, false, 'T', 'C');
 	        
 	        $this->Cell($esp_width, $height, '', 0, 0, 'L', false, '', 0, false, 'T', 'C');
-	        $this->Cell(20, $height,'Haste:', 0, 0, 'L', false, '', 0, false, 'T', 'C');
+	        $this->Cell(20, $height,'HASTA:', 0, 0, 'L', false, '', 0, false, 'T', 'C');
 	        $this->SetFont('', '');
 	        $this->SetFillColor(192,192,192, true);
 	        $this->Cell(50, $height, $fecha_fin, 0, 0, 'L', true, '', 0, false, 'T', 'C');

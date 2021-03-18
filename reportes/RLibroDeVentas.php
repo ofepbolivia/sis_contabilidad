@@ -39,7 +39,7 @@ class RLibroDeVentas extends  ReportePDF {
         $this->datos_entidad = $entidad;
         $this->datos_periodo = $periodo;
         $this->subtotal = 0;
-        $this->SetMargins(7, 55, 5);
+        $this->SetMargins(7, 48, 5);
     }
 
     function Header() {
@@ -63,11 +63,11 @@ class RLibroDeVentas extends  ReportePDF {
         $this->SetFont('','BU',12);
         $this->Cell(0,5,"LIBRO DE VENTAS ESTANDAR",0,1,'C');
         $this->SetFont('','BU',7);
-        $this->Cell(0,5,"Expresado en Bolivianos",0,1,'C');
+        $this->Cell(0,5,"(Expresado en Bolivianos)",0,1,'C');
         $this->Ln(2);
 
 
-        $this->SetFont('','',10);
+        $this->SetFont('','',8);
 
         $height = 5;
         $width1 = 5;
@@ -85,7 +85,7 @@ class RLibroDeVentas extends  ReportePDF {
 
 
             $this->Cell($width1, $height, '', 0, 0, 'L', false, '', 0, false, 'T', 'C');
-            $this->Cell($width_c1, $height, 'DEL:', 0, 0, 'L', false, '', 0, false, 'T', 'C');
+            $this->Cell($width_c1, $height, 'DESDE:', 0, 0, 'L', false, '', 0, false, 'T', 'C');
             $this->SetFont('', '');
             //$this->SetFillColor(192,192,192, true);
             $this->Cell($width_c2, $height, $fecha_ini, 0, 0, 'L', false, '', 0, false, 'T', 'C');
@@ -127,9 +127,9 @@ class RLibroDeVentas extends  ReportePDF {
 
 
 
-        $this->Ln(8);
+        $this->Ln(6);
 
-        $this->SetFont('','B',6);
+        $this->SetFont('','B',4);
         $this->generarCabecera();
 
 
@@ -155,7 +155,7 @@ class RLibroDeVentas extends  ReportePDF {
             $this->cerrarCuadroTotal();
         }
 
-        $this->Ln(4);
+        $this->Ln(2);
 
 
     }
@@ -164,7 +164,7 @@ class RLibroDeVentas extends  ReportePDF {
 
 
         //armca caecera de la tabla
-        $conf_par_tablewidths=array(10,15,16,24,10,15,29,17,16,16,16,16,16,16,16,20);
+        $conf_par_tablewidths=array(10,13,18,22,8,15,35,17,16,16,16,16,16,16,14,20);
         $conf_par_tablealigns=array('C','C','C','C','C','C','C','C','C','C','C','C','C','C','C','C');
         $conf_par_tablenumbers=array(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
         $conf_tableborders=array();
@@ -182,17 +182,17 @@ class RLibroDeVentas extends  ReportePDF {
             's2' => 'Nº de LA FACTURA',
             's3' => 'Nº de AUTORIZACION',
             's4' => 'ESTADO',
-            's5' => 'NIT CLIENTE',
+            's5' => 'NIT/CI CLIENTE',
             's6' => 'NOMBRE O RAZON SOCIAL',
-            's7' => "IMPORTE TOTAL DE LA VENTA\nA",
-            's8' => "IMPORTE ICE/ IEHD/ TASAS\nB",
-            's9' => "EXPORTACIO. Y OPERACIONES EXENTAS\nC",
-            's10' => "VENTAS GRAVADAS TASA CERO\nD",
-            's11' => "SUBTOTAL\nE = A-B-C-D",
-            's12' => "DESCUENTOS BONOS Y REBAJAS OTORGADAS\n F",
-            's13' => "IMPORTE BASE DEBITO FISCAL\nG = E-F",
-            's14' => "DEBITO FISCAL\nH = G*13%",
-            's15' => 'CODIGO DE CONTROL'
+            's7' => "\nIMPORTE TOTAL \nDE LA VENTA\n\nA",
+            's8' => "IMPORTE ICE/IEHD\n/IPJ/TASAS/OTROS \n NO SUJETOS AL IVA\n\nB",
+            's9' => "EXPORTACIONES \nY OPERACIONES EXENTAS\n\nC",
+            's10' => "\nVENTAS GRAVADAS \nA TASA CERO\n\nD",
+            's11' => "\nSUBTOTAL\n\n\nE = A-B-C-D",
+            's12' => "DESCUENTOS, BONIFICACIONES Y REBAJAS SUJETAS AL IVA\n F",
+            's13' => "IMPORTE BASE \nPARA DÉBITO \nFISCAL\n\nG = E-F",
+            's14' => "\nDÉBITO FISCAL\n\n\nH = G*13%",
+            's15' => 'CÓDIGO DE CONTROL'
 
         );
 
@@ -235,9 +235,9 @@ class RLibroDeVentas extends  ReportePDF {
 
         $this->SetFillColor(224, 235, 255);
         $this->SetTextColor(0);
-        $this->SetFont('','',6);
+        $this->SetFont('','',5);
 
-        $conf_par_tablewidths=array(10,15,16,24,10,15,29,17,16,16,16,16,16,16,16,20);
+        $conf_par_tablewidths=array(10,13,18,22,8,15,35,17,16,16,16,16,16,16,14,20);
         $conf_par_tablealigns=array('C','C','L','C','C','L','L','R','R','R','R','R','R','R','R','L');
         $conf_par_tablenumbers=array(0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0);
         $conf_tableborders=array();//array('LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR');
@@ -285,11 +285,11 @@ class RLibroDeVentas extends  ReportePDF {
         $startY = $this->GetY();
         $this->getNumLines($row['cell1data'], 80);
 
-        if (($startY + 4 * 6) + $dimensions['bm'] > ($dimensions['hk'])) {
+        if (($startY + ((7) )) + $dimensions['bm'] > ($dimensions['hk'])) {
 
             $this->cerrarCuadro();
             $this->cerrarCuadroTotal();
-            $k = 	($startY + 4 * 6) + $dimensions['bm'] - ($dimensions['hk']);
+            $k = 	($startY + ((7) )) + $dimensions['bm'] - ($dimensions['hk']);
 
 
             if($this->total!= 0){
@@ -338,7 +338,7 @@ class RLibroDeVentas extends  ReportePDF {
 
 
         //si noes inicio termina el cuardro anterior
-        $conf_par_tablewidths=array(6+15+15+24+13+19+29,17,16,16,16,16,16,16,16);
+        $conf_par_tablewidths=array(6+15+15+24+13+19+29,17,16,16,16,16,16,14,16);
         $conf_par_tablealigns=array('R','R','R','R','R','R','R','R','R');
         $conf_par_tablenumbers=array(0,2,2,2,2,2,2,2,2);
         $conf_par_tableborders=array('T','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB');
@@ -383,7 +383,7 @@ class RLibroDeVentas extends  ReportePDF {
         //si noes inicio termina el cuardro anterior
 
 
-        $conf_par_tablewidths=array(6+15+15+24+13+19+29,17,16,16,16,16,16,16,16);
+        $conf_par_tablewidths=array(6+15+15+24+13+19+29,17,16,16,16,16,16,14,16);
         $conf_par_tablealigns=array('R','R','R','R','R','R','R','R','R');
         $conf_par_tablenumbers=array(0,2,2,2,2,2,2,2,2);
         $conf_par_tableborders=array('T','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB');

@@ -617,25 +617,59 @@ header("content-type: text/javascript; charset=UTF-8");
                     console.log('aprobarProcesoSigep',datos);
                     if(datos.process){
 
-                        Phx.CP.loadingHide();
                         Ext.Ajax.request({
-                            url:'../../sis_contabilidad/control/Entrega/siguienteEstado',
-                            params:{
-
-                                id_proceso_wf_act:  response.id_proceso_wf_act,
-                                id_estado_wf_act:   response.id_estado_wf_act,
-                                id_tipo_estado:     response.id_tipo_estado,
-                                id_funcionario_wf:  response.id_funcionario_wf,
-                                id_depto_wf:        response.id_depto_wf,
-                                obs:                response.obs,
-                                json_procesos:      Ext.util.JSON.encode(response.procesos)
+                            url: '../../sis_sigep/control/SigepAdq/StatusPassC31',
+                            params: {
+                                id_service_request: record.id_service_request,
+                                id_entrega : record.id_entrega,
+                                tipo : 'entrega'
                             },
-                            success:this.successWizard,
-                            failure: this.conexionFailure,
-                            argument: {wizard: wizard, id_proceso_wf: response.id_proceso_wf_act, resp: response},
-                            timeout:this.timeout,
-                            scope:this
+                            success: function (resp) {
+                                var reg = Ext.decode(Ext.util.Format.trim(resp.responseText));
+                                var datos = reg.ROOT.datos;
+
+                                if( datos.error && datos.error != undefined){
+                                    Phx.CP.loadingHide();
+                                    wizard.panel.destroy();
+                                    var error = datos.error;
+
+                                    Ext.Msg.show({
+                                        title: 'ERROR SIGEP',
+                                        msg: error,
+                                        icon: Ext.Msg.ERROR,
+                                        width:500,
+                                        buttons: Ext.Msg.OK
+                                    });
+
+                                    this.reload();
+                                }else{
+                                    Phx.CP.loadingHide();
+                                    Ext.Ajax.request({
+                                        url:'../../sis_contabilidad/control/Entrega/siguienteEstado',
+                                        params:{
+
+                                            id_proceso_wf_act:  response.id_proceso_wf_act,
+                                            id_estado_wf_act:   response.id_estado_wf_act,
+                                            id_tipo_estado:     response.id_tipo_estado,
+                                            id_funcionario_wf:  response.id_funcionario_wf,
+                                            id_depto_wf:        response.id_depto_wf,
+                                            obs:                response.obs,
+                                            json_procesos:      Ext.util.JSON.encode(response.procesos)
+                                        },
+                                        success:this.successWizard,
+                                        failure: this.conexionFailure,
+                                        argument: {wizard: wizard, id_proceso_wf: response.id_proceso_wf_act, resp: response},
+                                        timeout:this.timeout,
+                                        scope:this
+                                    });
+                                }
+                            },
+                            failure: this.failureC, //chequea si esta en verificacion presupeusto para enviar correo de transferencia
+                            argument: {wizard : wizard, resp : resp},
+                            timeout: this.timeout,
+                            scope: this
                         });
+
                     }else{
                         Phx.CP.loadingHide();
                     }
@@ -655,7 +689,8 @@ header("content-type: text/javascript; charset=UTF-8");
         onEgaFirmarCIP: function(wizard,response){
             let record = this.getSelectedData();
             Phx.CP.loadingShow();
-            console.log('FIRMA record', record, 'wizard', wizard, 'response', response);
+            //console.log('FIRMA record', record, 'wizard', wizard, 'response', response);
+
             Ext.Ajax.request({
                 url:'../../sis_sigep/control/SigepAdq/readyProcesoSigep',
                 params:{
@@ -667,10 +702,10 @@ header("content-type: text/javascript; charset=UTF-8");
                 success: function (resp) {
                     var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
                     var datos = reg.ROOT.datos;
-                    console.log('aprobarProcesoSigep',datos);
+                    //console.log('aprobarProcesoSigep',datos);
                     if(datos.process){
 
-                        Phx.CP.loadingHide();
+                        /*Phx.CP.loadingHide();
                         Ext.Ajax.request({
                             url:'../../sis_contabilidad/control/Entrega/siguienteEstado',
                             params:{
@@ -688,7 +723,62 @@ header("content-type: text/javascript; charset=UTF-8");
                             argument: {wizard: wizard, id_proceso_wf: response.id_proceso_wf_act, resp: response},
                             timeout:this.timeout,
                             scope:this
+                        });*/
+
+                        Ext.Ajax.request({
+                            url: '../../sis_sigep/control/SigepAdq/StatusPassC31',
+                            params: {
+                                id_service_request: record.id_service_request,
+                                id_entrega : record.id_entrega,
+                                tipo : 'entrega'
+                            },
+                            success: function (resp) {
+                                var reg = Ext.decode(Ext.util.Format.trim(resp.responseText));
+                                var datos = reg.ROOT.datos;
+
+                                //console.log('datosXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', datos, datos.error);
+                                if( datos.error && datos.error != undefined){ //console.log('ERROR');
+                                    Phx.CP.loadingHide();
+                                    wizard.panel.destroy();
+                                    var error = datos.error;
+
+                                    Ext.Msg.show({
+                                        title: 'ERROR SIGEP',
+                                        msg: error,
+                                        icon: Ext.Msg.ERROR,
+                                        width:500,
+                                        buttons: Ext.Msg.OK
+                                    });
+
+                                    this.reload();
+                                }else{ //console.log('EXITO');
+                                    Phx.CP.loadingHide();
+                                    Ext.Ajax.request({
+                                        url:'../../sis_contabilidad/control/Entrega/siguienteEstado',
+                                        params:{
+
+                                            id_proceso_wf_act:  response.id_proceso_wf_act,
+                                            id_estado_wf_act:   response.id_estado_wf_act,
+                                            id_tipo_estado:     response.id_tipo_estado,
+                                            id_funcionario_wf:  response.id_funcionario_wf,
+                                            id_depto_wf:        response.id_depto_wf,
+                                            obs:                response.obs,
+                                            json_procesos:      Ext.util.JSON.encode(response.procesos)
+                                        },
+                                        success:this.successWizard,
+                                        failure: this.conexionFailure,
+                                        argument: {wizard: wizard, id_proceso_wf: response.id_proceso_wf_act, resp: response},
+                                        timeout:this.timeout,
+                                        scope:this
+                                    });
+                                }
+                            },
+                            failure: this.failureC, //chequea si esta en verificacion presupeusto para enviar correo de transferencia
+                            argument: {wizard : wizard, resp : resp},
+                            timeout: this.timeout,
+                            scope: this
                         });
+
                     }else{
                         Phx.CP.loadingHide();
                     }
@@ -697,6 +787,115 @@ header("content-type: text/javascript; charset=UTF-8");
                 timeout: this.timeout,
                 scope:this
             });
+        },
+
+        successStatusPassC31:function(resp, opt){
+
+            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+
+            var rest = reg.ROOT.datos;
+            //var record = this.getSelectedData();
+
+            console.log('successStatusPassC31 RESP: ==========================',rest);
+            console.log('successStatusPassC31 OPT: ==========================',opt);
+
+            if( rest.error ){ console.log('ERROR');
+                Phx.CP.loadingHide();
+                opt.argument.wizard.panel.destroy();
+                var error = rest.error;
+                Ext.Msg.show({
+                    title: 'ERROR SIGEP', //<- el título del diálogo
+                    msg: error, //<- El mensaje
+                    icon: Ext.Msg.ERROR,// <- un ícono de error
+                    width:500,// <- tamaño de ventana
+                    buttons: Ext.Msg.OK, //<- Botones de SI y NO
+                    fn: this.callback //<- la función que se ejecuta cuando se da clic
+                });
+                this.reload();
+            }else{ console.log('EXITO');
+                Phx.CP.loadingHide();
+                Ext.Ajax.request({
+                    url:'../../sis_contabilidad/control/Entrega/siguienteEstado',
+                    params:{
+
+                        id_proceso_wf_act:  response.id_proceso_wf_act,
+                        id_estado_wf_act:   response.id_estado_wf_act,
+                        id_tipo_estado:     response.id_tipo_estado,
+                        id_funcionario_wf:  response.id_funcionario_wf,
+                        id_depto_wf:        response.id_depto_wf,
+                        obs:                response.obs,
+                        json_procesos:      Ext.util.JSON.encode(response.procesos)
+                    },
+                    success:this.successWizard,
+                    failure: this.conexionFailure,
+                    argument: {wizard: opt.argument.wizard, id_proceso_wf: response.id_proceso_wf_act, resp: response},
+                    timeout:this.timeout,
+                    scope:this
+                });
+            }
+
+            //Phx.CP.loadingHide();
+
+            /*if(reg.ROOT.datos.error || reg.ROOT.datos.error == ''){
+                Phx.CP.loadingHide();
+                var error = reg.ROOT.datos.error;
+                Ext.Msg.show({
+                    title: 'ERROR SIGEP!', //<- el título del diálogo
+                    msg: error, //<- El mensaje
+                    icon: Ext.Msg.ERROR,// <- un ícono de error
+                    width:500,// <- tamaño de ventana
+                    buttons: Ext.Msg.OK, //<- Botones de SI y NO
+                    fn: this.callback //<- la función que se ejecuta cuando se da clic
+                });
+                this.reload();
+            }else {
+                if(rest.service_code == 'COMPRDEVEN'){
+                    Phx.CP.loadingHide();
+                    Ext.Ajax.request({
+                        url: '../../sis_sigep/control/SigepAdq/registrarComprometidoDevengado',
+                        params: {
+                            id_sigep_adq: rest.id_sigep_adq,
+                            nro_comprometido: rest.nro_comprometido,
+                            nro_devengado: rest.nro_devengado,
+                        },
+                        success: this.successWizard,
+                        failure: this.failureC, //chequea si esta en verificacion presupeusto para enviar correo de transferencia
+                        //argument: {wizard: wizard},
+                        timeout: this.timeout,
+                        scope: this
+                    });
+
+                    Ext.Msg.show({
+                        title: 'REGISTRO SIGEP C31 EXITOSO!', //<- el título del diálogo
+                        msg: '<p><font color="blue"><b>El Numero de Preventivo es: </font>' + this.nro_preventivo + '<p><font color="blue"><b>El Numero de Compromiso es:  </font>' + ((rest.nro_comprometido == 'undefined') ? '1' : rest.nro_comprometido) + '<p><font color="blue"><b>El numero de Devengado es: </font>' + ((rest.nro_devengado == 'undefined') ? '1' : rest.nro_devengado),//<- El mensaje
+                        //msg: '<div class="x-combo-list-item"><p><b>Numero de Preventivo:</b><span style="color: red; font-weight: bold;">{'this.nro_preventivo'}</span></p></div><div class="x-combo-list-item"><p><b>Numero de Compromiso:</b><span style="color: red; font-weight: bold;">{'((rest.nro_comprometido == 'undefined')?'1':rest.nro_comprometido)'}</span></p></div><div class="x-combo-list-item"><p><b>Numero de Preventivo:</b><span style="color: red; font-weight: bold;">{'((rest.nro_devengado == 'undefined')?'1':rest.nro_devengado)'}</span></p></div>',
+                        icon: Ext.Msg.INFO,// <- un ícono de error
+                        width: 500,// <- tamaño de ventana
+                        buttons: Ext.Msg.OK, //<- Botones de SI y NO
+                        fn: this.callback //<- la función que se ejecuta cuando se da clic
+                    });
+                }else if( opt.argument.momento == 'REGULARIZAC' || opt.argument.momento == 'REGULARIZAS' || opt.argument.momento == 'CON_IMPUTACION' || opt.argument.momento == 'CON_IMPUTACION_EXT' || opt.argument.momento == 'REGULARIZAC_REV' || opt.argument.momento == 'REGULARIZAS_REV'){
+                    if(rest.nro_preventivo == '' && rest.nro_comprometido == ''){rest.nro_preventivo = 0; rest.nro_comprometido = 0;}
+                    Phx.CP.loadingHide();
+                    Ext.Ajax.request({
+                        url: '../../sis_sigep/control/SigepAdq/registrarResultado',
+                        params: {
+                            id_sigep_adq: rest.id_sigep_adq,
+                            nro_preventivo: rest.nro_preventivo,
+                            nro_comprometido: rest.nro_comprometido,
+                            nro_devengado: rest.nro_devengado/!*,
+                            id_entrega : record.id_entrega*!/
+                        },
+                        success: this.successP,
+                        failure: this.failureC, //chequea si esta en verificacion presupeusto para enviar correo de transferencia
+                        argument: {wizard : opt.argument.wizard, resp : opt.argument.resp, momento: opt.argument.momento},
+                        timeout: this.timeout,
+                        scope: this
+                    });
+
+                }
+            }
+            this.reload();*/
         },
 
         /*=================================END WORKFLOW APROBAR=======================================*/

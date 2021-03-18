@@ -822,6 +822,13 @@ class ACTIntTransaccion extends ACTbase
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
     /**************************************************************************************************/
+    /****************** {developer:franklin.espinoza, date: 16/03/2021, descripcion:Información Complementaria Comprobante validado.} ******************/
+    function guardarInformacionCBTE(){
+        $this->objFunc = $this->create('MODIntTransaccion');
+        $this->res = $this->objFunc->guardarInformacionCBTE($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    /****************** {developer:franklin.espinoza, date: 16/03/2021, descripcion:Información Complementaria Comprobante validado.} ******************/
 
 }
 

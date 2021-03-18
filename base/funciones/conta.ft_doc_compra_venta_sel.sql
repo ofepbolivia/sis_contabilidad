@@ -1954,7 +1954,10 @@ BEGIN
                                         tipo_factura varchar,
                                         id_origen integer,
                                         sistema_origen varchar
-                                    )--where  nro_factura not in (select from vef.tboletos_asociados_fact  where fecha_factura between '''||v_fecha_ini||'''::date and '''||v_fecha_fin||'''::date )
+                                    )where case when (('||date_part('month',v_fecha_ini)||'=1 and '||date_part('year',v_fecha_ini)||'=2021) or ('||date_part('month',v_fecha_fin)||'=1 and '||date_part('year',v_fecha_fin)||'=2021)) then 0=0 else nro_factura not in (
+                                    select nro_boleto from vef.tboletos_asociados_fact tba
+                                    inner join vef.tventa tv on tv.id_venta = tba.id_venta
+                                    where tv.estado = ''finalizado'' and tv.tipo_factura in (''manual'',''computarizada'') and bf.estado_reg = ''activo'' ) end
                                     order by fecha_factura asc, nro_factura asc
                             ';
 

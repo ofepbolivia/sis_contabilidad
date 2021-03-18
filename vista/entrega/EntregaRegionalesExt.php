@@ -250,7 +250,7 @@ header("content-type: text/javascript; charset=UTF-8");
             {name: 'reversion', title: '<h1 style="text-align: center; color: #FF8F85;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> REVERSIÓN</h1>', grupo: 1, height: 1}
         ],
 
-        actualizarSegunTab: function(name, indice){ console.log('depto', this.cmbDepto.getValue());
+        actualizarSegunTab: function(name, indice){
             this.store.baseParams.tipo_entrega = name;
             if( this.cmbDepto.getValue() != undefined ) {
                 this.load({params: {start: 0, limit: 50}});
@@ -1582,6 +1582,8 @@ header("content-type: text/javascript; charset=UTF-8");
         },
 
         preparaMenu : function(n) {
+
+
             var tb = Phx.vista.EntregaRegionalesExt.superclass.preparaMenu.call(this,n);
             var rec=this.sm.getSelected();
 
@@ -1592,7 +1594,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('sig_estado').enable();
                 this.getBoton('ant_estado').enable();
             }
-
+            
             this.getBoton('btnImprimir').enable();
             this.getBoton('diagrama_gantt').enable();
             this.getBoton('btnChequeoDocumentosWf').enable();

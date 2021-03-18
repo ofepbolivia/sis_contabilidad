@@ -974,6 +974,25 @@ class MODIntTransaccion extends MODbase
     }
     /********************************************************************************************************/
 
+    /****************** {developer:franklin.espinoza, date: 16/03/2021, descripcion:Información Complementaria Comprobante validado.} ******************/
+    function guardarInformacionCBTE(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_int_transaccion_ime';
+        $this->transaccion='CONTA_CBTE_INFO_MOD';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_int_transaccion','id_int_transaccion','int4');
+        $this->setParametro('id_orden_trabajo','id_orden_trabajo','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta(); //echo ($this->consulta);exit;
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    /****************** {developer:franklin.espinoza, date: 16/03/2021, descripcion:Información Complementaria Comprobante validado.} ******************/
 }
 
 ?>

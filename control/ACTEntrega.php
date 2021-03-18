@@ -37,7 +37,7 @@ class ACTEntrega extends ACTbase
         }else if($this->objParam->getParametro('estado_entrega') == 'finalizado'){
             $this->objParam->addFiltro("ent.estado in (''finalizado'')");
         }else if($this->objParam->getParametro('estado_entrega') == 'borrador_elaborado'){
-            $this->objParam->addFiltro("ent.estado in (''borrador'',''elaborado'')");
+            $this->objParam->addFiltro("ent.estado in (''borrador'',''elaborado'') and ent.tipo in (''normal_una_cg'',''normal_mas_cg'',''regularizacion_una_cg'',''regularizacion_mas_cg'') and (ent.id_usuario_reg = ".$_SESSION["ss_id_usuario"]." or 612 = ".$_SESSION["ss_id_usuario"].")");
         }
 
         if($this->objParam->getParametro('tipo_entrega') == 'normal'){
