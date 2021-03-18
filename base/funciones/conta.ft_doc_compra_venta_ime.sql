@@ -441,33 +441,43 @@ END IF;
 
         --(MAY) para ver si corresponte a un plan de pago,cbte un documento
         --IF (v_parametros.id_int_comprobante is Null) THEN
-        IF (v_id_int_comprobante is Null) THEN
-        	v_plan_pago = v_id_plan_pago;
+        IF (v_id_int_comprobante is Null and v_id_plan_pago is Null) THEN
 
-            --17-03-2021 (may) para que se encuente el cbte si se registra desde el plan de pago
-      		SELECT pp.id_int_comprobante
-            INTO v_id_int_comprobante
-            FROM tes.tplan_pago pp
-            WHERE pp.id_plan_pago =  v_parametros.id_plan_pago;
+        	v_plan_pago = v_id_plan_pago;
 
 
         ELSE
-        	v_plan_pago = v_id_plan_pago_dcv;
-      		--(may)solo estacion internacionales se relaciona una cuota con sus documentos compra y venta
-            --10-05-2020 (may) modificacion para q la central Bolivia se relaciona doc compra y venta con una cuota
-      	    --IF pxp.f_get_variable_global('ESTACION_inicio') !='BOL' THEN
-              IF (v_plan_pago is null) THEN
-                if (pxp.f_existe_parametro(p_tabla, 'id_plan_pago'))then
-                      v_plan_pago = v_parametros.id_plan_pago;
-                end if;
+        	IF (v_id_int_comprobante is Null and v_id_plan_pago is not null) THEN
 
-                IF (v_plan_pago is null) THEN
-                	v_plan_pago = v_id_plan_pago_pp;
-                END IF;
+                  v_plan_pago = v_id_plan_pago;
+
+                  --17-03-2021 (may) para que se encuente el cbte si se registra desde el plan de pago
+                  SELECT pp.id_int_comprobante
+                  INTO v_id_int_comprobante
+                  FROM tes.tplan_pago pp
+                  WHERE pp.id_plan_pago =  v_parametros.id_plan_pago;
+
+
+            ELSE
+
+                  v_plan_pago = v_id_plan_pago_dcv;
+                  --(may)solo estacion internacionales se relaciona una cuota con sus documentos compra y venta
+                  --10-05-2020 (may) modificacion para q la central Bolivia se relaciona doc compra y venta con una cuota
+                  --IF pxp.f_get_variable_global('ESTACION_inicio') !='BOL' THEN
+
+                    IF (v_plan_pago is null) THEN
+                      if (pxp.f_existe_parametro(p_tabla, 'id_plan_pago'))then
+                            v_plan_pago = v_parametros.id_plan_pago;
+                      end if;
+
+                      IF (v_plan_pago is null) THEN
+                          v_plan_pago = v_id_plan_pago_pp;
+                      END IF;
+                    END IF;
+                  --END IF;
+
               END IF;
-            --END IF;
-
-        END IF;
+         END IF;
 
 IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
 
