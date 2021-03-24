@@ -100,6 +100,69 @@ class ACTAuxiliar extends ACTbase{
         $this->res=$this->objFunc->validarAuxiliar($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+
+	function listarAuxCuentaCorriente(){
+		$this->objParam->defecto('ordenacion','id_auxiliar');
+
+		$this->objParam->defecto('dir_ordenacion','asc');
+		if($this->objParam->getParametro('id_cuenta')!=''){
+			$this->objParam->addFiltro("auxcta.id_auxiliar IN (select id_auxiliar
+            							from conta.tcuenta_auxiliar where estado_reg = ''activo'' and id_cuenta = ".$this->objParam->getParametro('id_cuenta') . ") ");
+		}
+
+		if($this->objParam->getParametro('corriente')!=''){
+			$this->objParam->addFiltro("auxcta.corriente = ''".$this->objParam->getParametro('corriente')."''");
+		}
+
+		if($this->objParam->getParametro('id_auxiliar')!=''){
+			$this->objParam->addFiltro("auxcta.id_auxiliar = ".$this->objParam->getParametro('id_auxiliar'));
+		}
+		if($this->objParam->getParametro('estado_reg')!=''){
+			$this->objParam->addFiltro("auxcta.estado_reg = ''".$this->objParam->getParametro('estado_reg')."''");
+		}
+		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+			$this->objReporte = new Reporte($this->objParam,$this);
+			$this->res = $this->objReporte->generarReporteListado('MODAuxiliar','listarAuxCuentaCorriente');
+		} else{
+			$this->objFunc=$this->create('MODAuxiliar');
+			$this->res=$this->objFunc->listarAuxCuentaCorriente($this->objParam);
+		}
+
+		/*Aqui para poner todos los puntos de ventas*/
+		if($this->objParam->getParametro('_adicionar')!=''){
+
+			$respuesta = $this->res->getDatos();
+
+
+			array_unshift ( $respuesta, array(  'id_auxiliar'=>'0',
+				'codigo_auxiliar'=>'Todos',
+				'nombre_auxiliar'=>'Todos') );
+			//var_dump($respuesta);
+			$this->res->setDatos($respuesta);
+		}
+		/********************************************/
+
+
+
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
+	function insertarAuxCuentaCorriente(){
+		$this->objFunc=$this->create('MODAuxiliar');
+		if($this->objParam->insertar('id_auxiliar')){
+			$this->res=$this->objFunc->insertarAuxCuentaCorriente($this->objParam);
+		} else{
+			$this->res=$this->objFunc->modificarAuxCuentaCorriente($this->objParam);
+		}
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
+	function eliminarAuxCuentaCorriente(){
+		$this->objFunc=$this->create('MODAuxiliar');
+		$this->res=$this->objFunc->eliminarAuxCuentaCorriente($this->objParam);
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
 }
 
 ?>

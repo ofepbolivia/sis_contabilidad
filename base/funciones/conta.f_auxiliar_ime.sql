@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.f_auxiliar_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -42,7 +40,7 @@ DECLARE
     v_cadena_execute		varchar;
     v_usuario_reg			varchar;
     v_res_conn				varchar;
-	v_existencia			integer;					   
+	v_existencia			integer;
 BEGIN
 
     v_nombre_funcion = 'conta.f_auxiliar_ime';
@@ -58,16 +56,16 @@ BEGIN
 	if(p_transaccion='CONTA_AUXCTA_INS')then
 
         begin
-		
+
 			select count(*) into v_existencia
              from conta.tauxiliar auxi
              where auxi.codigo_auxiliar = v_parametros.codigo_auxiliar or
                    auxi.nombre_auxiliar = v_parametros.nombre_auxiliar;
-                   
+
             if v_existencia > 0 then
              raise exception 'El codigo o nombre del auxiliar ya se encuentran registrados';
-            end if;  
-		   
+            end if;
+
         	--Sentencia de la insercion
         	insert into conta.tauxiliar(
 			--id_empresa,
@@ -88,7 +86,9 @@ BEGIN
 			p_id_usuario,
 			null,
 			null,
-            v_parametros.corriente
+            --24-03-2021 (may) modificacion que se quite el campo y se registre todos como NO
+            --v_parametros.corriente
+            'no'
 
 			)RETURNING id_auxiliar into v_id_auxiliar;
 
@@ -97,7 +97,8 @@ BEGIN
             from segu.tusuario tu
             where tu.id_usuario = p_id_usuario;
 
-            v_cadena_conn =  migra.f_obtener_cadena_conexion();
+			--24-03-2021 (may) se quita conexion a endesis
+            /*v_cadena_conn =  migra.f_obtener_cadena_conexion();
 
             v_cadena_execute = 'select sci.f_insertar_replica_aux('''||v_parametros.codigo_auxiliar::varchar||''','''||v_parametros.nombre_auxiliar::varchar||''',
             '''||v_usuario_reg::varchar||''','''||v_parametros.corriente::varchar||''',''INS'')';
@@ -110,7 +111,7 @@ BEGIN
                 PERFORM * FROM dblink(v_cadena_execute,true) AS ( xx varchar);
             end if;
 
-            v_res_conn=(select dblink_disconnect());
+            v_res_conn=(select dblink_disconnect());*/
 
 			--Definicion de la respuesta
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Auxiliares de Cuenta almacenado(a) con exito (id_auxiliar'||v_id_auxiliar||')');
@@ -138,7 +139,9 @@ BEGIN
 			nombre_auxiliar = v_parametros.nombre_auxiliar,
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
-            corriente = v_parametros.corriente
+            --24-03-2021 (may) modificacion que se quite el campo y se registre todos como NO
+            --corriente = v_parametros.corriente
+            corriente = 'no'
 			where id_auxiliar=v_parametros.id_auxiliar;
 
             select tu.cuenta
@@ -146,7 +149,8 @@ BEGIN
             from segu.tusuario tu
             where tu.id_usuario = p_id_usuario;
 
-            v_cadena_conn =  migra.f_obtener_cadena_conexion();
+			--24-03-2021 (may) se quita conexion a endesis
+            /*v_cadena_conn =  migra.f_obtener_cadena_conexion();
 
             v_cadena_execute = 'select sci.f_insertar_replica_aux('''||v_parametros.codigo_auxiliar::varchar||''','''||v_parametros.nombre_auxiliar::varchar||''',
             '''||v_usuario_reg::varchar||''','''||v_parametros.corriente::varchar||''',''UPD'')';
@@ -159,7 +163,7 @@ BEGIN
                 PERFORM * FROM dblink(v_cadena_execute,true) AS ( xx varchar);
             end if;
 
-            v_res_conn=(select dblink_disconnect());
+            v_res_conn=(select dblink_disconnect());*/
 
 			--Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Auxiliares de Cuenta modificado(a)');
@@ -181,10 +185,16 @@ BEGIN
 
 		begin
 			--Sentencia de la eliminacion
-			delete from conta.tauxiliar
-            where id_auxiliar=v_parametros.id_auxiliar;
+            -- 24-03-2021 (may) modificacion solo update
+			/*delete from conta.tauxiliar
+            where id_auxiliar=v_parametros.id_auxiliar;*/
 
-        	v_cadena_conn =  migra.f_obtener_cadena_conexion();
+            UPDATE conta.tauxiliar SET
+            estado_reg = 'inactivo'
+            WHERE id_auxiliar=v_parametros.id_auxiliar;
+
+			--24-03-2021 (may) se quita conexion a endesis
+        	/*v_cadena_conn =  migra.f_obtener_cadena_conexion();
 
             v_cadena_execute = 'select sci.f_insertar_replica_aux('''||v_parametros.codigo_auxiliar::varchar||''','''||v_parametros.nombre_auxiliar::varchar||''',
             ''''::varchar,''''::varchar,''DEL'')';
@@ -197,7 +207,7 @@ BEGIN
                 PERFORM * FROM dblink(v_cadena_execute,true) AS ( xx varchar);
             end if;
 
-            v_res_conn=(select dblink_disconnect());
+            v_res_conn=(select dblink_disconnect());*/
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Auxiliares de Cuenta eliminado(a)');
@@ -261,6 +271,134 @@ BEGIN
             --Devuelve la respuesta
             return v_resp;
         end;
+
+        /*********************************
+        #TRANSACCION:  'CONTA_AUXCTACO_INS'
+        #DESCRIPCION:	Insercion de registros
+        #AUTOR:		Maylee Perez Pastor
+        #FECHA:		24-03-2021 20:44:52
+        ***********************************/
+
+        elsif(p_transaccion='CONTA_AUXCTACO_INS')then
+
+            begin
+
+                select count(*) into v_existencia
+                 from conta.tauxiliar auxi
+                 where auxi.codigo_auxiliar = v_parametros.codigo_auxiliar or
+                       auxi.nombre_auxiliar = v_parametros.nombre_auxiliar;
+
+                if v_existencia > 0 then
+                 raise exception 'El codigo o nombre del auxiliar ya se encuentran registrados';
+                end if;
+
+                --Sentencia de la insercion
+                insert into conta.tauxiliar(
+                --id_empresa,
+                estado_reg,
+                codigo_auxiliar,
+                nombre_auxiliar,
+                fecha_reg,
+                id_usuario_reg,
+                id_usuario_mod,
+                fecha_mod,
+                corriente,
+                tipo
+                ) values(
+                --v_parametros.id_empresa,
+                'activo',
+                v_parametros.codigo_auxiliar,
+                v_parametros.nombre_auxiliar,
+                now(),
+                p_id_usuario,
+                null,
+                null,
+                --24-03-2021 (may) modificacion que se quite el campo y se registre todos como NO
+                --v_parametros.corriente
+                'si',
+                v_parametros.tipo
+
+                )RETURNING id_auxiliar into v_id_auxiliar;
+
+                select tu.cuenta
+                into v_usuario_reg
+                from segu.tusuario tu
+                where tu.id_usuario = p_id_usuario;
+
+
+                --Definicion de la respuesta
+                v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Auxiliares de Cuenta almacenado(a) con exito (id_auxiliar'||v_id_auxiliar||')');
+                v_resp = pxp.f_agrega_clave(v_resp,'id_auxiliar',v_id_auxiliar::varchar);
+
+                --Devuelve la respuesta
+                return v_resp;
+
+            end;
+
+        /*********************************
+        #TRANSACCION:  'CONTA_AUXCTACO_MOD'
+        #DESCRIPCION:	Modificacion de registros
+        #AUTOR:		Maylee Perez Pastor
+        #FECHA:		24-03-2021 20:44:52
+        ***********************************/
+
+        elsif(p_transaccion='CONTA_AUXCTACO_MOD')then
+
+            begin
+                --Sentencia de la modificacion
+                update conta.tauxiliar set
+                --id_empresa = v_parametros.id_empresa,
+                codigo_auxiliar = v_parametros.codigo_auxiliar,
+                nombre_auxiliar = v_parametros.nombre_auxiliar,
+                id_usuario_mod = p_id_usuario,
+                fecha_mod = now(),
+                --24-03-2021 (may) modificacion que se quite el campo y se registre todos como NO
+                --corriente = v_parametros.corriente
+                corriente = 'si',
+                tipo = v_parametros.tipo
+                where id_auxiliar=v_parametros.id_auxiliar;
+
+                select tu.cuenta
+                into v_usuario_reg
+                from segu.tusuario tu
+                where tu.id_usuario = p_id_usuario;
+
+                --Definicion de la respuesta
+                v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Auxiliares de Cuenta modificado(a)');
+                v_resp = pxp.f_agrega_clave(v_resp,'id_auxiliar',v_parametros.id_auxiliar::varchar);
+
+                --Devuelve la respuesta
+                return v_resp;
+
+            end;
+
+        /*********************************
+        #TRANSACCION:  'CONTA_AUXCTACO_ELI'
+        #DESCRIPCION:	Eliminacion de registros
+        #AUTOR:		Maylee Perez Pastor
+        #FECHA:		24-03-2021 20:44:52
+        ***********************************/
+
+        elsif(p_transaccion='CONTA_AUXCTACO_ELI')then
+
+            begin
+                --Sentencia de la eliminacion
+                /*delete from conta.tauxiliar
+                where id_auxiliar=v_parametros.id_auxiliar;*/
+
+                UPDATE conta.tauxiliar SET
+                estado_reg = 'inactivo'
+                WHERE id_auxiliar=v_parametros.id_auxiliar;
+
+
+                --Definicion de la respuesta
+                v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Auxiliares de Cuenta eliminado(a)');
+                v_resp = pxp.f_agrega_clave(v_resp,'id_auxiliar',v_parametros.id_auxiliar::varchar);
+
+                --Devuelve la respuesta
+                return v_resp;
+
+            end;
 
 
 	else

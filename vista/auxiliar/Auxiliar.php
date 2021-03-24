@@ -19,6 +19,8 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 		this.init();
 		this.load({params:{start:0, limit:50}});
 
+        this.iniciarEventos();
+
         this.addButton('replicar_aux',{
             grupo: [0,1,2,3,4],
             text: 'Replicar',
@@ -125,16 +127,18 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 	       			name:'corriente',
 	       			fieldLabel:'Corriente',
 	       			qtip: '¿Es cuenta corriente?',
-	       			allowBlank:false,
+	       			allowBlank:true,
 	       			emptyText:'Tipo...',
 	       			typeAhead: true,
 	       		    triggerAction: 'all',
 	       		    lazyRender:true,
 	       		    mode: 'local',
+                    readOnly: true,
 	       		    gwidth: 100,
 	       		    store:['si','no']
 	       		},
 	       		type:'ComboBox',
+                valorInicial: 'no',
 	       		id_grupo:0,
 	       		grid:true,
 	       		form:true
@@ -295,6 +299,9 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
         }else{
             Phx.vista.Auxiliar.superclass.onSubmit.call(this, o);
         }
+    },
+    iniciarEventos: function () {
+        this.ocultarComponente(this.Cmp.corriente);
     }
 
 })

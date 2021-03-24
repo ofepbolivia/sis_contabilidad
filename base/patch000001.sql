@@ -5256,3 +5256,9 @@ ALTER TABLE conta.tint_comprobante
 COMMENT ON COLUMN conta.tint_comprobante.reversion
 IS 'Bandera que indica si un comprobante sera de reversión para integración sigep.';
 /***********************************F-SCP-FEA-CONTA-0-06/11/2020****************************************/
+
+/***********************************I-SCP-MAY-CONTA-0-24/03/2021****************************************/
+ALTER TABLE conta.tauxiliar
+  ADD COLUMN tipo VARCHAR(200);
+
+/***********************************F-SCP-MAY-CONTA-0-24/03/2021****************************************/
