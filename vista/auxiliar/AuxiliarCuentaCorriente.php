@@ -91,7 +91,7 @@ header("content-type: text/javascript; charset=UTF-8");
             {
                 config:{
                     name: 'codigo_auxiliar',
-                    fieldLabel: 'Codigo Auxiliar',
+                    fieldLabel: 'Código Auxiliar',
                     allowBlank: true,
                     anchor: '80%',
                     gwidth: 100,
@@ -99,6 +99,22 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 type:'TextField',
                 filters:{pfiltro:'auxcta.codigo_auxiliar',type:'string'},
+                bottom_filter : true,
+                id_grupo:1,
+                grid:true,
+                form:true
+            },
+            {
+                config:{
+                    name: 'cod_antiguo',
+                    fieldLabel: 'Código Antiguo',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    maxLength:50
+                },
+                type:'TextField',
+                filters:{pfiltro:'auxcta.cod_antiguo',type:'string'},
                 bottom_filter : true,
                 id_grupo:1,
                 grid:true,
@@ -255,7 +271,8 @@ header("content-type: text/javascript; charset=UTF-8");
             {name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
             {name:'usr_reg', type: 'string'},
             {name:'usr_mod', type: 'string'},'corriente',
-            {name:'tipo', type: 'string'}
+            {name:'tipo', type: 'string'},
+            {name:'cod_antiguo', type: 'string'}
 
         ],
         sortInfo:{

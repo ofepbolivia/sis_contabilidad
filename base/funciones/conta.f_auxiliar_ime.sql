@@ -303,7 +303,8 @@ BEGIN
                 id_usuario_mod,
                 fecha_mod,
                 corriente,
-                tipo
+                tipo,
+                cod_antiguo
                 ) values(
                 --v_parametros.id_empresa,
                 'activo',
@@ -316,7 +317,8 @@ BEGIN
                 --24-03-2021 (may) modificacion que se quite el campo y se registre todos como NO
                 --v_parametros.corriente
                 'si',
-                v_parametros.tipo
+                v_parametros.tipo,
+                v_parametros.cod_antiguo
 
                 )RETURNING id_auxiliar into v_id_auxiliar;
 
@@ -355,7 +357,8 @@ BEGIN
                 --24-03-2021 (may) modificacion que se quite el campo y se registre todos como NO
                 --corriente = v_parametros.corriente
                 corriente = 'si',
-                tipo = v_parametros.tipo
+                tipo = v_parametros.tipo,
+                cod_antiguo = v_parametros.cod_antiguo
                 where id_auxiliar=v_parametros.id_auxiliar;
 
                 select tu.cuenta

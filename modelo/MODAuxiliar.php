@@ -172,6 +172,7 @@ class MODAuxiliar extends MODbase{
         $this->captura('usr_mod','varchar');
         $this->captura('corriente','varchar');
         $this->captura('tipo','varchar');
+        $this->captura('cod_antiguo','varchar');
 
 
         //Ejecuta la instruccion
@@ -195,6 +196,7 @@ class MODAuxiliar extends MODbase{
         $this->setParametro('nombre_auxiliar','nombre_auxiliar','varchar');
         $this->setParametro('corriente','corriente','varchar');
         $this->setParametro('tipo','tipo','varchar');
+        $this->setParametro('cod_antiguo','cod_antiguo','varchar');
 
 
         //Ejecuta la instruccion
@@ -219,6 +221,7 @@ class MODAuxiliar extends MODbase{
         $this->setParametro('nombre_auxiliar','nombre_auxiliar','varchar');
         $this->setParametro('corriente','corriente','varchar');
         $this->setParametro('tipo','tipo','varchar');
+        $this->setParametro('cod_antiguo','cod_antiguo','varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
