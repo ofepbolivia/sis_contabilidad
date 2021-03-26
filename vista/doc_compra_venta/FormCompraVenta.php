@@ -1278,6 +1278,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         triggerAction: 'all',
                         lazyRender: true,
                         mode: 'local',
+                        forceSelection: true,
                         store: ['CBB', 'LPB', 'SRZ', 'CIJ', 'TJA', 'POI', 'ORU', 'TDD', 'SRE', 'UYU', 'CCA', 'RIB', 'RBQ', 'GYA', 'BYC']
                     },
                     type: 'ComboBox',
@@ -2140,7 +2141,15 @@ header("content-type: text/javascript; charset=UTF-8");
                 //console.log('llegam',this.data );
                 //console.log('llegam22',this.data.objPadre.mycls );
                 //console.log('llegam233',this.mycls);
-                if ((this.data.objPadre.mycls == 'RendicionDetReg' || this.data.objPadre.mycls== 'RendicionDetTes')  && this.mycls == 'FormRendicionCD'){
+
+                if (this.data.datosOriginales.data.id_moneda == 2) {
+                    this.mostrarComponente(this.Cmp.tipo_cambio);
+                }
+                else {
+                    this.ocultarComponente(this.Cmp.tipo_cambio);
+                }
+
+                if (((this.data.objPadre.mycls == 'RendicionDetReg' || this.data.objPadre.mycls== 'RendicionDetTes')  && this.mycls == 'FormRendicionCD') || ((this.data.objPadre.mycls == 'SolicitudRendicionDet')  && this.mycls == 'FormRendicion') ){
 
                     if (this.data.datosOriginales.data.revisado == 'si' || this.data.boton_rendicion=='readOnly') {
                         this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
@@ -2188,6 +2197,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     }
                     this.Cmp.mod_rev.setValue(this.data.datosOriginales.data.revisado);
                     this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
+                    console.log('llegam',this.data.datosOriginales.data.id_moneda );
                     if (this.data.datosOriginales.data.id_moneda == 2) {
                         this.mostrarComponente(this.Cmp.tipo_cambio);
                     }
@@ -2261,6 +2271,8 @@ header("content-type: text/javascript; charset=UTF-8");
             //load detalle de conceptos
             if (this.regitrarDetalle == 'si') {
                 this.detCmp.id_centro_costo.store.baseParams.id_depto = this.data.id_depto;
+                console.log('llelgagestion',this.Cmp.id_doc_compra_venta.getValue())
+                console.log('llelgagestion222',this.Cmp.id_doc_compra_venta.getValue())
                 this.mestore.baseParams.id_doc_compra_venta = this.Cmp.id_doc_compra_venta.getValue();
                 this.mestore.load()
             }
@@ -2287,6 +2299,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         onSubmit: function (o) {
             var me = this;
+
             if (me.regitrarDetalle == 'si') {
                 //  validar formularios
                 var arra = [], total_det = 0.0, i;

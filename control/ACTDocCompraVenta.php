@@ -91,6 +91,11 @@ class ACTDocCompraVenta extends ACTbase
             $this->objParam->addFiltro("NOT EXISTS(select * from cd.trendicion_det rd where dcv.id_doc_compra_venta = rd.id_doc_compra_venta and rd.estado_reg = ''activo'') ");
         }
 
+		//18-03-2021 (may) para caja chica
+		if ($this->objParam->getParametro('isRendicionDetCC') == 'si') {
+            $this->objParam->addFiltro("NOT EXISTS(select * from tes.tsolicitud_rendicion_det srd where dcv.id_doc_compra_venta = srd.id_documento_respaldo and srd.estado_reg = ''activo'') ");
+        }
+
         if ($this->objParam->getParametro('tipoReporte') == 'excel_grid' || $this->objParam->getParametro('tipoReporte') == 'pdf_grid') {
             $this->objReporte = new Reporte($this->objParam, $this);
             $this->res = $this->objReporte->generarReporteListado('MODDocCompraVenta', 'listarDocCompraVenta');
