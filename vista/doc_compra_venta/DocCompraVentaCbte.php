@@ -60,7 +60,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.store.baseParams = {id_int_comprobante: this.id_int_comprobante};
             }
             console.log('maestro22222', this.maestro, this.disparador);
-
             this.load({params:{start:0, limit:this.tam_pag}});
         },
 
@@ -787,7 +786,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         agregarArgsExtraSubmit: function() {
 
-            this.argumentExtraSubmit = { id_int_comprobante: this.id_int_comprobante };
+            this.argumentExtraSubmit = { id_int_comprobante: this.id_int_comprobante , id_plan_pago: this.id_plan_pago};
 
         },
 

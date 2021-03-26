@@ -1886,24 +1886,44 @@ END IF;
               raise exception 'El documento no existe o ya tiene un cbte relacionado';
             END IF;
 
-            --#14, recupera nro de tramite del cbte
-            select cbte.nro_tramite
-            into v_nro_tramite
-            from conta.tint_comprobante cbte
-            where cbte.id_int_comprobante = v_parametros.id_int_comprobante;
 
-            --17-03-2021 (may) para actualizar el plaan de pago
-            select pp.id_plan_pago
-            into v_id_plan_pago_dcv
-            from tes.tplan_pago pp
-            inner join conta.tdoc_compra_venta dcv on dcv.id_plan_pago = pp.id_plan_pago
-            where dcv.id_int_comprobante = v_parametros.id_int_comprobante;
+              IF (v_parametros.id_plan_pago IS NULL ) THEN
+              		 --IF v_parametros.id_int_comprobante is not null then
 
-            update conta.tdoc_compra_venta d  set
-              id_int_comprobante =  v_parametros.id_int_comprobante,
-              nro_tramite =   v_nro_tramite,
-              id_plan_pago = v_id_plan_pago_dcv
-            where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+                      --#14, recupera nro de tramite del cbte
+                      select cbte.nro_tramite
+                      into v_nro_tramite
+                      from conta.tint_comprobante cbte
+                      where cbte.id_int_comprobante = v_parametros.id_int_comprobante;
+
+                      --17-03-2021 (may) para actualizar el plaan de pago
+                      select pp.id_plan_pago
+                      into v_id_plan_pago_dcv
+                      from tes.tplan_pago pp
+                      inner join conta.tdoc_compra_venta dcv on dcv.id_plan_pago = pp.id_plan_pago
+                      where dcv.id_int_comprobante = v_parametros.id_int_comprobante;
+
+                      update conta.tdoc_compra_venta d  set
+                        id_int_comprobante =  v_parametros.id_int_comprobante,
+                        nro_tramite =   v_nro_tramite,
+                        id_plan_pago = v_id_plan_pago_dcv
+                      where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+
+              ELSE
+
+                        SELECT op.num_tramite
+                        INTO v_nro_tramite
+                        FROM tes.tplan_pago pp
+                        inner join tes.tobligacion_pago op on op.id_obligacion_pago = pp.id_obligacion_pago
+                        WHERE pp.id_plan_pago = v_parametros.id_plan_pago;
+
+                        update conta.tdoc_compra_venta d  set
+                          id_int_comprobante =  v_parametros.id_int_comprobante,
+                          nro_tramite =   v_nro_tramite,
+                          id_plan_pago = v_parametros.id_plan_pago
+                        where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+
+              END IF;
       END IF;
        --
       --Definicion de la respuesta
