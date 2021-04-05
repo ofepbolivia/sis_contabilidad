@@ -5268,3 +5268,9 @@ ALTER TABLE conta.tauxiliar
   ADD COLUMN cod_antiguo VARCHAR(50);
 
 /***********************************F-SCP-MAY-CONTA-0-25/03/2021****************************************/
+
+/***********************************I-SCP-MAY-CONTA-0-05/04/2021****************************************/
+ALTER TABLE conta.tdoc_compra_venta_ext
+  ADD COLUMN nro_tramite_relacion VARCHAR;
+
+/***********************************F-SCP-MAY-CONTA-0-05/04/2021****************************************/
