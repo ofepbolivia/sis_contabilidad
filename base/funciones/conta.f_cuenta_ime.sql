@@ -40,6 +40,7 @@ DECLARE
     v_conta					integer;
     v_id_cuenta_padre_des	integer;
     v_reg_cuenta_ori		record;
+    v_nivel_cuenta			integer;
 
 BEGIN
 
@@ -93,7 +94,9 @@ BEGIN
 
         END IF;
 
-
+          select nivel_cuenta + 1 into v_nivel_cuenta
+          from conta.tcuenta
+          where id_cuenta = v_id_cuenta_padre;
 
         	--Sentencia de la insercion
         	insert into conta.tcuenta(
@@ -122,7 +125,7 @@ BEGIN
                 v_id_cuenta_padre,
                 v_parametros.nombre_cuenta,
                 v_parametros.sw_auxiliar,
-                NULL,
+                v_nivel_cuenta,
                 v_parametros.tipo_cuenta,
                 v_parametros.desc_cuenta,
                 v_tipo_cuenta_pat,
