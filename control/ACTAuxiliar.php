@@ -18,6 +18,12 @@ class ACTAuxiliar extends ACTbase{
             							from conta.tcuenta_auxiliar where estado_reg = ''activo'' and id_cuenta = ".$this->objParam->getParametro('id_cuenta') . ") ");
         }
 
+		/*Aumentando para listar los Auxilaires que tengan el tipo*/
+		if($this->objParam->getParametro('grupos')!=''){
+            $this->objParam->addFiltro("auxcta.tipo is not null");
+    }
+		/**********************************************************/
+
 		if($this->objParam->getParametro('corriente')!=''){
 					if ($this->objParam->getParametro('ro_activo')=='si'){
 							$this->objParam->addFiltro("  auxcta.corriente = ''no'' and auxcta.tipo = ''Grupo''");
