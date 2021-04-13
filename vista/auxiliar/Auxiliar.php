@@ -133,7 +133,7 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 	       		    triggerAction: 'all',
 	       		    lazyRender:true,
 	       		    mode: 'local',
-                    readOnly: true,
+                    //readOnly: true,
 	       		    gwidth: 100,
 	       		    store:['si','no']
 	       		},
@@ -301,7 +301,7 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
         }
     },
     iniciarEventos: function () {
-        this.ocultarComponente(this.Cmp.corriente);
+        //this.ocultarComponente(this.Cmp.corriente);
     }
 
 })

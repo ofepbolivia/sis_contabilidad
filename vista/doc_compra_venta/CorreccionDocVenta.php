@@ -120,8 +120,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             var record = this.store.getAt(rowIndex);
             var fieldName = grid.getColumnModel().getDataIndex(columnIndex); // Get field name
-
-console.log('grid', grid);
+            
 
             if (fieldName == 'nro_factura' &&  (this.tipo_show == 'PENDIENTE' || this.tipo_show == 'CORREGIDO')) {
 

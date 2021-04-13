@@ -285,11 +285,11 @@ class RLibroDeVentas extends  ReportePDF {
         $startY = $this->GetY();
         $this->getNumLines($row['cell1data'], 80);
 
-        if (($startY + ((7) )) + $dimensions['bm'] > ($dimensions['hk'])) {
+        if (($startY + 9) + $dimensions['bm'] > ($dimensions['hk'])) {
 
             $this->cerrarCuadro();
             $this->cerrarCuadroTotal();
-            $k = 	($startY + ((7) )) + $dimensions['bm'] - ($dimensions['hk']);
+            $k = 	($startY + 9) + $dimensions['bm'] - ($dimensions['hk']);
 
 
             if($this->total!= 0){

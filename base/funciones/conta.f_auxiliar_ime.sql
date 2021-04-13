@@ -140,8 +140,8 @@ BEGIN
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
             --24-03-2021 (may) modificacion que se quite el campo y se registre todos como NO
-            --corriente = v_parametros.corriente
-            corriente = 'no'
+            corriente = v_parametros.corriente
+            --corriente = 'no'
 			where id_auxiliar=v_parametros.id_auxiliar;
 
             select tu.cuenta

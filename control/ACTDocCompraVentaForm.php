@@ -886,7 +886,7 @@ class ACTDocCompraVentaForm extends ACTbase{
 			$separador = "|";
 			$ext = '.txt';
 		}else{
-			$separador = ",";
+			$separador = "|";
 			$ext = '.csv';
 		}
 

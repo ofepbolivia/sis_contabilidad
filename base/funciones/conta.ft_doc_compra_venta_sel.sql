@@ -1865,12 +1865,12 @@ BEGIN
 
                   --perform dblink_exec(v_cadena_factura,v_consulta,TRUE);
 
-                  v_consulta = 'select  id_factura,
-                   						fecha_factura,
+                  v_consulta = 'select  fac.id_factura,
+                   						fac.fecha_factura,
 
-                                        coalesce(nro_factura,''''::varchar) nro_factura,
+                                        coalesce(fac.nro_factura,''''::varchar) nro_factura,
 
-                                        (case when tipo_factura = ''manual'' and sistema_origen = ''ERP'' and id_factura not in (''1201'',
+                                        (case when fac.tipo_factura = ''manual'' and fac.sistema_origen = ''ERP'' and fac.id_factura not in (''1201'',
 ''1211'',
 ''1213'',
 ''1215'',
@@ -1911,27 +1911,27 @@ BEGIN
 ''177527'',
 ''177534'',
 ''177535'') then
-                                        (select tdos.nroaut from vef.tventa tve inner join vef.tdosificacion tdos on tdos.id_dosificacion = tve.id_dosificacion where tve.id_venta = id_origen)::varchar
-                                         when tipo_factura = ''computarizada'' and sistema_origen = ''ERP'' and estado = ''A'' and nro_autorizacion is null then
-                                        (select tdos.nroaut from vef.tventa tve inner join vef.tdosificacion tdos on tdos.id_dosificacion = tve.id_dosificacion where tve.id_venta = id_origen)::varchar
-                                        else coalesce(nro_autorizacion,''''::varchar) end ) nro_autorizacion,
+                                        (select tdos.nroaut from vef.tventa tve inner join vef.tdosificacion tdos on tdos.id_dosificacion = tve.id_dosificacion where tve.id_venta = fac.id_origen)::varchar
+                                         when fac.tipo_factura = ''computarizada'' and fac.sistema_origen = ''ERP'' and fac.estado = ''A'' and fac.nro_autorizacion is null then
+                                        (select tdos.nroaut from vef.tventa tve inner join vef.tdosificacion tdos on tdos.id_dosificacion = tve.id_dosificacion where tve.id_venta = fac.id_origen)::varchar
+                                        else coalesce(fac.nro_autorizacion,''''::varchar) end ) nro_autorizacion,
 
-                                        coalesce(estado,''''::varchar) estado,
-                                        coalesce(nit_ci_cli,''''::varchar) nit_ci_cli,
-                                        coalesce(razon_social_cli,''''::varchar) razon_social_cli,
+                                        coalesce(fac.estado,''''::varchar) estado,
+                                        coalesce(fac.nit_ci_cli,''''::varchar) nit_ci_cli,
+                                        coalesce(fac.razon_social_cli,''''::varchar) razon_social_cli,
 
-                                        /*(coalesce(importe_total_venta::numeric,0::numeric))::numeric*/ importe_total_venta,
-                                        /*(coalesce(importe_otros_no_suj_iva::numeric,0::numeric))::numeric*/ importe_otros_no_suj_iva,
-                                        /*(coalesce(exportacion_excentas::numeric,0::numeric))::numeric*/ exportacion_excentas,
-                                        /*(coalesce(ventas_tasa_cero::numeric,0::numeric))::numeric*/ ventas_tasa_cero,
-                                        /*(coalesce(descuento_rebaja_suj_iva::numeric,0::numeric))::numeric*/ descuento_rebaja_suj_iva,
-                                        /*(coalesce(importe_debito_fiscal::numeric,0::numeric))::numeric*/ importe_debito_fiscal,
+                                        /*(coalesce(importe_total_venta::numeric,0::numeric))::numeric*/ fac.importe_total_venta,
+                                        /*(coalesce(importe_otros_no_suj_iva::numeric,0::numeric))::numeric*/ fac.importe_otros_no_suj_iva,
+                                        /*(coalesce(exportacion_excentas::numeric,0::numeric))::numeric*/ fac.exportacion_excentas,
+                                        /*(coalesce(ventas_tasa_cero::numeric,0::numeric))::numeric*/ fac.ventas_tasa_cero,
+                                        /*(coalesce(descuento_rebaja_suj_iva::numeric,0::numeric))::numeric*/ fac.descuento_rebaja_suj_iva,
+                                        /*(coalesce(importe_debito_fiscal::numeric,0::numeric))::numeric*/ fac.importe_debito_fiscal,
 
-                                        (case when codigo_control is null or codigo_control = '''' then ''0''
-                                        else codigo_control end ) codigo_control,
-                                        tipo_factura,
-                                        id_origen,
-                                        sistema_origen
+                                        (case when fac.codigo_control is null or fac.codigo_control = '''' then ''0''
+                                        else fac.codigo_control end ) codigo_control,
+                                        fac.tipo_factura,
+                                        fac.id_origen,
+                                        fac.sistema_origen
 
                                  from dblink(''' || v_cadena_factura || ''', '''|| v_consulta ||''') as
                             		fac(
@@ -1954,10 +1954,10 @@ BEGIN
                                         tipo_factura varchar,
                                         id_origen integer,
                                         sistema_origen varchar
-                                    )where case when (('||date_part('month',v_fecha_ini)||'=1 and '||date_part('year',v_fecha_ini)||'=2021) or ('||date_part('month',v_fecha_fin)||'=1 and '||date_part('year',v_fecha_fin)||'=2021)) then 0=0 else nro_factura not in (
+                                    ) where case when (('||date_part('month',v_fecha_ini)||'=1 and '||date_part('year',v_fecha_ini)||'=2021) or ('||date_part('month',v_fecha_fin)||'=1 and '||date_part('year',v_fecha_fin)||'=2021)) then 0=0 else fac.nro_factura not in (
                                     select nro_boleto from vef.tboletos_asociados_fact tba
                                     inner join vef.tventa tv on tv.id_venta = tba.id_venta
-                                    where tv.estado = ''finalizado'' and tv.tipo_factura in (''manual'',''computarizada'') and bf.estado_reg = ''activo'' ) end
+                                    where tv.estado = ''finalizado'' and tv.tipo_factura in (''manual'',''computarizada'') and tv.estado_reg = ''activo'' and tba.estado_reg = ''activo'') end
                                     order by fecha_factura asc, nro_factura asc
                             ';
 
@@ -2395,7 +2395,7 @@ BEGIN
                         inner join segu.tusuario usu1 on usu1.id_usuario = tcd.id_usuario_reg
                         inner join orga.vfuncionario vf on vf.id_persona = usu1.id_persona
 
-                        where tcd.id_usuario_reg = '||p_id_usuario||' and tcd.estado_reg != ''inactivo'' and '||v_parametros.filtro;
+                        where tcd.id_usuario_reg = '||p_id_usuario||' and tcd.estado_reg != ''inactivo'' and tcd.fecha_generacion::date = current_date and '||v_parametros.filtro;
 
 
 			v_consulta = v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
@@ -2423,7 +2423,7 @@ BEGIN
                         inner join segu.tusuario usu1 on usu1.id_usuario = tcd.id_usuario_reg
                         inner join orga.vfuncionario vf on vf.id_persona = usu1.id_persona
 
-                        where tcd.id_usuario_reg = '||p_id_usuario||' and tcd.estado_reg != ''inactivo'' and '||v_parametros.filtro;
+                        where tcd.id_usuario_reg = '||p_id_usuario||' and tcd.estado_reg != ''inactivo'' and tcd.fecha_generacion::date = current_date and '||v_parametros.filtro;
 
 
 			--Devuelve la respuesta
