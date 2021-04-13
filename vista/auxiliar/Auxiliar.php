@@ -42,7 +42,7 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_auxiliar'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		/*{
  			config:{
@@ -78,7 +78,7 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
  				queryDelay:1000,
  				width:250,
  				minChars:2,
- 			
+
  				renderer:function(value, p, record){return String.format('{0}', record.data['nombre']);}
 
  			},
@@ -143,6 +143,24 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 	       		grid:true,
 	       		form:true
 	     },
+			 {
+					 config:{
+							 name:'tipo',
+							 fieldLabel:'Tipo',
+							 allowBlank:true,
+							 emptyText:'Tipo...',
+							 typeAhead: true,
+							 triggerAction: 'all',
+							 lazyRender:true,
+							 mode: 'local',
+							 gwidth: 100,
+							 store:['Agencia No IATA', 'Corporativo','Carga', 'Grupo']
+					 },
+					 type:'ComboBox',
+					 id_grupo:0,
+					 grid:true,
+					 form:true
+			 },
 		{
 			config:{
 				name: 'estado_reg',
@@ -165,7 +183,7 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-						format: 'd/m/Y', 
+						format: 'd/m/Y',
 						renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 			type:'DateField',
@@ -211,7 +229,7 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-						format: 'd/m/Y', 
+						format: 'd/m/Y',
 						renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 			type:'DateField',
@@ -221,7 +239,7 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 			form:false
 		}
 	],
-	
+
 	title:'Auxiliares de Cuenta',
 	ActSave:'../../sis_contabilidad/control/Auxiliar/insertarAuxiliar',
 	ActDel:'../../sis_contabilidad/control/Auxiliar/eliminarAuxiliar',
@@ -239,8 +257,8 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_usuario_mod', type: 'numeric'},
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
-		{name:'usr_mod', type: 'string'},'corriente'
-		
+		{name:'usr_mod', type: 'string'},'corriente','tipo'
+
 	],
 	sortInfo:{
 		field: 'id_auxiliar',
@@ -306,5 +324,3 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 
 })
 </script>
-		
-		

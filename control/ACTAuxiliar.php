@@ -19,7 +19,11 @@ class ACTAuxiliar extends ACTbase{
         }
 
 		if($this->objParam->getParametro('corriente')!=''){
+					if ($this->objParam->getParametro('ro_activo')=='si'){
+							$this->objParam->addFiltro("  auxcta.corriente = ''no'' and auxcta.tipo = ''Grupo''");
+					}else{
             $this->objParam->addFiltro("auxcta.corriente = ''".$this->objParam->getParametro('corriente')."''");
+					}
         }
 
 		if($this->objParam->getParametro('id_auxiliar')!=''){
@@ -109,6 +113,12 @@ class ACTAuxiliar extends ACTbase{
 			$this->objParam->addFiltro("auxcta.id_auxiliar IN (select id_auxiliar
             							from conta.tcuenta_auxiliar where estado_reg = ''activo'' and id_cuenta = ".$this->objParam->getParametro('id_cuenta') . ") ");
 		}
+		// {mod: bvasquez, date: 08/04/2021, desc: filstro por tipo interface}
+		if($this->objParam->getParametro('tipo_interfaz') == 'auxiliar_cc'){
+			$this->objParam->addFiltro("auxcta.corriente =  ''si''");
+		}else if ($this->objParam->getParametro('tipo_interfaz') == 'auxiliar_cc_grupos') {
+			$this->objParam->addFiltro("auxcta.corriente = ''no'' and auxcta.tipo = ''Grupo''");
+		}
 
 		if($this->objParam->getParametro('corriente')!=''){
 			$this->objParam->addFiltro("auxcta.corriente = ''".$this->objParam->getParametro('corriente')."''");
@@ -118,7 +128,7 @@ class ACTAuxiliar extends ACTbase{
 			$this->objParam->addFiltro("auxcta.id_auxiliar = ".$this->objParam->getParametro('id_auxiliar'));
 		}
 		if($this->objParam->getParametro('estado_reg')!=''){
-			$this->objParam->addFiltro("auxcta.estado_reg = ''".$this->objParam->getParametro('estado_reg')."''");
+			$this->objParam->addFiltro(" auxcta.estado_reg = ''".$this->objParam->getParametro('estado_reg')."''");
 		}
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);

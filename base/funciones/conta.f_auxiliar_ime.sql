@@ -41,6 +41,7 @@ DECLARE
     v_usuario_reg			varchar;
     v_res_conn				varchar;
 	v_existencia			integer;
+  v_corriente				varchar;
 BEGIN
 
     v_nombre_funcion = 'conta.f_auxiliar_ime';
@@ -76,7 +77,8 @@ BEGIN
 			id_usuario_reg,
 			id_usuario_mod,
 			fecha_mod,
-            corriente
+            corriente,
+            tipo
           	) values(
 			--v_parametros.id_empresa,
 			'activo',
@@ -88,8 +90,8 @@ BEGIN
 			null,
             --24-03-2021 (may) modificacion que se quite el campo y se registre todos como NO
             --v_parametros.corriente
-            'no'
-
+            'no',
+            v_parametros.tipo
 			)RETURNING id_auxiliar into v_id_auxiliar;
 
             select tu.cuenta
@@ -140,8 +142,9 @@ BEGIN
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
             --24-03-2021 (may) modificacion que se quite el campo y se registre todos como NO
-            corriente = v_parametros.corriente
+            corriente = v_parametros.corriente,
             --corriente = 'no'
+            tipo = v_parametros.tipo
 			where id_auxiliar=v_parametros.id_auxiliar;
 
             select tu.cuenta
@@ -292,6 +295,12 @@ BEGIN
                  raise exception 'El codigo o nombre del auxiliar ya se encuentran registrados';
                 end if;
 
+                if v_parametros.tipo_interfaz = 'auxiliar_cc_grupos' then
+        		   		v_corriente = v_parametros.corriente;
+        		   	else
+        		   		v_corriente = 'si';
+        		   	end if;
+
                 --Sentencia de la insercion
                 insert into conta.tauxiliar(
                 --id_empresa,
@@ -316,7 +325,7 @@ BEGIN
                 null,
                 --24-03-2021 (may) modificacion que se quite el campo y se registre todos como NO
                 --v_parametros.corriente
-                'si',
+                v_corriente,
                 v_parametros.tipo,
                 v_parametros.cod_antiguo
 
@@ -347,6 +356,13 @@ BEGIN
         elsif(p_transaccion='CONTA_AUXCTACO_MOD')then
 
             begin
+
+                if v_parametros.tipo_interfaz = 'auxiliar_cc_grupos' then
+        		   		v_corriente = v_parametros.corriente;
+        		   	else
+        		   		v_corriente = 'si';
+        		   	end if;
+
                 --Sentencia de la modificacion
                 update conta.tauxiliar set
                 --id_empresa = v_parametros.id_empresa,
@@ -356,7 +372,7 @@ BEGIN
                 fecha_mod = now(),
                 --24-03-2021 (may) modificacion que se quite el campo y se registre todos como NO
                 --corriente = v_parametros.corriente
-                corriente = 'si',
+                corriente = v_corriente,
                 tipo = v_parametros.tipo,
                 cod_antiguo = v_parametros.cod_antiguo
                 where id_auxiliar=v_parametros.id_auxiliar;

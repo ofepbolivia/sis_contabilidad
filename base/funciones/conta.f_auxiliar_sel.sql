@@ -89,7 +89,8 @@ BEGIN
 						auxcta.fecha_mod,
 						usu1.cuenta as usr_reg,
 						usu2.cuenta as usr_mod,
-                        auxcta.corriente
+            auxcta.corriente,
+            auxcta.tipo
 						from conta.tauxiliar auxcta
 						inner join segu.tusuario usu1 on usu1.id_usuario = auxcta.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = auxcta.id_usuario_mod
@@ -216,7 +217,7 @@ BEGIN
                             left join segu.tusuario usu2 on usu2.id_usuario = auxcta.id_usuario_mod
                             left join param.tempresa emp on emp.id_empresa=auxcta.id_empresa '||
                             v_inner || '
-                            where auxcta.estado_reg = ''activo'' and auxcta.corriente =  ''si'' and  '||v_add_filtro;
+                            where auxcta.estado_reg = ''activo'' and  '||v_add_filtro;
 
                 --Definicion de la respuesta
                 v_consulta:=v_consulta||v_parametros.filtro;
