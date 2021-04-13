@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.ft_periodo_compra_venta_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -43,6 +41,9 @@ DECLARE
 	v_fecha_permitida				date;
 	v_fecha_cerrado_parcial 		varchar;
 	v_fecha_cerrado				varchar;
+    v_traer_data				varchar;
+    v_id_depto_cv				integer;
+	v_id_depto					integer;
 BEGIN
 
     v_nombre_funcion = 'conta.ft_periodo_compra_venta_ime';
@@ -137,8 +138,46 @@ BEGIN
 
             IF  v_parametros.tipo = 'cerrar' THEN
              v_estado = 'cerrado';
+             /*Aumentando para que se jale informacion de la tabla sfe.tfactura para los comisionistas*/
+             --Modifi (Ismael Valdivia 13/04/2021)
+
+             select pcv.id_depto
+             	    into
+                    v_id_depto_cv
+             from conta.tperiodo_compra_venta pcv
+             where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta;
+
+             select dep.id_depto
+             into
+             v_id_depto
+             from param.tdepto dep
+             where trim(dep.codigo) = 'CON';
+
+             if (v_id_depto_cv = v_id_depto) then
+             	v_traer_data = vef.ft_insertar_acumulacion_comisionistas_ime();
+             end if;
+
+             /*****************************************************************************************/
             ELSIF  v_parametros.tipo = 'cerrar_parcial' THEN
              v_estado = 'cerrado_parcial';
+             /*Aumentando para que se jale informacion de la tabla sfe.tfactura para los comisionistas*/
+             --Modifi (Ismael Valdivia 13/04/2021)
+             select pcv.id_depto
+             	    into
+                    v_id_depto_cv
+             from conta.tperiodo_compra_venta pcv
+             where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta;
+
+             select dep.id_depto
+             into
+             v_id_depto
+             from param.tdepto dep
+             where trim(dep.codigo) = 'CON';
+
+             if (v_id_depto_cv = v_id_depto) then
+             	v_traer_data = vef.ft_insertar_acumulacion_comisionistas_ime();
+             end if;
+             /*****************************************************************************************/
             ELSE
              v_estado = 'abierto';
             END IF;
@@ -294,3 +333,6 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
+
+ALTER FUNCTION conta.ft_periodo_compra_venta_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;
