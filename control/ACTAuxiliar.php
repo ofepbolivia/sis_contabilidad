@@ -26,7 +26,8 @@ class ACTAuxiliar extends ACTbase{
 
 		if($this->objParam->getParametro('corriente')!=''){
 					if ($this->objParam->getParametro('ro_activo')=='si'){
-							$this->objParam->addFiltro("  auxcta.corriente = ''no'' and auxcta.tipo = ''Grupo''");
+							// $this->objParam->addFiltro("  auxcta.corriente = ''no'' and auxcta.tipo = ''Grupo''");
+							$this->objParam->addFiltro(" (auxcta.corriente=''si'' or  auxcta.tipo = ''Grupo'') ");
 					}else{
             $this->objParam->addFiltro("auxcta.corriente = ''".$this->objParam->getParametro('corriente')."''");
 					}
