@@ -36,6 +36,8 @@ class MODMonedaPais extends MODbase{
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
 		$this->captura('desc_moneda','varchar');
+		$this->captura('codigo_internacional','varchar');
+		$this->captura('moneda','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
