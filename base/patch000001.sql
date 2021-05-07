@@ -5274,3 +5274,11 @@ ALTER TABLE conta.tdoc_compra_venta_ext
   ADD COLUMN nro_tramite_relacion VARCHAR;
 
 /***********************************F-SCP-MAY-CONTA-0-05/04/2021****************************************/
+
+/***********************************I-SCP-IRVA-CONTA-0-07/05/2021****************************************/
+ALTER TABLE conta.tmoneda_pais
+  ADD COLUMN filtrar_combo VARCHAR(10);
+
+COMMENT ON COLUMN conta.tmoneda_pais.filtrar_combo
+IS 'Campo que indicara que monedas se mostraran en el combo';
+/***********************************F-SCP-IRVA-CONTA-0-07/05/2021****************************************/
