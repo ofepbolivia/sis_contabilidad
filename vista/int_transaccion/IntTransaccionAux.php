@@ -77,8 +77,8 @@ Phx.vista.IntTransaccionAux = {
 
 	         this.swButton = 'EDIT';
 	         var rec = this.sm.getSelected().data;
-	         Phx.vista.IntTransaccionAux.superclass.onButtonEdit.call(this); 
-	         
+	         Phx.vista.IntTransaccionAux.superclass.onButtonEdit.call(this);
+
 	         this.Cmp.id_partida.store.baseParams.id_centro_costo = rec.id_centro_costo;
 		 	 this.Cmp.id_partida.modificado = true;		 	 
 		 	 this.Cmp.id_cuenta.store.baseParams.id_partida = rec.id_partida;
@@ -93,6 +93,48 @@ Phx.vista.IntTransaccionAux = {
             //may filtro segun partida para el concepto de gasto
             this.Cmp.id_concepto_ingas.store.baseParams.id_partida = rec.id_partida;
             this.Cmp.id_concepto_ingas.modificado = true;
+
+            //13-05-2021 (may) filtros al editar transacciones -reset todos los campos al editar
+            this.Cmp.id_centro_costo.on('select',function(cmp,rec,ind){
+                this.Cmp.id_orden_trabajo.reset();
+                this.Cmp.id_orden_trabajo.store.baseParams.id_centro_costo = rec.data.id_centro_costo;
+                this.Cmp.id_orden_trabajo.modificado = true;
+                this.Cmp.id_partida.reset();
+                this.Cmp.id_partida.store.baseParams.id_centro_costo = rec.data.id_centro_costo;
+                this.Cmp.id_partida.modificado = true;
+                this.Cmp.id_cuenta.reset();
+                this.Cmp.id_cuenta.store.baseParams.id_centro_costo = rec.data.id_centro_costo;
+                this.Cmp.id_cuenta.modificado = true;
+                this.Cmp.id_auxiliar.reset();
+                this.Cmp.id_auxiliar.store.baseParams.id_centro_costo = rec.data.id_centro_costo;
+                this.Cmp.id_auxiliar.modificado = true;
+                this.Cmp.id_suborden.reset();
+                this.Cmp.id_concepto_ingas.reset();
+
+            }, this);
+
+            this.Cmp.id_partida.on('select',function(cmp,rec,ind){
+                this.Cmp.id_cuenta.reset();
+                this.Cmp.id_cuenta.store.baseParams.id_partida = rec.data.id_partida;
+                this.Cmp.id_cuenta.modificado = true;
+
+                //may filtro segun partida para el concepto de gasto
+                this.Cmp.id_concepto_ingas.reset();
+                this.Cmp.id_concepto_ingas.store.baseParams.id_partida = rec.data.id_partida;
+                this.Cmp.id_concepto_ingas.modificado = true;
+            }, this);
+
+            this.Cmp.id_cuenta.on('select',function(cmp,rec,ind){
+                this.Cmp.id_auxiliar.reset();
+                this.Cmp.id_auxiliar.store.baseParams.id_cuenta = rec.data.id_cuenta;
+                this.Cmp.id_auxiliar.modificado = true;
+            }, this);
+
+            this.Cmp.id_orden_trabajo.on('select',function(cmp,rec,ind){
+                this.Cmp.id_suborden.reset();
+                this.Cmp.id_suborden.store.baseParams.id_orden_trabajo = rec.data.id_orden_trabajo;
+                this.Cmp.id_suborden.modificado = true;
+            }, this);
 
     },
 	
