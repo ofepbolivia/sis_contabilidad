@@ -123,7 +123,7 @@ class ACTAuxiliar extends ACTbase{
 		// {mod: bvasquez, date: 08/04/2021, desc: filstro por tipo interface}
 		if($this->objParam->getParametro('tipo_interfaz') == 'auxiliar_cc'){
 			$this->objParam->addFiltro("auxcta.corriente =  ''si''");
-		}else if ($this->objParam->getParametro('tipo_interfaz') == 'auxiliar_cc_grupos') {
+		}else if ($this->objParam->getParametro('tipo_interfaz') == 'auxiliar_cc_grupos' || $this->objParam->getParametro('tipo_interfaz') == 'auxiliar_cc_grupo_ro') {
 			$this->objParam->addFiltro("auxcta.corriente = ''no'' and auxcta.tipo = ''Grupo''");
 		}
 

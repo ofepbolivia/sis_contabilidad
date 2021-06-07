@@ -42,6 +42,9 @@ DECLARE
     v_res_conn				varchar;
 	v_existencia			integer;
   v_corriente				varchar;
+
+  v_correlativo_cc			varchar;
+  v_cod_cc			varchar;
 BEGIN
 
     v_nombre_funcion = 'conta.f_auxiliar_ime';
@@ -286,16 +289,35 @@ BEGIN
 
             begin
 
-                select count(*) into v_existencia
-                 from conta.tauxiliar auxi
-                 where auxi.codigo_auxiliar = v_parametros.codigo_auxiliar or
-                       auxi.nombre_auxiliar = v_parametros.nombre_auxiliar;
+                if v_parametros.tipo_interfaz = 'auxiliar_cc_grupo_ro' then
+                    	-- captura de correlativo de codigo auxiliar para cuenta corriente grupo
+                        select valor into v_correlativo_cc
+                        from pxp.variable_global
+                        where variable = 'correlativo_cc_grupo';
+
+                        select count(*) into v_existencia
+                        from conta.tauxiliar auxi
+                        where auxi.codigo_auxiliar = v_correlativo_cc or
+                              auxi.nombre_auxiliar = v_parametros.nombre_auxiliar;
+
+                        v_cod_cc = v_correlativo_cc;
+
+                else
+
+                  select count(*) into v_existencia
+                   from conta.tauxiliar auxi
+                   where auxi.codigo_auxiliar = v_parametros.codigo_auxiliar or
+                         auxi.nombre_auxiliar = v_parametros.nombre_auxiliar;
+
+                    v_cod_cc = v_parametros.codigo_auxiliar;
+
+                end if;
 
                 if v_existencia > 0 then
                  raise exception 'El codigo o nombre del auxiliar ya se encuentran registrados';
                 end if;
 
-                if v_parametros.tipo_interfaz = 'auxiliar_cc_grupos' then
+                if v_parametros.tipo_interfaz in ('auxiliar_cc_grupos', 'auxiliar_cc_grupo_ro') then
         		   		v_corriente = v_parametros.corriente;
         		   	else
         		   		v_corriente = 'si';
@@ -317,7 +339,7 @@ BEGIN
                 ) values(
                 --v_parametros.id_empresa,
                 'activo',
-                v_parametros.codigo_auxiliar,
+                v_cod_cc,
                 v_parametros.nombre_auxiliar,
                 now(),
                 p_id_usuario,
@@ -336,6 +358,9 @@ BEGIN
                 from segu.tusuario tu
                 where tu.id_usuario = p_id_usuario;
 
+                update pxp.variable_global set
+               	valor = v_cod_cc::integer + 1
+                where variable = 'correlativo_cc_grupo';
 
                 --Definicion de la respuesta
                 v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Auxiliares de Cuenta almacenado(a) con exito (id_auxiliar'||v_id_auxiliar||')');
@@ -357,26 +382,34 @@ BEGIN
 
             begin
 
-                if v_parametros.tipo_interfaz = 'auxiliar_cc_grupos' then
+                if v_parametros.tipo_interfaz in ('auxiliar_cc_grupos','auxiliar_cc_grupo_ro') then
         		   		v_corriente = v_parametros.corriente;
         		   	else
         		   		v_corriente = 'si';
         		   	end if;
 
-                --Sentencia de la modificacion
-                update conta.tauxiliar set
-                --id_empresa = v_parametros.id_empresa,
-                codigo_auxiliar = v_parametros.codigo_auxiliar,
-                nombre_auxiliar = v_parametros.nombre_auxiliar,
-                id_usuario_mod = p_id_usuario,
-                fecha_mod = now(),
-                --24-03-2021 (may) modificacion que se quite el campo y se registre todos como NO
-                --corriente = v_parametros.corriente
-                corriente = v_corriente,
-                tipo = v_parametros.tipo,
-                cod_antiguo = v_parametros.cod_antiguo
-                where id_auxiliar=v_parametros.id_auxiliar;
-
+                if v_parametros.tipo_interfaz = 'auxiliar_cc_grupo_ro' then
+                  --Sentencia de la modificacion
+                  update conta.tauxiliar set
+                  nombre_auxiliar = v_parametros.nombre_auxiliar,
+                  id_usuario_mod = p_id_usuario,
+                  fecha_mod = now()
+                  where id_auxiliar=v_parametros.id_auxiliar;
+                else
+                    --Sentencia de la modificacion
+                    update conta.tauxiliar set
+                    --id_empresa = v_parametros.id_empresa,
+                    codigo_auxiliar = v_parametros.codigo_auxiliar,
+                    nombre_auxiliar = v_parametros.nombre_auxiliar,
+                    id_usuario_mod = p_id_usuario,
+                    fecha_mod = now(),
+                    --24-03-2021 (may) modificacion que se quite el campo y se registre todos como NO
+                    --corriente = v_parametros.corriente
+                    corriente = v_corriente,
+                    tipo = v_parametros.tipo,
+                    cod_antiguo = v_parametros.cod_antiguo
+                    where id_auxiliar=v_parametros.id_auxiliar;
+                end if;
                 select tu.cuenta
                 into v_usuario_reg
                 from segu.tusuario tu
