@@ -154,7 +154,7 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 							 lazyRender:true,
 							 mode: 'local',
 							 gwidth: 100,
-							 store:['Agencia No IATA', 'Corporativo','Carga', 'Grupo']
+							 store:['Agencia No IATA', 'Corporativo','Carga', 'Grupo', 'Intercambio de Servicios']
 					 },
 					 type:'ComboBox',
 					 id_grupo:0,

@@ -176,7 +176,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     lazyRender:true,
                     mode: 'local',
                     gwidth: 100,
-                    store:['Agencia No IATA', 'Corporativo','Carga']
+                    store:['Agencia No IATA', 'Corporativo','Carga','Intercambio de Servicios']
                 },
                 type:'ComboBox',
                 id_grupo:0,
