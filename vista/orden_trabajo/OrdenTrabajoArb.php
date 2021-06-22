@@ -264,7 +264,7 @@ Phx.vista.OrdenTrabajoArb=Ext.extend(Phx.arbGridInterfaz,{
 	
 	title:'Ordenes',
 	ActSave:'../../sis_contabilidad/control/OrdenTrabajo/insertarOrdenTrabajoArb',
-	ActDel:'../../sis_contabilidad/control/OrdenTrabajo/eliminarOrdenTrabajoArb',
+	ActDel:'../../sis_contabilidad/control/OrdenTrabajo/eliminarOrdenTrabajo',
 	ActList:'../../sis_contabilidad/control/OrdenTrabajo/listarOrdenTrabajoArb',
 	id_store:'id_orden_trabajo',
 	
