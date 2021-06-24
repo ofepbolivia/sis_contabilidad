@@ -80,9 +80,17 @@ BEGIN
                 from param.tdepto_usuario depu
                 where depu.id_usuario =  p_id_usuario and depu.cargo = 'responsable';
 
-				--15-06-2020(may) para la interfaz de Registro de Comprobantes de Pago IntComprobanteRegAux_2 se mostraran todos los cbtes
-				IF v_parametros.nombreVista != 'IntComprobanteLd' and v_parametros.nombreVista != 'VbIntComprobante' and v_parametros.nombreVista != 'IntComprobanteRegAux_2' and v_parametros.nombreVista != 'IntComprobanteConsulta' THEN
-                	v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||' or incbte.id_usuario_mod = '||p_id_usuario::varchar ||' or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
+				IF pxp.f_get_variable_global('ESTACION_inicio') = 'BOL' THEN
+                	--15-06-2020(may) para la interfaz de Registro de Comprobantes de Pago IntComprobanteRegAux_2 se mostraran todos los cbtes
+                    IF v_parametros.nombreVista != 'IntComprobanteLd' and v_parametros.nombreVista != 'VbIntComprobante' and v_parametros.nombreVista != 'IntComprobanteRegAux_2' and v_parametros.nombreVista != 'IntComprobanteConsulta' THEN
+                        v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||' or incbte.id_usuario_mod = '||p_id_usuario::varchar ||' or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
+                    END IF;
+                ELSE
+                	IF p_id_usuario != 903 THEN -- analia Fernandez BUE
+                      IF v_parametros.nombreVista != 'IntComprobanteLd' and v_parametros.nombreVista != 'VbIntComprobante' and v_parametros.nombreVista != 'IntComprobanteRegAux_2' and v_parametros.nombreVista != 'IntComprobanteConsulta' THEN
+                          v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||' or incbte.id_usuario_mod = '||p_id_usuario::varchar ||' or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
+                      END IF;
+                    END IF;
                 END IF;
 
                 --franklin.espinoza 27/09/2020
@@ -349,9 +357,17 @@ BEGIN
                 from param.tdepto_usuario depu
                 where depu.id_usuario =  p_id_usuario and depu.cargo = 'responsable';
 
-                --15-06-2020(may) para la interfaz de Registro de Comprobantes de Pago IntComprobanteRegAux_2 se mostraran todos los cbtes
-				IF v_parametros.nombreVista != 'IntComprobanteLd' and v_parametros.nombreVista != 'VbIntComprobante' and v_parametros.nombreVista != 'IntComprobanteRegAux_2' THEN
-                	v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||'  or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
+                IF pxp.f_get_variable_global('ESTACION_inicio') = 'BOL' THEN
+                	--15-06-2020(may) para la interfaz de Registro de Comprobantes de Pago IntComprobanteRegAux_2 se mostraran todos los cbtes
+                    IF v_parametros.nombreVista != 'IntComprobanteLd' and v_parametros.nombreVista != 'VbIntComprobante' and v_parametros.nombreVista != 'IntComprobanteRegAux_2' and v_parametros.nombreVista != 'IntComprobanteConsulta' THEN
+                        v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||' or incbte.id_usuario_mod = '||p_id_usuario::varchar ||' or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
+                    END IF;
+                ELSE
+                	IF p_id_usuario != 903 THEN -- analia Fernandez BUE
+                      IF v_parametros.nombreVista != 'IntComprobanteLd' and v_parametros.nombreVista != 'VbIntComprobante' and v_parametros.nombreVista != 'IntComprobanteRegAux_2' and v_parametros.nombreVista != 'IntComprobanteConsulta' THEN
+                          v_filtro = ' ( incbte.id_usuario_reg = '||p_id_usuario::varchar ||' or incbte.id_usuario_mod = '||p_id_usuario::varchar ||' or   (ew.id_depto  in ('|| COALESCE(array_to_string(va_id_depto,','),'0')||'))) and ';
+                      END IF;
+                    END IF;
                 END IF;
 
 				--franklin.espinoza 27/09/2020
