@@ -546,7 +546,7 @@ BEGIN
                             '''||v_codigo_moneda_base::VARCHAR||'''::varchar as codigo_moneda_base,
                             incbte.codigo_depto,
                             conta.f_recuperar_nro_documento_facturas_comprobante(incbte.id_int_comprobante) as documentos,
-                            COALESCE(en.c31,'''') as c31,
+                            COALESCE(incbte.c31,en.c31) as c31,
                             incbte.sw_tipo_cambio,
                             incbte.localidad,
                             pp.nro_cuenta_bancaria::varchar,
