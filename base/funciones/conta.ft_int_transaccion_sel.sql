@@ -398,14 +398,18 @@ BEGIN
                         icbte.c31,
 
                         --Remplazando por la subconsulta comentada (Ismael Valdivia 03/11/2020)
-                        array_to_string( array_agg( cv.nro_documento), '','' )::varchar as nro_documentos
+                        array_to_string( array_agg( cv.nro_documento), '','' )::varchar as nro_documentos,
 
                         --Comentando esta subconsulta porque tarda en recuerar la informacion (Ismael Valdivia 03/11/2020)
                         /*(select array_to_string( array_agg( cv.nro_documento), '','' )
                          from conta.tdoc_compra_venta  cv
                          where cv.id_int_comprobante=transa.id_int_comprobante)::VARCHAR as nro_documentos*/
                         --------------------------------------------------------------------------------------------------
-
+                        --{dev:breydi.vasquez,date:20/07/2021,desc: para interfaz, importes y tipo campo origen}
+                        COALESCE(transa.importe_debe,0) as importe_debe,
+                        COALESCE(transa.importe_haber,0) as importe_haber,
+                        COALESCE(transa.importe_gasto,0) as importe_gasto,
+                        transa.tipo_cambio
 						from conta.tint_transaccion transa
                         inner join conta.tint_comprobante icbte on icbte.id_int_comprobante = transa.id_int_comprobante
                         inner join param.tdepto dep on dep.id_depto = icbte.id_depto
@@ -769,14 +773,18 @@ BEGIN
                         icbte.c31,
 
                         --Remplazando por la subconsulta comentada (Ismael Valdivia 03/11/2020)
-                        array_to_string( array_agg( cv.nro_documento), '','' )::varchar as nro_documentos
+                        array_to_string( array_agg( cv.nro_documento), '','' )::varchar as nro_documentos,
 
                         --Comentando esta subconsulta porque tarda en recuerar la informacion (Ismael Valdivia 03/11/2020)
                         /*(select array_to_string( array_agg( cv.nro_documento), '','' )
                          from conta.tdoc_compra_venta  cv
                          where cv.id_int_comprobante=transa.id_int_comprobante)::VARCHAR as nro_documentos*/
                         --------------------------------------------------------------------------------------------------
-
+                        --{dev:breydi.vasquez,date:20/07/2021,desc: para reporte, importes y tipo campo origen}
+                        COALESCE(transa.importe_debe,0) as importe_debe,
+                        COALESCE(transa.importe_haber,0) as importe_haber,
+                        COALESCE(transa.importe_gasto,0) as importe_gasto,
+                        transa.tipo_cambio
 						from conta.tint_transaccion transa
                         inner join conta.tint_comprobante icbte on icbte.id_int_comprobante = transa.id_int_comprobante
                         inner join param.tdepto dep on dep.id_depto = icbte.id_depto

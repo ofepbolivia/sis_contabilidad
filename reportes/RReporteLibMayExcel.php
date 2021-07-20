@@ -211,17 +211,17 @@ class RReporteLibMayExcel
         $this->docexcel->getActiveSheet()->mergeCells('B1:M1');
 
 
-        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14,1,'Desde: '.$this->objParam->getParametro('desde'));
-        $this->docexcel->getActiveSheet()->getStyle('A1:O1')->applyFromArray($styleTitulosSubCabezera);
-        $this->docexcel->getActiveSheet()->getStyle('O1')->applyFromArray($bordes);
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(18,1,'Desde: '.$this->objParam->getParametro('desde'));
+        $this->docexcel->getActiveSheet()->getStyle('A1:S1')->applyFromArray($styleTitulosSubCabezera);
+        $this->docexcel->getActiveSheet()->getStyle('S1')->applyFromArray($bordes);
 
-        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14,2,'Hasta: '.$this->objParam->getParametro('hasta'));
-        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14,3,'Gestión: '.$this->objParam->getParametro('gest'));
-        $this->docexcel->getActiveSheet()->getStyle('A3:O3')->applyFromArray($styleTitulosSubCabezera);
-        $this->docexcel->getActiveSheet()->getStyle('O2')->applyFromArray($styleTitulosSubCabezera);
-        $this->docexcel->getActiveSheet()->getStyle('O2')->applyFromArray($bordes);
-        $this->docexcel->getActiveSheet()->getStyle('O3')->applyFromArray($bordes);
-        $this->docexcel->getActiveSheet()->getStyle('A4:O4')->applyFromArray($styleTitulosSubCabezera);
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(18,2,'Hasta: '.$this->objParam->getParametro('hasta'));
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(18,3,'Gestión: '.$this->objParam->getParametro('gest'));
+        $this->docexcel->getActiveSheet()->getStyle('A3:S3')->applyFromArray($styleTitulosSubCabezera);
+        $this->docexcel->getActiveSheet()->getStyle('S2')->applyFromArray($styleTitulosSubCabezera);
+        $this->docexcel->getActiveSheet()->getStyle('S2')->applyFromArray($bordes);
+        $this->docexcel->getActiveSheet()->getStyle('S3')->applyFromArray($bordes);
+        $this->docexcel->getActiveSheet()->getStyle('A4:S4')->applyFromArray($styleTitulosSubCabezera);
 
 
 
@@ -229,42 +229,49 @@ class RReporteLibMayExcel
 
         //*************************************Cabecera*****************************************
 
-        $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(80);
+        $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(15);
         $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(80);
         $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(80);
         $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(80);
-        $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(15);
+        $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(80);
+        $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(25);
         $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(15);
         $this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(15);
         $this->docexcel->getActiveSheet()->getColumnDimension('I')->setWidth(15);
         $this->docexcel->getActiveSheet()->getColumnDimension('J')->setWidth(15);
         $this->docexcel->getActiveSheet()->getColumnDimension('K')->setWidth(15);
-        $this->docexcel->getActiveSheet()->getColumnDimension('L')->setWidth(20);
-        $this->docexcel->getActiveSheet()->getColumnDimension('M')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('N')->setWidth(30);
-        $this->docexcel->getActiveSheet()->getColumnDimension('O')->setWidth(30);
+        $this->docexcel->getActiveSheet()->getColumnDimension('L')->setWidth(15);
+        $this->docexcel->getActiveSheet()->getColumnDimension('M')->setWidth(15);
+        $this->docexcel->getActiveSheet()->getColumnDimension('N')->setWidth(15);
+        $this->docexcel->getActiveSheet()->getColumnDimension('O')->setWidth(15);
+        $this->docexcel->getActiveSheet()->getColumnDimension('P')->setWidth(20);
+        $this->docexcel->getActiveSheet()->getColumnDimension('Q')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('R')->setWidth(30);
+        $this->docexcel->getActiveSheet()->getColumnDimension('S')->setWidth(30);
 
+        $this->docexcel->getActiveSheet()->setCellValue('A4','FECHA');
+        $this->docexcel->getActiveSheet()->setCellValue('B4','CUENTA');
+        $this->docexcel->getActiveSheet()->setCellValue('C4','PARTIDA');
+        $this->docexcel->getActiveSheet()->setCellValue('D4','ORDEN DE TRABAJO');
+        $this->docexcel->getActiveSheet()->setCellValue('E4','GLOSA');
 
-        $this->docexcel->getActiveSheet()->setCellValue('A4','CUENTA');
-        $this->docexcel->getActiveSheet()->setCellValue('B4','PARTIDA');
-        $this->docexcel->getActiveSheet()->setCellValue('C4','ORDEN DE TRABAJO');
-        $this->docexcel->getActiveSheet()->setCellValue('D4','GLOSA');
+        $this->docexcel->getActiveSheet()->setCellValue('F4','CBTE');
+        $this->docexcel->getActiveSheet()->setCellValue('G4','DEBE');
+        $this->docexcel->getActiveSheet()->setCellValue('H4','HABER');
+        $this->docexcel->getActiveSheet()->setCellValue('I4','DEBE MO');
+        $this->docexcel->getActiveSheet()->setCellValue('J4','HABER MO');
+        $this->docexcel->getActiveSheet()->setCellValue('K4','TIPO DE CAMBIO');
+        $this->docexcel->getActiveSheet()->setCellValue('L4','DEBE MT');
+        $this->docexcel->getActiveSheet()->setCellValue('M4','HABER MT');
 
-        $this->docexcel->getActiveSheet()->setCellValue('E4','CBTE');
-        $this->docexcel->getActiveSheet()->setCellValue('F4','DEBE');
-        $this->docexcel->getActiveSheet()->setCellValue('G4','HABER');
-        $this->docexcel->getActiveSheet()->setCellValue('H4','DEBE MT');
-        $this->docexcel->getActiveSheet()->setCellValue('I4','HABER MT');
-
-        $this->docexcel->getActiveSheet()->setCellValue('J4','DEBE MA');
-        $this->docexcel->getActiveSheet()->setCellValue('K4','HABER MA');
-        $this->docexcel->getActiveSheet()->setCellValue('L4','NRO DE TRAMITE');
-        $this->docexcel->getActiveSheet()->setCellValue('M4','C-31');
-        $this->docexcel->getActiveSheet()->setCellValue('N4','NRO FACTURA');
-        $this->docexcel->getActiveSheet()->setCellValue('O4','DEPARTAMENTO');
-        $this->docexcel->getActiveSheet()->getStyle('A4:O4')->getAlignment()->setWrapText(true);
-        $this->docexcel->getActiveSheet()->getStyle('A4:O4')->applyFromArray($styleTitulos1);
+        $this->docexcel->getActiveSheet()->setCellValue('N4','DEBE MA');
+        $this->docexcel->getActiveSheet()->setCellValue('O4','HABER MA');
+        $this->docexcel->getActiveSheet()->setCellValue('P4','NRO DE TRAMITE');
+        $this->docexcel->getActiveSheet()->setCellValue('Q4','C-31');
+        $this->docexcel->getActiveSheet()->setCellValue('R4','NRO FACTURA');
+        $this->docexcel->getActiveSheet()->setCellValue('S4','DEPARTAMENTO');
+        $this->docexcel->getActiveSheet()->getStyle('A4:S4')->getAlignment()->setWrapText(true);
+        $this->docexcel->getActiveSheet()->getStyle('A4:S4')->applyFromArray($styleTitulos1);
         $this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,5);
 
 
@@ -391,25 +398,28 @@ class RReporteLibMayExcel
 
 
       foreach ($datos as $value) {
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, date("d/m/Y", strtotime($value['fecha'])));
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['desc_cuenta']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['desc_partida']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['desc_orden']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['glosa1']);
 
-           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['desc_cuenta']);
-           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['desc_partida']);
-           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['desc_orden']);
-           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['glosa1']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['nro_cbte']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $value['importe_debe_mb']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['importe_haber_mb']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila, $value['importe_debe']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9, $fila, $value['importe_haber']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila, $value['tipo_cambio']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11, $fila, $value['importe_debe_mt']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila, $value['importe_haber_mt']);
 
-           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['nro_cbte']);
-           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['importe_debe_mb']);
-           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $value['importe_haber_mb']);
-           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['importe_debe_mt']);
-           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila, $value['importe_haber_mt']);
-
-           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9, $fila, $value['importe_debe_ma']);
-           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila, $value['importe_haber_ma']);
-           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11, $fila, $value['nro_tramite']);
-           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila, $value['c31']);
-           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila, $value['nro_documentos']);
-           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila, $value['nombre_corto']);
-           //
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila, $value['importe_debe_ma']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila, $value['importe_haber_ma']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15, $fila, $value['nro_tramite']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(16, $fila, $value['c31']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(17, $fila, $value['nro_documentos']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(18, $fila, $value['nombre_corto']);
+           //           
           /*Mandamos los estilos*/
            // $this->docexcel->getActiveSheet()->getStyle("A$fila:N$fila")->applyFromArray($style_todos_bordes);
 
@@ -455,23 +465,29 @@ class RReporteLibMayExcel
       $this->docexcel->getActiveSheet()->getStyle("M$inicio:M$fila_final")->applyFromArray($style_todos_bordes);
       $this->docexcel->getActiveSheet()->getStyle("N$inicio:N$fila_final")->applyFromArray($style_todos_bordes);
       $this->docexcel->getActiveSheet()->getStyle("O$inicio:O$fila_final")->applyFromArray($style_todos_bordes);
+      $this->docexcel->getActiveSheet()->getStyle("P$inicio:P$fila_final")->applyFromArray($style_todos_bordes);
+      $this->docexcel->getActiveSheet()->getStyle("Q$inicio:Q$fila_final")->applyFromArray($style_todos_bordes);
+      $this->docexcel->getActiveSheet()->getStyle("R$inicio:R$fila_final")->applyFromArray($style_todos_bordes);
+      $this->docexcel->getActiveSheet()->getStyle("S$inicio:S$fila_final")->applyFromArray($style_todos_bordes);
 
-      $this->docexcel->getActiveSheet()->getStyle("M$inicio:M$fila_final")->getAlignment()->setWrapText(true);
-      $this->docexcel->getActiveSheet()->getStyle("N$inicio:N$fila_final")->getAlignment()->setWrapText(true);
+      $this->docexcel->getActiveSheet()->getStyle("Q$inicio:Q$fila_final")->getAlignment()->setWrapText(true);
+      $this->docexcel->getActiveSheet()->getStyle("R$inicio:R$fila_final")->getAlignment()->setWrapText(true);
                 //
                 //  $fila_final = $fila - 1;
                 //
     /*Aqui calculamos los totales*/
     $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, 'Totales:');
-    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, "=SUM((F$inicio:F$fila_final))");
     $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, "=SUM((G$inicio:G$fila_final))");
     $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, "=SUM((H$inicio:H$fila_final))");
     $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila, "=SUM((I$inicio:I$fila_final))");
     $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9, $fila, "=SUM((J$inicio:J$fila_final))");
-    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila, "=SUM((K$inicio:K$fila_final))");
+    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11, $fila, "=SUM((L$inicio:L$fila_final))");
+    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila, "=SUM((M$inicio:M$fila_final))");
+    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila, "=SUM((N$inicio:N$fila_final))");
+    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila, "=SUM((O$inicio:O$fila_final))");
     $this->docexcel->getActiveSheet()->mergeCells("A$fila:E$fila");
-    $this->docexcel->getActiveSheet()->getStyle("F$fila:K$fila")->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat :: FORMAT_NUMBER_COMMA_SEPARATED1);
-    $this->docexcel->getActiveSheet()->getStyle("A$fila:K$fila")->applyFromArray($totales);
+    $this->docexcel->getActiveSheet()->getStyle("G$fila:O$fila")->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat :: FORMAT_NUMBER_COMMA_SEPARATED1);
+    $this->docexcel->getActiveSheet()->getStyle("A$fila:O$fila")->applyFromArray($totales);
                 //
                 // $this->docexcel->getActiveSheet()->getStyle("A$fila:K$fila")->applyFromArray($totales);
       //   $numero_cuenta = substr($cabecera_datos['desc_cuenta'], 0, 3);

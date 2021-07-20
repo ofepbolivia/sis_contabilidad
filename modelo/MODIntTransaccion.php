@@ -327,7 +327,10 @@ class MODIntTransaccion extends MODbase
 
         $this->captura('c31', 'varchar');
         $this->captura('nro_documentos', 'varchar');
-
+        $this->captura('importe_debe', 'numeric');
+        $this->captura('importe_haber', 'numeric');
+        $this->captura('importe_gasto', 'numeric');
+        $this->captura('tipo_cambio', 'numeric');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
@@ -401,6 +404,10 @@ class MODIntTransaccion extends MODbase
         $this->captura('id_estado_wf', 'int4');
         $this->captura('c31', 'varchar');
         $this->captura('nro_documentos', 'varchar');
+        $this->captura('importe_debe', 'numeric');
+        $this->captura('importe_haber', 'numeric');
+        $this->captura('importe_gasto', 'numeric');
+        $this->captura('tipo_cambio', 'numeric');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();

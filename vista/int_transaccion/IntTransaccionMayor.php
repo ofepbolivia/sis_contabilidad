@@ -75,6 +75,25 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: false
                 },
                 {
+            			config:{
+            				name: 'fecha',
+            				fieldLabel: 'Fecha',
+            				allowBlank: false,
+            				anchor: '80%',
+            				gwidth: 100,
+                    format: 'd/m/Y',
+            				renderer:function (value,p,record){
+                      var fe = record.data['fecha']
+                          return (fe!=null && fe!='')?fe.dateFormat('d/m/Y'):''
+                    }
+            			},
+            			type:'DateField',
+            			filters:{pfiltro:'icbte.fecha',type:'date'},
+            			id_grupo:1,
+            			grid:true,
+            			form:false
+            		},
+                {
                     config: {
                         sysorigen: 'sis_contabilidad',
                         name: 'id_cuenta',
@@ -338,7 +357,67 @@ header("content-type: text/javascript; charset=UTF-8");
                     grid: true,
                     form: true
                 },
-
+                {
+                    config: {
+                        name: 'importe_debe',
+                        fieldLabel: 'Debe MO',
+                        allowBlank: true,
+                        width: '100%',
+                        gwidth: 110,
+                        galign: 'right ',
+                        maxLength: 100,
+                        renderer: function (value, p, record) {
+                            if (record.data.tipo_reg != 'summary') {
+                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                            } else {
+                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                        }
+                    },
+                    type: 'NumberField',
+                    filters: {pfiltro: 'transa.importe_debe', type: 'numeric'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false
+                },
+                {
+                    config: {
+                        name: 'importe_haber',
+                        fieldLabel: 'Haber MO',
+                        allowBlank: true,
+                        width: '100%',
+                        gwidth: 110,
+                        galign: 'right ',
+                        maxLength: 100,
+                        renderer: function (value, p, record) {
+                            if (record.data.tipo_reg != 'summary') {
+                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                            } else {
+                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                        }
+                    },
+                    type: 'NumberField',
+                    filters: {pfiltro: 'transa.importe_haber', type: 'numeric'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false
+                },
+                {
+            			config:{
+            				name: 'tipo_cambio',
+            				fieldLabel: 'Tipo Cambio MO',
+            				allowBlank: false,
+            				anchor: '80%',
+                    galign: 'center',
+            				gwidth: 100,
+            			},
+            			type:'NumberField',
+            			filters:{pfiltro:'transa.tipo_cambio',type:'numeric'},
+            			id_grupo:1,
+            			grid:true,
+            			form:false
+            		},
                 {
                     config: {
                         name: 'importe_debe_mt',
@@ -683,10 +762,12 @@ header("content-type: text/javascript; charset=UTF-8");
             'cbte_relacional',
             'tipo_partida', 'id_orden_trabajo',
             {name: 'desc_orden', type: 'string'},
-            'tipo_reg', 'nro_cbte', 'nro_tramite', 'nombre_corto', 'fecha', 'glosa1',
+            'tipo_reg', 'nro_cbte', 'nro_tramite', 'nombre_corto', 'glosa1',
             'id_proceso_wf', 'id_estado_wf', 'id_suborden', 'desc_suborden',
             { name:'c31', type: 'string'},
-            { name:'nro_documentos', type: 'string'}
+            { name:'nro_documentos', type: 'string'},
+            { name:'tipo_cambio', type: 'numeric'},
+            {name:'fecha', type: 'date',dateFormat:'Y-m-d'}
 
         ],
 
