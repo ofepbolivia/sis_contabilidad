@@ -200,7 +200,7 @@ class ACTIntTransaccion extends ACTbase
 
     function ReporteLibMayExcel(){
 
-        $this->objParam->defecto('ordenacion', 'id_int_transaccion');
+        $this->objParam->defecto('ordenacion', 'icbte.fecha');
         $this->objParam->defecto('dir_ordenacion', 'asc');
 
         if ($this->objParam->getParametro('id_gestion') != '') {
