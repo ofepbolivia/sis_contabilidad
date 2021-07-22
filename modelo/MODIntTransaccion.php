@@ -408,6 +408,8 @@ class MODIntTransaccion extends MODbase
         $this->captura('importe_haber', 'numeric');
         $this->captura('importe_gasto', 'numeric');
         $this->captura('tipo_cambio', 'numeric');
+        $this->captura('codigo_categoria', 'varchar');
+        $this->captura('desc_catergori_prog', 'text');
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();

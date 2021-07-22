@@ -784,7 +784,9 @@ BEGIN
                         COALESCE(transa.importe_debe,0) as importe_debe,
                         COALESCE(transa.importe_haber,0) as importe_haber,
                         COALESCE(transa.importe_gasto,0) as importe_gasto,
-                        transa.tipo_cambio
+                        transa.tipo_cambio,
+                        c.codigo_categoria,
+                        c.descripcion as desc_catergori_prog
 						from conta.tint_transaccion transa
                         inner join conta.tint_comprobante icbte on icbte.id_int_comprobante = transa.id_int_comprobante
                         inner join param.tdepto dep on dep.id_depto = icbte.id_depto
@@ -801,7 +803,9 @@ BEGIN
                         left join conta.torden_trabajo ot on ot.id_orden_trabajo =  transa.id_orden_trabajo
 
                         left join conta.tdoc_compra_venta cv on cv.id_int_comprobante = transa.id_int_comprobante
-
+                        --{dev:breydi.vasquez, date:22/02/2021, desc: datos caterogia programatica}
+                        left join pre.tpresupuesto p on p.id_centro_costo =  transa.id_centro_costo
+                        left join pre.vcategoria_programatica c on c.id_categoria_programatica = p.id_categoria_prog
 				        where icbte.estado_reg = ''validado''
                               and ' ||v_filtro_cuentas||'
                               and '||v_filtro_ordenes||'
@@ -829,7 +833,9 @@ BEGIN
                                               cc.codigo_cc,
                                               aux.codigo_auxiliar,
                                               aux.nombre_auxiliar,
-                                              ot.id_orden_trabajo';
+                                              ot.id_orden_trabajo,
+                                              c.codigo_categoria,
+                                              c.descripcion';
             if (v_parametros.cantidad is null) then
             	v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion;
             else
