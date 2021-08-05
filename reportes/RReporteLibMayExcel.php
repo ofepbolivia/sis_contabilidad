@@ -221,7 +221,7 @@ class RReporteLibMayExcel
         $this->docexcel->getActiveSheet()->getStyle('S2')->applyFromArray($styleTitulosSubCabezera);
         $this->docexcel->getActiveSheet()->getStyle('S2')->applyFromArray($bordes);
         $this->docexcel->getActiveSheet()->getStyle('S3')->applyFromArray($bordes);
-        $this->docexcel->getActiveSheet()->getStyle('A4:T4')->applyFromArray($styleTitulosSubCabezera);
+        $this->docexcel->getActiveSheet()->getStyle('A4:V4')->applyFromArray($styleTitulosSubCabezera);
 
 
 
@@ -248,7 +248,9 @@ class RReporteLibMayExcel
         $this->docexcel->getActiveSheet()->getColumnDimension('Q')->setWidth(25);
         $this->docexcel->getActiveSheet()->getColumnDimension('R')->setWidth(30);
         $this->docexcel->getActiveSheet()->getColumnDimension('S')->setWidth(30);
-        $this->docexcel->getActiveSheet()->getColumnDimension('T')->setWidth(135);
+        $this->docexcel->getActiveSheet()->getColumnDimension('T')->setWidth(45);
+        $this->docexcel->getActiveSheet()->getColumnDimension('U')->setWidth(40);
+        $this->docexcel->getActiveSheet()->getColumnDimension('V')->setWidth(135);
 
         $this->docexcel->getActiveSheet()->setCellValue('A4','FECHA');
         $this->docexcel->getActiveSheet()->setCellValue('B4','CUENTA');
@@ -271,9 +273,11 @@ class RReporteLibMayExcel
         $this->docexcel->getActiveSheet()->setCellValue('Q4','C-31');
         $this->docexcel->getActiveSheet()->setCellValue('R4','NRO FACTURA');
         $this->docexcel->getActiveSheet()->setCellValue('S4','DEPARTAMENTO');
-        $this->docexcel->getActiveSheet()->setCellValue('T4','CATEGORIA PROGRAMATICA');
-        $this->docexcel->getActiveSheet()->getStyle('A4:T4')->getAlignment()->setWrapText(true);
-        $this->docexcel->getActiveSheet()->getStyle('A4:T4')->applyFromArray($styleTitulos1);
+        $this->docexcel->getActiveSheet()->setCellValue('T4','GLOSA TRAMITE');
+        $this->docexcel->getActiveSheet()->setCellValue('U4','CENTRO DE COSTO');
+        $this->docexcel->getActiveSheet()->setCellValue('V4','CATEGORIA PROGRAMATICA');
+        $this->docexcel->getActiveSheet()->getStyle('A4:V4')->getAlignment()->setWrapText(true);
+        $this->docexcel->getActiveSheet()->getStyle('A4:V4')->applyFromArray($styleTitulos1);
         $this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,5);
 
 
@@ -421,7 +425,9 @@ class RReporteLibMayExcel
            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(16, $fila, $value['c31']);
            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(17, $fila, $value['nro_documentos']);
            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(18, $fila, $value['nombre_corto']);
-           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(19, $fila, $value['codigo_categoria'].' '.' '.' '.' '.$value['desc_catergori_prog']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(19, $fila, $value['glosa']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(20, $fila, $value['desc_centro_costo']);
+           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(21, $fila, $value['codigo_categoria'].' '.' '.' '.' '.$value['desc_catergori_prog']);
            //
           /*Mandamos los estilos*/
            // $this->docexcel->getActiveSheet()->getStyle("A$fila:N$fila")->applyFromArray($style_todos_bordes);
@@ -473,6 +479,8 @@ class RReporteLibMayExcel
       $this->docexcel->getActiveSheet()->getStyle("R$inicio:R$fila_final")->applyFromArray($style_todos_bordes);
       $this->docexcel->getActiveSheet()->getStyle("S$inicio:S$fila_final")->applyFromArray($style_todos_bordes);
       $this->docexcel->getActiveSheet()->getStyle("T$inicio:T$fila_final")->applyFromArray($style_todos_bordes);
+      $this->docexcel->getActiveSheet()->getStyle("U$inicio:U$fila_final")->applyFromArray($style_todos_bordes);
+      $this->docexcel->getActiveSheet()->getStyle("V$inicio:V$fila_final")->applyFromArray($style_todos_bordes);
 
       $this->docexcel->getActiveSheet()->getStyle("Q$inicio:Q$fila_final")->getAlignment()->setWrapText(true);
       $this->docexcel->getActiveSheet()->getStyle("R$inicio:R$fila_final")->getAlignment()->setWrapText(true);
