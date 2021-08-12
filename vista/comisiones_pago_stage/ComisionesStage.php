@@ -6,7 +6,7 @@ Phx.vista.ComisionesStage=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.ComisionesStage.superclass.constructor.call(this,config);
 		this.init();
-		this.tbar.items.items[5].setVisible(false)
+		this.tbar.items.items[4].setVisible(false)
 		this.load({params:{start:0, limit:this.tam_pag}})
 	},
 	tam_pag:50,
@@ -140,7 +140,8 @@ Phx.vista.ComisionesStage=Ext.extend(Phx.gridInterfaz,{
 	},
 	bdel:true,
 	bsave:false,
-	bexport:false
+	bexport:false,
+	btest:false,
 	}
 )
 </script>
