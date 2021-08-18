@@ -358,9 +358,11 @@ BEGIN
                 from segu.tusuario tu
                 where tu.id_usuario = p_id_usuario;
 
-                update pxp.variable_global set
-               	valor = v_cod_cc::integer + 1
-                where variable = 'correlativo_cc_grupo';
+                if v_parametros.tipo_interfaz = 'auxiliar_cc_grupo_ro' then
+                    update pxp.variable_global set
+                    valor = v_cod_cc::integer + 1
+                    where variable = 'correlativo_cc_grupo';
+                end if;
 
                 --Definicion de la respuesta
                 v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Auxiliares de Cuenta almacenado(a) con exito (id_auxiliar'||v_id_auxiliar||')');
