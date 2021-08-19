@@ -136,7 +136,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     allowBlank: true,
                     anchor: '80%',
                     gwidth: 230,
-                    maxLength:300
+                    maxLength:300,
+                    style:'text-transform:uppercase'
                 },
                 type:'TextField',
                 filters:{pfiltro:'auxcta.nombre_auxiliar',type:'string'},

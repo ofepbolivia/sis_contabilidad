@@ -64,7 +64,7 @@ BEGIN
 			select count(*) into v_existencia
              from conta.tauxiliar auxi
              where auxi.codigo_auxiliar = v_parametros.codigo_auxiliar or
-                   auxi.nombre_auxiliar = v_parametros.nombre_auxiliar;
+                   upper(auxi.nombre_auxiliar) = upper(v_parametros.nombre_auxiliar);
 
             if v_existencia > 0 then
              raise exception 'El codigo o nombre del auxiliar ya se encuentran registrados';
@@ -86,7 +86,7 @@ BEGIN
 			--v_parametros.id_empresa,
 			'activo',
 			v_parametros.codigo_auxiliar,
-			v_parametros.nombre_auxiliar,
+			upper(v_parametros.nombre_auxiliar),
 			now(),
 			p_id_usuario,
 			null,
@@ -141,7 +141,7 @@ BEGIN
 			update conta.tauxiliar set
 			--id_empresa = v_parametros.id_empresa,
 			codigo_auxiliar = v_parametros.codigo_auxiliar,
-			nombre_auxiliar = v_parametros.nombre_auxiliar,
+			nombre_auxiliar = upper(v_parametros.nombre_auxiliar),
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
             --24-03-2021 (may) modificacion que se quite el campo y se registre todos como NO
@@ -298,7 +298,7 @@ BEGIN
                         select count(*) into v_existencia
                         from conta.tauxiliar auxi
                         where auxi.codigo_auxiliar = v_correlativo_cc or
-                              auxi.nombre_auxiliar = v_parametros.nombre_auxiliar;
+                              upper(auxi.nombre_auxiliar) = upper(v_parametros.nombre_auxiliar);
 
                         v_cod_cc = v_correlativo_cc;
 
@@ -307,7 +307,7 @@ BEGIN
                   select count(*) into v_existencia
                    from conta.tauxiliar auxi
                    where auxi.codigo_auxiliar = v_parametros.codigo_auxiliar or
-                         auxi.nombre_auxiliar = v_parametros.nombre_auxiliar;
+                         upper(auxi.nombre_auxiliar) = upper(v_parametros.nombre_auxiliar);
 
                     v_cod_cc = v_parametros.codigo_auxiliar;
 
@@ -340,7 +340,7 @@ BEGIN
                 --v_parametros.id_empresa,
                 'activo',
                 v_cod_cc,
-                v_parametros.nombre_auxiliar,
+                upper(v_parametros.nombre_auxiliar),
                 now(),
                 p_id_usuario,
                 null,
@@ -393,7 +393,7 @@ BEGIN
                 if v_parametros.tipo_interfaz = 'auxiliar_cc_grupo_ro' then
                   --Sentencia de la modificacion
                   update conta.tauxiliar set
-                  nombre_auxiliar = v_parametros.nombre_auxiliar,
+                  nombre_auxiliar = upper(v_parametros.nombre_auxiliar),
                   id_usuario_mod = p_id_usuario,
                   fecha_mod = now()
                   where id_auxiliar=v_parametros.id_auxiliar;
@@ -402,7 +402,7 @@ BEGIN
                     update conta.tauxiliar set
                     --id_empresa = v_parametros.id_empresa,
                     codigo_auxiliar = v_parametros.codigo_auxiliar,
-                    nombre_auxiliar = v_parametros.nombre_auxiliar,
+                    nombre_auxiliar = upper(v_parametros.nombre_auxiliar),
                     id_usuario_mod = p_id_usuario,
                     fecha_mod = now(),
                     --24-03-2021 (may) modificacion que se quite el campo y se registre todos como NO
