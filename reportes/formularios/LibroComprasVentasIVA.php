@@ -305,7 +305,7 @@ header("content-type: text/javascript; charset=UTF-8");
 		
 		
 		title : 'Reporte Libro Compras Ventas IVA',		
-		ActSave : '../../sis_contabilidad/control/TsLibroBancos/reporteLibroBancos',
+		ActSave : '../../sis_tesoreria/control/TsLibroBancos/reporteLibroBancos',//modificacion de la ruta sis_contabilidad a sis_tesoreria
 		
 		topBar : true,
 		botones : false,
