@@ -16,13 +16,13 @@ Phx.vista.CtaAlmacen = {
     constructor: function(config) {
         Phx.vista.CtaAlmacen.superclass.constructor.call(this,config);     
     },    
-    south : { 
-          url:'../../../sis_contabilidad/vista/relacion_contable/RelacionContableTabla.php',
-          title:'Relacion Contable', 
-          height:'50%',
-          cls:'RelacionContableTabla',
-          params:{nombre_tabla:'alm.talmacen',tabla_id:'id_almacen'}
-   },
+//     south : { 
+//           url:'../../../sis_contabilidad/vista/relacion_contable/RelacionContableTabla.php',
+//           title:'Relacion Contable', 
+//           height:'50%',
+//           cls:'RelacionContableTabla',
+//           params:{nombre_tabla:'alm.talmacen',tabla_id:'id_almacen'}
+//    },
    bedit:false,
    bnew:false,
    bdel:false,
