@@ -90,7 +90,8 @@ BEGIN
 						usu1.cuenta as usr_reg,
 						usu2.cuenta as usr_mod,
             auxcta.corriente,
-            auxcta.tipo
+            auxcta.tipo,
+            (''(''||auxcta.codigo_auxiliar||'') - ''||auxcta.nombre_auxiliar)::varchar as desc_auxiliar
 						from conta.tauxiliar auxcta
 						inner join segu.tusuario usu1 on usu1.id_usuario = auxcta.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = auxcta.id_usuario_mod
@@ -299,3 +300,6 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
+
+ALTER FUNCTION conta.f_auxiliar_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;

@@ -39,6 +39,7 @@ class MODAuxiliar extends MODbase{
 		$this->captura('usr_mod','varchar');
 		$this->captura('corriente','varchar');
 		$this->captura('tipo','varchar');
+		$this->captura('desc_auxiliar','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
