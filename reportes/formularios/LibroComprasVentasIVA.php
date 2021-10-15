@@ -284,7 +284,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         fields: ['id_usuario','desc_person','cuenta'],
                         // turn on remote sorting
                         remoteSort: true,
-                        baseParams:{par_filtro:'PERSON.nombre_completo2#cuenta',_adicionar:'si'}
+                        baseParams:{par_filtro:'PERSON.nombre_completo2#USUARI.cuenta',_adicionar:'si'}
                     }),
                     valueField: 'id_usuario',
                     displayField: 'desc_person',

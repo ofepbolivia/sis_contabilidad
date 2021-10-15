@@ -45,6 +45,7 @@ DECLARE
 
   v_correlativo_cc			varchar;
   v_cod_cc			varchar;
+  v_cod_ant			varchar;
 BEGIN
 
     v_nombre_funcion = 'conta.f_auxiliar_ime';
@@ -64,7 +65,7 @@ BEGIN
 			select count(*) into v_existencia
              from conta.tauxiliar auxi
              where auxi.codigo_auxiliar = v_parametros.codigo_auxiliar or
-                   upper(auxi.nombre_auxiliar) = upper(v_parametros.nombre_auxiliar);
+                   upper(auxi.nombre_auxiliar) = upper(trim(both ' ' from (regexp_replace(v_parametros.nombre_auxiliar, '\r|\n', ' ', 'g'))));
 
             if v_existencia > 0 then
              raise exception 'El codigo o nombre del auxiliar ya se encuentran registrados';
@@ -86,7 +87,7 @@ BEGIN
 			--v_parametros.id_empresa,
 			'activo',
 			v_parametros.codigo_auxiliar,
-			upper(v_parametros.nombre_auxiliar),
+			upper(trim(both ' ' from (regexp_replace(v_parametros.nombre_auxiliar, '\r|\n', ' ', 'g')))),
 			now(),
 			p_id_usuario,
 			null,
@@ -137,11 +138,12 @@ BEGIN
 	elsif(p_transaccion='CONTA_AUXCTA_MOD')then
 
 		begin
+
 			--Sentencia de la modificacion
 			update conta.tauxiliar set
 			--id_empresa = v_parametros.id_empresa,
 			codigo_auxiliar = v_parametros.codigo_auxiliar,
-			nombre_auxiliar = upper(v_parametros.nombre_auxiliar),
+			nombre_auxiliar = upper(trim(both ' ' from (regexp_replace(v_parametros.nombre_auxiliar, '\r|\n', ' ', 'g')))),
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
             --24-03-2021 (may) modificacion que se quite el campo y se registre todos como NO
@@ -298,7 +300,7 @@ BEGIN
                         select count(*) into v_existencia
                         from conta.tauxiliar auxi
                         where auxi.codigo_auxiliar = v_correlativo_cc or
-                              upper(auxi.nombre_auxiliar) = upper(v_parametros.nombre_auxiliar);
+                              upper(auxi.nombre_auxiliar) = upper(trim(both ' ' from (regexp_replace(v_parametros.nombre_auxiliar, '\r|\n', ' ', 'g'))));
 
                         v_cod_cc = v_correlativo_cc;
 
@@ -307,7 +309,7 @@ BEGIN
                   select count(*) into v_existencia
                    from conta.tauxiliar auxi
                    where auxi.codigo_auxiliar = v_parametros.codigo_auxiliar or
-                         upper(auxi.nombre_auxiliar) = upper(v_parametros.nombre_auxiliar);
+                         upper(auxi.nombre_auxiliar) = upper(trim(both ' ' from (regexp_replace(v_parametros.nombre_auxiliar, '\r|\n', ' ', 'g'))));
 
                     v_cod_cc = v_parametros.codigo_auxiliar;
 
@@ -322,6 +324,11 @@ BEGIN
         		   	else
         		   		v_corriente = 'si';
         		   	end if;
+                if (v_parametros.cod_antiguo is null or v_parametros.cod_antiguo ='')then
+					           v_cod_ant = null;
+                else
+					           v_cod_ant = v_parametros.cod_antiguo;
+                end if;
 
                 --Sentencia de la insercion
                 insert into conta.tauxiliar(
@@ -340,7 +347,7 @@ BEGIN
                 --v_parametros.id_empresa,
                 'activo',
                 v_cod_cc,
-                upper(v_parametros.nombre_auxiliar),
+                upper(trim(both ' ' from (regexp_replace(v_parametros.nombre_auxiliar, '\r|\n', ' ', 'g')))),
                 now(),
                 p_id_usuario,
                 null,
@@ -349,7 +356,7 @@ BEGIN
                 --v_parametros.corriente
                 v_corriente,
                 v_parametros.tipo,
-                v_parametros.cod_antiguo
+                v_cod_ant
 
                 )RETURNING id_auxiliar into v_id_auxiliar;
 
@@ -390,10 +397,16 @@ BEGIN
         		   		v_corriente = 'si';
         		   	end if;
 
+                if (v_parametros.cod_antiguo is null or v_parametros.cod_antiguo ='')then
+					           v_cod_ant = null;
+                else
+					           v_cod_ant = v_parametros.cod_antiguo;
+                end if;
+
                 if v_parametros.tipo_interfaz = 'auxiliar_cc_grupo_ro' then
                   --Sentencia de la modificacion
                   update conta.tauxiliar set
-                  nombre_auxiliar = upper(v_parametros.nombre_auxiliar),
+                  nombre_auxiliar = upper(trim(both ' ' from (regexp_replace(v_parametros.nombre_auxiliar, '\r|\n', ' ', 'g')))),
                   id_usuario_mod = p_id_usuario,
                   fecha_mod = now()
                   where id_auxiliar=v_parametros.id_auxiliar;
@@ -402,14 +415,14 @@ BEGIN
                     update conta.tauxiliar set
                     --id_empresa = v_parametros.id_empresa,
                     codigo_auxiliar = v_parametros.codigo_auxiliar,
-                    nombre_auxiliar = upper(v_parametros.nombre_auxiliar),
+                    nombre_auxiliar = upper(trim(both ' ' from (regexp_replace(v_parametros.nombre_auxiliar, '\r|\n', ' ', 'g')))),
                     id_usuario_mod = p_id_usuario,
                     fecha_mod = now(),
                     --24-03-2021 (may) modificacion que se quite el campo y se registre todos como NO
                     --corriente = v_parametros.corriente
                     corriente = v_corriente,
                     tipo = v_parametros.tipo,
-                    cod_antiguo = v_parametros.cod_antiguo
+                    cod_antiguo = v_cod_ant
                     where id_auxiliar=v_parametros.id_auxiliar;
                 end if;
                 select tu.cuenta
