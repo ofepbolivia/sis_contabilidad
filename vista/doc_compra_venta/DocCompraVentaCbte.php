@@ -41,6 +41,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     tooltip: 'Permite relacionar un documento existente al Cbte'
                 }
             );
+
             this.addButton('btnDelRegAirbp',
                 {
                     text: 'Eliminar Registro y relacion. AIRBP.',
@@ -48,6 +49,15 @@ header("content-type: text/javascript; charset=UTF-8");
                     disabled: false,
                     handler: this.delRegAirbp,
                     tooltip: 'Elimina las facturas registradas y No revisados, y su relacion con el comprobante, si el periodo no esta cerrado'
+                }
+            );
+            this.addButton('btnNewDocGesAnt',
+                {
+                    text: 'Relacionar Doc. Gest. Anteriores',
+                    iconCls: 'btag_accept',
+                    disabled: false,
+                    handler: this.newDocGesAnt,
+                    tooltip: 'Permite relacionar un documento existente al Cbte desde Getiones Anteriores'
                 }
             );
             console.log('maestrom', this.maestro, this.disparador);
@@ -809,6 +819,20 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     fecha_cbte: this.fecha,
                     sin_cbte: 'si',
+                    manual: 'si'});
+
+            this.Cmp.id_doc_compra_venta.modificado = true;
+
+        },
+
+        //25-10-2021 (may) facturas de gestiones anteriores sin restriccion gestion
+        newDocGesAnt: function() {
+
+            Phx.vista.DocCompraVentaCbte.superclass.onButtonNew.call(this);
+            this.Cmp.id_doc_compra_venta.store.baseParams = Ext.apply(this.Cmp.id_doc_compra_venta.store.baseParams,
+                {
+                    fecha_cbte: this.fecha,
+                    sin_cbte: 'no',
                     manual: 'si'});
 
             this.Cmp.id_doc_compra_venta.modificado = true;
