@@ -18,6 +18,7 @@ Phx.vista.DocIntComprobante=Ext.extend(Phx.gridInterfaz,{
 		Phx.vista.DocIntComprobante.superclass.constructor.call(this,config);
 		this.grid.getTopToolbar().disable();
 		this.grid.getBottomToolbar().disable();
+		this.tbar.items.items[1].setVisible(false)		
 		this.init();
 		//this.load({params:{start:0, limit:this.tam_pag}})
 	},
@@ -625,6 +626,7 @@ Phx.vista.DocIntComprobante=Ext.extend(Phx.gridInterfaz,{
 	bsave:false,
 	bnew :false,
 	bedit : false,
+	btest: false,
 	onReloadPage:function(param){
 		this.load( { params: { start:0, limit: this.tam_pag } });
 	}
