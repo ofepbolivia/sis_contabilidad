@@ -44,6 +44,13 @@ DECLARE
     v_traer_data				varchar;
     v_id_depto_cv				integer;
 	v_id_depto					integer;
+
+
+    v_id_gestion_periodo		integer;
+    v_id_depto_periodo			integer;
+    v_estado_periodo			varchar;
+    v_periodo_literal			varchar;
+
 BEGIN
 
     v_nombre_funcion = 'conta.ft_periodo_compra_venta_ime';
@@ -133,14 +140,46 @@ BEGIN
             END IF;
 
 			IF v_fecha_fin <= v_fecha_permitida THEN
-              raise exception 'No se puede abrir periodos que ya cumplieron mas de % meses de antiguedad.', v_periodos_permitidos;
+             -- raise exception 'No se puede abrir periodos que ya cumplieron mas de % meses de antiguedad.', v_periodos_permitidos;
             END IF;
 
             IF  v_parametros.tipo = 'cerrar' THEN
              v_estado = 'cerrado';
+
+
+             /*Control para no cerrar periodos despues del periodo actual Ismael Valdivia (15/11/2021)*/
+              select per.id_gestion,
+                     pcv.id_depto
+                     into
+                     v_id_gestion_periodo,
+                     v_id_depto_periodo
+              from conta.tperiodo_compra_venta pcv
+              inner join param.tperiodo per on per.id_periodo = pcv.id_periodo
+              where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta;
+
+
+
+              select
+                     pcv.estado,
+                     (param.f_literal_periodo(pcv.id_periodo))
+                     into
+                     v_estado_periodo,
+                     v_periodo_literal
+              from conta.tperiodo_compra_venta pcv
+              inner join param.tperiodo per on per.id_periodo = pcv.id_periodo
+              where per.id_gestion = v_id_gestion_periodo and pcv.id_depto = v_id_depto_periodo
+              and pcv.id_periodo_compra_venta < v_parametros.id_periodo_compra_venta
+              order by pcv.id_periodo_compra_venta DESC
+              limit 1;
+
+
+             if (v_estado_periodo = 'abierto' or v_estado_periodo = 'cerrado_parcial') then
+             	raise exception 'El periodo <b>%</b> se encuentra en estado <b>%</b>, favor cerrar el periodo mencionado para realizar el cierre seleccionado',v_periodo_literal,v_estado_periodo;
+             end if;
+             /*****************************************************************************/
+
              /*Aumentando para que se jale informacion de la tabla sfe.tfactura para los comisionistas*/
              --Modifi (Ismael Valdivia 13/04/2021)
-
              select pcv.id_depto
              	    into
                     v_id_depto_cv
@@ -157,9 +196,44 @@ BEGIN
              	v_traer_data = vef.ft_insertar_acumulacion_comisionistas_ime();
              end if;
 
+
              /*****************************************************************************************/
             ELSIF  v_parametros.tipo = 'cerrar_parcial' THEN
              v_estado = 'cerrado_parcial';
+
+             /*Control para no cerrar periodos despues del periodo actual Ismael Valdivia (15/11/2021)*/
+              select per.id_gestion,
+                     pcv.id_depto
+                     into
+                     v_id_gestion_periodo,
+                     v_id_depto_periodo
+              from conta.tperiodo_compra_venta pcv
+              inner join param.tperiodo per on per.id_periodo = pcv.id_periodo
+              where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta;
+
+
+
+              select
+                     pcv.estado,
+                     (param.f_literal_periodo(pcv.id_periodo))
+                     into
+                     v_estado_periodo,
+                     v_periodo_literal
+              from conta.tperiodo_compra_venta pcv
+              inner join param.tperiodo per on per.id_periodo = pcv.id_periodo
+              where per.id_gestion = v_id_gestion_periodo and pcv.id_depto = v_id_depto_periodo
+              and pcv.id_periodo_compra_venta < v_parametros.id_periodo_compra_venta
+              order by pcv.id_periodo_compra_venta DESC
+              limit 1;
+
+
+             if (v_estado_periodo = 'abierto') then
+             	raise exception 'El periodo <b>%</b> se encuentra en estado <b>%</b>, favor cerrar el periodo mencionado para realizar el cierre seleccionado',v_periodo_literal,v_estado_periodo;
+             end if;
+             /*****************************************************************************/
+
+
+
              /*Aumentando para que se jale informacion de la tabla sfe.tfactura para los comisionistas*/
              --Modifi (Ismael Valdivia 13/04/2021)
              select pcv.id_depto
@@ -179,7 +253,54 @@ BEGIN
              end if;
              /*****************************************************************************************/
             ELSE
+
              v_estado = 'abierto';
+
+             /*Control para no cerrar periodos despues del periodo actual Ismael Valdivia (15/11/2021)*/
+              select per.id_gestion,
+                     pcv.id_depto
+                     into
+                     v_id_gestion_periodo,
+                     v_id_depto_periodo
+              from conta.tperiodo_compra_venta pcv
+              inner join param.tperiodo per on per.id_periodo = pcv.id_periodo
+              where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta;
+
+
+
+              select
+                     pcv.estado,
+                     (param.f_literal_periodo(pcv.id_periodo))
+                     into
+                     v_estado_periodo,
+                     v_periodo_literal
+              from conta.tperiodo_compra_venta pcv
+              inner join param.tperiodo per on per.id_periodo = pcv.id_periodo
+              where per.id_gestion = v_id_gestion_periodo and pcv.id_depto = v_id_depto_periodo
+              and pcv.id_periodo_compra_venta > v_parametros.id_periodo_compra_venta
+              order by pcv.id_periodo_compra_venta ASC
+              limit 1;
+
+
+             if (v_estado_periodo = 'cerrado' or v_estado_periodo = 'cerrado_parcial') then
+             	raise exception 'El periodo <b>%</b> se encuentra en estado <b>%</b>, favor Abrir el periodo mencionado para realizar el cierre seleccionado',v_periodo_literal,v_estado_periodo;
+             end if;
+             /*****************************************************************************/
+
+
+
+
+
+
+
+             /*Abrimos el periodo en la tabla tacumulacion comisionistas para traer la data*/
+             update vef.tacumulacion_comisionistas set
+             estado = v_estado
+             where id_periodo >= (select per.id_periodo
+             					 from conta.tperiodo_compra_venta per
+             					 where per.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta);
+
+
             END IF;
 
             -- modificado (breydi.vasquez) incremento de columans no registradas y
