@@ -329,31 +329,36 @@ BEGIN
 
     v_resp:=v_this;
 
-    -- RAC 23/23/2016
-    --forzamos que la fecha se quede en los limites de la gestion
-    v_gestion_fecha =  date_part('year', v_this.columna_fecha);
 
-    select
-      g.gestion
-     into
-      v_gestion_aux
-    from param.tgestion g
-    where g.id_gestion = v_this.columna_gestion;
+    /*Aumentamos la siguiente condicion para recupere la fecha actual*/
+    --Ismael Valdivia 03/12/2021
+    if (p_codigo = 'PAGTESNEWGEST') then
+    	v_rec_periodo = param.f_get_periodo_gestion(v_this.columna_fecha);
+    else
+    	-- RAC 23/23/2016
+        --forzamos que la fecha se quede en los limites de la gestion
+        v_gestion_fecha =  date_part('year', v_this.columna_fecha);
+
+        select
+          g.gestion
+         into
+          v_gestion_aux
+        from param.tgestion g
+        where g.id_gestion = v_this.columna_gestion;
 
 
-    if v_gestion_fecha < v_gestion_aux then
-       -- forzamos  1ro de enero
-       v_this.columna_fecha = (v_gestion_aux||'-01-01')::date;
-    elseif v_gestion_fecha > v_gestion_aux then
-      -- forzamos 31 de diciembre
-      v_this.columna_fecha = (v_gestion_aux||'-12-31')::date;
+        if v_gestion_fecha < v_gestion_aux then
+           -- forzamos  1ro de enero
+           v_this.columna_fecha = (v_gestion_aux||'-01-01')::date;
+        elseif v_gestion_fecha > v_gestion_aux then
+          -- forzamos 31 de diciembre
+          v_this.columna_fecha = (v_gestion_aux||'-12-31')::date;
+        end if;
+
+          --obtener el periodo a partir de la fecha
+     	  v_rec_periodo = param.f_get_periodo_gestion(v_this.columna_fecha);
     end if;
-
-
-
-    --obtener el periodo a partir de la fecha
-
-      v_rec_periodo = param.f_get_periodo_gestion(v_this.columna_fecha);
+    /*****************************************************************/
 
 
     --  obtener id_subsistema
@@ -391,12 +396,12 @@ BEGIN
 
 
       	--calcular el tipo de cambio segun fecha y moneda del comprobante
-      	/*IF v_this.columna_tipo_cambio is NULL THEN
+      	IF v_this.columna_tipo_cambio is NULL THEN
           v_tipo_cambio =   param.f_get_tipo_cambio( v_this.columna_moneda::integer, v_this.columna_fecha::date, 'O');
       	ELSE
           v_tipo_cambio = v_this.columna_tipo_cambio;
-     	END IF;*/
-        IF v_this.columna_tipo_cambio is NULL THEN
+     	END IF;
+        /*IF v_this.columna_tipo_cambio is NULL THEN
         	--(franklin.espinoza) 2-9-2019
           select tpp.tipo_cambio
           into v_tipo_cambio
@@ -409,7 +414,8 @@ BEGIN
           v_this.columna_tipo_cambio = v_tipo_cambio;
       	ELSE
           v_tipo_cambio = v_this.columna_tipo_cambio;
-     	  END IF;
+     	  END IF;  */
+    --raise 'v_tipo_cambio : [%] [%] [%]', v_this.columna_tipo_cambio, v_tipo_cambio, v_this.columna_tipo_cambio is NULL;
 		--raise exception 'tipo cambio1: %',v_tipo_cambio;
     --deterinar si es temporal
     v_temporal = 'no';
@@ -773,7 +779,6 @@ BEGIN
 
 
     -- genera transacciones del comprobante
-
     resp_det =  conta.f_gen_transaccion(hstore(v_this),
                             hstore(v_tabla),
                             hstore(v_plantilla),
@@ -805,9 +810,8 @@ BEGIN
     --   se tiene que actualizar las cuentas, centros de costos y partidas
     -----------------------------------------------------------------------
 
-
-     IF v_this.columna_gestion !=  v_rec_periodo.po_id_gestion THEN
-
+	 IF v_this.columna_gestion !=  v_rec_periodo.po_id_gestion THEN
+		if (p_codigo != 'PAGTESNEWGEST') then
          IF not  conta.f_act_gestion_transaccion(
                           v_id_int_comprobante,
                           v_rec_periodo.po_id_gestion,
@@ -815,7 +819,7 @@ BEGIN
 
                  raise exception 'error al actualizar gestion';
           END IF;
-
+         end if;
 
      END IF;
 
@@ -855,3 +859,6 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
+
+ALTER FUNCTION conta.f_gen_comprobante (p_id_tabla_valor integer, p_codigo varchar, p_id_estado_wf integer, p_id_usuario integer, p_id_usuario_ai integer, p_usuario_ai varchar, p_conexion varchar, p_sincronizar_internacional boolean)
+  OWNER TO postgres;

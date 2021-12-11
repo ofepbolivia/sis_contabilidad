@@ -5282,3 +5282,37 @@ ALTER TABLE conta.tmoneda_pais
 COMMENT ON COLUMN conta.tmoneda_pais.filtrar_combo
 IS 'Campo que indicara que monedas se mostraran en el combo';
 /***********************************F-SCP-IRVA-CONTA-0-07/05/2021****************************************/
+
+/***********************************I-SCP-FEA-CONTA-0-16/06/2021****************************************/
+ALTER TABLE conta.tentrega
+ADD COLUMN nro_deposito VARCHAR(64);
+
+COMMENT ON COLUMN conta.tentrega.nro_deposito
+IS 'Numero de Deposito para reversion de C31.';
+
+ALTER TABLE conta.tentrega
+ADD COLUMN fecha_deposito DATE;
+
+COMMENT ON COLUMN conta.tentrega.fecha_deposito
+IS 'Fecha de Deposito para reversion de C31.';
+
+ALTER TABLE conta.tentrega
+ADD COLUMN monto_deposito NUMERIC(18,2);
+
+COMMENT ON COLUMN conta.tentrega.monto_deposito
+IS 'Monto de Deposito para reversion de C31.';
+
+ALTER TABLE conta.tentrega
+ADD COLUMN monto NUMERIC(18,2);
+
+COMMENT ON COLUMN conta.tentrega.monto
+IS 'Monto total de Deposito para reversion de C31.';
+/***********************************F-SCP-FEA-CONTA-0-16/06/2021****************************************/
+
+/***********************************I-SCP-IRVA-CONTA-0-10/12/2021****************************************/
+ALTER TABLE conta.torden_trabajo
+  ADD COLUMN id_avion_alkym INTEGER;
+
+COMMENT ON COLUMN conta.torden_trabajo.id_avion_alkym
+IS 'Campo donde se almacenara el id_alkym de las aeronaves';
+/***********************************F-SCP-IRVA-CONTA-0-10/12/2021****************************************/

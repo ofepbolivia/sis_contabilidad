@@ -73,6 +73,22 @@ DECLARE
      v_monto_no_pagado				numeric;
      v_liq_pag						numeric;
 
+     /*Variables para las cuotas Devengadas*/
+     v_id_centro_costo_recuperado	integer;
+     v_codigo_partida				varchar;
+     v_id_gestion_recuperado		integer;
+     v_gestion_recuperado			integer;
+     v_id_partida_recuperado		integer;
+     v_id_partida_matriz			integer;
+     v_id_partida_recuperado_fk		integer;
+     v_nivel_partida				integer;
+	 v_partida_sig_ges				integer;
+     v_id_centro_costo_nuevo		integer;
+     v_centro_costo					varchar;
+     v_partida_nuevo				varchar;
+     v_id_gestion_recuperado_ob		integer;
+     v_gestion_recuperado_ob		integer;
+     v_datos_agrupados				record;
 
 BEGIN
 
@@ -188,7 +204,7 @@ BEGIN
 
 
 
-           --si el monto es cero saltamos el proceso, ya que no se generan transacciones
+		  --si el monto es cero saltamos el proceso, ya que no se generan transacciones
 
            IF COALESCE((v_this_hstore -> 'campo_monto')::numeric,0) > 0 or (p_reg_det_plantilla->'forma_calculo_monto') = 'diferencia' THEN
 
@@ -262,7 +278,7 @@ BEGIN
                                                                           (v_this_hstore->'campo_relacion_contable')::integer,
                                                                           (v_this_hstore->'campo_centro_costo')::integer);
 
-                                -- utiliza la relacion contable solo si no remplaza los valores de los campos del detalle de plantilla
+                               -- utiliza la relacion contable solo si no remplaza los valores de los campos del detalle de plantilla
 
                                 IF (v_this_hstore->'campo_cuenta') ='' or (v_this_hstore->'campo_cuenta')='NULL' or (v_this_hstore->'campo_cuenta') is NULL THEN
 
@@ -321,9 +337,167 @@ BEGIN
 
 
                       v_record_int_tran.id_cuenta =   (v_this_hstore->'campo_cuenta')::integer;
-                      v_record_int_tran.id_partida =   (v_this_hstore->'campo_partida')::integer;
                       v_record_int_tran.id_auxiliar =   (v_this_hstore->'campo_auxiliar')::integer;
-                      v_record_int_tran.id_centro_costo =   (v_this_hstore->'campo_centro_costo')::integer;
+
+                      /*Aqui para recuperar el centro de costo y la partida*/
+                        --Ismael Valdivia 30/11/2021
+                        --Se Aumento para que se genere el combrobante en la siguiente Gestion
+						if (p_reg_det_plantilla->'codigo' = 'DEBESIGGEST') then
+
+                        	/*Creamos la tabla temporal para ir acumulando las partidas del prorrateo*/
+                            create temp table prorrateo_temporal (
+        										  id_partida integer,
+                                                  total_monto numeric
+                                                )on commit drop;
+
+
+                        	/*Recuperamos la gestion en base al tramite*/
+                        	select
+                                  op.id_gestion,
+                                  ges.gestion
+                            into
+                            	  v_id_gestion_recuperado,
+                                  v_gestion_recuperado
+                            from tes.tplan_pago plapa
+                            inner join tes.tobligacion_pago op on op.id_obligacion_pago = plapa.id_obligacion_pago
+                            inner join param.tgestion ges on ges.id_gestion = op.id_gestion
+                            where  plapa.id_plan_pago = p_id_tabla_padre_valor;
+
+                            /*select ges.id_gestion,
+                            	   ges.gestion
+                            into
+                            	  v_id_gestion_recuperado_ob,
+                                  v_gestion_recuperado_ob
+                            from param.tgestion ges
+                            where ges.gestion = (select extract (year from (now()::date)));    */
+                        	/********************************************/
+
+                            /*Control de Gestion no puede ser para la misma gestion la generacion*/
+                            if(v_gestion_recuperado = (select extract (year from (now()::date))))then
+                            	raise exception 'No es posible generar el comprobante para la misma gestión';
+                            end if;
+                            /*********************************************************************/
+
+                        	select cc.id_centro_costo into v_id_centro_costo_recuperado
+                            from param.vcentro_costo cc
+                            where trim(cc.codigo_tcc) = '905'
+                            and cc.gestion = (select extract (year from (now()::date))) --Gestion Actual que estamos
+                            and cc.estado_reg = 'activo';
+
+                            if (v_id_centro_costo_recuperado is null) then
+                            	raise exception 'El centro de costo con codigo 905 no se encuentra parametrizado en la siguiente gestion <b>%</b>',(SELECT (EXTRACT(YEAR FROM now()::Date)));
+                            end if;
+
+                            --raise exception 'Aqui llega el id %',v_id_centro_costo_recuperado;
+                            v_record_int_tran.id_centro_costo =   v_id_centro_costo_recuperado::integer;
+--------------------------------------------AQUI REVISAR PARA HACER CON TABLAS TEMPORALES-----------------------------------------------
+                             FOR v_datos_agrupados in  (select
+                                                              par.codigo as codigo_partida,
+                                                              sum(pro.monto_ejecutar_mo) as total_monto
+                                                      from tes.tprorrateo pro
+                                                      inner join tes.tobligacion_det od on od.id_obligacion_det = pro.id_obligacion_det
+                                                      inner join pre.tpartida par on par.id_partida = od.id_partida
+                                                      where pro.id_plan_pago = p_id_tabla_padre_valor
+                                                      group by par.codigo)
+                             LOOP
+
+                              select par.id_partida,
+                              		 par.id_partida_fk,
+                                     par.nivel_partida
+                              into
+                              	     v_id_partida_recuperado,
+                                     v_id_partida_recuperado_fk,
+                                     v_nivel_partida
+                              from pre.tpartida par
+                              where par.codigo = v_datos_agrupados.codigo_partida and par.id_gestion = v_id_gestion_recuperado
+                              and par.tipo = 'gasto';
+
+                              /*Aqui hacemos el loop para recuperar el padre*/
+                              WHILE (v_id_partida_recuperado_fk is not null and v_nivel_partida != 1)
+                              LOOP
+									select par.id_partida,
+                                    	   par.id_partida_fk,
+                                           par.nivel_partida
+                                    into
+                                           v_id_partida_recuperado,
+                                           v_id_partida_recuperado_fk,
+                                           v_nivel_partida
+                                    from pre.tpartida par
+                                    where par.id_partida = v_id_partida_recuperado_fk;
+
+                              END LOOP;
+                              /**********************************************/
+
+
+                             --raise exception 'Aqui llega el dato %, %',v_id_partida_recuperado,v_id_gestion_recuperado;
+                              /*Aqui buscamos la partida en la matriz de conversion de deuda*/
+                              select matriz.id_partida_destino
+                              into
+                              		 v_id_partida_matriz
+                              from pre.tmatriz_conversion_deuda matriz
+                              where matriz.id_partida_origen = v_id_partida_recuperado
+                              and matriz.id_gestion_origen = v_id_gestion_recuperado;
+
+                              if(v_id_partida_matriz is null) then
+                              	raise exception 'No se encuentra parametrizado la partida con codigo %, en la matriz de conversion de deuda, para la siguiente gestión favor coordinar con Contabilidad',v_codigo_partida;
+                              end if;
+
+                              insert into prorrateo_temporal(id_partida,
+                              								 total_monto)
+                              								 VALUES
+                                                             (v_id_partida_matriz,
+                                                              v_datos_agrupados.total_monto);
+
+
+
+
+                              END LOOP;
+
+                              --raise exception 'Termina Insertar';
+                              --v_record_int_tran.id_partida = v_id_partida_matriz::integer;
+                              /**************************************************************/
+
+                        elsif (p_reg_det_plantilla->'codigo' = 'HABERSIGGEST') then
+
+                        	select cc.id_centro_costo into v_id_centro_costo_nuevo
+                            from param.vcentro_costo cc
+                            where cc.gestion = (select extract (year from (now()::date))) --Gestion Actual que estamos
+                            and cc.estado_reg = 'activo'
+                            and cc.codigo_tcc = (select cost.codigo_tcc
+                            				    from param.vcentro_costo cost
+                                                where cost.id_centro_costo = (v_this_hstore->'campo_centro_costo')::integer);
+
+                            if (v_id_centro_costo_nuevo is null) then
+                            	select cost.codigo_cc into v_centro_costo
+                                from param.vcentro_costo cost
+                                where cost.id_centro_costo = (v_this_hstore->'campo_centro_costo')::integer;
+
+
+                            	raise exception 'No se encuentra parametrizado el centro de costo %, para la gestion %',v_centro_costo,(select extract (year from (now()::date)));
+                            end if;
+
+                            v_record_int_tran.id_centro_costo =   v_id_centro_costo_nuevo::integer;
+
+                            select sigu.id_partida_dos into v_partida_sig_ges
+                            from pre.tpartida_ids sigu
+                            where sigu.id_partida_uno = (v_this_hstore->'campo_partida')::integer;
+
+                            if (v_partida_sig_ges is null) then
+                            	select ('('||par.codigo||') - '||par.nombre_partida)::varchar as v_partida_nuevo
+                                from pre.tpartida par
+                                where par.id_partida = (v_this_hstore->'campo_partida')::integer;
+
+                                raise exception 'No se encuentra parametrizado la partida %, para la gestion %',v_partida_nuevo,(select extract (year from (now()::date)));
+                            end if;
+
+                            v_record_int_tran.id_partida =   v_partida_sig_ges::integer;
+
+                        else
+                          v_record_int_tran.id_centro_costo =   (v_this_hstore->'campo_centro_costo')::integer;
+                          v_record_int_tran.id_partida =   (v_this_hstore->'campo_partida')::integer;
+                        end if;
+                        /*****************************************************/
+
 
                       v_record_int_tran.id_orden_trabajo =   (v_this_hstore->'campo_orden_trabajo')::integer;
                       v_record_int_tran.id_suborden =   (v_this_hstore->'campo_suborden')::integer;
@@ -354,7 +528,7 @@ BEGIN
                        -----------------------
 
 
-                       IF (p_reg_det_plantilla->'forma_calculo_monto') = 'simple' THEN
+						IF (p_reg_det_plantilla->'forma_calculo_monto') = 'simple' THEN
                                     select top.id_moneda as id_moneda_op, tcb.id_moneda as id_moneda_cb, tp.monto
                                             into v_moneda_record
                                     from tes.tplan_pago tp
