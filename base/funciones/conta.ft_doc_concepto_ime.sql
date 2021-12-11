@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION conta.ft_doc_concepto_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -38,7 +36,14 @@ DECLARE
     v_id_cuenta  			integer;
     v_id_partida	integer;
     v_id_auxiliar	integer;
-			    
+
+    --12-11-2021 (may)
+    cuenta_doc_det			record;
+    v_nombre_partida_registro	varchar;
+    v_importe_partida_sol	numeric;
+    v_importe_partida_sol_total		numeric;
+    v_partida				record;
+
 BEGIN
 
     v_nombre_funcion = 'conta.ft_doc_concepto_ime';
@@ -70,7 +75,8 @@ BEGIN
              SELECT 
               dcv.tipo,
               dcv.id_periodo,
-              per.id_gestion
+              per.id_gestion,
+              dcv.importe_doc
              into
               v_registros_doc
              FROM conta.tdoc_compra_venta dcv 
@@ -104,8 +110,73 @@ BEGIN
            IF  v_id_cuenta is NULL THEN
                raise exception 'no se encontro relacion contable ...';
            END IF;
-           
-          
+
+
+
+             --01-11-2021 (may) para controlar a FA con detalle, sea el mismo centro de costo
+
+             SELECT cdd.id_partida,
+             		cdd.id_cc,
+                    cd.habilitar_det_ren,
+                    cd.importe,
+                    cd.nro_tramite,
+                    cdd.id_partida_ejecucion,
+                    cd.detalle_cuenta_doc,
+                    cd.id_cuenta_doc,
+                    cd.id_moneda,
+                    cd.fecha,
+                    rd.id_rendicion_det
+             INTO cuenta_doc_det
+             FROM cd.tcuenta_doc_det cdd
+             inner join cd.tcuenta_doc cd on cd.id_cuenta_doc = cdd.id_cuenta_doc
+             inner join cd.trendicion_det rd on rd.id_cuenta_doc = cd.id_cuenta_doc
+             WHERE rd.id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+
+             IF (cuenta_doc_det.importe < v_registros_doc.importe_doc ) THEN
+             	RAISE EXCEPTION 'El importe total de la rendicion es de % y no puede ser mayor al importe solicitado % en el Fondo en Avance %.', v_registros_doc.importe_doc, cuenta_doc_det.importe, cuenta_doc_det.nro_tramite;
+             END IF;
+
+
+             SELECT sum(cdd.importe)
+             INTO v_importe_partida_sol
+             FROM cd.tcuenta_doc_det cdd
+             inner join cd.tcuenta_doc cd on cd.id_cuenta_doc = cdd.id_cuenta_doc
+             inner join cd.trendicion_det rd on rd.id_cuenta_doc = cd.id_cuenta_doc
+             left join pre.tpartida par on par.id_partida = cdd.id_partida
+             WHERE rd.id_doc_compra_venta = v_parametros.id_doc_compra_venta
+             and par.id_partida = cuenta_doc_det.id_partida;
+
+             SELECT sum(dc.precio_total)
+             INTO v_importe_partida_sol_total
+             FROM conta.tdoc_concepto dc
+             WHERE dc.id_partida = v_id_partida
+             and dc.id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+
+
+
+             FOR v_partida in ( SELECT sum(cdd.importe) as importe,  cdd.id_partida
+                                 FROM cd.tcuenta_doc_det cdd
+                                 inner join cd.tcuenta_doc cd on cd.id_cuenta_doc = cdd.id_cuenta_doc
+                                 inner join cd.trendicion_det rd on rd.id_cuenta_doc = cd.id_cuenta_doc
+                                 left join pre.tpartida par on par.id_partida = cdd.id_partida
+                                 WHERE rd.id_doc_compra_venta = v_parametros.id_doc_compra_venta
+                                 group by cdd.id_partida
+             						) LOOP
+
+                             IF (v_partida.id_partida = v_id_partida) THEN
+
+                                  SELECT par.nombre_partida
+                                  INTO v_nombre_partida_registro
+                                  FROM pre.tpartida par
+                                  WHERE par.id_partida = v_id_partida;
+
+                                  IF (v_partida.importe < v_parametros.precio_total ) THEN
+                                      RAISE EXCEPTION 'El importe de la Partida % es de % y no puede ser mayor al importe solicitado %, en el Fondo en Avance %.',upper(v_nombre_partida_registro), v_parametros.precio_total, v_partida.importe,cuenta_doc_det.nro_tramite;
+                                  END IF;
+                             END IF;
+             END LOOP;
+             --
+
         
         	--Sentencia de la insercion
         	insert into conta.tdoc_concepto(

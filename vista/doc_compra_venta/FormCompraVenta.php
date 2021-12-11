@@ -1067,9 +1067,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         width: 180,
                         boxMinWidth: 200,
                         queryDelay: 500,
-                        minChars: 1,
+                        minChars: 1/*,
                         maskRe: /[0-9/-]+/i,
-                        regex: /[0-9/-]+/i
+                        regex: /[0-9/-]+/i*/
                     },
                     type: 'ComboBox',
                     id_grupo: 0,
