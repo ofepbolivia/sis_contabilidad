@@ -18,7 +18,7 @@ class ACTOrdenTrabajo extends ACTbase{
 			$request =  'http://sms.obairlines.bo/ServSisComm/servSiscomm.svc/MostrarAvion';
 		} else {
 			$request =  'http://sms.obairlines.bo/ServSisComm/servSiscomm.svc/MostrarAvion';
-		}		
+		}
 
 		$session = curl_init($request);
 		curl_setopt($session, CURLOPT_CUSTOMREQUEST, "POST");
@@ -62,7 +62,7 @@ class ACTOrdenTrabajo extends ACTbase{
 
 	function listarOrdenTrabajo(){
 
-		$actualizacion_Cp_alkym = $this->actualizarCpAlkym();
+		//$actualizacion_Cp_alkym = $this->actualizarCpAlkym();
 
 
 		$this->objParam->defecto('ordenacion','id_orden_trabajo');
