@@ -1,7 +1,7 @@
 <?php
 /**
  *@package pXP
- *@file CorreccionDocVenta.php
+ *@file DocumentoVentaTipo.php
  *@author franklin.espinoza
  *@date 20-01-2021
  *@description  Vista para registrar modificacion Nit, Razon Social de una Factura
@@ -36,7 +36,7 @@ header("content-type: text/javascript; charset=UTF-8");
 </style>
 
 <script>
-    Phx.vista.CorreccionDocVenta=Ext.extend(Phx.gridInterfaz,{
+    Phx.vista.DocumentoVentaTipo=Ext.extend(Phx.gridInterfaz,{
         viewConfig: {
             stripeRows: false,
             getRowClass: function(record) {
@@ -46,15 +46,15 @@ header("content-type: text/javascript; charset=UTF-8");
         constructor: function(config) {
             this.maestro = config;
 
-            Phx.vista.CorreccionDocVenta.superclass.constructor.call(this,config);
+            Phx.vista.DocumentoVentaTipo.superclass.constructor.call(this,config);
 
             this.current_date = new Date();
             this.diasMes = [31, new Date(this.current_date.getFullYear(), 2, 0).getDate(), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
-            this.tipo_show = 'PENDIENTE';
+            this.tipo_show = 'computarizada';
             this.etiqueta_ini = new Ext.form.Label({
                 name: 'etiqueta_ini',
-                grupo: [0,1,2,3,4],
+                grupo: [0,1,2,3,4,5,6,7,8,9],
                 fieldLabel: 'Fecha Inicio:',
                 text: 'Fecha Inicio:',
                 //style: {color: 'green', font_size: '12pt'},
@@ -67,7 +67,7 @@ header("content-type: text/javascript; charset=UTF-8");
             });
             this.fecha_ini = new Ext.form.DateField({
                 name: 'fecha_ini',
-                grupo: [0,1,2,3,4],
+                grupo: [0,1,2,3,4,5,6,7,8,9],
                 fieldLabel: 'Fecha',
                 allowBlank: false,
                 anchor: '60%',
@@ -79,7 +79,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             this.etiqueta_fin = new Ext.form.Label({
                 name: 'etiqueta_fin',
-                grupo: [0,1,2,3,4],
+                grupo: [0,1,2,3,4,5,6,7,8,9],
                 fieldLabel: 'Fecha Fin',
                 text: 'Fecha Fin:',
                 //style: {color: 'red', font_size: '12pt'},
@@ -92,7 +92,7 @@ header("content-type: text/javascript; charset=UTF-8");
             });
             this.fecha_fin = new Ext.form.DateField({
                 name: 'fecha_fin',
-                grupo: [0,1,2,3,4],
+                grupo: [0,1,2,3,4,5,6,7,8,9],
                 fieldLabel: 'Fecha',
                 allowBlank: false,
                 anchor: '60%',
@@ -108,47 +108,28 @@ header("content-type: text/javascript; charset=UTF-8");
             this.tbar.addField(this.etiqueta_fin);
             this.tbar.addField(this.fecha_fin);
             this.iniciarEventos();
-            this.bandera_alta = 0;
-            this.bandera_baja = 0;
 
-            this.grid.addListener('cellclick', this.mostrarDetalleLog,this);
             this.init();
 
         },
 
-        mostrarDetalleLog : function(grid, rowIndex, columnIndex, e) {
 
-            var record = this.store.getAt(rowIndex);
-            var fieldName = grid.getColumnModel().getDataIndex(columnIndex); // Get field name
-            
-
-            if (fieldName == 'nro_factura' &&  (this.tipo_show == 'PENDIENTE' || this.tipo_show == 'CORREGIDO')) {
-
-                var rec = {maestro: this.getSelectedData()};
-                Phx.CP.loadWindows('../../../sis_contabilidad/vista/doc_compra_venta/CorreccionDocVentaLog.php',
-                    'Log. Correcciones',
-                    {
-                        width: 750,
-                        height:400
-                    },
-                    rec,
-                    this.idContenedor,
-                    'CorreccionDocVentaLog'
-                );
-            }
-
-        },
-
-        bactGroups:[0,1,2,3,4],
-        bexcelGroups:[0,1,2,3,4],
-        beditGroups:[0,1,2],
+        bactGroups:[0,1,2,3,4,5,6,7,8,9],
+        bexcelGroups:[0,1,2,3,4,5,6,7,8,9],
 
         gruposBarraTareas: [
-            {name: 'PENDIENTE', title: '<h1 style="text-align: center; color: #FF8F85;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>PENDIENTE</h1>', grupo: 0, height: 1},
-            {name: 'CORREGIDO', title: '<h1 style="text-align: center; color: #4682B4;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>CORREGIDO</h1>',grupo: 1, height: 0},
-            {name: 'CORRECTO', title: '<h1 style="text-align: center; color: #00B167;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>CORRECTO</h1>', grupo: 2, height: 1},
-            //{name: 'BOLETOS', title: '<h1 style="text-align: center; color: #586E7E;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>BOLETOS</h1>', grupo: 3, height: 1},
-            //{name: 'CARGA', title: '<h1 style="text-align: center; color: #B066BB;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>CARGA</h1>', grupo: 4, height: 1}
+            {name: 'COMPUTARIZADA', title: '<h1 style="text-align: center; color: #00B167;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>ELECTRONICO</h1>', grupo: 0, height: 1},
+            {name: 'manual', title: '<h1 style="text-align: center; color: #00B167;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>MANUAL</h1>', grupo: 1, height: 1},
+            {name: 'BOLETOS', title: '<h1 style="text-align: center; color: #00B167;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>BOLETOS</h1>', grupo: 2, height: 1, width: 5},
+
+            {name: 'CARGA', title: '<h1 style="text-align: center; color: #B066BB;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>COMP. CARGA</h1>', grupo: 3, height: 1},
+            {name: 'ERP', title: '<h1 style="text-align: center; color: #B066BB;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>COMP. ERP</h1>', grupo: 4, height: 1},
+
+            {name: 'CANX', title: '<h1 style="text-align: center; color: #4682B4;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>CANX</h1>',grupo: 5, height: 1},
+            {name: 'TKTT', title: '<h1 style="text-align: center; color: #4682B4;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>TKTT</h1>', grupo: 6, height: 1},
+            {name: 'CANN', title: '<h1 style="text-align: center; color: #4682B4;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>CANN</h1>', grupo: 7, height: 1},
+            {name: 'EMDS', title: '<h1 style="text-align: center; color: #4682B4;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i>EMDS</h1>', grupo: 8, height: 1}
+
         ],
 
         iniciarEventos: function(){
@@ -254,17 +235,18 @@ header("content-type: text/javascript; charset=UTF-8");
                     disabled: true,
                     style: 'color: blue; background-color: #00B167;',
                     renderer: function (value, p, record){
-                        return String.format('<div style="color: #00B167; font-weight: bold; cursor:pointer;">{0} <i class="fa fa-eye fa-2x"></i> </div>', value);
+                        return String.format('<div style="color: #00B167; font-weight: bold;">{0}</div>', value);
                     }
                 },
                 type:'TextField',
-                filters:{pfiltro:'nro_factura',type:'string'},
+                filters:{pfiltro:'tfa.nro_factura',type:'string'},
                 bottom_filter : true,
                 id_grupo:1,
                 grid:true,
                 form:true
             },
-            
+
+
 
             {
                 config:{
@@ -347,7 +329,11 @@ header("content-type: text/javascript; charset=UTF-8");
                     disabled: false,
                     style: 'color: blue; background-color: #FF8F85;',
                     renderer: function (value, p, record){
-                        return String.format('<div style="color: #FF8F85; font-weight: bold;">{0}</div>', value);
+                        if(record.data.tipo_reg != 'summary') {
+                            return String.format('<div style="color: #FF8F85; font-weight: bold;">{0}</div>', value);
+                        }else{
+                            return String.format('<hr><div style="color: #FF8F85; font-weight: bold; font-size:15px; float:right;">{0}</div>', value);
+                        }
                     }
                 },
                 type:'TextField',
@@ -360,7 +346,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             {
                 config:{
-                    fieldLabel: "Import Total",
+                    fieldLabel: "Importe Total",
                     gwidth: 90,
                     name: 'importe_total_venta',
                     allowBlank:true,
@@ -384,10 +370,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         if(record.data.tipo_reg != 'summary'){
 
                             return  String.format('<div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span >{0}</span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
-                        }
-                        else{
+                        } else{
 
-                            return  String.format('<div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span ><b>{0}</b></span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
+                            return  String.format('<hr><div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span ><b>{0}</b></span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
 
                         }
                     }
@@ -403,7 +388,7 @@ header("content-type: text/javascript; charset=UTF-8");
             {
                 config:{
                     fieldLabel: "Import No Sujeto IVA",
-                    gwidth: 90,
+                    gwidth: 120,
                     name: 'importe_otros_no_suj_iva',
                     allowBlank:true,
                     maxLength:100,
@@ -426,10 +411,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         if(record.data.tipo_reg != 'summary'){
 
                             return  String.format('<div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span >{0}</span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
-                        }
-                        else{
+                        } else{
 
-                            return  String.format('<div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span ><b>{0}</b></span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
+                            return  String.format('<hr><div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span ><b>{0}</b></span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
 
                         }
                     }
@@ -468,10 +452,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         if(record.data.tipo_reg != 'summary'){
 
                             return  String.format('<div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span >{0}</span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
-                        }
-                        else{
+                        } else{
 
-                            return  String.format('<div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span ><b>{0}</b></span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
+                            return  String.format('<hr><div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span ><b>{0}</b></span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
 
                         }
                     }
@@ -510,10 +493,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         if(record.data.tipo_reg != 'summary'){
 
                             return  String.format('<div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span >{0}</span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
-                        }
-                        else{
+                        } else{
 
-                            return  String.format('<div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span ><b>{0}</b></span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
+                            return  String.format('<hr><div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span ><b>{0}</b></span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
 
                         }
                     }
@@ -530,7 +512,7 @@ header("content-type: text/javascript; charset=UTF-8");
             {
                 config:{
                     fieldLabel: "Descuento Suj. IVA",
-                    gwidth: 110,
+                    gwidth: 120,
                     name: 'descuento_rebaja_suj_iva',
                     allowBlank:true,
                     maxLength:100,
@@ -553,10 +535,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         if(record.data.tipo_reg != 'summary'){
 
                             return  String.format('<div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span >{0}</span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
-                        }
-                        else{
+                        } else{
 
-                            return  String.format('<div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span ><b>{0}</b></span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
+                            return  String.format('<hr><div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span ><b>{0}</b></span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
 
                         }
                     }
@@ -595,10 +576,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         if(record.data.tipo_reg != 'summary'){
 
                             return  String.format('<div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span >{0}</span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
-                        }
-                        else{
+                        } else{
 
-                            return  String.format('<div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span ><b>{0}</b></span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
+                            return  String.format('<hr><div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span ><b>{0}</b></span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
 
                         }
                     }
@@ -613,8 +593,8 @@ header("content-type: text/javascript; charset=UTF-8");
 
             {
                 config:{
-                    fieldLabel: "Exento",
-                    gwidth: 200,
+                    fieldLabel: "Excento",
+                    gwidth: 120,
                     name: 'importe_exento',
                     allowBlank:true,
                     maxLength:100,
@@ -637,10 +617,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         if(record.data.tipo_reg != 'summary'){
 
                             return  String.format('<div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span >{0}</span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
-                        }
-                        else{
+                        } else{
 
-                            return  String.format('<div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span ><b>{0}</b></span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
+                            return  String.format('<hr><div style="color: #00B167; font-weight: bold; vertical-align:middle;text-align:right;"><span ><b>{0}</b></span></div>',(parseFloat(value)).formatDinero(2, ',', '.'));
 
                         }
                     }
@@ -792,9 +771,8 @@ header("content-type: text/javascript; charset=UTF-8");
             }
 
         ],
-        title:'Corrección (Nit, Razon Social)',
-        ActList:'../../sis_contabilidad/control/DocCompraVenta/getDataDocVenta',
-        ActSave: '../../sis_contabilidad/control/DocCompraVenta/modificarNitRazonSocial',
+        title:'Listado Por Tipo Documento',
+        ActList:'../../sis_contabilidad/control/DocCompraVenta/getDataTipoDocumento',
         id_store:'id_factura',
         fields: [
             {name:'id_factura'},
@@ -819,13 +797,14 @@ header("content-type: text/javascript; charset=UTF-8");
             {name:'desc_ruta', type: 'string'},
             {name:'revision_nit', type: 'string'},
             {name:'importe_exento', type: 'numeric'},
-            {name:'otr', type: 'string'}
+            {name:'otr', type: 'string'},
+            {name:'tipo_reg', type: 'string'}
         ],
         /*sortInfo:{
             field: 'PERSON.nombre_completo2',
             direction: 'ASC'
         },*/
-        bedit:true,
+        bedit:false,
         bnew:false,
         bdel:false,
         bsave:false,

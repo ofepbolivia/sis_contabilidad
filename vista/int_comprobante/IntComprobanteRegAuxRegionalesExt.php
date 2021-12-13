@@ -1,9 +1,9 @@
 <?php
 /**
  * @package pXP
- * @file gen-IntComprobanteRegAuxEXT.php
- * @author  Maylee Perez Pastor
- * @date 07-09-2020 00:28:30
+ * @file    IntComprobanteRegAuxRegionalesExt.php
+ * @author  franklin.espinoza
+ * @date    07-09-2020 00:28:30
  * @description Archivo con la interfaz de usuario que permite
  *dar el visto a solicitudes de compra
  *

@@ -138,6 +138,8 @@ DECLARE
 
     v_id_depto_libro				integer;
 
+    v_libro_bancos               record;
+
 BEGIN
 
     v_nombre_funcion = 'conta.ft_int_comprobante_ime';
@@ -1356,7 +1358,8 @@ BEGIN
                 id_estado_wf,
                 forma_cambio,
                 tipo_cambio_3,
-                id_moneda_act
+                id_moneda_act,
+                tipo_cbte
           	) values(
               v_reg_cbte.id_clase_comprobante,
               v_reg_cbte.id_subsistema,
@@ -1403,7 +1406,8 @@ BEGIN
               v_id_estado_wf,
               v_reg_cbte.forma_cambio,
               v_reg_cbte.tipo_cambio_3,
-              v_reg_cbte.id_moneda_act
+              v_reg_cbte.id_moneda_act,
+              v_reg_cbte.tipo_cbte
 			)RETURNING id_int_comprobante into v_id_int_comprobante;
 
            update wf.tproceso_wf p set
@@ -2141,7 +2145,8 @@ BEGIN
                 id_estado_wf,
                 forma_cambio,
                 id_int_comprobante_fks,
-                id_tipo_relacion_comprobante
+                id_tipo_relacion_comprobante,
+                tipo_cbte
           	) values(
               v_reg_cbte.id_clase_comprobante,
               v_reg_cbte.id_subsistema,
@@ -2188,7 +2193,8 @@ BEGIN
               v_id_estado_wf,
               v_reg_cbte.forma_cambio,
               va_id_int_comprobante_fks,
-              v_id_tipo_relacion_comprobante
+              v_id_tipo_relacion_comprobante,
+              v_reg_cbte.tipo_cbte
 			)RETURNING id_int_comprobante into v_id_int_comprobante;
 
             update wf.tproceso_wf p set
@@ -3511,7 +3517,10 @@ BEGIN
               cbte.id_estado_wf,
               cbte.id_proceso_wf,
               cbte.id_usuario_ai,
-              cbte.usuario_ai
+              cbte.usuario_ai,
+              cbte.momento,
+              cbte.manual,
+              coalesce(cbte.tipo_cbte,'nacional') tipo_cbte
               into v_registros_int_cbte
             from conta.tint_comprobante cbte
             where cbte.id_proceso_wf = v_parametros.id_proceso_wf and cbte.estado_reg = 'validado';
@@ -3533,90 +3542,111 @@ BEGIN
              WHERE  cbte.id_proceso_wf = v_parametros.id_proceso_wf;
 
 
-            delete from pre.tpartida_ejecucion
-            where id_int_comprobante = v_registros_int_cbte.id_int_comprobante;
-
-            update conta.tint_transaccion set
-                id_partida_ejecucion = null
-            where id_int_comprobante = v_registros_int_cbte.id_int_comprobante;
-
-            update conta.tint_comprobante set
-                nro_cbte = null
-            where id_int_comprobante = v_registros_int_cbte.id_int_comprobante;
-
-            SELECT
-             ps_id_tipo_estado,
-             ps_codigo_estado
-           into
-             v_id_tipo_estado,
-             v_codigo_estado
-           FROM wf.f_obtener_tipo_estado_inicial_del_tipo_proceso(v_id_tipo_proceso);
-
-            --------------------------------------------------
-            --Retrocede al estado inmediatamente anterior
-            -------------------------------------------------
-            --recuperaq estado anterior segun Log del WF
+            if v_registros_int_cbte.id_int_comprobante is not null then
+                if v_registros_int_cbte.momento = 'contable' then
+                    select lib.id_proceso_wf, lib.id_libro_bancos
+                    into v_libro_bancos
+                    from tes.tts_libro_bancos  lib
+                    where lib.id_int_comprobante = v_registros_int_cbte.id_int_comprobante;
 
 
-            SELECT
-               ps_id_funcionario,
-               ps_codigo_estado ,
-               ps_id_depto
-             into
-              v_id_funcionario,
-              v_codigo_estado,
-              v_id_depto
-             FROM wf.f_obtener_estado_segun_log_wf(v_id_estado_wf, v_id_tipo_estado);
+                    delete from wf.testado_wf
+                    where id_proceso_wf = v_libro_bancos.id_proceso_wf;
+
+                    delete from wf.tproceso_wf
+                    where id_proceso_wf = v_libro_bancos.id_proceso_wf;
+
+                    delete from tes.tts_libro_bancos
+                    where id_libro_bancos = v_libro_bancos.id_libro_bancos;
+
+                end if;
 
 
 
-            --configurar acceso directo para la alarma
-            v_acceso_directo = '';
-            v_clase = '';
-            v_parametros_ad = '';
-            v_tipo_noti = 'notificacion';
-            v_titulo  = 'Notificacion';
+                delete from pre.tpartida_ejecucion
+                where id_int_comprobante = v_registros_int_cbte.id_int_comprobante;
+
+                if v_registros_int_cbte.manual = 'si' and v_registros_int_cbte.tipo_cbte = 'internacional' then
+                  update conta.tint_transaccion set
+                      id_partida_ejecucion = null
+                  where id_int_comprobante = v_registros_int_cbte.id_int_comprobante;
+                end if;
+
+                update conta.tint_comprobante set
+                    nro_cbte = null
+                where id_int_comprobante = v_registros_int_cbte.id_int_comprobante;
+
+                SELECT
+                 ps_id_tipo_estado,
+                 ps_codigo_estado
+               	 into
+                 v_id_tipo_estado,
+                 v_codigo_estado
+               	FROM wf.f_obtener_tipo_estado_inicial_del_tipo_proceso(v_id_tipo_proceso);
+
+                --------------------------------------------------
+                --Retrocede al estado inmediatamente anterior
+                -------------------------------------------------
+                --recuperaq estado anterior segun Log del WF
 
 
-            IF   v_codigo_estado_siguiente not in('borrador','supconta','vbconta','finalizado')   THEN
-                  v_acceso_directo = '../../../sis_contabilidad/vista/entrega/Entrega.php';
-                  v_clase = 'Entrega';
-                  v_parametros_ad = '{filtro_directo:{campo:"conta.id_proceso_wf",valor:"'||v_parametros.id_proceso_wf_act::varchar||'"}}';
-                  v_tipo_noti = 'notificacion';
-                  v_titulo  = 'Notificacion';
-             END IF;
-
-
-            -- registra nuevo estado
-
-            v_id_estado_actual = wf.f_registra_estado_wf(
-            v_id_tipo_estado,
-            v_id_funcionario,
-            v_registros_int_cbte.id_estado_wf,
-            v_id_proceso_wf,
-            p_id_usuario,
-            v_registros_int_cbte.id_usuario_ai,
-            v_registros_int_cbte.usuario_ai,
-            v_id_depto,
-            '[RETROCESO] Corrección datos',
-            v_acceso_directo,
-            v_clase,
-            v_parametros_ad,
-            v_tipo_noti,
-            v_titulo);
-
-            update conta.tint_comprobante   set
-             id_estado_wf =  v_id_estado_actual,
-             estado_reg = v_codigo_estado,
-             id_usuario_mod = p_id_usuario,
-             fecha_mod = now(),
-             id_usuario_ai = v_parametros._id_usuario_ai,
-             usuario_ai = v_parametros._nombre_usuario_ai
-            where id_proceso_wf = v_parametros.id_proceso_wf;
+                SELECT
+                   ps_id_funcionario,
+                   ps_codigo_estado ,
+                   ps_id_depto
+                into
+                  v_id_funcionario,
+                  v_codigo_estado,
+                  v_id_depto
+                FROM wf.f_obtener_estado_segun_log_wf(v_id_estado_wf, v_id_tipo_estado);
 
 
 
+                --configurar acceso directo para la alarma
+                v_acceso_directo = '';
+                v_clase = '';
+                v_parametros_ad = '';
+                v_tipo_noti = 'notificacion';
+                v_titulo  = 'Notificacion';
 
+
+                IF   v_codigo_estado_siguiente not in('borrador','supconta','vbconta','finalizado')   THEN
+                      v_acceso_directo = '../../../sis_contabilidad/vista/entrega/Entrega.php';
+                      v_clase = 'Entrega';
+                      v_parametros_ad = '{filtro_directo:{campo:"conta.id_proceso_wf",valor:"'||v_parametros.id_proceso_wf_act::varchar||'"}}';
+                      v_tipo_noti = 'notificacion';
+                      v_titulo  = 'Notificacion';
+                 END IF;
+
+
+              	-- registra nuevo estado
+
+                v_id_estado_actual = wf.f_registra_estado_wf(
+                v_id_tipo_estado,
+                v_id_funcionario,
+                v_registros_int_cbte.id_estado_wf,
+                v_id_proceso_wf,
+                p_id_usuario,
+                v_registros_int_cbte.id_usuario_ai,
+                v_registros_int_cbte.usuario_ai,
+                v_id_depto,
+                '[RETROCESO] Corrección datos',
+                v_acceso_directo,
+                v_clase,
+                v_parametros_ad,
+                v_tipo_noti,
+                v_titulo);
+
+                update conta.tint_comprobante   set
+                 id_estado_wf =  v_id_estado_actual,
+                 estado_reg = v_codigo_estado,
+                 id_usuario_mod = p_id_usuario,
+                 fecha_mod = now(),
+                 id_usuario_ai = v_parametros._id_usuario_ai,
+                 usuario_ai = v_parametros._nombre_usuario_ai
+                where id_proceso_wf = v_parametros.id_proceso_wf;
+
+		  	end if;
           --Definicion de la respuesta
           v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Comprobante desvalidado con exito (id_int_comprobante'||v_registros_int_cbte.id_int_comprobante||')');
           v_resp = pxp.f_agrega_clave(v_resp,'id_int_comprobante',v_registros_int_cbte.id_int_comprobante::varchar);

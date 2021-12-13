@@ -2,7 +2,7 @@
 // Extend the TCPDF class to create custom MultiRow
 set_time_limit(0);//avoid timeout
 ini_set('memory_limit','-1');
-class RLibroDeVentas extends  ReportePDF {
+class RIngresosGravadosPDF extends  ReportePDF {
     var $datos_titulo;
     var $datos_detalle;
     var $ancho_hoja;
@@ -61,7 +61,7 @@ class RLibroDeVentas extends  ReportePDF {
 
 
         $this->SetFont('','BU',12);
-        $this->Cell(0,5,"LIBRO DE VENTAS ESTANDAR",0,1,'C');
+        $this->Cell(0,5,"REPORTE DE INGRESOS GRAVADOS (IT)",0,1,'C');
         $this->SetFont('','BU',7);
         $this->Cell(0,5,"(Expresado en Bolivianos)",0,1,'C');
         $this->Ln(2);
@@ -164,9 +164,9 @@ class RLibroDeVentas extends  ReportePDF {
 
 
         //armca caecera de la tabla
-        $conf_par_tablewidths=array(10,13,18,22,8,13,45,15,15,15,15,15,15,15,14,20);
-        $conf_par_tablealigns=array('C','C','C','C','C','C','C','C','C','C','C','C','C','C','C','C');
-        $conf_par_tablenumbers=array(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+        $conf_par_tablewidths=array(10,13,18,42,10,42,25,15,15,15);
+        $conf_par_tablealigns=array('C','C','C','C','C','C','C','C','C','C');
+        $conf_par_tablenumbers=array(0,0,0,0,0,0,0,0,0,0);
         $conf_tableborders=array();
         $conf_tabletextcolor=array();
 
@@ -178,22 +178,15 @@ class RLibroDeVentas extends  ReportePDF {
 
         $RowArray = array(
             's0'  => 'Nº',
-            's1' => 'FECHA DE LA FACTURA',
-            's2' => 'Nº de LA FACTURA',
-            's3' => 'Nº de AUTORIZACION',
-            's4' => 'ESTADO',
-            's5' => 'NIT/CI CLIENTE',
-            's6' => 'NOMBRE O RAZON SOCIAL',
-            's7' => "\nIMPORTE TOTAL \nDE LA VENTA\n\nA",
-            's8' => "IMPORTE ICE/IEHD\n/IPJ/TASAS/OTROS \n NO SUJETOS AL IVA\n\nB",
-            's9' => "EXPORTACIONES \nY OPERACIONES EXENTAS\n\nC",
-            's10' => "\nVENTAS GRAVADAS \nA TASA CERO\n\nD",
-            's11' => "\nSUBTOTAL\n\n\nE = A-B-C-D",
-            's12' => "DESCUENTOS, BONIFICACIONES Y REBAJAS SUJETAS AL IVA\n F",
-            's13' => "IMPORTE BASE \nPARA DÉBITO \nFISCAL\n\nG = E-F",
-            's14' => "\nDÉBITO FISCAL\n\n\nH = G*13%",
-            's15' => 'CÓDIGO DE CONTROL'
-
+            's1' => 'FECHA',
+            's2' => 'Nro. DE LA FACTURA',
+            's3' => 'NOMBRE O RAZON SOCIAL',
+            's4' => 'RUTA',
+            's5' => 'RUTAS O TRAMOS',
+            's6' => "\nIMPORTE TOTAL \nDE LA VENTA",
+            's7' => "\nIMPORTE  \nEXENTO",
+            's8' => "IMPORTE \nNETO",
+            's9' => "IMPUESTO A LAS\nTRANSACCIONES"
         );
 
         $this-> MultiRow($RowArray,false,1);
@@ -237,9 +230,9 @@ class RLibroDeVentas extends  ReportePDF {
         $this->SetTextColor(0);
         $this->SetFont('','',5);
 
-        $conf_par_tablewidths=array(10,13,18,22,8,13,45,15,15,15,15,15,15,15,14,20);
-        $conf_par_tablealigns=array('C','C','L','C','C','L','L','R','R','R','R','R','R','R','R','L');
-        $conf_par_tablenumbers=array(0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0);
+        $conf_par_tablewidths=array(10,13,18,42,10,42,25,15,15,15);
+        $conf_par_tablealigns=array('C','C','L','L','C','L','R','R','R','R');
+        $conf_par_tablenumbers=array(0,0,0,0,0,0,2,2,2,2);
         $conf_tableborders=array();//array('LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR','LR');
 
         $this->tablewidths=$conf_par_tablewidths;
@@ -252,26 +245,21 @@ class RLibroDeVentas extends  ReportePDF {
 
         $newDate = date("d/m/Y", strtotime( $val['fecha']));
 
-        $subtotal = $val['importe_total_venta'] - $val['importe_otros_no_suj_iva'] - $val['exportacion_excentas'] - $val['ventas_tasa_cero'];
-        $debito_fiscal = $subtotal - $val['descuento_rebaja_suj_iva'];
+        $subtotal = $val['importe_total_venta'] - $val['importe_otros_no_suj_iva'];
+
 
         $RowArray = array(
             's0'  => $count,
             's1' => date("d/m/Y", strtotime($val['fecha_factura'])),
             's2' => $val['nro_factura'],
-            's3' => $val['nro_autorizacion'],
-            's4' => $val['estado'],
-            's5' => $val['nit_ci_cli'],
-            's6' => $val['razon_social_cli'],
-            's7' => $val['importe_total_venta'],
-            's8' => $val['importe_otros_no_suj_iva'],
-            's9' => $val['exportacion_excentas'],
-            's10' => $val['ventas_tasa_cero'],
-            's11' => $subtotal,
-            's12' => $val['descuento_rebaja_suj_iva'],
-            's13' => $debito_fiscal,
-            's14' => $debito_fiscal * 0.13,
-            's15' => $val['codigo_control']);
+            's3' => $val['razon_social_cli'],
+            's4' => $val['tipo_ruta'],
+            's5' => $val['desc_ruta'],
+            's6' => $val['importe_total_venta'],
+            's7' => $val['importe_otros_no_suj_iva'],
+            's8' => $subtotal,
+            's9' => $subtotal*0.03
+        );
 
         $this-> MultiRow($RowArray,false,0);
 
@@ -307,41 +295,27 @@ class RLibroDeVentas extends  ReportePDF {
 
     function caclularMontos($val){
 
-        $subtotal = $val['importe_total_venta'] - $val['importe_otros_no_suj_iva'] - $val['exportacion_excentas'] - $val['ventas_tasa_cero'];
-        $debito_fiscal = $subtotal - $val['descuento_rebaja_suj_iva'];
+        $subtotal = $val['importe_total_venta'] - $val['importe_otros_no_suj_iva'];
 
         $this->s1 = $this->s1 + $val['importe_total_venta'];
         $this->s2 = $this->s2 + $val['importe_otros_no_suj_iva'];
-        $this->s3 = $this->s3 + $val['exportacion_excentas'];
-        $this->s4 = $this->s4 + $val['ventas_tasa_cero'];
-
-        $this->s5 = $this->s5 + $subtotal;
-        $this->s6 = $this->s6 + $val['descuento_rebaja_suj_iva'];
-        $this->s7 = $this->s7 + $debito_fiscal;
-        $this->s8 = $this->s8 + $debito_fiscal * 0.13;
+        $this->s3 = $this->s3 + $subtotal;
+        $this->s4 = $this->s4 + $subtotal * 0.03;
 
 
         $this->t1 = $this->t1 + $val['importe_total_venta'];
         $this->t2 = $this->t2 + $val['importe_otros_no_suj_iva'];
-        $this->t3 = $this->t3 + $val['exportacion_excentas'];
-        $this->t4 = $this->t4 + $val['ventas_tasa_cero'];
-
-        $this->t5 = $this->t5 + $subtotal;
-        $this->t6 = $this->t6 + $val['descuento_rebaja_suj_iva'];
-        $this->t7 = $this->t7 + $debito_fiscal;
-        $this->t8 = $this->t8 + $debito_fiscal * 0.13;
-
-
-
+        $this->t3 = $this->t3 + $subtotal;
+        $this->t4 = $this->t4 + $subtotal * 0.03;
     }
     function cerrarCuadro(){
 
 
         //si noes inicio termina el cuardro anterior
-        $conf_par_tablewidths=array(6+15+15+24+13+19+29,17,16,16,16,16,16,14,16);
-        $conf_par_tablealigns=array('R','R','R','R','R','R','R','R','R');
-        $conf_par_tablenumbers=array(0,2,2,2,2,2,2,2,2);
-        $conf_par_tableborders=array('T','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB');
+        $conf_par_tablewidths=array(10+13+18+42+10+42,25,15,15,15);
+        $conf_par_tablealigns=array('R','R','R','R','R');
+        $conf_par_tablenumbers=array(0,2,2,2,2);
+        $conf_par_tableborders=array('T','LRTB','LRTB','LRTB','LRTB');
 
 
         //coloca el total de egresos
@@ -356,11 +330,7 @@ class RLibroDeVentas extends  ReportePDF {
             's1' => $this->s1,
             's2' => $this->s2,
             's3' => $this->s3,
-            's4' => $this->s4,
-            's5' => $this->s5,
-            's6' => $this->s6,
-            's7' => $this->s7,
-            's8' => $this->s8
+            's4' => $this->s4
         );
 
         $this-> MultiRow($RowArray,false,1);
@@ -369,12 +339,6 @@ class RLibroDeVentas extends  ReportePDF {
         $this->s2 = 0;
         $this->s3 = 0;
         $this->s4 = 0;
-        $this->s5 = 0;
-        $this->s6 = 0;
-        $this->s7 = 0;
-        $this->s8 = 0;
-
-
     }
 
     function cerrarCuadroTotal(){
@@ -383,10 +347,10 @@ class RLibroDeVentas extends  ReportePDF {
         //si noes inicio termina el cuardro anterior
 
 
-        $conf_par_tablewidths=array(6+15+15+24+13+19+29,17,16,16,16,16,16,14,16);
-        $conf_par_tablealigns=array('R','R','R','R','R','R','R','R','R');
-        $conf_par_tablenumbers=array(0,2,2,2,2,2,2,2,2);
-        $conf_par_tableborders=array('T','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB','LRTB');
+        $conf_par_tablewidths=array(10+13+18+42+10+42,25,15,15,15);
+        $conf_par_tablealigns=array('R','R','R','R','R');
+        $conf_par_tablenumbers=array(0,2,2,2,2);
+        $conf_par_tableborders=array('T','LRTB','LRTB','LRTB','LRTB');
 
         //coloca el total de egresos
         //coloca el total de la partida
@@ -400,11 +364,7 @@ class RLibroDeVentas extends  ReportePDF {
             't1' => $this->t1,
             't2' => $this->t2,
             't3' => $this->t3,
-            't4' => $this->t4,
-            't5' => $this->t5,
-            't6' => $this->t6,
-            't7' => $this->t7,
-            't8' => $this->t8
+            't4' => $this->t4
         );
 
         $this-> MultiRow($RowArray,false,1);

@@ -51,6 +51,10 @@ class MODEntrega extends MODbase{
         $this->captura('tipo_cbte','varchar');
         $this->captura('reversion','varchar');
 
+        $this->captura('nro_deposito','varchar');
+        $this->captura('fecha_deposito','date');
+        $this->captura('monto_deposito','numeric');
+        $this->captura('monto_total','numeric');
 
         //Ejecuta la instruccion
 		$this->armarConsulta();
@@ -406,6 +410,28 @@ class MODEntrega extends MODbase{
         return $this->respuesta;
     }
 
+    //{develop:franklin.espinoza date:20/11/2020}
+    function registroBoletaDeposito(){
+        //swEditable de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_entrega_ime';
+        $this->transaccion='CONTA_REG_BOLDEP_IME';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_entrega','id_entrega','int4');
+        $this->setParametro('nro_deposito','nro_deposito','varchar');
+        $this->setParametro('fecha_deposito','fecha_deposito','date');
+        $this->setParametro('monto_deposito','monto_deposito','numeric');
+        $this->setParametro('monto','monto','numeric');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        //var_dump($this->consulta);exit;
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 			
 }
 ?>

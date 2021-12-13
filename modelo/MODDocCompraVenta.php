@@ -2960,7 +2960,7 @@ class MODDocCompraVenta extends MODbase
         //Definicion de la lista del resultado del query
         $this->captura('fecha_nota', 'date');
         $this->captura('num_nota', 'varchar');
-        $this->captura('num_autorizacion', 'bigint');
+        $this->captura('num_autorizacion_original', 'bigint');
         $this->captura('estado', 'varchar');
         $this->captura('nit', 'varchar');
         $this->captura('razon_social', 'varchar');
@@ -2976,6 +2976,8 @@ class MODDocCompraVenta extends MODbase
         $this->captura('razon_empresa', 'varchar');
         $this->captura('nit_empresa', 'varchar');
         $this->captura('periodo_num', 'varchar');
+        $this->captura('num_autorizacion', 'bigint');
+        $this->captura('monto_total_fac', 'numeric');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -2985,6 +2987,61 @@ class MODDocCompraVenta extends MODbase
         return $this->respuesta;
     }
     /**{developer:franklin.espinoza, date:20/01/2021 , description: Obtener Datos para el reporte Libro De Ventas NCD}**/
+
+    /**{developer:franklin.espinoza, date:20/01/2021 , description: Obtener Datos para el reporte Ingresos Gravados}**/
+    function reporteIngresosGravados(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento = 'conta.ft_doc_compra_venta_sel';
+        $this->transaccion = 'CONTA_ING_GRAVADOS';
+        $this->tipo_procedimiento = 'SEL';//tipo de transaccion
+
+        $this->setCount(false);
+
+        if($this->objParam->getParametro('filtro_sql') == 'periodo'){
+            $this->setParametro('filtro_sql', 'filtro_sql', 'VARCHAR');
+            $this->setParametro('tipo_lcv', 'tipo_lcv', 'VARCHAR');
+            $this->setParametro('id_periodo', 'id_periodo', 'INTEGER');
+            $this->setParametro('id_gestion', 'id_gestion', 'INTEGER');
+
+        }else{
+            $this->setParametro('filtro_sql', 'filtro_sql', 'VARCHAR');
+            $this->setParametro('tipo_lcv', 'tipo_lcv', 'VARCHAR');
+            $this->setParametro('fecha_ini', 'fecha_ini', 'date');
+            $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+        }
+
+        //Definicion de la lista del resultado del query
+
+        $this->captura('id_factura', 'integer');
+        $this->captura('fecha_factura', 'date');
+        $this->captura('nro_factura', 'varchar');
+        $this->captura('nro_autorizacion', 'varchar');
+        $this->captura('estado', 'varchar');
+        $this->captura('nit_ci_cli', 'varchar');
+        $this->captura('razon_social_cli', 'varchar');
+
+        $this->captura('importe_total_venta', 'numeric');
+        $this->captura('importe_otros_no_suj_iva', 'numeric');
+        $this->captura('exportacion_excentas', 'numeric');
+        $this->captura('ventas_tasa_cero', 'numeric');
+        $this->captura('descuento_rebaja_suj_iva', 'numeric');
+        $this->captura('importe_debito_fiscal', 'numeric');
+
+        $this->captura('codigo_control', 'varchar');
+        $this->captura('tipo_factura', 'varchar');
+        $this->captura('id_origen', 'integer');
+        $this->captura('sistema_origen', 'varchar');
+        $this->captura('desc_ruta', 'varchar');
+        $this->captura('tipo_ruta', 'varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        //echo($this->consulta); exit;
+        $this->ejecutarConsulta();
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    /**{developer:franklin.espinoza, date:20/01/2021 , description: Obtener Datos para el reporte Ingresos Gravados}**/
 
 }
 

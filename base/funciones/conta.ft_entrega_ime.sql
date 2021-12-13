@@ -175,6 +175,23 @@ BEGIN
 
 			 delete from conta.tentrega
              where id_entrega=v_parametros.id_entrega;
+
+             /************** Eliminación del proceso de la entrega **************/
+             FOR v_registros in (
+            						select tew.id_estado_wf
+                                    from wf.testado_wf tew
+                                    where tew.id_proceso_wf =  v_registros_ent.id_proceso_wf
+			                        order by tew.id_estado_wf desc
+                                 ) LOOP
+
+                delete from wf.testado_wf
+                where id_estado_wf = v_registros.id_estado_wf;
+             END LOOP;
+
+			 delete from wf.tproceso_wf
+             where id_proceso_wf = v_registros_ent.id_proceso_wf;
+        	 /************** Eliminación del proceso de la entrega **************/
+
              /********************************* Desvalidación de Comprobantes *********************************/
              select count(ed.id_entrega)
              into v_total_validado
@@ -888,6 +905,9 @@ BEGIN
           from wf.testado_wf ew
           where ew.id_estado_wf= v_id_estado_wf_ant;
 
+            /*update conta.tentrega set
+                c31 = null
+            where id_proceso_wf = v_id_proceso_wf;*/
 
          --configurar acceso directo para la alarma
              v_acceso_directo = '';
@@ -2554,6 +2574,33 @@ BEGIN
 
             END LOOP;
             /*================================= FIN ENTREGA =================================*/
+
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','fue clonado la entrega : id '||v_parametros.id_entrega::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'id_entrega',v_parametros.id_entrega::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
+
+    /*********************************
+ 	#TRANSACCION:  'CONTA_REG_BOLDEP_IME'
+ 	#DESCRIPCION:  Registro Boleta de Deposito relacionado a un C31
+ 	#AUTOR:		   franklin.espinoza
+ 	#FECHA:		   16-06-2021 11:00:00
+	***********************************/
+
+	elsif(p_transaccion='CONTA_REG_BOLDEP_IME')then
+
+		begin
+
+			update conta.tentrega  set
+            	nro_deposito =  v_parametros.nro_deposito,
+                fecha_deposito = v_parametros.fecha_deposito,
+                monto_deposito = v_parametros.monto_deposito,
+                monto = v_parametros.monto
+            where id_entrega = v_parametros.id_entrega;
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','fue clonado la entrega : id '||v_parametros.id_entrega::varchar);

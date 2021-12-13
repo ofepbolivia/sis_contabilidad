@@ -159,7 +159,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.store.removeAll();
             }, this);
 
-            this.cmbDepto.on('valid', function() {
+            this.cmbDepto.on('select', function() {
                 this.capturaFiltros();
             }, this);
 

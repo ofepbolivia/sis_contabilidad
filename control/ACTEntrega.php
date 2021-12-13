@@ -17,12 +17,18 @@ class ACTEntrega extends ACTbase
         $this->objParam->defecto('ordenacion', 'id_entrega');
         $this->objParam->defecto('dir_ordenacion', 'asc');
 
+        //var_dump('gestion',$this->objParam->getParametro('gestion'));exit;
 
         if ($this->objParam->getParametro('id_depto') != '') {
             $this->objParam->addFiltro("ent.id_depto_conta = " . $this->objParam->getParametro('id_depto'));
         }
         if ($this->objParam->getParametro('pes_estado') == 'EntregaConsulta') {
             $this->objParam->addFiltro("ent.estado  in (''vbconta'')");
+        }
+
+        $gestion = $this->objParam->getParametro('gestion');
+        if ( $gestion != '' ) {
+            $this->objParam->addFiltro("ent.fecha_reg::date between ''01/01/".$gestion."''::date and ''31/12/".$gestion."''::date");
         }
 
         //begin(franklin.espinoza) 20/08/2020
@@ -240,6 +246,13 @@ class ACTEntrega extends ACTbase
     function clonarEntrega(){
         $this->objFunc=$this->create('MODEntrega');
         $this->res=$this->objFunc->clonarEntrega($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //{develop:franklin.espinoza date:16/06/2021}
+    function registroBoletaDeposito(){
+        $this->objFunc=$this->create('MODEntrega');
+        $this->res=$this->objFunc->registroBoletaDeposito($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 

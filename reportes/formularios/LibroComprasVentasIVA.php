@@ -99,7 +99,8 @@ header("content-type: text/javascript; charset=UTF-8");
                             ['lcv_ventas','Libro de Ventas Estandar'],
                             ['lcncd','Libro de Compras Notas Credito-Debito'],
                             ['lvncd','Libro de Ventas Notas Credito-Debito'],
-                            ['repo_iata', 'Iata']
+                            ['repo_iata', 'Iata'],
+                            ['repo_ing_gravado', 'Reporte Ingresos Gravados (IT)']
                         ]
                     }),
                     valueField:'ID',

@@ -46,48 +46,63 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: '<b>Regularizar Comprobantes</b><br/>Seleccione un comprobante y valida comprobante a la central'
             });
 
-            /*this.addButton('desvalidar', {
+            this.addButton('desvalidar', {
                 text: 'Desvalidar CBTE',
                 iconCls: 'bgear',
                 disabled: false,
                 handler: this.desvalidarCBTE,
                 scope: this,
                 tooltip: '<b>Desvalidar Comprobante</b><br/>Seleccione un comprobante para desvalidar.'
-            });*/
+            });
 
 
             this.init();
         },
 
         desvalidarCBTE: function (){
-            var record = this.getSelectedData();
-            Phx.CP.loadingShow();
-            Ext.Ajax.request({
-                url: '../../sis_contabilidad/control/IntComprobante/desvalidarCBTE',
-                params: {
-                    id_proceso_wf: record.id_proceso_wf
-                },
-                success: function (resp) {
-                    Phx.CP.loadingHide();
-                    var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-                    if (reg.ROOT.error) {
-                        Ext.Msg.alert('Error', 'Al desvalidar el cbte: ' + reg.ROOT.error)
-                    } else {
 
-                        Ext.Msg.show({
-                            title: 'DEVALIDAR',
-                            msg: '<b>Estimado Funcionario: '+'\n'+'Se desvalido correctamente el comprobante (ID: '+record.id_int_comprobante+')</b>',
-                            buttons: Ext.Msg.OK,
-                            width: 512,
-                            icon: Ext.Msg.INFO
+            Ext.Msg.show({
+                title: 'COMPROBANTE',
+                msg: 'Est@ seguro de desvalidar el comprobante?, tenga en cuenta que puede tener conflictos posteriormente.',
+                fn: function (btn){
+                    if(btn == 'ok'){
+                        var record = this.getSelectedData();
+                        Phx.CP.loadingShow();
+                        Ext.Ajax.request({
+                            url: '../../sis_contabilidad/control/IntComprobante/desvalidarCBTE',
+                            params: {
+                                id_proceso_wf: record.id_proceso_wf
+                            },
+                            success: function (resp) {
+                                Phx.CP.loadingHide();
+                                var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                                if (reg.ROOT.error) {
+                                    Ext.Msg.alert('Error', 'Al desvalidar el cbte: ' + reg.ROOT.error)
+                                } else {
+
+                                    Ext.Msg.show({
+                                        title: 'DEVALIDAR',
+                                        msg: '<b>Estimado Funcionario: '+'\n'+'Se desvalido correctamente el comprobante (ID: '+record.id_int_comprobante+')</b>',
+                                        buttons: Ext.Msg.OK,
+                                        width: 512,
+                                        icon: Ext.Msg.INFO
+                                    });
+                                    this.reload();
+                                }
+                            },
+                            failure: this.conexionFailure,
+                            timeout: this.timeout,
+                            scope: this
                         });
-                        this.reload();
                     }
                 },
-                failure: this.conexionFailure,
-                timeout: this.timeout,
-                scope: this
+                buttons: Ext.Msg.OKCANCEL,
+                width: 600,
+                maxWidth:1024,
+                icon: Ext.Msg.WARNING,
+                scope:this
             });
+
         },
 
         volcarCbte: function (sw_validar) {

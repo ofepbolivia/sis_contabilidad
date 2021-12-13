@@ -16,6 +16,7 @@ require_once(dirname(__FILE__).'/../reportes/RLibroVentasNCDPDF.php');
 require_once(dirname(__FILE__).'/../reportes/RLibroComprasNCDXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RLibroDeVentas.php');
 require_once(dirname(__FILE__).'/../reportes/RLibroDeVentasXLS.php');
+require_once(dirname(__FILE__).'/../reportes/RIngresosGravadosPDF.php');
 
 class ACTDocCompraVentaForm extends ACTbase{
 
@@ -80,7 +81,7 @@ class ACTDocCompraVentaForm extends ACTbase{
 
         if($this->objParam->getParametro('formato_reporte')=='pdf'){
 
-            if( 'lcncd' != $this->objParam->getParametro('tipo_lcv') && 'lvncd' != $this->objParam->getParametro('tipo_lcv') ) {
+            if( 'lcncd' != $this->objParam->getParametro('tipo_lcv') && 'lvncd' != $this->objParam->getParametro('tipo_lcv') && 'repo_ing_gravado' != $this->objParam->getParametro('tipo_lcv')) {
                 $nombreArchivo = uniqid(md5(session_id()).'Egresos') . '.pdf';
                 if($this->objParam->getParametro('tipo_lcv')=='endesis_erp'){
                     $dataSource = $this->recuperarDatosErpEndensisLCV();
@@ -103,9 +104,18 @@ class ACTDocCompraVentaForm extends ACTbase{
 					$this->objFunc = $this->create('MODDocCompraVenta');
 					$this->res = $this->objFunc->reporteLibroCompraNCD($this->objParam);
                 }else{
-                    $nombreArchivo = uniqid(md5(session_id()).'Libro Ventas Notas C-D') . '.pdf';
-					$this->objFunc = $this->create('MODDocCompraVenta');
-					$this->res = $this->objFunc->reporteLibroVentaNCD($this->objParam);
+
+                	if ( $this->objParam->getParametro('tipo_lcv') != 'repo_ing_gravado' ) {
+						$nombreArchivo = uniqid(md5(session_id()) . 'Libro Ventas Notas C-D') . '.pdf';
+						$this->objFunc = $this->create('MODDocCompraVenta');
+						$this->res = $this->objFunc->reporteLibroVentaNCD($this->objParam);
+					}else{
+						$nombreArchivo = uniqid(md5(session_id()) . 'Ingresos_Gravados_(ATT)') . '.pdf';
+						$this->objFunc = $this->create('MODDocCompraVenta');
+						$this->res = $this->objFunc->reporteIngresosGravados($this->objParam);
+						$dataEntidad = $this->recuperarDatosEntidad();
+						$dataPeriodo = $this->recuperarDatosPeriodo();
+					}
                 }
 
                 $this->datos = $this->res->getDatos();
@@ -115,7 +125,7 @@ class ACTDocCompraVentaForm extends ACTbase{
             $tamano = 'LETTER';
             $orientacion = 'L';
 
-            if( 'lcncd' != $this->objParam->getParametro('tipo_lcv') && 'lvncd' != $this->objParam->getParametro('tipo_lcv')) {
+            if( 'lcncd' != $this->objParam->getParametro('tipo_lcv') && 'lvncd' != $this->objParam->getParametro('tipo_lcv') && 'repo_ing_gravado' != $this->objParam->getParametro('tipo_lcv')) {
 				if('lcv_ventas' == $this->objParam->getParametro('tipo_lcv')){
 					$titulo = 'LibroVentasEstandar';
 				}else{
@@ -125,10 +135,17 @@ class ACTDocCompraVentaForm extends ACTbase{
             	if ( 'lcncd' == $this->objParam->getParametro('tipo_lcv') ) {
 					$titulo = 'Libro Compras Notas C-D';
 				}else {
-					$titulo = 'Libro Ventas Notas C-D';
+            		if ( $this->objParam->getParametro('tipo_lcv') != 'repo_ing_gravado' ) {
+						$titulo = 'Libro Ventas Notas C-D';
+					}else{
+						$titulo = 'Ingresos_Gravados_(ATT)';
+					}
 				}
 			}
 
+            if ( $this->objParam->getParametro('tipo_lcv') == 'repo_ing_gravado' ) {
+				$orientacion = 'P';
+			}
             $this->objParam->addParametro('orientacion',$orientacion);
             $this->objParam->addParametro('tamano',$tamano);
             $this->objParam->addParametro('titulo_archivo',$titulo);
@@ -161,7 +178,7 @@ class ACTDocCompraVentaForm extends ACTbase{
 
 			}
 
-            if( 'lcncd' != $this->objParam->getParametro('tipo_lcv') && 'lvncd' != $this->objParam->getParametro('tipo_lcv') ) {
+            if( 'lcncd' != $this->objParam->getParametro('tipo_lcv') && 'lvncd' != $this->objParam->getParametro('tipo_lcv') && 'repo_ing_gravado' != $this->objParam->getParametro('tipo_lcv') ) {
                 //Instancia la clase de pdf
                 if ($this->objParam->getParametro('tipo_lcv') == 'lcv_compras' || $this->objParam->getParametro('tipo_lcv') == 'endesis_erp') {
                     $reporte = new RLcv($this->objParam);
@@ -178,8 +195,14 @@ class ACTDocCompraVentaForm extends ACTbase{
 					$reporte = new RLibroComprasNCDPDF($this->objParam);
 					$reporte->setDatos($this->datos);
 				}else{
-					$reporte = new RLibroVentasNCDPDF($this->objParam);
-					$reporte->setDatos($this->datos);
+            		if ( $this->objParam->getParametro('tipo_lcv') != 'repo_ing_gravado' ) {
+						$reporte = new RLibroVentasNCDPDF($this->objParam);
+						$reporte->setDatos($this->datos);
+					}else{
+						$reporte = new RIngresosGravadosPDF($this->objParam);
+						$reporte->datosHeader($this->datos, null, $dataEntidad->getDatos(), $dataPeriodo->getDatos());
+						//$reporte->setDatos($this->datos);
+					}
 				}
             }
 
@@ -458,7 +481,9 @@ class ACTDocCompraVentaForm extends ACTbase{
 
         }
         if($this->objParam->getParametro('formato_reporte')!='pdf' && $this->objParam->getParametro('formato_reporte')!='xls'){
+
             if( 'lcncd' != $this->objParam->getParametro('tipo_lcv') ) {
+
                 if( 'lcv_ventas' == $this->objParam->getParametro('tipo_lcv') ) {
 
                     $this->objFunc = $this->create('MODDocCompraVenta');
@@ -478,7 +503,21 @@ class ACTDocCompraVentaForm extends ACTbase{
 
                     $this->res->imprimirRespuesta($this->mensajeExito->generarJson());
 
-                }
+                } else if ('lvncd' == $this->objParam->getParametro('tipo_lcv') ){
+
+
+
+					$this->objFunc 	= $this->create('MODDocCompraVenta');
+					$this->res 		= $this->objFunc->reporteLibroVentaNCD($this->objParam);
+					$this->datos 	= $this->res->getDatos();
+
+					$nombreArchivo = $this->crearArchivoTXT_CSV($this->datos, $this->objParam);
+
+					$this->mensajeExito=new Mensaje();
+					$this->mensajeExito->setMensaje('EXITO','Reporte.php','Se genero con exito el archivo LV '.$nombreArchivo, 'Se genero con exito el archivo Libro Ventas '.$nombreArchivo,'control');
+					$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+					$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+				}
 								/**breydi.vasquez*/
 								else if('repo_iata' == $this->objParam->getParametro('tipo_lcv') ){
 												$this->reporteIata();
@@ -628,26 +667,28 @@ class ACTDocCompraVentaForm extends ACTbase{
                     $val['nroaut_anterior'].$separador.
                     number_format($val['importe_total'],2,'.', '')."\r\n");
 
-            }
-            /*else{
-                fwrite ($file,  "3".$separador.
+            } else{
+            	if ($val['codigo_control']== null || $val['codigo_control'] == '') {
+            		$codigo_control = '0';
+				}else{
+					$codigo_control = $val['codigo_control'];
+				}
+                fwrite ($file,  "7".$separador.
                     $ctd.$separador.
-                    $newDate.$separador.
-                    $val['nro_documento'].$separador.
-                    $val['nro_autorizacion'].$separador.
-                    $val['tipo_doc'].$separador.
+					date("d/m/Y", strtotime( $val['fecha_nota'])).$separador.
+                    $val['num_nota'].$separador.
+                    $val['num_autorizacion'].$separador.
+                    //$val['tipo_doc'].$separador.
                     $val['nit'].$separador.
                     $val['razon_social'].$separador.
-                    $val['importe_doc'].$separador.
-                    $val['importe_ice'].$separador.
-                    $val['importe_excento'].$separador.
-                    $val['venta_gravada_cero'].$separador.
-                    $val['subtotal_venta'].$separador.
-                    $val['importe_descuento'].$separador.
-                    $val['sujeto_df'].$separador.
-                    $val['importe_iva'].$separador.
-                    $val['codigo_control']."\r\n");
-            }*/
+					number_format($val['total_devuelto'],2,'.', '').$separador.
+					number_format($val['rc_iva'],2,'.', '').$separador.
+					$codigo_control.$separador.
+					date("d/m/Y", strtotime( $val['fecha_original'])).$separador.
+                    $val['num_factura'].$separador.
+					$val['num_autorizacion_original'].$separador.
+					number_format($val['monto_total_fac'],2,'.', '')."\r\n");
+            }
             $ctd = $ctd + 1;
         } //end for
         fclose($file);
@@ -655,14 +696,21 @@ class ACTDocCompraVentaForm extends ACTbase{
     }
 
     function exportarTxtLcvLCV(){
-
 		//crea el objetoFunProcesoMacro que contiene todos los metodos del sistema de workflow
 		$this->objFun=$this->create('MODDocCompraVenta');
 
 		if($this->objParam->getParametro('tipo_lcv')=='endesis_erp'){
+			$this->objFun=$this->create('MODDocCompraVenta');
 			$this->res = $this->objFun->listarRepLCVFormErpEndesis();
 		}else{
-			$this->res = $this->objFun->listarRepLCVForm();
+			if ($this->objParam->getParametro('tipo_lcv') == 'lvncd'){
+				$this->objFun = $this->create('MODDocCompraVenta');
+				$this->res    = $this->objFun->reporteLibroVentaNCD($this->objParam);
+				//var_dump('$this->res', $this->res );exit;
+			}else {
+				$this->objFun=$this->create('MODDocCompraVenta');
+				$this->res = $this->objFun->listarRepLCVForm();
+			}
 		}
 
 		if($this->res->getTipo()=='ERROR'){
@@ -683,11 +731,8 @@ class ACTDocCompraVentaForm extends ACTbase{
 
 	function crearArchivoExportacion($res, $Obj) {
 
-
-
-
 		$separador = '|';
-		if($this->objParam->getParametro('formato_reporte') =='txt')
+		if($this->objParam->getParametro('formato_reporte') == 'txt')
 		{
 			$separador = "|";
 			$ext = '.txt';
@@ -739,9 +784,6 @@ class ACTDocCompraVentaForm extends ACTbase{
 			//AÑADE EL BOMM PARA NO TENER PROBLEMAS AL LEER DE APLICACIONES EXTERNAS
 		    fwrite($file, pack("CCC",0xef,0xbb,0xbf));
 		}
-
-
-
 
 		/******************************
 		 *  IMPRIME CABECERA PARA CSV
@@ -812,7 +854,7 @@ class ACTDocCompraVentaForm extends ACTbase{
 		/**************************
 		 *  IMPRIME CUERPO
 		 **************************/
-
+		//var_dump($this->objParam->getParametro('tipo_lcv'), $this->objParam->getParametro('formato_reporte'), $data);exit;
 		foreach ($data as $val) {
 
 			 $newDate = date("d/m/Y", strtotime( $val['fecha']));
@@ -836,8 +878,7 @@ class ACTDocCompraVentaForm extends ACTbase{
 									$val['codigo_control'].$separador.
 			                        $val['tipo_doc']."\r\n");
 
-			 }
-			 else{
+			 } else{
 				 	fwrite ($file,  "3".$separador.
 				 	        $ctd.$separador.
 	                        $newDate.$separador.

@@ -219,6 +219,15 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: '<b>Observaciones</b><br/><b>Observaciones del WF</b>'
             });
 
+            this.addButton('boleta_deposito', {
+                text : 'Boleta de Depósito',
+                iconCls : 'bnew',
+                grupo: [0, 1, 2, 3],
+                disabled : true,
+                handler : this.registroBoletaDeposito,
+                tooltip: '<b>Nos permite Registrar información de la Boleta de Deposito para Reversiones C31</b>'
+            });
+
             this.bbar.insert(12,'-');
             this.bbar.insert(13,'-');
             this.bbar.insert(14,this.estado);
@@ -231,7 +240,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.store.removeAll();
             }, this);
 
-            this.cmbDepto.on('valid', function() {
+            this.cmbDepto.on('select', function() {
                 this.capturaFiltros();
             }, this);
 
@@ -250,6 +259,124 @@ header("content-type: text/javascript; charset=UTF-8");
             {name: 'reversion', title: '<h1 style="text-align: center; color: #FF8F85;"><i class="fa fa-file-o fa-2x" aria-hidden="true"></i> REVERSIÓN</h1>', grupo: 1, height: 1}
         ],
 
+        registroBoletaDeposito : function(){
+            var record = this.getSelectedData(); console.log('record', record);
+            this.formBoletaDeposito();
+            this.panelBoletaDeposito.getForm().findField('nro_deposito').setValue(record.nro_deposito);
+            this.panelBoletaDeposito.getForm().findField('fecha_deposito').setValue(record.fecha_deposito);
+            this.panelBoletaDeposito.getForm().findField('monto_deposito').setValue(record.monto_deposito);
+            this.panelBoletaDeposito.getForm().findField('monto_total').setValue(record.monto_total);
+            this.windowBoletaDeposito.show();
+        },
+
+        formBoletaDeposito: function () {
+
+            this.panelBoletaDeposito = new Ext.form.FormPanel({
+                id: this.idContenedor + '_DOCBOLETADEP',
+                items: [
+                    new Ext.form.TextField({
+                        fieldLabel: 'Nro. Deposito',
+                        name: 'nro_deposito',
+                        allowBlank: false,
+                        width: '90%',
+                        msgTarget : 'side'
+                    }),
+                    new Ext.form.DateField({
+                        fieldLabel: 'Fecha Deposito',
+                        name: 'fecha_deposito',
+                        allowBlank: false,
+                        width: 176,
+                        msgTarget : 'side'
+                    }),
+                    new Ext.form.NumberField({
+                        fieldLabel: 'Monto Deposito',
+                        name: 'monto_deposito',
+                        allowBlank: false,
+                        width: '90%',
+                        msgTarget : 'side'
+                    }),
+                    new Ext.form.NumberField({
+                        fieldLabel: 'Monto',
+                        name: 'monto_total',
+                        allowBlank: false,
+                        width: '90%',
+                        msgTarget : 'side'
+                    })
+                ],
+                autoScroll: false,
+                autoDestroy: true,
+                autoScroll: true
+            });
+
+
+            // Definicion de la ventana que contiene al formulario
+            this.windowBoletaDeposito = new Ext.Window({
+                // id:this.idContenedor+'_W',
+                title: 'Boleta de Depósito',
+                modal: true,
+                width: 400,
+                height: 200,
+                bodyStyle: 'padding:5px;',
+                layout: 'fit',
+                hidden: true,
+                autoScroll: false,
+                maximizable: true,
+                buttons: [{
+                    text: 'Guardar',
+                    arrowAlign: 'bottom',
+                    handler: this.onSubmitBoletaDeposito,
+                    argument: {
+                        'news': false
+                    },
+                    scope: this
+
+                },
+                    {
+                        text: 'Declinar',
+                        handler: this.onDeclinarBoletaDeposito,
+                        scope: this
+                    }],
+                items: this.panelBoletaDeposito,
+                autoDestroy: true,
+                closeAction: 'hide'
+            });
+        },
+
+        onSubmitBoletaDeposito : function () {
+            var record = this.getSelectedData();
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url: '../../sis_contabilidad/control/Entrega/registroBoletaDeposito',
+                success: this.successBoletaDeposito,
+                failure: this.failureBoletaDeposito,
+                params: {
+                    id_entrega: record.id_entrega,
+                    nro_deposito   : this.panelBoletaDeposito.getForm().findField('nro_deposito').getValue(),
+                    fecha_deposito : this.panelBoletaDeposito.getForm().findField('fecha_deposito').getValue().dateFormat('d/m/Y'),
+                    monto_deposito : this.panelBoletaDeposito.getForm().findField('monto_deposito').getValue(),
+                    monto          : this.panelBoletaDeposito.getForm().findField('monto_total').getValue()
+                },
+                timeout: this.timeout,
+                scope: this
+            });
+
+        },
+
+        successBoletaDeposito: function (resp) {
+            this.windowBoletaDeposito.hide();
+            Phx.vista.EntregaRegionalesExt.superclass.successDel.call(this, resp);
+
+        },
+
+        failureBoletaDeposito: function (resp) {
+            Phx.CP.loadingHide();
+            Phx.vista.EntregaRegionalesExt.superclass.conexionFailure.call(this, resp);
+
+        },
+
+        onDeclinarBoletaDeposito: function () {
+            this.windowBoletaDeposito.hide();
+        },
         actualizarSegunTab: function(name, indice){
             this.store.baseParams.tipo_entrega = name;
             if( this.cmbDepto.getValue() != undefined ) {
@@ -730,7 +857,11 @@ header("content-type: text/javascript; charset=UTF-8");
             'tipo',
             'validado',
             'tipo_cbte',
-            'reversion'
+            'reversion',
+            'nro_deposito',
+            'fecha_deposito',
+            'monto_deposito',
+            'monto_total'
         ],
         sortInfo:{
             field: 'id_entrega',
@@ -815,26 +946,31 @@ header("content-type: text/javascript; charset=UTF-8");
                 });
         },
         onSaveWizard: function (wizard, resp) {
-            /*Phx.CP.loadingShow();
-            Ext.Ajax.request({
-                url:'../../sis_contabilidad/control/Entrega/siguienteEstado',
-                params:{
+            var rec = this.getSelectedData();
 
-                    id_proceso_wf_act:  resp.id_proceso_wf_act,
-                    id_estado_wf_act:   resp.id_estado_wf_act,
-                    id_tipo_estado:     resp.id_tipo_estado,
-                    id_funcionario_wf:  resp.id_funcionario_wf,
-                    id_depto_wf:        resp.id_depto_wf,
-                    obs:                resp.obs,
-                    json_procesos:      Ext.util.JSON.encode(resp.procesos)
-                },
-                success:this.successWizard,
-                failure: this.conexionFailure,
-                argument:{wizard:wizard},
-                timeout:this.timeout,
-                scope:this
-            });*/
-            this.mandarDatosWizard(wizard, resp, true);
+            if (rec.c31 != '' && rec.fecha_c31 != '' && rec.estado == 'borrador') {
+                Phx.CP.loadingShow();
+                Ext.Ajax.request({
+                    url: '../../sis_contabilidad/control/Entrega/siguienteEstado',
+                    params: {
+
+                        id_proceso_wf_act: resp.id_proceso_wf_act,
+                        id_estado_wf_act: resp.id_estado_wf_act,
+                        id_tipo_estado: resp.id_tipo_estado,
+                        id_funcionario_wf: resp.id_funcionario_wf,
+                        id_depto_wf: resp.id_depto_wf,
+                        obs: resp.obs,
+                        json_procesos: Ext.util.JSON.encode(resp.procesos)
+                    },
+                    success: this.successWizard,
+                    failure: this.conexionFailure,
+                    argument: {wizard: wizard},
+                    timeout: this.timeout,
+                    scope: this
+                });
+            }else{
+                this.mandarDatosWizard(wizard, resp, true);
+            }
         },
 
         /*=================================BEGIN VERIFICAR=======================================*/
@@ -925,7 +1061,7 @@ header("content-type: text/javascript; charset=UTF-8");
         onSigepWizard : function(wizard,resp){
 
             var rec = this.getSelectedData();
-
+            console.log('envio sigep', rec.id_clase_comprobante, rec);
             if(rec.estado == 'borrador' && rec.reversion == 'no') {
                 if (rec.id_clase_comprobante == 5) {
                     if (rec.tipo_cbte == 'internacional'){
@@ -966,16 +1102,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 }else if (rec.id_clase_comprobante == 3){
                     if (rec.tipo_cbte == 'internacional'){
                         this.onSigepReguC(wizard, resp, 'REGULARIZAC');
+                    }else {
+                        this.onSigepReversionCIP(wizard, resp, 'CON_IMPUTACION_REV');
                     }
-                    /*else{
-                        if( rec.tipo_cbte == 'pago_exterior' ){
-                            this.onSigepCIPEXT(wizard, resp, 'CON_IMPUTACION_EXT');
-                        }else{
-                            console.log('onSigepCIP');
-                            this.onSigepCIP(wizard, resp, 'CON_IMPUTACION');
-                        }
-
-                    }*/
                 }else if (rec.id_clase_comprobante == 1){
                     if (rec.tipo_cbte == 'internacional'){
                         this.onSigepReguReversionC(wizard, resp, 'REGULARIZAC_REV');
@@ -1014,6 +1143,29 @@ header("content-type: text/javascript; charset=UTF-8");
             });
         },
         /*================================= END PROCESOS CIP =======================================*/
+
+        /*================================= BEGIN PROCESOS REVERSION CIP =======================================*/
+        onSigepReversionCIP:function(wizard,resp, momento){
+            var rec = this.sm.getSelected().data;
+            resp.sigep_adq='vbsigepconta';
+            Phx.CP.loadingShow();
+
+            Ext.Ajax.request({
+                url: '../../sis_sigep/control/SigepAdqDet/cargarEntregaReversionSigepCIP',
+                params: {
+                    id_proceso_wf: rec.id_proceso_wf,
+                    momento: momento,
+                    sigep_adq: resp.sigep_adq,
+                    localidad: rec.tipo_cbte
+                },
+                success: this.successConsu, //successConsu
+                failure: this.failureCheck, //chequea si esta en verificacion presupeusto para enviar correo de transferencia
+                argument: {wizard: wizard, resp : resp, momento: momento},
+                timeout: this.timeout,
+                scope: this
+            });
+        },
+        /*================================= END PROCESOS REVERSION CIP =======================================*/
 
         /*================================= BEGIN PROCESOS CIP PAGO EXTERIOR =======================================*/
         onSigepCIPEXT:function(wizard,resp, momento){
@@ -1144,7 +1296,7 @@ header("content-type: text/javascript; charset=UTF-8");
             var id = reg.ROOT.datos.id_sigep;
             this.ids = id;
             var porciones = id.split(',');
-            if( opt.argument.momento == 'REGULARIZAC' || opt.argument.momento == 'REGULARIZAS' || opt.argument.momento == 'CON_IMPUTACION' || opt.argument.momento == 'CON_IMPUTACION_EXT' || opt.argument.momento == 'REGULARIZAC_REV' || opt.argument.momento == 'REGULARIZAS_REV'){
+            if( opt.argument.momento == 'REGULARIZAC' || opt.argument.momento == 'REGULARIZAS' || opt.argument.momento == 'CON_IMPUTACION' || opt.argument.momento == 'CON_IMPUTACION_EXT' || opt.argument.momento == 'REGULARIZAC_REV' || opt.argument.momento == 'REGULARIZAS_REV' || opt.argument.momento == 'CON_IMPUTACION_REV'){
                 for (let i=0 ; i < porciones.length ; i++) {
                     console.log('identify:', porciones[i]);
                     Ext.Ajax.request({
@@ -1198,6 +1350,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 service_code = 'REGULARIZAC_REV';
             }else if( opt.argument.momento == 'REGULARIZAS_REV' ){
                 service_code = 'REGULARIZAS_REV';
+            }else if( opt.argument.momento == 'CON_IMPUTACION_REV' ){
+                service_code = 'CON_IMPUTACION_REV';
             }
             /*else{
                 service_code = 'CON_IMPUTACION_V';
@@ -1298,7 +1452,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         buttons: Ext.Msg.OK, //<- Botones de SI y NO
                         fn: this.callback //<- la función que se ejecuta cuando se da clic
                     });
-                }else if( opt.argument.momento == 'REGULARIZAC' || opt.argument.momento == 'REGULARIZAS' || opt.argument.momento == 'CON_IMPUTACION' || opt.argument.momento == 'CON_IMPUTACION_EXT' || opt.argument.momento == 'REGULARIZAC_REV' || opt.argument.momento == 'REGULARIZAS_REV'){
+                }else if( opt.argument.momento == 'REGULARIZAC' || opt.argument.momento == 'REGULARIZAS' || opt.argument.momento == 'CON_IMPUTACION' || opt.argument.momento == 'CON_IMPUTACION_EXT' || opt.argument.momento == 'REGULARIZAC_REV' || opt.argument.momento == 'REGULARIZAS_REV' || opt.argument.momento == 'CON_IMPUTACION_REV' ){
                     if(rest.nro_preventivo == '' && rest.nro_comprometido == ''){rest.nro_preventivo = 0; rest.nro_comprometido = 0;}
                     Phx.CP.loadingHide();
                     Ext.Ajax.request({
@@ -1466,17 +1620,19 @@ header("content-type: text/javascript; charset=UTF-8");
 
         revertirProcesoSigep : function (wizard,response){
             var record = this.getSelectedData();
-            console.log('record', record);
+
+            Phx.CP.loadingShow();
             Ext.Ajax.request({
                 url:'../../sis_sigep/control/SigepAdq/revertirProcesoSigep',
                 params:{
                     id_service_request : record.id_service_request,
-                    estado_reg : record.estado
+                    estado_reg : record.estado,
+                    estado_destino : response.estado_destino
                 },
                 success: function (resp) {
                     var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
                     var datos = reg.ROOT.datos;
-                    console.log('revertirProcesoEntregaSigep',datos);
+                    //console.log('revertirProcesoEntregaSigep',datos);
                     if(datos.process){
 
                         Phx.CP.loadingHide();
@@ -1602,6 +1758,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('btnObs').enable();
 
             this.getBoton('sigep_ext_entrega').enable();
+            this.getBoton('boleta_deposito').enable();
             //this.getBoton('erp_ext_entrega').enable();
             return tb;
         },
@@ -1615,6 +1772,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('diagrama_gantt').disable();
             this.getBoton('btnObs').disable();
             this.getBoton('sigep_ext_entrega').disable();
+            this.getBoton('boleta_deposito').disable();
             //this.getBoton('erp_ext_entrega').disable();
 
         },
