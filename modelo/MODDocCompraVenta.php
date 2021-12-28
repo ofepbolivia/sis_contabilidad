@@ -428,7 +428,8 @@ class MODDocCompraVenta extends MODbase
 
 
         //Definicion de la lista del resultado del query
-        $this->captura('nro_autorizacion', 'numeric');
+        //$this->captura('nro_autorizacion', 'numeric');
+        $this->captura('nro_autorizacion', 'varchar');
         $this->captura('nit', 'varchar');
         $this->captura('razon_social', 'varchar');
 

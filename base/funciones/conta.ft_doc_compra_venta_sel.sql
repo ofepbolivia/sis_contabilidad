@@ -380,7 +380,7 @@ BEGIN
     	begin
     		--Sentencia de la consulta
 			v_consulta:='select
-                          DISTINCT(dcv.nro_autorizacion)::numeric,
+                          DISTINCT(dcv.nro_autorizacion)::varchar, --numeric,
                           dcv.nit,
                           dcv.razon_social
                           from conta.tdoc_compra_venta dcv
