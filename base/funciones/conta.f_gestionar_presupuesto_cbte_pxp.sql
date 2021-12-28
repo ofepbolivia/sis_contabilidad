@@ -61,6 +61,16 @@ DECLARE
   v_importe_cuenta_doc				numeric;
   v_importe_porcentaje				numeric;
   v_id_partida_eje_transaccion		integer;
+  v_id_partida_ejecucion			integer;
+  v_importe_fa						numeric;
+  v_importe_total_rendiciones		numeric;
+  v_importe_solicitado				numeric;
+  v_importe_rendicion				numeric;
+  v_importe_revertir_comprometido	numeric;
+  v_resp_ges_com					numeric[];
+  v_detalle_cuenta_doc				record;
+  v_suma_partida_eje				numeric;
+  v_suma_partida_eje_fk 			numeric;
     
 BEGIN
    
@@ -435,131 +445,51 @@ BEGIN
                                           and cdoc.id_tipo_cuenta_doc = 1
                                           and cdoc.detalle_cuenta_doc = 'si';
 
+                                         raise notice 'llega v_cuenta_doc %', v_cuenta_doc;
 
-                                         IF  (v_registros.factor_reversion > 0 and v_registros.id_partida_ejecucion is not null and v_cuenta_doc.detalle_cuenta_doc = 'si') THEN
+                                         --el importe de los depositos no se realiza el descuento del 13%, por eso separamos el importe de deposito.
 
-                                             IF v_sw_moneda_base = 'si' THEN
-                                                  --si forzamos el calculo en moenda base
-                                                  -- calcular el monto a revertir segun factor por regla de tres en moneda base
+                                         IF  (v_registros.id_partida_ejecucion is not null and v_cuenta_doc.detalle_cuenta_doc = 'si') THEN
 
-                                                  v_monto_cmp_mb = (v_monto_cmp * v_registros.factor_reversion)/(1 - v_registros.factor_reversion);
-                                                  v_monto_cmp = v_monto_cmp_mb;
-                                             ELSEIF  v_registros_comprobante.id_moneda = v_id_moneda_base THEN
-                                                   -- si la transaccion ya fue calculada en moneda
-                                                   v_monto_cmp = v_registros.importe_reversion;
-                                                   v_monto_cmp_mb  = v_registros.importe_reversion;
-                                             ELSE
-                                                    --calculo en loa moenda original de la transaccion
-                                                    v_monto_cmp = v_registros.importe_reversion;
-                                                    v_monto_cmp_mb = (v_monto_cmp_mb * v_registros.factor_reversion)/(1 - v_registros.factor_reversion);
-                                             END IF;
+                                             --si tiene un factor comun se realiza la reversion del comprometido del 13%
+                                             IF (v_registros.factor_reversion > 0) THEN
 
-                                             -- llamar a la funcion para revertir el comprometido
-                                             --raise notice 'llegaFAC-PAR % - % - % - %',v_registros.factor_reversion,  v_registros.id_partida_ejecucion,v_monto_cmp*(-1), v_monto_cmp_mb*(-1) ;
-                                                   v_resp_ges = pre.f_gestionar_presupuesto_v2(
-                                                                                            p_id_usuario,
-                                                                                            NULL,  --tipo de cambio,  ya mandamos la moneda convertida
-                                                                                            v_registros.id_presupuesto,
-                                                                                            v_registros.id_partida,
-                                                                                            v_id_moneda,
-                                                                                            v_monto_cmp*(-1),
-                                                                                            v_monto_cmp_mb*(-1),
-                                                                                            p_fecha_ejecucion,
-                                                                                            'comprometido',
-                                                                                            v_registros.id_partida_ejecucion,
-                                                                                            'id_int_transaccion',
-                                                                                            v_registros.id_int_transaccion,--p_fk_llave,
-                                                                                            v_registros_comprobante.nro_tramite,
-                                                                                            p_id_int_comprobante,
-                                                                                            v_registros_comprobante.momento_comprometido,
-                                                                                            v_registros_comprobante.momento_ejecutado,
-                                                                                            v_registros_comprobante.momento_pagado);
+                                                   IF v_sw_moneda_base = 'si' THEN
+                                                        --si forzamos el calculo en moenda base
+                                                        -- calcular el monto a revertir segun factor por regla de tres en moneda base
 
- 													--  analizamos respuesta y retornamos error
-                                                    IF v_resp_ges[1] = 0 THEN
+                                                        v_monto_cmp_mb = (v_monto_cmp * v_registros.factor_reversion)/(1 - v_registros.factor_reversion);
+                                                        v_monto_cmp = v_monto_cmp_mb;
+                                                   ELSEIF  v_registros_comprobante.id_moneda = v_id_moneda_base THEN
+                                                         -- si la transaccion ya fue calculada en moneda
+                                                         v_monto_cmp = v_registros.importe_reversion;
+                                                         v_monto_cmp_mb  = v_registros.importe_reversion;
+                                                   ELSE
+                                                          --calculo en loa moenda original de la transaccion
+                                                          v_monto_cmp = v_registros.importe_reversion;
+                                                          v_monto_cmp_mb = (v_monto_cmp_mb * v_registros.factor_reversion)/(1 - v_registros.factor_reversion);
+                                                   END IF;
 
-                                                         --  recuperamos datos del presupuesto
-                                                         v_mensaje_error = v_mensaje_error || conta.f_armar_error_presupuesto(v_resp_ges,
-                                                                                                 v_registros.id_presupuesto,
-                                                                                                 v_registros.codigo_partida,
-                                                                                                 v_id_moneda,
-                                                                                                 v_id_moneda_base,
-                                                                                                 v_momento_presupeustario,
-                                                                                                 v_monto_cmp_mb);
-                                                           v_sw_error = true;
-
-                                                    ELSE
-
-                                                        update conta.tint_transaccion it set
-                                                           id_partida_ejecucion_rev = v_resp_ges[2],   --partida de reversion
-                                                           fecha_mod = now(),
-                                                           id_usuario_mod = p_id_usuario
-                                                        where it.id_int_transaccion  =   v_registros.id_int_transaccion;
-
-
-                                                    END IF; --fin id de error
-
-                                         END IF;
-
-
-                                 ELSIF (v_registros.sw_movimiento = 'flujo') THEN --06-12-2021 (may) se realiza para FA con detalle para realizar la reversion del importe total comprometido del deposito
-
-                                 		 select cdoc.detalle_cuenta_doc
-                                          into v_cuenta_doc
-                                          from cd.tcuenta_doc cdoc
-                                          where cdoc.nro_tramite= v_registros_comprobante.nro_tramite
-                                          and cdoc.id_tipo_cuenta_doc = 1
-                                          and cdoc.detalle_cuenta_doc = 'si';
-
-                                 		 --id_partida =12703 INCREMENTO DE CAJA Y BANCOS
-
-                                  		 IF  (v_registros.factor_reversion = 0 and v_cuenta_doc.detalle_cuenta_doc = 'si' and v_registros.id_partida= 12703) THEN
-                                         		--SI existe un deposito separar el importe de la rendicion (que inserta desde un inicio en el registro)
-
-                                         		   select cdoc.id_cuenta_doc
-                                                   into v_registros_cuenta_doc
-                                                   from cd.tcuenta_doc cdoc
-                                                   where cdoc.id_int_comprobante = p_id_int_comprobante;
-
-                                                   select COALESCE(sum(COALESCE(dpcd.importe_contable_deposito,lb.importe_deposito,0)),0)::numeric
-                                                   into v_importe_depositos
-                                                   from tes.tts_libro_bancos lb
-                                                   left join cd.tdeposito_cd dpcd ON dpcd.id_libro_bancos = lb.id_libro_bancos
-                                                   inner join cd.tcuenta_doc c on c.id_cuenta_doc = lb.columna_pk_valor and  lb.columna_pk = 'id_cuenta_doc' and lb.tabla = 'cd.tcuenta_doc'
-                                                   where c.estado_reg = 'activo' and c.id_cuenta_doc =  v_registros_cuenta_doc.id_cuenta_doc;
-
-                                                   --verificar la partida ejecucion
-                                                   select it.id_partida_ejecucion
-                                                   into v_id_partida_eje_transaccion
-                                                   from conta.tint_transaccion it
-                                                   where it.id_int_comprobante = p_id_int_comprobante
-                                                   and it.id_partida_ejecucion is not null;
-                                                   --
-
-
-                                                    --(may) se compara con importe debe segun la parametrizacion de la plantilla de cbtes RENDICIONFONDODET:3 que es para depositos
-                                                    --si es para depositos ese monto se revierte al comprometido
-                                                    --IF (v_registros.importe_debe = v_importe_depositos) THEN
-
-                                                        -- llamar a la funcion para revertir el comprometido
+                                                   -- llamar a la funcion para revertir el comprometido
+                                                   --raise notice 'llegaFAC-PAR % - % - % - %',v_registros.factor_reversion,  v_registros.id_partida_ejecucion,v_monto_cmp*(-1), v_monto_cmp_mb*(-1) ;
                                                          v_resp_ges = pre.f_gestionar_presupuesto_v2(
-                                                                                                      p_id_usuario,
-                                                                                                      NULL,  --tipo de cambio,  ya mandamos la moneda convertida
-                                                                                                      v_registros.id_presupuesto,
-                                                                                                      v_registros.id_partida,
-                                                                                                      v_id_moneda,
-                                                                                                      (v_registros.importe_debe) *(-1),  --v_monto_cmp*(-1),
-                                                                                                      (v_registros.importe_debe) *(-1),  --v_monto_cmp_mb*(-1),
-                                                                                                      p_fecha_ejecucion,
-                                                                                                      'comprometido',
-                                                                                                      v_id_partida_eje_transaccion, --v_registros.id_partida_ejecucion,
-                                                                                                      'id_int_transaccion',
-                                                                                                      v_registros.id_int_transaccion,--p_fk_llave,
-                                                                                                      v_registros_comprobante.nro_tramite,
-                                                                                                      p_id_int_comprobante,
-                                                                                                      v_registros_comprobante.momento_comprometido,
-                                                                                                      v_registros_comprobante.momento_ejecutado,
-                                                                                                      v_registros_comprobante.momento_pagado);
+                                                                                                  p_id_usuario,
+                                                                                                  NULL,  --tipo de cambio,  ya mandamos la moneda convertida
+                                                                                                  v_registros.id_presupuesto,
+                                                                                                  v_registros.id_partida,
+                                                                                                  v_id_moneda,
+                                                                                                  v_monto_cmp*(-1),
+                                                                                                  v_monto_cmp_mb*(-1),
+                                                                                                  p_fecha_ejecucion,
+                                                                                                  'comprometido',
+                                                                                                  v_registros.id_partida_ejecucion,
+                                                                                                  'id_int_transaccion',
+                                                                                                  v_registros.id_int_transaccion,--p_fk_llave,
+                                                                                                  v_registros_comprobante.nro_tramite,
+                                                                                                  p_id_int_comprobante,
+                                                                                                  v_registros_comprobante.momento_comprometido,
+                                                                                                  v_registros_comprobante.momento_ejecutado,
+                                                                                                  v_registros_comprobante.momento_pagado);
 
                                                           --  analizamos respuesta y retornamos error
                                                           IF v_resp_ges[1] = 0 THEN
@@ -585,9 +515,384 @@ BEGIN
 
                                                           END IF; --fin id de error
 
-                                                    --END IF;
+
+                                                    	  /*--------------------------------
+                                                          PARA el AJUSTE FINAL COMPROMETIDO
+                                                          ----------------------------------*/
+
+                                                          select cdoc.id_cuenta_doc, cdoc.id_cuenta_doc_fk
+                                                          into v_registros_cuenta_doc
+                                                          from cd.tcuenta_doc cdoc
+                                                          where cdoc.id_int_comprobante = p_id_int_comprobante;
+
+                                                          --importe inicial comprometido
+                                                          select cdoc.importe
+                                                          into v_importe_fa
+                                                          from cd.tcuenta_doc cdoc
+                                                          where cdoc.id_cuenta_doc = v_registros_cuenta_doc.id_cuenta_doc_fk;
+
+                                                          --sumar importe de las rendiciones del FA
+                                                          select sum(cdoc.importe)
+                                                          into v_importe_total_rendiciones
+                                                          from cd.tcuenta_doc cdoc
+                                                          where cdoc.id_cuenta_doc_fk = v_registros_cuenta_doc.id_cuenta_doc_fk;
+
+                                                          IF (v_importe_fa = v_importe_total_rendiciones) THEN
+
+
+                                                                  --bucando importe del comprometido del detalle del FA
+                                                                  select sum(cdet.importe)
+                                                                  into v_importe_solicitado
+                                                                  from cd.tcuenta_doc cdoc
+                                                                  inner join cd.tcuenta_doc_det cdet on cdet.id_cuenta_doc = cdoc.id_cuenta_doc
+                                                                  where cdoc.id_cuenta_doc = v_registros_cuenta_doc.id_cuenta_doc_fk
+                                                                  and cdet.id_partida =v_registros.id_partida
+                                                                  and cdet.id_cc= v_registros.id_presupuesto;
+
+                                                                  v_importe_rendicion = v_registros.importe_debe + v_registros.importe_reversion ;
+                                                                  v_importe_revertir_comprometido = coalesce(v_importe_solicitado, 0) - coalesce(v_importe_rendicion, 0) ;
+
+                                                                  --realizando la reversion del comprometido del importe sobrante del FA
+
+                                                                  v_resp_ges_com = pre.f_gestionar_presupuesto_v2(
+                                                                                                p_id_usuario,
+                                                                                                NULL,  --tipo de cambio,  ya mandamos la moneda convertida
+                                                                                                v_registros.id_presupuesto,
+                                                                                                v_registros.id_partida,
+                                                                                                v_id_moneda,
+                                                                                                v_importe_revertir_comprometido*(-1), --v_monto_cmp*(-1),
+                                                                                                v_importe_revertir_comprometido*(-1), --v_monto_cmp_mb*(-1),
+                                                                                                p_fecha_ejecucion,
+                                                                                                'comprometido',
+                                                                                                v_registros.id_partida_ejecucion,
+                                                                                                'id_int_transaccion',
+                                                                                                v_registros.id_int_transaccion,--p_fk_llave,
+                                                                                                v_registros_comprobante.nro_tramite,
+                                                                                                p_id_int_comprobante,
+                                                                                                v_registros_comprobante.momento_comprometido,
+                                                                                                v_registros_comprobante.momento_ejecutado,
+                                                                                                v_registros_comprobante.momento_pagado);
+
+                                                                   --  analizamos respuesta y retornamos error
+                                                                    IF v_resp_ges_com[1] = 0 THEN
+
+                                                                         --  recuperamos datos del presupuesto
+                                                                         v_mensaje_error = v_mensaje_error || conta.f_armar_error_presupuesto(v_resp_ges_com,
+                                                                                                                 v_registros.id_presupuesto,
+                                                                                                                 v_registros.codigo_partida,
+                                                                                                                 v_id_moneda,
+                                                                                                                 v_id_moneda_base,
+                                                                                                                 v_momento_presupeustario,
+                                                                                                                 v_monto_cmp_mb);
+                                                                           v_sw_error = true;
+
+                                                                    ELSE
+
+                                                                        update pre.tpartida_ejecucion pj set
+                                                                           id_partida_ejecucion_fk = v_registros.id_partida_ejecucion --v_resp_ges[2]
+                                                                        where pj.id_partida_ejecucion = v_resp_ges_com[2];
+
+
+                                                                    END IF; --fin id de error
+
+                                                           END IF;
+
+                                             ELSE --si v_registros.factor_reversion < 0 si no tiene un factor de reversion porque son de recibos el cual se debe realizar su reversion
+
+                                                          /*--------------------------------
+                                                          PARA el AJUSTE FINAL COMPROMETIDO
+                                                          ----------------------------------*/
+
+                                                          select cdoc.id_cuenta_doc, cdoc.id_cuenta_doc_fk
+                                                          into v_registros_cuenta_doc
+                                                          from cd.tcuenta_doc cdoc
+                                                          where cdoc.id_int_comprobante = p_id_int_comprobante;
+
+                                                          --importe inicial comprometido
+                                                          select cdoc.importe
+                                                          into v_importe_fa
+                                                          from cd.tcuenta_doc cdoc
+                                                          where cdoc.id_cuenta_doc = v_registros_cuenta_doc.id_cuenta_doc_fk;
+
+                                                          --sumar importe de las rendiciones del FA
+                                                          select sum(cdoc.importe)
+                                                          into v_importe_total_rendiciones
+                                                          from cd.tcuenta_doc cdoc
+                                                          where cdoc.id_cuenta_doc_fk = v_registros_cuenta_doc.id_cuenta_doc_fk;
+
+                                                          IF (v_importe_fa = v_importe_total_rendiciones) THEN
+
+                                                          			--para las rendiciones que no realizan su ejecutado y no esta en las transacciones
+                                                                    FOR v_detalle_cuenta_doc IN ( select cdet.id_partida_ejecucion, cdet.importe,cdet.id_partida, cdet.id_cc, cdoc.id_moneda, cdoc.nro_tramite
+                                                                                                   from cd.tcuenta_doc cdoc
+                                                                                                   inner join cd.tcuenta_doc_det cdet on cdet.id_cuenta_doc = cdoc.id_cuenta_doc
+                                                                                                   where cdoc.id_cuenta_doc = v_registros_cuenta_doc.id_cuenta_doc_fk
+                                                                                                  )LOOP
+
+                                                                                IF NOT EXISTS ( select 1
+                                                                                			from conta.tint_transaccion tra
+                                                                                            where tra.id_int_comprobante = p_id_int_comprobante
+                                                                                            and tra.id_partida_ejecucion = v_detalle_cuenta_doc.id_partida_ejecucion
+                                                                                			) THEN
+
+                                                                                            --importe del comprometido FK
+                                                                                            SELECT sum(pej.monto)
+                                                                                            INTO v_suma_partida_eje_fk
+                                                                                            FROM  pre.tpartida_ejecucion pej
+                                                                                            WHERE pej.id_partida_ejecucion_fk = v_detalle_cuenta_doc.id_partida_ejecucion
+                                                                                            and pej.nro_tramite = v_detalle_cuenta_doc.nro_tramite
+                                                                                            and pej.tipo_movimiento in ('comprometido');
+
+                                                                                            --importe del comprometido solicitado
+                                                                                            SELECT sum(pej.monto)
+                                                                                            INTO v_suma_partida_eje
+                                                                                            FROM  pre.tpartida_ejecucion pej
+                                                                                            WHERE pej.id_partida_ejecucion = v_detalle_cuenta_doc.id_partida_ejecucion
+                                                                                            and pej.nro_tramite = v_detalle_cuenta_doc.nro_tramite
+                                                                                            and pej.tipo_movimiento in ('comprometido');
+
+
+                                                                          				  IF (coalesce(v_suma_partida_eje, 0) != coalesce(v_suma_partida_eje_fk, 0)) THEN
+
+                                                                                                v_resp_ges_com = pre.f_gestionar_presupuesto_v2(
+                                                                                                                              p_id_usuario,
+                                                                                                                              NULL,  --tipo de cambio,  ya mandamos la moneda convertida
+                                                                                                                              v_detalle_cuenta_doc.id_cc,
+                                                                                                                              v_detalle_cuenta_doc.id_partida,
+                                                                                                                              v_detalle_cuenta_doc.id_moneda,
+                                                                                                                              v_detalle_cuenta_doc.importe*(-1), --v_monto_cmp*(-1),
+                                                                                                                              v_detalle_cuenta_doc.importe*(-1), --v_monto_cmp_mb*(-1),
+                                                                                                                              p_fecha_ejecucion,
+                                                                                                                              'comprometido',
+                                                                                                                              v_detalle_cuenta_doc.id_partida_ejecucion,
+                                                                                                                              'id_cuenta_doc',
+                                                                                                                              v_registros_cuenta_doc.id_cuenta_doc_fk,--p_fk_llave,
+                                                                                                                              v_detalle_cuenta_doc.nro_tramite,
+                                                                                                                              p_id_int_comprobante,
+                                                                                                                              'no',
+                                                                                                                              'no',
+                                                                                                                              'no');
+
+                                                                                                 update pre.tpartida_ejecucion pj set
+                                                                                                   id_partida_ejecucion_fk = v_detalle_cuenta_doc.id_partida_ejecucion --v_resp_ges[2]
+                                                                                                 where pj.id_partida_ejecucion = v_resp_ges_com[2];
+
+                                                                                           END IF;
+
+                                                                                END IF;
+
+
+
+                                                                    END LOOP;
+                                                                    ---
+
+                                                                  --buscando importe del comprometido del detalle del FA
+                                                                  select sum(cdet.importe)
+                                                                  into v_importe_solicitado
+                                                                  from cd.tcuenta_doc cdoc
+                                                                  inner join cd.tcuenta_doc_det cdet on cdet.id_cuenta_doc = cdoc.id_cuenta_doc
+                                                                  where cdoc.id_cuenta_doc = v_registros_cuenta_doc.id_cuenta_doc_fk
+                                                                  and cdet.id_partida =v_registros.id_partida
+                                                                  and cdet.id_cc= v_registros.id_presupuesto;
+
+                                                                  v_importe_rendicion = v_registros.importe_debe + v_registros.importe_reversion ;
+                                                                  v_importe_revertir_comprometido = coalesce(v_importe_solicitado, 0) - coalesce(v_importe_rendicion, 0) ;
+
+                                                                  /*--para las rendiciones que no realizan su ejecutado y no esta en las transacciones
+                                                                  IF not EXISTS ( select 1
+                                                                                from cd.tcuenta_doc cdoc
+                                                                                inner join cd.tcuenta_doc_det cdet on cdet.id_cuenta_doc = cdoc.id_cuenta_doc
+                                                                                where cdoc.id_cuenta_doc = v_registros_cuenta_doc.id_cuenta_doc_fk
+                                                                                and cdet.id_partida =v_registros.id_partida
+                                                                                and cdet.id_cc= v_registros.id_presupuesto
+                                                                  				) THEN
+
+                                                                  END IF;*/
+
+                                                                  --
+
+                                                                  --realizando la reversion del comprometido del importe sobrante del FA
+
+                                                                  v_resp_ges_com = pre.f_gestionar_presupuesto_v2(
+                                                                                                p_id_usuario,
+                                                                                                NULL,  --tipo de cambio,  ya mandamos la moneda convertida
+                                                                                                v_registros.id_presupuesto,
+                                                                                                v_registros.id_partida,
+                                                                                                v_id_moneda,
+                                                                                                v_importe_revertir_comprometido*(-1), --v_monto_cmp*(-1),
+                                                                                                v_importe_revertir_comprometido*(-1), --v_monto_cmp_mb*(-1),
+                                                                                                p_fecha_ejecucion,
+                                                                                                'comprometido',
+                                                                                                v_registros.id_partida_ejecucion,
+                                                                                                'id_int_transaccion',
+                                                                                                v_registros.id_int_transaccion,--p_fk_llave,
+                                                                                                v_registros_comprobante.nro_tramite,
+                                                                                                p_id_int_comprobante,
+                                                                                                v_registros_comprobante.momento_comprometido,
+                                                                                                v_registros_comprobante.momento_ejecutado,
+                                                                                                v_registros_comprobante.momento_pagado);
+
+                                                                   --  analizamos respuesta y retornamos error
+                                                                    IF v_resp_ges_com[1] = 0 THEN
+
+                                                                         --  recuperamos datos del presupuesto
+                                                                         v_mensaje_error = v_mensaje_error || conta.f_armar_error_presupuesto(v_resp_ges_com,
+                                                                                                                 v_registros.id_presupuesto,
+                                                                                                                 v_registros.codigo_partida,
+                                                                                                                 v_id_moneda,
+                                                                                                                 v_id_moneda_base,
+                                                                                                                 v_momento_presupeustario,
+                                                                                                                 v_monto_cmp_mb);
+                                                                           v_sw_error = true;
+
+                                                                    ELSE
+
+                                                                        update pre.tpartida_ejecucion pj set
+                                                                           id_partida_ejecucion_fk = v_registros.id_partida_ejecucion --v_resp_ges[2]
+                                                                        where pj.id_partida_ejecucion = v_resp_ges_com[2];
+
+
+                                                                    END IF; --fin id de error
+
+                                                          END IF;
+
+                                             END IF;
+
+
+
+                                                    --
+
+
 
                                          END IF;
+
+
+                                 /*ELSIF (v_registros.sw_movimiento = 'flujo') THEN --06-12-2021 (may) se realiza para FA con detalle para realizar la reversion del importe total comprometido del deposito
+
+                                 		 select cdoc.detalle_cuenta_doc
+                                          into v_cuenta_doc
+                                          from cd.tcuenta_doc cdoc
+                                          where cdoc.nro_tramite= v_registros_comprobante.nro_tramite
+                                          and cdoc.id_tipo_cuenta_doc = 1
+                                          and cdoc.detalle_cuenta_doc = 'si';
+
+                                 		 --id_partida =12703 INCREMENTO DE CAJA Y BANCOS
+
+                                  		 IF  (v_registros.factor_reversion = 0 and v_cuenta_doc.detalle_cuenta_doc = 'si' and v_registros.id_partida= 12703) THEN
+                                         		--SI existe un deposito separar el importe de la rendicion (que inserta desde un inicio en el registro)
+
+                                         		   select cdoc.id_cuenta_doc
+                                                   into v_registros_cuenta_doc
+                                                   from cd.tcuenta_doc cdoc
+                                                   where cdoc.id_int_comprobante = p_id_int_comprobante;
+
+                                                   /*select COALESCE(sum(COALESCE(dpcd.importe_contable_deposito,lb.importe_deposito,0)),0)::numeric
+                                                   into v_importe_depositos
+                                                   from tes.tts_libro_bancos lb
+                                                   left join cd.tdeposito_cd dpcd ON dpcd.id_libro_bancos = lb.id_libro_bancos
+                                                   inner join cd.tcuenta_doc c on c.id_cuenta_doc = lb.columna_pk_valor and  lb.columna_pk = 'id_cuenta_doc' and lb.tabla = 'cd.tcuenta_doc'
+                                                   where c.estado_reg = 'activo' and c.id_cuenta_doc =  v_registros_cuenta_doc.id_cuenta_doc;
+
+                                                   --verificar la partida ejecucion
+                                                   select it.id_partida_ejecucion
+                                                   into v_id_partida_eje_transaccion
+                                                   from conta.tint_transaccion it
+                                                   --where it.id_int_comprobante = p_id_int_comprobante
+                                                   where it.id_int_transaccion= v_registros.id_int_transaccion
+                                                   and it.id_partida_ejecucion is not null;*/
+                                                   --
+
+                                                   ------------------------------
+                                                    --insertar partida ejecucion
+                                                    ------------------------------
+
+                                                    INSERT INTO  pre.tpartida_ejecucion
+                                                                                    (
+                                                                                      id_usuario_reg,
+                                                                                      fecha_reg,
+                                                                                      estado_reg,
+                                                                                      --id_partida_ejecucion,
+                                                                                      nro_tramite,
+                                                                                      monto,
+                                                                                      monto_mb,
+                                                                                      id_moneda,
+                                                                                      id_presupuesto,
+                                                                                      id_partida,
+                                                                                      tipo_movimiento,
+                                                                                      tipo_cambio,
+                                                                                      fecha,
+                                                                                      id_int_comprobante,
+                                                                                      columna_origen,
+                                                                                      valor_id_origen
+                                                                                    )
+                                                                                    VALUES (
+                                                                                      p_id_usuario,
+                                                                                      now(),
+                                                                                      'activo',
+                                                                                      --v_array_resp[v_cont],--:id_partida_ejecucion,
+                                                                                      v_registros_comprobante.nro_tramite,
+                                                                                      (v_registros.importe_debe) *(-1), --p_monto_total[v_cont],
+                                                                                      (v_registros.importe_debe) *(-1), --v_monto_mb,
+                                                                                      v_id_moneda,
+                                                                                      v_registros.id_presupuesto,
+                                                                                      v_registros.id_partida,
+                                                                                      'comprometido', --tipo_movimiento
+                                                                                      NULL,
+                                                                                      now(),
+                                                                                      p_id_int_comprobante,
+                                                                                      'id_int_transaccion',
+                                                                                      v_registros.id_int_transaccion
+
+                                                                                    )RETURNING id_partida_ejecucion into v_id_partida_ejecucion;
+
+
+                                                        /*-- llamar a la funcion para revertir el comprometido
+                                                         v_resp_ges = pre.f_gestionar_presupuesto_v2(
+                                                                                                      p_id_usuario,
+                                                                                                      NULL,  --tipo de cambio,  ya mandamos la moneda convertida
+                                                                                                      v_registros.id_presupuesto,
+                                                                                                      v_registros.id_partida,
+                                                                                                      v_id_moneda,
+                                                                                                      (v_registros.importe_debe) *(-1),  --v_monto_cmp*(-1),
+                                                                                                      (v_registros.importe_debe) *(-1),  --v_monto_cmp_mb*(-1),
+                                                                                                      p_fecha_ejecucion,
+                                                                                                      'comprometido',
+                                                                                                      v_id_partida_eje_transaccion, --v_registros.id_partida_ejecucion,
+                                                                                                      'id_int_transaccion',
+                                                                                                      v_registros.id_int_transaccion,--p_fk_llave,
+                                                                                                      v_registros_comprobante.nro_tramite,
+                                                                                                      p_id_int_comprobante,
+                                                                                                      v_registros_comprobante.momento_comprometido,
+                                                                                                      v_registros_comprobante.momento_ejecutado,
+                                                                                                      v_registros_comprobante.momento_pagado);*/
+
+                                                          --  analizamos respuesta y retornamos error
+                                                          IF v_resp_ges[1] = 0 THEN
+
+                                                               --  recuperamos datos del presupuesto
+                                                               v_mensaje_error = v_mensaje_error || conta.f_armar_error_presupuesto(v_resp_ges,
+                                                                                                       v_registros.id_presupuesto,
+                                                                                                       v_registros.codigo_partida,
+                                                                                                       v_id_moneda,
+                                                                                                       v_id_moneda_base,
+                                                                                                       v_momento_presupeustario,
+                                                                                                       v_monto_cmp_mb);
+                                                                 v_sw_error = true;
+
+                                                          ELSE
+
+                                                              update conta.tint_transaccion it set
+                                                                 id_partida_ejecucion_rev = v_id_partida_ejecucion, --v_resp_ges[2],  --partida de reversion
+                                                                 fecha_mod = now(),
+                                                                 id_usuario_mod = p_id_usuario
+                                                              where it.id_int_transaccion  =   v_registros.id_int_transaccion;
+
+
+                                                          END IF; --fin id de error
+
+                                                    --END IF;
+
+                                         END IF;*/
 
 
 
