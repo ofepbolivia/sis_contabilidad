@@ -189,7 +189,7 @@ END IF;
              */
             ELSE --IF (v_tipo_obligacion= 'sp'or v_tipo_obligacion= 'spd'  or v_tipo_obligacion= 'spi' or v_tipo_obligacion= 'pago_especial_spi')THEN
               -- valida que periodO de libro de compras y ventas este abierto
-              v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+              v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, coalesce(v_parametros.id_depto_conta, v_id_depto_destino), v_rec.po_id_periodo);
                  --END IF;
             END IF;
         END IF;
