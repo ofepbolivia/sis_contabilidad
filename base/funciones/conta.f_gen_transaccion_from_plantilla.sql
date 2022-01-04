@@ -454,7 +454,7 @@ BEGIN
                               END LOOP;
 
                               --raise exception 'Termina Insertar';
-                              --v_record_int_tran.id_partida = v_id_partida_matriz::integer;
+                              v_record_int_tran.id_partida = v_id_partida_matriz::integer;
                               /**************************************************************/
 
                         elsif (p_reg_det_plantilla->'codigo' = 'HABERSIGGEST') then
