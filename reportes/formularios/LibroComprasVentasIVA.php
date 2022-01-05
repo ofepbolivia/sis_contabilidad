@@ -100,7 +100,9 @@ header("content-type: text/javascript; charset=UTF-8");
                             ['lcncd','Libro de Compras Notas Credito-Debito'],
                             ['lvncd','Libro de Ventas Notas Credito-Debito'],
                             ['repo_iata', 'Iata'],
-                            ['repo_ing_gravado', 'Reporte Ingresos Gravados (IT)']
+                            ['repo_ing_gravado', 'Reporte Ingresos Gravados (IT)'],
+                            ['lce_siat', '<b style="color : #00B167;">Libro de Compras Estandar SIAT</b>'],
+                            ['lve_siat', '<b style="color : #FF8F85;">Libro de Ventas Estandar SIAT</b>']
                         ]
                     }),
                     valueField:'ID',
@@ -520,7 +522,7 @@ header("content-type: text/javascript; charset=UTF-8");
         successSave :function(resp){
             Phx.CP.loadingHide();
 
-            if ( this.Cmp.tipo_lcv.getValue() == 'lcv_ventas' && (this.Cmp.formato_reporte.getValue() == 'pdf' || this.Cmp.formato_reporte.getValue() == 'xls') ) {
+            if ( ( this.Cmp.tipo_lcv.getValue() == 'lcv_ventas' || this.Cmp.tipo_lcv.getValue() == 'repo_ing_gravado' ) && (this.Cmp.formato_reporte.getValue() == 'pdf' || this.Cmp.formato_reporte.getValue() == 'xls') ) {
                 Ext.Msg.show({
                     title: 'Información',
                     msg: '<b>Estimado Funcionario: ' + '\n' + ' El Reporte se esta Generando..........</b>',

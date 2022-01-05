@@ -33,15 +33,15 @@ class ACTEntrega extends ACTbase
 
         //begin(franklin.espinoza) 20/08/2020
         if($this->objParam->getParametro('estado_entrega') == 'borrador'){
-            $this->objParam->addFiltro("ent.estado in (''borrador'')");
+            $this->objParam->addFiltro("ent.estado in (''borrador'') and ent.tipo in (''normal_una_cg'',''normal_mas_cg'',''regularizacion_una_cg'',''regularizacion_mas_cg'') ");
         }else if($this->objParam->getParametro('estado_entrega') == 'elaborado'){
-            $this->objParam->addFiltro("ent.estado in (''elaborado'')");
+            $this->objParam->addFiltro("ent.estado in (''elaborado'') and ent.tipo in (''normal_una_cg'',''normal_mas_cg'',''regularizacion_una_cg'',''regularizacion_mas_cg'') ");
         }else if($this->objParam->getParametro('estado_entrega') == 'verificado'){
-            $this->objParam->addFiltro("ent.estado in (''verificado'')");
+            $this->objParam->addFiltro("ent.estado in (''verificado'') and ent.tipo in (''normal_una_cg'',''normal_mas_cg'',''regularizacion_una_cg'',''regularizacion_mas_cg'') ");
         }else if($this->objParam->getParametro('estado_entrega') == 'aprobado'){
-            $this->objParam->addFiltro("ent.estado in (''aprobado'')");
+            $this->objParam->addFiltro("ent.estado in (''aprobado'') and ent.tipo in (''normal_una_cg'',''normal_mas_cg'',''regularizacion_una_cg'',''regularizacion_mas_cg'') ");
         }else if($this->objParam->getParametro('estado_entrega') == 'finalizado'){
-            $this->objParam->addFiltro("ent.estado in (''finalizado'')");
+            $this->objParam->addFiltro("ent.estado in (''finalizado'') and ent.tipo in (''normal_una_cg'',''normal_mas_cg'',''regularizacion_una_cg'',''regularizacion_mas_cg'') ");
         }else if($this->objParam->getParametro('estado_entrega') == 'borrador_elaborado'){
             $this->objParam->addFiltro("ent.estado in (''borrador'',''elaborado'') and ent.tipo in (''normal_una_cg'',''normal_mas_cg'',''regularizacion_una_cg'',''regularizacion_mas_cg'') and (ent.id_usuario_reg = ".$_SESSION["ss_id_usuario"]." or 612 = ".$_SESSION["ss_id_usuario"].")");
         }

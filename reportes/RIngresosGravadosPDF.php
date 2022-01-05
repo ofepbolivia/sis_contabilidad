@@ -30,6 +30,8 @@ class RIngresosGravadosPDF extends  ReportePDF {
     var $datos_entidad;
     var $datos_periodo;
 
+    var $ruta = 'N';
+    var $tipo_ruta;
 
 
     function datosHeader ( $detalle, $totales,$entidad, $periodo) {
@@ -189,9 +191,26 @@ class RIngresosGravadosPDF extends  ReportePDF {
             's9' => "IMPUESTO A LAS\nTRANSACCIONES"
         );
 
+
         $this-> MultiRow($RowArray,false,1);
+        if ( $this->ruta == 'N' ){
+            $this->tipo_ruta = 'RUTA NACIONAL';
+        }else if ( $this->ruta == 'I' ){
+            $this->tipo_ruta = 'RUTA INTERNACIONAL';
+        }else{
+            $this->tipo_ruta = 'RUTA NO ESPECIFICA';
+        }
 
+        $this->Cell(200,5,$this->tipo_ruta,0,1,'C');
+        $conf_par_tablewidths=array(10,13,18,42,10,42,25,15,15,15);
+        $conf_par_tablealigns=array('C','C','L','L','C','L','R','R','R','R');
+        $conf_par_tablenumbers=array(0,0,0,0,0,0,2,2,2,2);
+        $conf_tableborders=array();
 
+        $this->tablewidths=$conf_par_tablewidths;
+        $this->tablealigns=$conf_par_tablealigns;
+        $this->tablenumbers=$conf_par_tablenumbers;
+        $this->tableborders=$conf_tableborders;
     }
 
     function generarCuerpo($detalle){
@@ -260,6 +279,12 @@ class RIngresosGravadosPDF extends  ReportePDF {
             's8' => $subtotal,
             's9' => $subtotal*0.03
         );
+        if ( $this->ruta != $val['tipo_ruta'] and $this->ruta != '' ){
+            $this->ruta = $val['tipo_ruta'];
+            $this->AddPage();
+        }else{
+            $this->ruta = $val['tipo_ruta'];
+        }
 
         $this-> MultiRow($RowArray,false,0);
 

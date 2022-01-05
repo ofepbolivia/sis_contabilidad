@@ -5316,3 +5316,51 @@ ALTER TABLE conta.torden_trabajo
 COMMENT ON COLUMN conta.torden_trabajo.id_avion_alkym
 IS 'Campo donde se almacenara el id_alkym de las aeronaves';
 /***********************************F-SCP-IRVA-CONTA-0-10/12/2021****************************************/
+
+/***********************************I-SCP-FEA-CONTA-0-31/12/2021****************************************/
+ALTER TABLE conta.tdoc_compra_venta
+  ADD COLUMN complemento VARCHAR(5);
+
+COMMENT ON COLUMN conta.tdoc_compra_venta.complemento
+IS 'Registrar el complemento del documento de identidad, caso contrario dejar la casilla en blanco.';
+
+ALTER TABLE conta.tdoc_compra_venta
+  ADD COLUMN importe_iehd numeric(14,2);
+
+COMMENT ON COLUMN conta.tdoc_compra_venta.importe_iehd
+IS 'Importe correspondiente al IEHD. Caso contrario registrar cero (0).';
+
+ALTER TABLE conta.tdoc_compra_venta
+  ADD COLUMN importe_ipj numeric(14,2);
+
+COMMENT ON COLUMN conta.tdoc_compra_venta.importe_ipj
+IS 'Importe correspondiente al IPJ. Caso contrario registrar cero (0).';
+
+ALTER TABLE conta.tdoc_compra_venta
+  ADD COLUMN importe_tasas numeric(14,2);
+
+COMMENT ON COLUMN conta.tdoc_compra_venta.importe_tasas
+IS 'Importe correspondiente a Tasas. Caso contrario registrar cero (0).';
+
+ALTER TABLE conta.tdoc_compra_venta
+  ADD COLUMN importe_gift_card numeric(14,2);
+
+COMMENT ON COLUMN conta.tdoc_compra_venta.importe_gift_card
+IS 'Importe de la GIFT CARD, caso contrario registrar cero(0).';
+/***********************************F-SCP-FEA-CONTA-0-31/12/2021****************************************/
+
+/***********************************I-SCP-FEA-CONTA-0-05/01/2022****************************************/
+alter table conta.tdoc_compra_venta
+    rename column complemento to otro_no_sujeto_credito_fiscal;
+
+alter table conta.tdoc_compra_venta
+    alter column otro_no_sujeto_credito_fiscal type numeric(14,2) using otro_no_sujeto_credito_fiscal::numeric(14,2);
+
+comment on column conta.tdoc_compra_venta.otro_no_sujeto_credito_fiscal
+is 'Otro importe que no está sujeto al IVA . Ejemplo: En el caso de compras de Gasolina o Diesel Oil de cualquier origen a estaciones de servicio o distribuidores autorizados se deberá registrar el 30% del importe total en esta columna. Caso contrario registrar cero (0)';
+
+alter table conta.tdoc_compra_venta
+	add importe_compras_gravadas_tasa_cero numeric(14,2);
+
+comment on column conta.tdoc_compra_venta.importe_compras_gravadas_tasa_cero is 'Importe de las compras gravadas a Tasa Cero. Para este caso se deberá registrar el 100% del Importe Total de la compra. Caso contrario registrar cero (0).';
+/***********************************F-SCP-FEA-CONTA-0-05/01/2022****************************************/

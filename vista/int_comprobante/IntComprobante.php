@@ -13,6 +13,8 @@ header("content-type: text/javascript; charset=UTF-8");
     var id_gestion = null;
 
     Phx.vista.IntComprobante = Ext.extend(Phx.gridInterfaz, {
+
+        bgantt: true,
         fheight: '90%',
         fwidth: '90%',
         nombreVista: 'IntComprobante',

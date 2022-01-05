@@ -88,12 +88,31 @@ header("content-type: text/javascript; charset=UTF-8");
             this.maestro=config.maestro;
             //llama al constructor de la clase padre
             this.initButtons = [this.cmbDepto/*, this.cmbGestion*/];
+            this.tbarItems = ['-',
+                this.cmbGestion,'-'
+            ];
             Phx.vista.EntregaConsulta.superclass.constructor.call(this,config);
             this.store.baseParams.pes_estado = ' ';
 
+            Ext.Ajax.request({
+                url:'../../sis_reclamo/control/Reclamo/getDatosOficina',
+                params:{id_usuario:0},
+                success:function(resp){
+                    var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
+
+                    this.cmbGestion.setValue(reg.ROOT.datos.id_gestion);
+                    this.cmbGestion.setRawValue(reg.ROOT.datos.gestion);
+                    this.store.baseParams.gestion = reg.ROOT.datos.gestion;
+                    //this.load({params:{start:0, limit:this.tam_pag}});
+                },
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+            });
+
 
             this.addBotonesGantt();
-
+            this.cmbGestion.on('select',this.capturaGestion, this);
             this.addButton('btnChequeoDocumentosWf',{
                 text: 'Documentos',
                 grupo: [0,1,2,3,4],
@@ -246,6 +265,11 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.capturaFiltros();
             }, this);
 
+        },
+
+        capturaGestion: function (){
+            this.store.baseParams.gestion=this.cmbGestion.getRawValue();
+            this.load({params:{start:0, limit:this.tam_pag}});
         },
 
         gruposBarraTareas: [
@@ -493,6 +517,7 @@ header("content-type: text/javascript; charset=UTF-8");
             allowBlank : false,
             disableSearchButton : true,
             emptyText : 'Depto Contable',
+            msgTarget: 'side',
             store : new Ext.data.JsonStore({
                 url : '../../sis_parametros/control/Depto/listarDeptoFiltradoDeptoUsuario',//../../sis_parametros/control/Depto/listarDeptoFiltradoPrioridadEXT
                 id : 'id_depto',
