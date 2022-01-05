@@ -1434,6 +1434,13 @@ class MODDocCompraVenta extends MODbase
         $this->captura('importe_ice', 'NUMERIC');
         $this->captura('importe_excento', 'NUMERIC');
 
+        $this->captura('complemento', 'varchar');
+        $this->captura('importe_iehd', 'NUMERIC');
+        $this->captura('importe_ipj', 'NUMERIC');
+        $this->captura('importe_tasas', 'NUMERIC');
+        $this->captura('importe_gift_card', 'NUMERIC');
+        $this->captura('importe_it', 'NUMERIC');
+
 
         //Ejecuta la instruccion
         $this->armarConsulta(); //echo ($this->consulta);exit;
@@ -2682,6 +2689,13 @@ class MODDocCompraVenta extends MODbase
         $this->captura('tipo_factura', 'varchar');
         $this->captura('id_origen', 'integer');
         $this->captura('sistema_origen', 'varchar');
+
+        $this->captura('complemento_nit', 'varchar');
+        $this->captura('importe_ice', 'NUMERIC');
+        $this->captura('importe_iehd', 'NUMERIC');
+        $this->captura('importe_ipj', 'NUMERIC');
+        $this->captura('importe_gift_card', 'NUMERIC');
+        $this->captura('tipo_de_venta', 'integer');
 
 
         //Ejecuta la instruccion

@@ -387,7 +387,7 @@ BEGIN
             else
 
           --begin (franklin.espinoza) 08/10/2020
-          if v_parametros.id_depto IN (49, 79, 80, 81) then
+          if v_parametros.id_depto IN (49,50, 79, 80, 81) then
             v_localidad = 'internacional';
           else
             v_localidad = 'nacional';

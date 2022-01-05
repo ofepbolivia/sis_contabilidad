@@ -581,7 +581,7 @@ BEGIN
            END IF;
 
 
-          IF v_parametros.tipo_lcv = 'lcv_compras'  THEN
+          IF v_parametros.tipo_lcv in  ('lcv_compras','lce_siat')  THEN
               v_tipo = 'compra';
           ELSE
               v_tipo = 'venta';
@@ -616,7 +616,13 @@ BEGIN
                                subtotal_venta::numeric,
                                sujeto_df::numeric,
                                importe_ice::numeric,
-                               importe_excento::numeric
+                               importe_excento::numeric,
+                               coalesce(complemento,'''') complemento,
+                               coalesce(importe_iehd,0.00) importe_iehd,
+                               coalesce(importe_ipj,0.00) importe_ipj,
+                               coalesce(importe_tasas,0.00) importe_tasas,
+                               coalesce(importe_gift_card,0.00) importe_gift_card,
+                               coalesce(importe_it,0) importe_it
                         FROM '||v_tabla_origen||' lcv
                         where  lcv.tipo = '''||v_tipo||'''
                                and id_moneda = '||param.f_get_moneda_base()||'
@@ -1856,7 +1862,13 @@ BEGIN
                                 case when (coalesce(codigo_control,''''0''''))::varchar = ''''NULL''''  then ''''0'''' else (coalesce(codigo_control,''''0''''))::varchar end  codigo_control,
                                 (coalesce(tipo_factura,''''''''))::varchar tipo_factura,
                                 id_origen,
-                                sistema_origen
+                                sistema_origen,
+                                complemento_nit,
+                                importe_ice,
+                                importe_iehd,
+                                importe_ipj,
+                                importe_gift_card,
+                                tipo_de_venta
                         from sfe.tfactura tfa
                         where '||v_boletos_filtro||' and tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.estado_reg = ''''activo''''
                         order by tfa.fecha_factura asc --limit 100';
@@ -1934,7 +1946,13 @@ BEGIN
                                         else fac.codigo_control end ) codigo_control,
                                         fac.tipo_factura,
                                         fac.id_origen,
-                                        fac.sistema_origen
+                                        fac.sistema_origen,
+                                        coalesce(fac.complemento_nit,'''') complemento_nit,
+                                        fac.importe_ice,
+                                        fac.importe_iehd,
+                                        fac.importe_ipj,
+                                        fac.importe_gift_card,
+                                        fac.tipo_de_venta
 
                                  from dblink(''' || v_cadena_factura || ''', '''|| v_consulta ||''') as
                             		fac(
@@ -1956,7 +1974,13 @@ BEGIN
                                         codigo_control varchar,
                                         tipo_factura varchar,
                                         id_origen integer,
-                                        sistema_origen varchar
+                                        sistema_origen varchar,
+                                        complemento_nit varchar,
+                                        importe_ice numeric,
+                                        importe_iehd numeric,
+                                        importe_ipj numeric,
+                                        importe_gift_card numeric,
+                                        tipo_de_venta integer
                                     ) where case when (('||date_part('month',v_fecha_ini)||'=1 and '||date_part('year',v_fecha_ini)||'=2021) or ('||date_part('month',v_fecha_fin)||'=1 and '||date_part('year',v_fecha_fin)||'=2021)) then 0=0 else fac.nro_factura not in (
                                     select nro_boleto from vef.tboletos_asociados_fact tba
                                     inner join vef.tventa tv on tv.id_venta = tba.id_venta
@@ -2766,7 +2790,7 @@ BEGIN
                                 desc_ruta,
                                 tipo_ruta
                         from sfe.tfactura tfa
-                        where '||v_boletos_filtro||' and tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.estado_reg = ''''activo''''
+                        where '||v_boletos_filtro||' and tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.estado_reg = ''''activo'''' and trim(estado) not in (''''ANULADA'''', ''''NO UTILIZADA'''')
                         order by tfa.fecha_factura asc --limit 100';
 
 
@@ -2846,9 +2870,12 @@ BEGIN
                                         (case when fac.sistema_origen = ''STAGE DB'' then fac.desc_ruta
                                               else '''' end) desc_ruta,
 
-                                        (case when fac.sistema_origen = ''STAGE DB'' then fac.tipo_ruta
-                                        	  when fac.sistema_origen = ''CARGA'' then (case when fac.desc_ruta like ''%NACIONAL%'' then ''N'' else ''I'' end)
-                                              else ''N'' end) tipo_ruta
+                                        (case when fac.sistema_origen = ''STAGE DB'' then (case when fac.tipo_ruta is not null then fac.tipo_ruta else ''N/E/B'' end)
+                                        when fac.sistema_origen = ''CARGA'' and fac.desc_ruta is null then conta.f_get_tipo_ruta(fac.sistema_origen, fac.id_origen)
+                                        when fac.sistema_origen = ''CARGA'' and fac.desc_ruta is not null then (case when fac.desc_ruta like ''%INTERNACIONAL%'' then ''I'' else ''N'' end)
+                                        when fac.sistema_origen = ''ERP'' then conta.f_get_tipo_ruta(fac.sistema_origen, fac.id_origen)
+										else ''N/E/E'' end) tipo_ruta
+
 
 
                                  from dblink(''' || v_cadena_factura || ''', '''|| v_consulta ||''') as

@@ -46,14 +46,14 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: '<b>Regularizar Comprobantes</b><br/>Seleccione un comprobante y valida comprobante a la central'
             });
 
-            this.addButton('desvalidar', {
+            /*this.addButton('desvalidar', {
                 text: 'Desvalidar CBTE',
                 iconCls: 'bgear',
                 disabled: false,
                 handler: this.desvalidarCBTE,
                 scope: this,
                 tooltip: '<b>Desvalidar Comprobante</b><br/>Seleccione un comprobante para desvalidar.'
-            });
+            });*/
 
 
             this.init();
