@@ -57,6 +57,8 @@ DECLARE
     v_filtro_correccion	varchar;
 
     v_boletos_filtro    varchar = '';
+
+    v_filtro_lc			varchar = '';
 BEGIN
 
 	v_nombre_funcion = 'conta.ft_doc_compra_venta_sel';
@@ -581,11 +583,19 @@ BEGIN
            END IF;
 
 
-          IF v_parametros.tipo_lcv in  ('lcv_compras','lce_siat')  THEN
+          IF v_parametros.tipo_lcv in  ('lcv_compras','lce_siat','lc_on_siat', 'lc_es_on_siat')  THEN
               v_tipo = 'compra';
           ELSE
               v_tipo = 'venta';
           END IF;
+
+          if v_parametros.tipo_lcv = 'lce_siat' then
+          	v_filtro_lc = ' and length(lcv.nro_autorizacion) < 23 ';
+          elsif v_parametros.tipo_lcv  = 'lc_on_siat' then
+          	v_filtro_lc = ' and length(lcv.nro_autorizacion) > 23 ';
+          elsif v_parametros.tipo_lcv  = 'lc_es_on_siat' then
+          	v_filtro_lc = ' ';
+          end if;
 
           --Sentencia de la consulta
 		  v_consulta:='SELECT id_doc_compra_venta::BIGINT,
@@ -617,15 +627,16 @@ BEGIN
                                sujeto_df::numeric,
                                importe_ice::numeric,
                                importe_excento::numeric,
-                               coalesce(complemento,'''') complemento,
+                               coalesce(otro_no_sujeto_credito_fiscal,0.00) otro_no_sujeto_credito_fiscal,
                                coalesce(importe_iehd,0.00) importe_iehd,
                                coalesce(importe_ipj,0.00) importe_ipj,
                                coalesce(importe_tasas,0.00) importe_tasas,
                                coalesce(importe_gift_card,0.00) importe_gift_card,
-                               coalesce(importe_it,0) importe_it
+                               coalesce(importe_it,0) importe_it,
+                               coalesce(importe_compras_gravadas_tasa_cero,0.00) importe_compras_gravadas_tasa_cero
                         FROM '||v_tabla_origen||' lcv
                         where  lcv.tipo = '''||v_tipo||'''
-                               and id_moneda = '||param.f_get_moneda_base()||'
+                               and id_moneda = '||param.f_get_moneda_base()||v_filtro_lc||'
                                and '||v_filtro||'
                         order by fecha, id_doc_compra_venta';
 

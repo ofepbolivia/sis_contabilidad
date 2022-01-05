@@ -1434,12 +1434,13 @@ class MODDocCompraVenta extends MODbase
         $this->captura('importe_ice', 'NUMERIC');
         $this->captura('importe_excento', 'NUMERIC');
 
-        $this->captura('complemento', 'varchar');
+        $this->captura('otro_no_sujeto_credito_fiscal', 'NUMERIC');
         $this->captura('importe_iehd', 'NUMERIC');
         $this->captura('importe_ipj', 'NUMERIC');
         $this->captura('importe_tasas', 'NUMERIC');
         $this->captura('importe_gift_card', 'NUMERIC');
         $this->captura('importe_it', 'NUMERIC');
+        $this->captura('importe_compras_gravadas_tasa_cero', 'NUMERIC');
 
 
         //Ejecuta la instruccion

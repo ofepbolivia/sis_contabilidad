@@ -91,6 +91,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     selectOnFocus:true,
                     mode:'local',
                     msgTarget: 'side',
+                    editable:false,
                     store:new Ext.data.ArrayStore({
                         fields: ['ID', 'valor'],
                         data :	[
@@ -101,8 +102,10 @@ header("content-type: text/javascript; charset=UTF-8");
                             ['lvncd','Libro de Ventas Notas Credito-Debito'],
                             ['repo_iata', 'Iata'],
                             ['repo_ing_gravado', 'Reporte Ingresos Gravados (IT)'],
-                            ['lce_siat', '<b style="color : #00B167;">Libro de Compras Estandar SIAT</b>'],
-                            ['lve_siat', '<b style="color : #FF8F85;">Libro de Ventas Estandar SIAT</b>']
+                            ['lce_siat', '<b style="color : #00B167;">Registro de Compras Estandar SIAT</b>'],
+                            ['lve_siat', '<b style="color : #00B167;">Registro de Ventas Estandar SIAT</b>'],
+                            ['lc_on_siat', '<b style="color : #FF8F85;">Registro de Compras Online SIAT</b>'],
+                            ['lc_es_on_siat', '<b style="color : #4682B4;">Registro de Compras Estandar,Online SIAT</b>']
                         ]
                     }),
                     valueField:'ID',

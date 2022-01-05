@@ -315,7 +315,8 @@ class ACTDocCompraVentaForm extends ACTbase{
 
         if($this->objParam->getParametro('formato_reporte') == 'xls'){
 
-        	if( $this->objParam->getParametro('tipo_lcv') != 'lce_siat' && $this->objParam->getParametro('tipo_lcv') != 'lve_siat' ) {
+			$array_tipo = array('lce_siat','lve_siat','lc_on_siat','lv_on_siat','lc_es_on_siat','lv_es_on_siat');
+        	if( !in_array( $this->objParam->getParametro('tipo_lcv'), $array_tipo) ) {
 
 				if ('lcncd' != $this->objParam->getParametro('tipo_lcv')) {
 					$this->objFun = $this->create('MODDocCompraVenta');
@@ -339,13 +340,13 @@ class ACTDocCompraVentaForm extends ACTbase{
 					//obtener titulo de reporte
 					if ('lcv_ventas' == $this->objParam->getParametro('tipo_lcv')) {
 						$titulo = 'LibroVentasEstandar';
+						$nombreArchivo = uniqid('LibroVentasEstandar') . '.xls';
 					} else {
 						$titulo = 'Lcv';
+						$nombreArchivo = uniqid('LibroComprasEstandar') . '.xls';
 					}
 					//Genera el nombre del archivo (aleatorio + titulo)
 					//$nombreArchivo=uniqid(md5(session_id()).$titulo);
-					$nombreArchivo = uniqid('LibroVentasEstandar') . '.xls';
-					//$nombreArchivo.='.xls';
 
 					$this->objParam->addParametro('nombre_archivo', $nombreArchivo);
 					$this->objParam->addParametro('datos', $this->res->datos);
@@ -493,9 +494,9 @@ class ACTDocCompraVentaForm extends ACTbase{
 				$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 
 			}else{
-
-				if ($this->objParam->getParametro('tipo_lcv') == 'lce_siat') {
-					$nombreArchivo = uniqid('LibroComprasEstandarSiat') . '.xls';
+				$tipo_libro = $this->objParam->getParametro('tipo_lcv');
+				if ( $tipo_libro == 'lce_siat' || $tipo_libro == 'lc_on_siat' || $tipo_libro == 'lc_es_on_siat' ) {
+					$nombreArchivo = uniqid('RegistroComprasEstandarSiat') . '.xls';
 
 					$dataSource = $this->recuperarDatosLCV();
 					$this->objParam->addParametro('nombre_archivo', $nombreArchivo);
@@ -511,8 +512,8 @@ class ACTDocCompraVentaForm extends ACTbase{
 					$this->objReporteFormato->imprimeDatos();
 					$url_file_xls = $this->objReporteFormato->generarReporte();
 
-				} else if ($this->objParam->getParametro('tipo_lcv') == 'lve_siat') {
-					$nombreArchivo = uniqid('LibroVentasEstandarSiat') . '.xls';
+				} else if ( $tipo_libro == 'lve_siat' || $tipo_libro == 'lv_on_siat' || $tipo_libro == 'lv_es_on_siat' ) {
+					$nombreArchivo = uniqid('RegistroVentasEstandarSiat') . '.xls';
 
 					$this->objFunc = $this->create('MODDocCompraVenta');
 					$dataSource = $this->objFunc->listarRepLibroVentas($this->objParam);
@@ -541,64 +542,81 @@ class ACTDocCompraVentaForm extends ACTbase{
         }
         if($this->objParam->getParametro('formato_reporte')!='pdf' && $this->objParam->getParametro('formato_reporte')!='xls'){
 
-            if( 'lcncd' != $this->objParam->getParametro('tipo_lcv') ) {
+			if( $this->objParam->getParametro('tipo_lcv') != 'lce_siat' && $this->objParam->getParametro('tipo_lcv') != 'lve_siat' ) {
+				if ('lcncd' != $this->objParam->getParametro('tipo_lcv')) {
 
-                if( 'lcv_ventas' == $this->objParam->getParametro('tipo_lcv') ) {
+					if ('lcv_ventas' == $this->objParam->getParametro('tipo_lcv')) {
 
-                    $this->objFunc = $this->create('MODDocCompraVenta');
-                    $this->res = $this->objFunc->listarRepLibroVentas($this->objParam);
+						$this->objFunc = $this->create('MODDocCompraVenta');
+						$this->res = $this->objFunc->listarRepLibroVentas($this->objParam);
 
-                    if($this->res->getTipo()=='ERROR'){
-                        $this->res->imprimirRespuesta($this->res->generarJson());
-                        exit;
-                    }
+						if ($this->res->getTipo() == 'ERROR') {
+							$this->res->imprimirRespuesta($this->res->generarJson());
+							exit;
+						}
 
-                    $nombreArchivo = $this->crearArchivoExportacionLibroVenta($this->res, $this->objParam);
+						$nombreArchivo = $this->crearArchivoExportacionLibroVenta($this->res, $this->objParam);
 
-                    $this->mensajeExito=new Mensaje();
-                    $this->mensajeExito->setMensaje('EXITO','Reporte.php','Se genero con exito el archivo Libro de Ventas'.$nombreArchivo,
-                        'Se genero con exito el archivo Libro de Ventas'.$nombreArchivo,'control');
-                    $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+						$this->mensajeExito = new Mensaje();
+						$this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Se genero con exito el archivo Libro de Ventas' . $nombreArchivo,
+							'Se genero con exito el archivo Libro de Ventas' . $nombreArchivo, 'control');
+						$this->mensajeExito->setArchivoGenerado($nombreArchivo);
 
-                    $this->res->imprimirRespuesta($this->mensajeExito->generarJson());
+						$this->res->imprimirRespuesta($this->mensajeExito->generarJson());
 
-                } else if ('lvncd' == $this->objParam->getParametro('tipo_lcv') ){
+					} else if ('lvncd' == $this->objParam->getParametro('tipo_lcv')) {
 
 
+						$this->objFunc = $this->create('MODDocCompraVenta');
+						$this->res = $this->objFunc->reporteLibroVentaNCD($this->objParam);
+						$this->datos = $this->res->getDatos();
 
-					$this->objFunc 	= $this->create('MODDocCompraVenta');
-					$this->res 		= $this->objFunc->reporteLibroVentaNCD($this->objParam);
-					$this->datos 	= $this->res->getDatos();
+						$nombreArchivo = $this->crearArchivoTXT_CSV($this->datos, $this->objParam);
+
+						$this->mensajeExito = new Mensaje();
+						$this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Se genero con exito el archivo LV ' . $nombreArchivo, 'Se genero con exito el archivo Libro Ventas ' . $nombreArchivo, 'control');
+						$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+						$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+					} /**breydi.vasquez*/
+					else if ('repo_iata' == $this->objParam->getParametro('tipo_lcv')) {
+						$this->reporteIata();
+					} /***/
+					else {
+						$this->exportarTxtLcvLCV();
+					}
+				} else {
+					$this->objFunc = $this->create('MODDocCompraVenta');
+					$this->res = $this->objFunc->reporteLibroCompraNCD($this->objParam);
+					$this->datos = $this->res->getDatos();
 
 					$nombreArchivo = $this->crearArchivoTXT_CSV($this->datos, $this->objParam);
 
-					$this->mensajeExito=new Mensaje();
-					$this->mensajeExito->setMensaje('EXITO','Reporte.php','Se genero con exito el archivo LV '.$nombreArchivo, 'Se genero con exito el archivo Libro Ventas '.$nombreArchivo,'control');
+					$this->mensajeExito = new Mensaje();
+					$this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Se genero con exito el archivo LCV ' . $nombreArchivo, 'Se genero con exito el archivo LCV ' . $nombreArchivo, 'control');
 					$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+
 					$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 				}
-								/**breydi.vasquez*/
-								else if('repo_iata' == $this->objParam->getParametro('tipo_lcv') ){
-												$this->reporteIata();
-								}
-								/***/
-								else{
-                    $this->exportarTxtLcvLCV();
-                }
-            }else{
-                $this->objFunc = $this->create('MODDocCompraVenta');
-                $this->res = $this->objFunc->reporteLibroCompraNCD($this->objParam);
-                $this->datos = $this->res->getDatos();
+			}else{
 
-                $nombreArchivo = $this->crearArchivoTXT_CSV($this->datos, $this->objParam);
+				if ($this->objParam->getParametro('tipo_lcv') == 'lce_siat') {
+					$this->res = $this->recuperarDatosLCV();
+					$nombreArchivo = $this->crearLibroVentaSiatTXT($this->res, $this->objParam);
+				} else if ($this->objParam->getParametro('tipo_lcv') == 'lve_siat') {
+					$this->objFunc = $this->create('MODDocCompraVenta');
+					$this->res = $this->objFunc->listarRepLibroVentas($this->objParam);
+					$nombreArchivo = $this->crearLibroVentaSiatTXT($this->res, $this->objParam);
+				}
 
-                $this->mensajeExito=new Mensaje();
-                $this->mensajeExito->setMensaje('EXITO','Reporte.php','Se genero con exito el archivo LCV '.$nombreArchivo, 'Se genero con exito el archivo LCV '.$nombreArchivo,'control');
-                $this->mensajeExito->setArchivoGenerado($nombreArchivo);
 
-                $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
-            }
 
+				$this->mensajeExito = new Mensaje();
+				$this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Se genero con exito el archivo Libro de Ventas' . $nombreArchivo,
+					'Se genero con exito el archivo Libro de Ventas' . $nombreArchivo, 'control');
+				$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+
+				$this->res->imprimirRespuesta($this->mensajeExito->generarJson());
+			}
         }
     }
 
@@ -1185,6 +1203,219 @@ class ACTDocCompraVentaForm extends ACTbase{
 			 $ctd = $ctd + 1;
             $row_counter ++;
          } //end for
+
+
+
+		fclose($file);
+		return $fileName;
+	}
+
+	function crearLibroVentaSiatTXT($res, $Obj){
+
+		$separador = '|';
+		if($this->objParam->getParametro('formato_reporte') =='txt'){
+			$separador = "|";
+			$ext = '.txt';
+		}else{
+			$separador = "|";
+			$ext = '.csv';
+		}
+
+
+		/*******************************
+		 *  FORMATEA NOMBRE DE ARCHIVO
+		 * compras_MMAAAA_NIT.txt
+		 * o
+		 * ventas_MMAAAA_NIT.txt
+		 *
+		 * ********************************/
+
+		$dataEntidad = $this->recuperarDatosEntidad();
+		$dataEntidadArray = $dataEntidad->getDatos();
+		$NIT = 	$dataEntidadArray['nit'];
+
+		if($this->objParam->getParametro('filtro_sql')=='periodo'){
+			$dataPeriodo = $this->recuperarDatosPeriodo();
+			$dataPeriodoArray = $dataPeriodo->getDatos();
+			$sufijo = $dataPeriodoArray['periodo'].$dataPeriodoArray['gestion'];
+		}
+		else{
+			$sufijo=$this->objParam->getParametro('fecha_ini').'_'.$this->objParam->getParametro('fecha_fin');
+		}
+
+
+
+		$nombre = 'ventas_'.$sufijo.'_'.$NIT;
+
+
+		$nombre=str_replace("/", "", $nombre);
+
+		//var_dump('$sufijo', $sufijo, $NIT, $nombre);exit;
+
+		$data = $res -> getDatos(); //var_dump('$data', $data);exit;
+
+		$lista= [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60];
+
+		$fileName = $nombre.$ext;
+		//create file
+		$file = fopen("../../../reportes_generados/$fileName","w+");
+		$ctd = 1;
+
+		if($this->objParam->getParametro('formato_reporte') !='txt'){
+			//AÑADE EL BOMM PARA NO TENER PROBLEMAS AL LEER DE APLICACIONES EXTERNAS
+			fwrite($file, pack("CCC",0xef,0xbb,0xbf));
+		}
+
+
+
+
+		/******************************
+		 *  IMPRIME CABECERA PARA CSV
+		 *****************************/
+		if($this->objParam->getParametro('formato_reporte') !='txt') {
+
+
+			fwrite ($file,  "-".$separador.
+				'N#'.$separador.
+				'FECHA DE LA FACTURA'.$separador.
+				'N° DE LA FACTURA'.$separador.
+				'N° DE AUTORIZACION'.$separador.
+				'ESTADO'.$separador.
+				'NIT/CI CLIENTE'.$separador.
+				'NOMBRE O RAZON SOCIAL'.$separador.
+				"IMPORTE TOTAL DE LA VENTA A".$separador.
+				"IMPORTE ICE/ IEHD/ TASAS B".$separador.
+				"EXPORTACION Y OPERACIONES EXENTAS C".$separador.
+				"VENTAS GRAVADAS TASA CERO D".$separador.
+				"SUBTOTAL E = A-B-C-D".$separador.
+				"DESCUENTOS BONOS Y REBAJAS SUJETAS AL IVA F".$separador.
+				"IMPORTE BASE DEBITO FISCAL G = E-F".$separador.
+				"DEBITO FISCAL H = G*13%".$separador.
+				'CODIGO DE CONTROL'."\r\n");
+
+		}
+
+		/*if($this->objParam->getParametro('formato_reporte') == 'txt') {
+
+
+            fwrite ($file,  "BOLIVIANA DE AVIACION (BoA)".$this->tabulacion(5).
+                'LIBRO DE VENTAS'.$this->tabulacion(5).
+                'Pagina: '."\r\n");
+
+            fwrite ($file,  "                           ".$this->tabulacion(5).
+                "   ESTANDAR"."\r\n");
+
+            fwrite ($file,  "------------------------------------------------------------------------------------------------------------------------------------"."\r\n");
+
+            fwrite ($file,  "              Periodo: ".$this->tabulacion(2).$dataPeriodoArray['gestion']."\t".$dataPeriodoArray['periodo']."\r\n");
+
+            fwrite ($file,  "Nombre o Razón Social: \t".$dataEntidadArray['nombre'].$this->tabulacion(1)."NIT: ".$dataEntidadArray['nit'].$this->tabulacion(2)."EXPRESADO EN BOLIVIANOS"."\r\n");
+
+            fwrite ($file,  "------------------------------------------------------------------------------------------------------------------------------------"."\r\n");
+
+            //fwrite($file, html_entity_decode())
+
+            fwrite ($file,  "Nro. ".$this->tabulacion(0).
+                "FECHA DE LA ".$this->tabulacion(0).
+                "Nro. DE LA ".$this->tabulacion(0).
+                "Nro. DE ".$this->tabulacion(0).
+                "ESTADO ".$this->tabulacion(0).
+                "NOMBRE O RAZON SOCIAL ".$this->tabulacion(0).
+                "IMPORTE TOTAL ".$this->tabulacion(0).
+                "IMPORTE ICE/IEHD ".$this->tabulacion(0).
+                "EXPORT. ".$this->tabulacion(0).
+                "V-GRAVADAS ".$this->tabulacion(0).
+                "\r\n");
+        }*/
+
+		$row_counter = 1;
+
+		/**************************
+		 *  IMPRIME CUERPO
+		 **************************/
+
+		foreach ($data as $val) {
+
+			$subtotal = round($val['importe_total_venta'] - $val['importe_otros_no_suj_iva'] - $val['exportacion_excentas'] - $val['ventas_tasa_cero'], 2);
+			$importe_debito = round($subtotal - $val['descuento_rebaja_suj_iva'], 2);
+			$debito_fiscal = round($importe_debito * 0.13,2);
+			$newDate = date("d/m/Y", strtotime( $val['fecha_factura']));
+			$codigo_control = $val['codigo_control']==null || $val['codigo_control']==NULL || $val['codigo_control'] == ''?'0':$val['codigo_control'];
+			/*if ($this->objParam->getParametro('formato_reporte') == 'txt' && $row_counter <= 34){
+                fwrite ($file,  $ctd.
+                    "    ".$newDate." ".
+                    " ".$val['nro_factura']." ".
+                    $val['nro_autorizacion']." ".
+                    $val['estado']." ".
+                    $val['razon_social_cli']." ".
+                    $val['importe_total_venta']." ".
+                    $val['importe_otros_no_suj_iva']." ".
+                    $val['exportacion_excentas']." ".
+                    $val['ventas_tasa_cero'].
+                    "\r\n");
+            }else {*/
+			fwrite($file, "3" . $separador .
+				$ctd . $separador .
+				$newDate . $separador .
+				$val['nro_factura'] . $separador .
+				$val['nro_autorizacion'] . $separador .
+				$val['estado'] . $separador .
+				$val['nit_ci_cli'] . $separador .
+				$val['razon_social_cli'] . $separador .
+
+				$val['importe_total_venta'] . $separador .
+				$val['importe_otros_no_suj_iva'] . $separador .
+				$val['exportacion_excentas'] . $separador .
+				$val['ventas_tasa_cero'] . $separador .
+
+				$subtotal . $separador .
+				$val['descuento_rebaja_suj_iva'] . $separador .
+				$importe_debito . $separador .
+				$debito_fiscal . $separador .
+				$codigo_control . "\r\n");
+			//}
+			/*if(in_array($row_counter/34,$lista)){
+                fwrite ($file,  "------------------------------------------------------------------------------------------------------------------------------------"."\r\n\n\n\n\n");
+                $row_counter = 38;
+            }
+
+            if(in_array($row_counter/38,$lista)){
+
+                fwrite ($file,  "BOLIVIANA DE AVIACION (BoA)".$this->tabulacion(5).
+                    'LIBRO DE VENTAS'.$this->tabulacion(5).
+                    'Pagina: '."\r\n");
+
+                fwrite ($file,  "                           ".$this->tabulacion(5).
+                    "   ESTANDAR"."\r\n");
+
+                fwrite ($file,  "------------------------------------------------------------------------------------------------------------------------------------"."\r\n");
+
+                fwrite ($file,  "              Periodo: ".$this->tabulacion(2).$dataPeriodoArray['gestion']."\t".$dataPeriodoArray['periodo']."\r\n");
+
+                fwrite ($file,  "Nombre o Razón Social: \t".$dataEntidadArray['nombre'].$this->tabulacion(1)."NIT: ".$dataEntidadArray['nit'].$this->tabulacion(2)."EXPRESADO EN BOLIVIANOS"."\r\n");
+
+                fwrite ($file,  "------------------------------------------------------------------------------------------------------------------------------------"."\r\n");
+
+                //fwrite($file, html_entity_decode())
+
+                fwrite ($file,  "Nro. ".$this->tabulacion(0).
+                    "FECHA DE LA ".$this->tabulacion(0).
+                    "Nro. DE LA ".$this->tabulacion(0).
+                    "Nro. DE ".$this->tabulacion(0).
+                    "ESTADO ".$this->tabulacion(0).
+                    "NOMBRE O RAZON SOCIAL ".$this->tabulacion(0).
+                    "IMPORTE TOTAL ".$this->tabulacion(0).
+                    "IMPORTE ICE/IEHD ".$this->tabulacion(0).
+                    "EXPORT. ".$this->tabulacion(0).
+                    "V-GRAVADAS ".$this->tabulacion(0).
+                    "\r\n");
+
+                $row_counter = 1;
+
+            }*/
+			$ctd = $ctd + 1;
+			$row_counter ++;
+		} //end for
 
 
 
