@@ -40,6 +40,7 @@ $body$
       v_password	varchar;
       v_consulta	varchar;
       v_res_cone	varchar;
+      v_gestion_rec		varchar;
       /***************************************/
   BEGIN
 
@@ -59,10 +60,19 @@ $body$
             /*Si el departamento es de Contabilidad Central entonces hacemos la conexion para mandar el estado*/
              if (v_codigo_depto = 'CON') then
 
+
+             select ges.gestion
+             into
+             v_gestion_rec
+             from conta.tperiodo_compra_venta pv
+             inner join param.tperiodo per on per.id_periodo = pv.id_periodo
+             inner join param.tgestion ges on ges.id_gestion = per.id_gestion
+             where pv.id_periodo_compra_venta = new.id_periodo_compra_venta;
+
              /*Aqui para hacer conexion con el usuario Encargado*/
              v_host=pxp.f_get_variable_global('sincroniza_ip_facturacion');
              v_puerto=pxp.f_get_variable_global('sincroniza_puerto_facturacion');
-             v_dbname=pxp.f_get_variable_global('sincronizar_base_facturacion');
+             v_dbname='db_facturas_'||v_gestion_rec;
 
              select  usu.cuenta,
                      usu.contrasena
