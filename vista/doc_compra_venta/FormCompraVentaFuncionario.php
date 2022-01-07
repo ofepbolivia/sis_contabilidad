@@ -14,12 +14,12 @@ header("content-type: text/javascript; charset=UTF-8");
         tam_pag: 10,
         tabEnter: true,
         codigoSistema: 'ADQ',
-        mostrarFormaPago: true,
+        mostrarFormaPago: false, //06-01-2022 (may) false porque se quita los campos para esta interfaz
         mostrarPartidas: false,
         regitrarDetalle: 'si',
         id_moneda_defecto: 0,  // 0 quiere decir todas las monedas
         layout: 'fit',
-        autoScroll: false,
+        autoScroll: true,
         breset: false,
         heightHeader: 290,
         conceptos_eliminados: [],
@@ -885,7 +885,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                 fields: ['id_plantilla', 'nro_linea', 'desc_plantilla', 'tipo',
                                     'sw_tesoro', 'sw_compro', 'sw_monto_excento', 'sw_descuento',
                                     'sw_autorizacion', 'sw_codigo_control', 'tipo_plantilla', 'sw_nro_dui', 'sw_ic', 'tipo_excento', 'valor_excento', 'sw_qr', 'sw_nit', 'plantilla_qr',
-                                    'sw_estacion', 'sw_punto_venta', 'sw_codigo_no_iata'],
+                                    'sw_estacion', 'sw_punto_venta', 'sw_codigo_no_iata', 'importe_iehd', 'importe_ipj', 'importe_tasas', 'importe_gift_card', 'otro_no_sujeto_credito_fiscal', 'importe_compras_gravadas_tasa_cero'],
                                 remoteSort: true,
                                 baseParams: {par_filtro: 'plt.desc_plantilla', sw_compro: 'si', sw_tesoro: 'si'}
                             }),
@@ -1319,6 +1319,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         fieldLabel: 'Descuento',
                         allowBlank: true,
                         allowNegative: false,
+                        qtip: 'Importe de los descuentos, bonificaciones y rebajas obtenidas.',
                         anchor: '80%',
                         gwidth: 100,
                         style: 'margin: 1px',
@@ -1327,23 +1328,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 2,
                     form: true
                 },
-                {
-                    config: {
-                        name: 'importe_neto',
-                        qtip: 'Importe del documento menos descuentos, sobre este monto se calcula el iva',
-                        fieldLabel: 'Monto Neto',
-                        allowBlank: false,
-                        allowNegative: false,
-                        readOnly: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 1179650,
-                        style: 'margin: 1px',
-                    },
-                    type: 'NumberField',
-                    id_grupo: 2,
-                    form: true
-                },
+
                 {
                     config: {
                         name: 'importe_excento',
@@ -1452,21 +1437,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 2,
                     form: true
                 },
-                {
-                    config: {
-                        name: 'importe_iva',
-                        fieldLabel: 'IVA',
-                        allowBlank: true,
-                        readOnly: true,
-                        allowNegative: false,
-                        anchor: '80%',
-                        gwidth: 100,
-                        style: 'margin: 1px',
-                    },
-                    type: 'NumberField',
-                    id_grupo: 2,
-                    form: true
-                },
+
                 {
                     config: {
                         name: 'importe_it',
@@ -1475,6 +1446,129 @@ header("content-type: text/javascript; charset=UTF-8");
                         allowNegative: false,
                         anchor: '80%',
                         readOnly: true,
+                        gwidth: 100,
+                        style: 'margin: 1px',
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+
+                {
+                    config: {
+                        name: 'importe_iehd',
+                        fieldLabel: 'Importe IEHD',
+                        allowBlank: true,
+                        allowNegative: false,
+                        qtip: 'Importe del IEHD, no esta sujeto al IVA.',
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'importe_ipj',
+                        fieldLabel: 'Importe IPJ',
+                        allowBlank: true,
+                        allowNegative: false,
+                        qtip: 'Importe del IPJ, no esta sujeto al IVA.',
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'importe_tasas',
+                        fieldLabel: 'Tasas',
+                        allowBlank: true,
+                        allowNegative: false,
+                        qtip: 'Importe de la tasa, consignada en la factura de compra no está sujeto al IVA.',
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'importe_gift_card',
+                        fieldLabel: 'Importe Gift Card',
+                        allowBlank: true,
+                        allowNegative: false,
+                        qtip: ' Importe de la Gift Card.',
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'otro_no_sujeto_credito_fiscal',
+                        fieldLabel: 'Otro No Sujeto A Credito Fiscal',
+                        allowBlank: true,
+                        allowNegative: false,
+                        qtip: 'Importe otro No Sujeto A Credito Fiscal.',
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'importe_compras_gravadas_tasa_cero',
+                        fieldLabel: 'Importe Compras Gravadas Tasa Cero',
+                        allowBlank: true,
+                        allowNegative: false,
+                        qtip: 'Importe Compras Gravadas Tasa Cero',
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'importe_neto',
+                        qtip: 'Importe del documento menos descuentos, sobre este monto se calcula el iva',
+                        fieldLabel: 'Monto Neto',
+                        allowBlank: false,
+                        allowNegative: false,
+                        readOnly: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650,
+                        style: 'margin: 1px',
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'importe_iva',
+                        fieldLabel: 'IVA',
+                        allowBlank: true,
+                        readOnly: true,
+                        allowNegative: false,
+                        anchor: '80%',
                         gwidth: 100,
                         style: 'margin: 1px',
                     },
@@ -1532,6 +1626,9 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         title: 'Frm solicitud',
         iniciarEventos: function () {
+
+
+            this.ocultarComponente(this.Cmp.importe_descuento);
 
             this.Cmp.dia.on('change', function (cmp, newValue, oldValue) {
                 var dia = newValue > 9 ? newValue : '0' + newValue,
@@ -1597,14 +1694,16 @@ header("content-type: text/javascript; charset=UTF-8");
                 console.log('ehhh pues eh llegado', rec.data);
                 console.log('id_plantilla ' + rec);
                 this.esconderImportes();
+
                 //si es el formulario para nuevo reseteamos los valores ...
                 if (this.accionFormulario == 'NEW') {
 
-                    this.iniciarImportes();
                     this.Cmp.importe_excento.reset();
                     this.Cmp.nro_autorizacion.reset();
                     this.Cmp.codigo_control.reset();
                     this.Cmp.importe_descuento.reset();
+
+                    this.iniciarImportes();
 
                 }
                 else {
@@ -1729,665 +1828,739 @@ header("content-type: text/javascript; charset=UTF-8");
                     }
                 }, this);
 
-            }, this);
 
-            this.Cmp.importe_doc.on('change', this.calculaMontoPago, this);
-            this.Cmp.importe_excento.on('change', this.calculaMontoPago, this);
-            this.Cmp.importe_descuento.on('change', this.calculaMontoPago, this);
-            this.Cmp.importe_descuento_ley.on('change', this.calculaMontoPago, this);
+                if (rec.data.importe_iehd == 'si') {
+                    this.mostrarComponente(this.Cmp.importe_iehd);
+                } else {
+                    this.ocultarComponente(this.Cmp.importe_iehd);
+                    this.Cmp.importe_iehd.setValue(0);
+                }
+                if (rec.data.importe_ipj == 'si') {
+                    this.mostrarComponente(this.Cmp.importe_ipj);
+                } else {
+                    this.ocultarComponente(this.Cmp.importe_ipj);
+                    this.Cmp.importe_ipj.setValue(0);
+                }
+                if (rec.data.importe_tasas == 'si') {
+                    this.mostrarComponente(this.Cmp.importe_tasas);
+                } else {
+                    this.ocultarComponente(this.Cmp.importe_tasas);
+                    this.Cmp.importe_tasas.setValue(0);
+                }
+                if (rec.data.importe_gift_card == 'si') {
+                    this.mostrarComponente(this.Cmp.importe_gift_card);
+                } else {
+                    this.ocultarComponente(this.Cmp.importe_gift_card);
+                    this.Cmp.importe_gift_card.setValue(0);
+                }
+                if (rec.data.otro_no_sujeto_credito_fiscal == 'si') {
+                    this.mostrarComponente(this.Cmp.otro_no_sujeto_credito_fiscal);
+                } else {
+                    this.ocultarComponente(this.Cmp.otro_no_sujeto_credito_fiscal);
+                    this.Cmp.otro_no_sujeto_credito_fiscal.setValue(0);
+                }
+                if (rec.data.importe_compras_gravadas_tasa_cero == 'si') {
+                    this.mostrarComponente(this.Cmp.importe_compras_gravadas_tasa_cero);
+                } else {
+                    this.ocultarComponente(this.Cmp.importe_compras_gravadas_tasa_cero);
+                    this.Cmp.importe_compras_gravadas_tasa_cero.setValue(0);
+                }
 
-            this.Cmp.importe_pendiente.on('change', this.calculaMontoPago, this);
-            this.Cmp.importe_anticipo.on('change', this.calculaMontoPago, this);
-            this.Cmp.importe_retgar.on('change', this.calculaMontoPago, this);
 
-            this.Cmp.tipo_cambio.on('change', this.calculaMontoPago, this);
 
+
+                }, this);
+
+                this.Cmp.importe_doc.on('change', this.calculaMontoPago, this);
+                this.Cmp.importe_excento.on('change', this.calculaMontoPago, this);
+                this.Cmp.importe_descuento.on('change', this.calculaMontoPago, this);
+                this.Cmp.importe_descuento_ley.on('change', this.calculaMontoPago, this);
+
+                this.Cmp.importe_pendiente.on('change', this.calculaMontoPago, this);
+                this.Cmp.importe_anticipo.on('change', this.calculaMontoPago, this);
+                this.Cmp.importe_retgar.on('change', this.calculaMontoPago, this);
+
+                this.Cmp.tipo_cambio.on('change', this.calculaMontoPago, this);
+
+            this.Cmp.importe_iehd.on('change', this.calculaMontoPago, this);
+            this.Cmp.importe_ipj.on('change', this.calculaMontoPago, this);
+            this.Cmp.importe_tasas.on('change', this.calculaMontoPago, this);
+            this.Cmp.importe_gift_card.on('change', this.calculaMontoPago, this);
+            this.Cmp.otro_no_sujeto_credito_fiscal.on('change', this.calculaMontoPago, this);
+            this.Cmp.importe_compras_gravadas_tasa_cero.on('change', this.calculaMontoPago, this);
 
             this.Cmp.nro_autorizacion.on('change', function (fild, newValue, oldValue) {
-                if (newValue[3] == '4' || newValue[3] == '8' || newValue[3] == '6') {
-                    this.mostrarComponente(this.Cmp.codigo_control);
-                    this.Cmp.codigo_control.allowBlank = false;
-                }
-                else {
-                    this.Cmp.codigo_control.allowBlank = true;
-                    this.Cmp.codigo_control.setValue('0');
-                    this.ocultarComponente(this.Cmp.codigo_control);
+                    if (newValue[3] == '4' || newValue[3] == '8' || newValue[3] == '6') {
+                        this.mostrarComponente(this.Cmp.codigo_control);
+                        this.Cmp.codigo_control.allowBlank = false;
+                    }
+                    else {
+                        this.Cmp.codigo_control.allowBlank = true;
+                        this.Cmp.codigo_control.setValue('0');
+                        this.ocultarComponente(this.Cmp.codigo_control);
 
-                }
-                ;
-				this.disableComponentes();
-            }, this);
+                    }
+                    ;
+                    this.disableComponentes();
+                }, this);
 
-            this.Cmp.codigo_control.on('keyup', function (cmp, e) {
-                //inserta guiones en codigo de contorl
-                var value = cmp.getValue(), tmp = '', tmp2 = '', sw = 0;
-                tmp = value.replace(/-/g, '');
-                for (var i = 0; i < tmp.length; i++) {
-                    tmp2 = tmp2 + tmp[i];
-                    if ((i + 1) % 2 == 0 && i != tmp.length - 1) {
-                        tmp2 = tmp2 + '-';
+                this.Cmp.codigo_control.on('keyup', function (cmp, e) {
+                    //inserta guiones en codigo de contorl
+                    var value = cmp.getValue(), tmp = '', tmp2 = '', sw = 0;
+                    tmp = value.replace(/-/g, '');
+                    for (var i = 0; i < tmp.length; i++) {
+                        tmp2 = tmp2 + tmp[i];
+                        if ((i + 1) % 2 == 0 && i != tmp.length - 1) {
+                            tmp2 = tmp2 + '-';
+                        }
+                    }
+                    cmp.setValue(tmp2.toUpperCase());
+                }, this);
+
+
+                this.Cmp.codigo_qr.on('specialkey', function (cmb, e) {
+
+                    if (e.getKey() == e.ENTER) {
+                        var res = cmb.getValue().split("|"),
+                            plt = this.plantilla_qr.split("|");
+
+                        console.log('........', res, plt);
+
+                        //if(res.length == 12) {
+
+                        for (var i = 0; i < plt.length; i++) {
+
+                            if (this.Cmp[plt[i]]) {
+
+                                if (plt[i] == 'importe_excento') {
+                                    var aux = 0;
+                                    if (this.Cmp[plt[i]].getValue()) {
+                                        aux = this.Cmp[plt[i]].getValue();
+                                    }
+                                    this.Cmp[plt[i]].setValue(res[i] + aux);
+                                    console.log(res[i], aux)
+                                }
+                                else {
+                                    this.Cmp[plt[i]].setValue(res[i]);
+                                }
+
+                                if (plt[i] == 'nit') {
+                                    this.cargarRazonSocial();
+                                }
+                                if (plt[i] == 'nro_documento') {
+                                    var nro_doc = Math.floor(res[1]);
+                                    this.getComponente('nro_documento').setValue(nro_doc);
+                                }
+                                if (plt[i] == 'importe_doc') {
+
+                                    var importe = this.controlMiles(res[4]);
+                                    this.getComponente('importe_doc').setValue(importe);
+
+                                }
+                                if (plt[i] == 'fecha') {
+
+                                    var mesPeriodo = this.data.tmpPeriodo > 9 ? this.data.tmpPeriodo : '0' + this.data.tmpPeriodo;
+                                    var fechaInt = this.data.tmpGestion + '-' + mesPeriodo + '-' + '30';
+                                    var mesPer = new Date(fechaInt).getMonth();
+                                    var mesFactura = res[3].split("/");
+                                    var fechaFac = mesFactura[2] + '-' + mesFactura[1] + '-' + mesFactura[0];
+                                    var mesFac = new Date(fechaFac).getMonth();
+                                    var monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Mayo",
+                                        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+                                    ];
+                                    var literalFactura = monthNames[mesFac];
+                                    var literalPeriodo = monthNames[mesPer];
+                                    if (mesFactura[1] != mesPeriodo) {
+                                        this.mensaje_('ALERTA', 'Actualmente se encuentra en el periodo: ' + literalPeriodo + ', la factura corresponde al periodo de: ' + literalFactura, 'ERROR');
+                                    }
+
+                                }
+
+                            }
+                            console.log(plt[i]);
+                        }
+                        // }
+                    }
+                    // else{
+                    // 	alert('la plantilla de array no se corresponde con el QR');
+                    //  }
+
+                    this.calculaMontoPago();
+
+
+                    //}
+
+
+                }, this);
+
+                this.Cmp.fecha_vencimiento.setReadOnly(false);
+
+            },
+
+            resetearMontos: function () {
+                this.Cmp.importe_doc.setValue(0);
+                this.Cmp.importe_neto.setValue(0);
+                this.Cmp.importe_pago_liquido.setValue(0);
+                this.iniciarImportes();
+            },
+
+            calculaMontoPago: function () {
+
+                var me = this,
+                    descuento_ley = 0.00;
+
+                if (this.Cmp.importe_descuento.getValue() > 0) {
+                    if (this.Cmp.importe_descuento.getValue() > this.Cmp.importe_doc.getValue()) {
+                        alert("el descuento no puede ser mayor que monto del documento");
+                        this.resetearMontos();
+                        return;
+                    }
+                    //(07-01-2022)
+                    //this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - this.Cmp.importe_descuento.getValue());
+                    this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - (this.Cmp.importe_descuento.getValue() + this.Cmp.importe_excento.getValue()
+                        + this.Cmp.importe_iehd.getValue() + this.Cmp.importe_ipj.getValue() + this.Cmp.importe_tasas.getValue()
+                        + this.Cmp.importe_gift_card.getValue() + this.Cmp.otro_no_sujeto_credito_fiscal.getValue()
+                        + this.Cmp.importe_compras_gravadas_tasa_cero.getValue()));
+                    this.Cmp.porc_descuento.setValue(this.Cmp.importe_descuento.getValue() / this.Cmp.importe_doc.getValue());
+
+
+                } else {
+                    //(07-01-2022)
+                    //this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue());
+                    this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - (this.Cmp.importe_iehd.getValue() + this.Cmp.importe_excento.getValue()
+                        + this.Cmp.importe_ipj.getValue() + this.Cmp.importe_tasas.getValue() + this.Cmp.importe_gift_card.getValue() + this.Cmp.otro_no_sujeto_credito_fiscal.getValue()
+                        + this.Cmp.importe_compras_gravadas_tasa_cero.getValue()));
+                    this.Cmp.porc_descuento.setValue(0);
+                }
+
+                var porc_descuento = this.Cmp.porc_descuento.getValue();
+
+
+
+                if (this.regitrarDetalle == 'si') {
+                    for (i = 0; i < me.megrid.store.getCount(); i++) {
+                        record = me.megrid.store.getAt(i);
+                        record.set('precio_total_final', record.data.precio_total - (record.data.precio_total * porc_descuento));
                     }
                 }
-                cmp.setValue(tmp2.toUpperCase());
-            }, this);
+
+                if (this.tmp_porc_monto_excento_var) {
+                    alert('ENTRA ...')
+                    this.Cmp.importe_excento.setValue(this.Cmp.importe_neto.getValue() * this.tmp_porc_monto_excento_var)
+                }
+
+                if (this.Cmp.tipo_excento.getValue() == 'constante') {
+                    this.Cmp.importe_excento.setValue(this.Cmp.valor_excento.getValue())
+                }
+
+                if (this.Cmp.tipo_excento.getValue() == 'porcentual') {
+                    this.Cmp.importe_excento.setValue(this.Cmp.importe_neto.getValue() * this.Cmp.valor_excento.getValue())
+                }
 
 
-            this.Cmp.codigo_qr.on('specialkey', function (cmb, e) {
+                if (this.Cmp.importe_excento.getValue() == 0) {
+                    descuento_ley = this.Cmp.importe_neto.getValue() * this.Cmp.porc_descuento_ley.getValue() * 1.00;
+                    this.Cmp.importe_descuento_ley.setValue(descuento_ley);
+                }
+                else {
+                    descuento_ley = (this.Cmp.importe_neto.getValue() * 1.00 - this.Cmp.importe_excento.getValue() * 1.00) * this.Cmp.porc_descuento_ley.getValue();
+                    this.Cmp.importe_descuento_ley.setValue(descuento_ley);
+                }
 
-                if (e.getKey() == e.ENTER) {
-                    var res = cmb.getValue().split("|"),
-                        plt = this.plantilla_qr.split("|");
+                //calculo it
+                if (this.Cmp.porc_it.getValue() > 0) {
+                    this.Cmp.importe_it.setValue(this.Cmp.porc_it.getValue() * this.Cmp.importe_neto.getValue())
+                }
 
-                    console.log('........', res, plt);
+                //calculo iva cf
+                if (this.Cmp.porc_iva_cf.getValue() > 0 || this.Cmp.porc_iva_df.getValue() > 0) {
+                    //console.log('iva',this.Cmp.porc_iva_cf.getValue());
+                    var excento = 0.00;
 
-                    //if(res.length == 12) {
+                    if (this.Cmp.importe_excento.getValue() > 0) {
+                        excento = this.Cmp.importe_excento.getValue();
+                    }
+                    if (this.Cmp.porc_iva_cf.getValue() > 0) {
+                        //validacion excento mayot monto mmv
+                        if (excento > this.Cmp.importe_neto.getValue()) {
+                            alert('El Importe Exento: ' + excento + ', no puede ser mayor al Monto Total: ' + this.Cmp.importe_neto.getValue() + '. Revise los importes.');
+                        } else {
+                            this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_cf.getValue() * (this.Cmp.importe_neto.getValue() - excento));
+                        }
 
-                    for (var i = 0; i < plt.length; i++) {
+                    }
+                    else {
+                        //validacion excento mayot monto mmv
+                        if (excento > this.Cmp.importe_neto.getValue()) {
+                            alert('El Importe Exento: ' + excento + ', no puede ser mayor al Monto Total: ' + this.Cmp.importe_neto.getValue() + '. Revise los importes.');
+                        } else {
+                            this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_df.getValue() * (this.Cmp.importe_neto.getValue() - excento));
+                        }
+                    }
+                }
+                else {
+                    this.Cmp.importe_iva.setValue(0);
+                }
+                this.disableComponentes();
+                //para que no aparezca Ret. Garantia y Cuenta Corriente
+                /*if (this.mostrarFormaPago) {
+                    if (this.Cmp.importe_retgar.getValue() > 0 || this.Cmp.importe_anticipo.getValue() > 0 || this.Cmp.importe_pendiente.getValue() > 0) {
+                        this.Cmp.id_auxiliar.allowBlank = false;
+                        this.Cmp.id_auxiliar.setReadOnly(false);
+                    }
+                    else {
+                        this.Cmp.id_auxiliar.allowBlank = true;
+                        this.Cmp.id_auxiliar.setReadOnly(true);
+                        this.Cmp.id_auxiliar.reset();
+                    }
+                    this.Cmp.id_auxiliar.validate();
+                }*/
+                if (this.aux != 'Póliza de Importación - DUI') {
+                    //(07-01-2022)
+                    //var liquido = this.Cmp.importe_neto.getValue() - this.Cmp.importe_retgar.getValue() - this.Cmp.importe_anticipo.getValue() - this.Cmp.importe_pendiente.getValue() - this.Cmp.importe_descuento_ley.getValue();
+                    var liquido = this.Cmp.importe_doc.getValue() - this.Cmp.importe_descuento.getValue()- this.Cmp.importe_retgar.getValue() - this.Cmp.importe_anticipo.getValue() - this.Cmp.importe_pendiente.getValue() - this.Cmp.importe_descuento_ley.getValue();
+                    this.Cmp.importe_pago_liquido.setValue(liquido > 0 ? liquido : 0);
+                }
 
-                        if (this.Cmp[plt[i]]) {
 
-                            if (plt[i] == 'importe_excento') {
-                                var aux = 0;
-                                if (this.Cmp[plt[i]].getValue()) {
-                                    aux = this.Cmp[plt[i]].getValue();
-                                }
-                                this.Cmp[plt[i]].setValue(res[i] + aux);
-                                console.log(res[i], aux)
+            },
+            //puntero
+            calcularDuis: function () {
+
+                var liquido;
+                if (this.Cmp.porc_iva_cf.getValue() > 0) {
+                    liquido = this.Cmp.porc_iva_cf.getValue() * this.Cmp.importe_doc.getValue();
+                }
+                else {
+                    liquido = this.Cmp.porc_iva_df.getValue() * this.Cmp.importe_doc.getValue();
+                }
+                this.Cmp.importe_pago_liquido.setValue(liquido > 0 ? liquido : 0);
+            },
+
+            getDetallePorAplicar: function (id_plantilla) {
+                var data = this.getSelectedData();
+                Phx.CP.loadingShow();
+
+                Ext.Ajax.request({
+                    // form:this.form.getForm().getEl(),
+                    url: '../../sis_contabilidad/control/PlantillaCalculo/recuperarDetallePlantillaCalculo',
+                    params: {id_plantilla: id_plantilla},
+                    success: this.successAplicarDesc,
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
+                });
+            },
+            successAplicarDesc: function (resp) {
+                Phx.CP.loadingHide();
+                var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                if (!reg.ROOT.error) {
+
+                    this.Cmp.porc_descuento.setValue(0);
+                    //aplica descuentos
+                    this.Cmp.porc_descuento_ley.setValue(reg.ROOT.datos.descuento_porc * 1);
+                    //aplica iva-cf
+                    this.Cmp.porc_iva_cf.setValue(reg.ROOT.datos.porc_iva_cf * 1);
+                    //aplica iva-df
+                    this.Cmp.porc_iva_df.setValue(reg.ROOT.datos.porc_iva_df * 1);
+                    //aplicar  it
+                    this.Cmp.porc_it.setValue(reg.ROOT.datos.porc_it * 1);
+                    //aplicar  ice
+                    this.Cmp.porc_ice.setValue(reg.ROOT.datos.porc_ice * 1);
+                    //habilitar campos
+                    this.mostrarImportes(reg.ROOT.datos);
+                    this.calculaMontoPago();
+                }
+                else {
+                    alert(reg.ROOT.mensaje)
+                }
+            },
+
+            esconderImportes: function () {
+
+                this.ocultarComponente(this.Cmp.importe_descuento);
+                this.ocultarComponente(this.Cmp.importe_neto);
+                this.ocultarComponente(this.Cmp.nro_autorizacion);
+                this.ocultarComponente(this.Cmp.codigo_control);
+                this.ocultarComponente(this.Cmp.importe_excento);
+                this.ocultarComponente(this.Cmp.importe_iva);
+                this.ocultarComponente(this.Cmp.importe_it);
+                this.ocultarComponente(this.Cmp.importe_ice);
+                this.ocultarComponente(this.Cmp.importe_descuento_ley);
+
+                this.ocultarComponente(this.Cmp.importe_pendiente);
+                this.ocultarComponente(this.Cmp.importe_anticipo);
+                this.ocultarComponente(this.Cmp.importe_retgar);
+                this.ocultarComponente(this.Cmp.id_auxiliar);
+                this.ocultarComponente(this.Cmp.estacion);
+                this.ocultarComponente(this.Cmp.id_punto_venta);
+                this.ocultarComponente(this.Cmp.id_agencia);
+
+                this.ocultarComponente(this.Cmp.importe_iehd);
+                this.ocultarComponente(this.Cmp.importe_ipj);
+                this.ocultarComponente(this.Cmp.importe_tasas);
+                this.ocultarComponente(this.Cmp.importe_gift_card);
+                this.ocultarComponente(this.Cmp.otro_no_sujeto_credito_fiscal);
+                this.ocultarComponente(this.Cmp.importe_compras_gravadas_tasa_cero);
+            },
+            disableComponentes: function () {
+                //03-01-2020 (may) modificacion porque mostraba a todos su codigo de control
+                //if(this.data.datosOriginales.data.isNewRelationEditable){
+
+                if(this.data.tipo_form != 'new' ){
+                    //08-01-2020 (may) modificacion para que solo tenga bloqueado los campos de la factura en fondos en avance
+                    console.log('llegam22',this.data.objPadre.mycls );
+                    if (this.data.objPadre.mycls == 'RendicionDetReg' && this.mycls == 'FormRendicionCD'){
+
+                        if (this.data.datosOriginales.data.revisado == 'si' || this.data.boton_rendicion=='readOnly') {
+                            this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
+                            this.Cmp.mod_rev.setValue(this.data.datosOriginales.data.revisado);
+                            this.Cmp.new_relation_editable.setValue('sii');
+
+                            this.Cmp.id_plantilla.setDisabled(true);
+                            this.Cmp.codigo_qr.setDisabled(true);
+                            this.Cmp.id_moneda.setDisabled(true);
+                            this.Cmp.nro_autorizacion.setDisabled(true);
+                            this.Cmp.nit.setDisabled(true);
+                            this.Cmp.id_proveedor.setDisabled(true);
+                            this.Cmp.razon_social.setDisabled(true);
+                            this.Cmp.nro_documento.setDisabled(true);
+                            this.Cmp.dia.setDisabled(true);
+                            this.Cmp.fecha.setDisabled(true);
+                            this.Cmp.fecha_vencimiento.setDisabled(true);
+                            this.Cmp.nro_dui.setDisabled(true);
+                            this.Cmp.codigo_control.setDisabled(true);
+                            this.Cmp.estacion.setDisabled(true);
+                            this.Cmp.id_punto_venta.setDisabled(true);
+                            this.Cmp.id_agencia.setDisabled(true);
+                            this.Cmp.obs.setDisabled(true);
+                            this.Cmp.importe_doc.setDisabled(true);
+
+                            if (this.data.datosOriginales.data.id_moneda == 2) {
+                                this.mostrarComponente(this.Cmp.tipo_cambio);
                             }
                             else {
-                                this.Cmp[plt[i]].setValue(res[i]);
+                                this.ocultarComponente(this.Cmp.tipo_cambio);
                             }
-
-                            if (plt[i] == 'nit') {
-                                this.cargarRazonSocial();
-                            }
-                            if (plt[i] == 'nro_documento') {
-                                var nro_doc = Math.floor(res[1]);
-                                this.getComponente('nro_documento').setValue(nro_doc);
-                            }
-                            if (plt[i] == 'importe_doc') {
-
-                                var importe = this.controlMiles(res[4]);
-                                this.getComponente('importe_doc').setValue(importe);
-
-                            }
-                            if (plt[i] == 'fecha') {
-
-                                var mesPeriodo = this.data.tmpPeriodo > 9 ? this.data.tmpPeriodo : '0' + this.data.tmpPeriodo;
-                                var fechaInt = this.data.tmpGestion + '-' + mesPeriodo + '-' + '30';
-                                var mesPer = new Date(fechaInt).getMonth();
-                                var mesFactura = res[3].split("/");
-                                var fechaFac = mesFactura[2] + '-' + mesFactura[1] + '-' + mesFactura[0];
-                                var mesFac = new Date(fechaFac).getMonth();
-                                var monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Mayo",
-                                    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-                                ];
-                                var literalFactura = monthNames[mesFac];
-                                var literalPeriodo = monthNames[mesPer];
-                                if (mesFactura[1] != mesPeriodo) {
-                                    this.mensaje_('ALERTA', 'Actualmente se encuentra en el periodo: ' + literalPeriodo + ', la factura corresponde al periodo de: ' + literalFactura, 'ERROR');
-                                }
-
-                            }
-
+                            this.Cmp.tipo_cambio.setDisabled(true);
+                            this.Cmp.importe_descuento.setDisabled(true);
+                            this.Cmp.importe_neto.setDisabled(true);
+                            this.Cmp.importe_excento.setDisabled(true);
+                            this.Cmp.importe_pendiente.setDisabled(true);
+                            this.Cmp.importe_anticipo.setDisabled(true);
+                            this.Cmp.importe_retgar.setDisabled(true);
+                            this.Cmp.id_auxiliar.setDisabled(true);
+                            this.Cmp.importe_descuento_ley.setDisabled(true);
+                            this.Cmp.importe_ice.setDisabled(true);
+                            this.Cmp.importe_iva.setDisabled(true);
+                            this.Cmp.importe_it.setDisabled(true);
+                            this.Cmp.importe_pago_liquido.setDisabled(true);
                         }
-                        console.log(plt[i]);
-                    }
-                    // }
-                }
-                // else{
-                // 	alert('la plantilla de array no se corresponde con el QR');
-                //  }
-
-                this.calculaMontoPago();
-
-
-                //}
-
-
-            }, this);
-
-            this.Cmp.fecha_vencimiento.setReadOnly(false);
-        },
-
-        resetearMontos: function () {
-            this.Cmp.importe_doc.setValue(0);
-            this.Cmp.importe_neto.setValue(0);
-            this.Cmp.importe_pago_liquido.setValue(0);
-            this.iniciarImportes();
-        },
-
-        calculaMontoPago: function () {
-
-            var me = this,
-                descuento_ley = 0.00;
-
-            if (this.Cmp.importe_descuento.getValue() > 0) {
-                if (this.Cmp.importe_descuento.getValue() > this.Cmp.importe_doc.getValue()) {
-                    alert("el descuento no puede ser mayor que monto del documento");
-                    this.resetearMontos();
-                    return;
-                }
-                this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - this.Cmp.importe_descuento.getValue());
-                this.Cmp.porc_descuento.setValue(this.Cmp.importe_descuento.getValue() / this.Cmp.importe_doc.getValue());
-
-
-            } else {
-                this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue());
-                this.Cmp.porc_descuento.setValue(0);
-            }
-
-            var porc_descuento = this.Cmp.porc_descuento.getValue();
-
-
-
-            if (this.regitrarDetalle == 'si') {
-                for (i = 0; i < me.megrid.store.getCount(); i++) {
-                    record = me.megrid.store.getAt(i);
-                    record.set('precio_total_final', record.data.precio_total - (record.data.precio_total * porc_descuento));
-                }
-            }
-
-            if (this.tmp_porc_monto_excento_var) {
-                alert('ENTRA ...')
-                this.Cmp.importe_excento.setValue(this.Cmp.importe_neto.getValue() * this.tmp_porc_monto_excento_var)
-            }
-
-            if (this.Cmp.tipo_excento.getValue() == 'constante') {
-                this.Cmp.importe_excento.setValue(this.Cmp.valor_excento.getValue())
-            }
-
-            if (this.Cmp.tipo_excento.getValue() == 'porcentual') {
-                this.Cmp.importe_excento.setValue(this.Cmp.importe_neto.getValue() * this.Cmp.valor_excento.getValue())
-            }
-
-
-            if (this.Cmp.importe_excento.getValue() == 0) {
-                descuento_ley = this.Cmp.importe_neto.getValue() * this.Cmp.porc_descuento_ley.getValue() * 1.00;
-                this.Cmp.importe_descuento_ley.setValue(descuento_ley);
-            }
-            else {
-                descuento_ley = (this.Cmp.importe_neto.getValue() * 1.00 - this.Cmp.importe_excento.getValue() * 1.00) * this.Cmp.porc_descuento_ley.getValue();
-                this.Cmp.importe_descuento_ley.setValue(descuento_ley);
-            }
-
-            //calculo it
-            if (this.Cmp.porc_it.getValue() > 0) {
-                this.Cmp.importe_it.setValue(this.Cmp.porc_it.getValue() * this.Cmp.importe_neto.getValue())
-            }
-
-            //calculo iva cf
-            if (this.Cmp.porc_iva_cf.getValue() > 0 || this.Cmp.porc_iva_df.getValue() > 0) {
-                //console.log('iva',this.Cmp.porc_iva_cf.getValue());
-                var excento = 0.00;
-
-                if (this.Cmp.importe_excento.getValue() > 0) {
-                    excento = this.Cmp.importe_excento.getValue();
-                }
-                if (this.Cmp.porc_iva_cf.getValue() > 0) {
-                    //validacion excento mayot monto mmv
-                    if (excento > this.Cmp.importe_neto.getValue()) {
-                        alert('El Importe Exento: ' + excento + ', no puede ser mayor al Monto Total: ' + this.Cmp.importe_neto.getValue() + '. Revise los importes.');
-                    } else {
-                        this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_cf.getValue() * (this.Cmp.importe_neto.getValue() - excento));
-                    }
-
-                }
-                else {
-                    //validacion excento mayot monto mmv
-                    if (excento > this.Cmp.importe_neto.getValue()) {
-                        alert('El Importe Exento: ' + excento + ', no puede ser mayor al Monto Total: ' + this.Cmp.importe_neto.getValue() + '. Revise los importes.');
-                    } else {
-                        this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_df.getValue() * (this.Cmp.importe_neto.getValue() - excento));
-                    }
-                }
-            }
-            else {
-                this.Cmp.importe_iva.setValue(0);
-            }
-			this.disableComponentes();
-            if (this.mostrarFormaPago) {
-                if (this.Cmp.importe_retgar.getValue() > 0 || this.Cmp.importe_anticipo.getValue() > 0 || this.Cmp.importe_pendiente.getValue() > 0) {
-                    this.Cmp.id_auxiliar.allowBlank = false;
-                    this.Cmp.id_auxiliar.setReadOnly(false);
-                }
-                else {
-                    this.Cmp.id_auxiliar.allowBlank = true;
-                    this.Cmp.id_auxiliar.setReadOnly(true);
-                    this.Cmp.id_auxiliar.reset();
-                }
-                this.Cmp.id_auxiliar.validate();
-            }
-            if (this.aux != 'Póliza de Importación - DUI') {
-                var liquido = this.Cmp.importe_neto.getValue() - this.Cmp.importe_retgar.getValue() - this.Cmp.importe_anticipo.getValue() - this.Cmp.importe_pendiente.getValue() - this.Cmp.importe_descuento_ley.getValue();
-                this.Cmp.importe_pago_liquido.setValue(liquido > 0 ? liquido : 0);
-            }
-
-
-        },
-        //puntero
-        calcularDuis: function () {
-
-            var liquido;
-            if (this.Cmp.porc_iva_cf.getValue() > 0) {
-                liquido = this.Cmp.porc_iva_cf.getValue() * this.Cmp.importe_doc.getValue();
-            }
-            else {
-                liquido = this.Cmp.porc_iva_df.getValue() * this.Cmp.importe_doc.getValue();
-            }
-            this.Cmp.importe_pago_liquido.setValue(liquido > 0 ? liquido : 0);
-        },
-
-        getDetallePorAplicar: function (id_plantilla) {
-            var data = this.getSelectedData();
-            Phx.CP.loadingShow();
-
-            Ext.Ajax.request({
-                // form:this.form.getForm().getEl(),
-                url: '../../sis_contabilidad/control/PlantillaCalculo/recuperarDetallePlantillaCalculo',
-                params: {id_plantilla: id_plantilla},
-                success: this.successAplicarDesc,
-                failure: this.conexionFailure,
-                timeout: this.timeout,
-                scope: this
-            });
-        },
-        successAplicarDesc: function (resp) {
-            Phx.CP.loadingHide();
-            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-            if (!reg.ROOT.error) {
-
-                this.Cmp.porc_descuento.setValue(0);
-                //aplica descuentos
-                this.Cmp.porc_descuento_ley.setValue(reg.ROOT.datos.descuento_porc * 1);
-                //aplica iva-cf
-                this.Cmp.porc_iva_cf.setValue(reg.ROOT.datos.porc_iva_cf * 1);
-                //aplica iva-df
-                this.Cmp.porc_iva_df.setValue(reg.ROOT.datos.porc_iva_df * 1);
-                //aplicar  it
-                this.Cmp.porc_it.setValue(reg.ROOT.datos.porc_it * 1);
-                //aplicar  ice
-                this.Cmp.porc_ice.setValue(reg.ROOT.datos.porc_ice * 1);
-                //habilitar campos
-                this.mostrarImportes(reg.ROOT.datos);
-                this.calculaMontoPago();
-            }
-            else {
-                alert(reg.ROOT.mensaje)
-            }
-        },
-
-        esconderImportes: function () {
-
-            this.ocultarComponente(this.Cmp.importe_descuento);
-            this.ocultarComponente(this.Cmp.importe_neto);
-            this.ocultarComponente(this.Cmp.nro_autorizacion);
-            this.ocultarComponente(this.Cmp.codigo_control);
-            this.ocultarComponente(this.Cmp.importe_excento);
-            this.ocultarComponente(this.Cmp.importe_iva);
-            this.ocultarComponente(this.Cmp.importe_it);
-            this.ocultarComponente(this.Cmp.importe_ice);
-            this.ocultarComponente(this.Cmp.importe_descuento_ley);
-
-            this.ocultarComponente(this.Cmp.importe_pendiente);
-            this.ocultarComponente(this.Cmp.importe_anticipo);
-            this.ocultarComponente(this.Cmp.importe_retgar);
-            this.ocultarComponente(this.Cmp.id_auxiliar);
-            this.ocultarComponente(this.Cmp.estacion);
-            this.ocultarComponente(this.Cmp.id_punto_venta);
-            this.ocultarComponente(this.Cmp.id_agencia);
-        },
-		disableComponentes: function () {
-            //03-01-2020 (may) modificacion porque mostraba a todos su codigo de control
-            //if(this.data.datosOriginales.data.isNewRelationEditable){
-
-            if(this.data.tipo_form != 'new' ){
-                //08-01-2020 (may) modificacion para que solo tenga bloqueado los campos de la factura en fondos en avance
-                console.log('llegam22',this.data.objPadre.mycls );
-                if (this.data.objPadre.mycls == 'RendicionDetReg' && this.mycls == 'FormRendicionCD'){
-
-                    if (this.data.datosOriginales.data.revisado == 'si' || this.data.boton_rendicion=='readOnly') {
-                        this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
                         this.Cmp.mod_rev.setValue(this.data.datosOriginales.data.revisado);
-                        this.Cmp.new_relation_editable.setValue('sii');
-
-                        this.Cmp.id_plantilla.setDisabled(true);
-                        this.Cmp.codigo_qr.setDisabled(true);
-                        this.Cmp.id_moneda.setDisabled(true);
-                        this.Cmp.nro_autorizacion.setDisabled(true);
-                        this.Cmp.nit.setDisabled(true);
-                        this.Cmp.id_proveedor.setDisabled(true);
-                        this.Cmp.razon_social.setDisabled(true);
-                        this.Cmp.nro_documento.setDisabled(true);
-                        this.Cmp.dia.setDisabled(true);
-                        this.Cmp.fecha.setDisabled(true);
-                        this.Cmp.fecha_vencimiento.setDisabled(true);
-                        this.Cmp.nro_dui.setDisabled(true);
-                        this.Cmp.codigo_control.setDisabled(true);
-                        this.Cmp.estacion.setDisabled(true);
-                        this.Cmp.id_punto_venta.setDisabled(true);
-                        this.Cmp.id_agencia.setDisabled(true);
-                        this.Cmp.obs.setDisabled(true);
-                        this.Cmp.importe_doc.setDisabled(true);
-
+                        this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
                         if (this.data.datosOriginales.data.id_moneda == 2) {
                             this.mostrarComponente(this.Cmp.tipo_cambio);
                         }
                         else {
                             this.ocultarComponente(this.Cmp.tipo_cambio);
                         }
-                        this.Cmp.tipo_cambio.setDisabled(true);
-                        this.Cmp.importe_descuento.setDisabled(true);
-                        this.Cmp.importe_neto.setDisabled(true);
-                        this.Cmp.importe_excento.setDisabled(true);
-                        this.Cmp.importe_pendiente.setDisabled(true);
-                        this.Cmp.importe_anticipo.setDisabled(true);
-                        this.Cmp.importe_retgar.setDisabled(true);
-                        this.Cmp.id_auxiliar.setDisabled(true);
-                        this.Cmp.importe_descuento_ley.setDisabled(true);
-                        this.Cmp.importe_ice.setDisabled(true);
-                        this.Cmp.importe_iva.setDisabled(true);
-                        this.Cmp.importe_it.setDisabled(true);
-                        this.Cmp.importe_pago_liquido.setDisabled(true);
                     }
-                    this.Cmp.mod_rev.setValue(this.data.datosOriginales.data.revisado);
-                    this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
-                    if (this.data.datosOriginales.data.id_moneda == 2) {
-                        this.mostrarComponente(this.Cmp.tipo_cambio);
+                }
+            },
+            iniciarImportes: function () {
+                this.Cmp.importe_excento.setValue(0);
+                this.Cmp.importe_iva.setValue(0);
+                this.Cmp.importe_it.setValue(0);
+                this.Cmp.importe_ice.setValue(0);
+                this.Cmp.importe_descuento_ley.setValue(0);
+                this.Cmp.importe_descuento.setValue(0);
+
+                this.Cmp.importe_pendiente.setValue(0);
+                this.Cmp.importe_anticipo.setValue(0);
+                this.Cmp.importe_retgar.setValue(0);
+
+                this.Cmp.importe_iehd.setValue(0);
+                this.Cmp.importe_ipj.setValue(0);
+                this.Cmp.importe_tasas.setValue(0);
+                this.Cmp.importe_gift_card.setValue(0);
+                this.Cmp.otro_no_sujeto_credito_fiscal.setValue(0);
+                this.Cmp.importe_compras_gravadas_tasa_cero.setValue(0);
+            },
+
+            mostrarImportes: function (datos) {
+                if (datos.porc_ice !== '0') {
+                    this.mostrarComponente(this.Cmp.importe_ice);
+                }
+                if (datos.porc_it !== '0') {
+                    this.mostrarComponente(this.Cmp.importe_it);
+                }
+                if (datos.porc_iva_cf !== '0') {
+                    this.mostrarComponente(this.Cmp.importe_iva);
+                }
+                if (datos.porc_iva_df !== '0') {
+                    this.mostrarComponente(this.Cmp.importe_iva);
+                }
+
+                if (datos.descuento_porc !== '0') {
+                    this.mostrarComponente(this.Cmp.importe_descuento_ley);
+                }
+                //puntero
+                if (this.mostrarFormaPago) {
+                    this.mostrarComponente(this.Cmp.importe_pendiente);
+                    this.mostrarComponente(this.Cmp.importe_anticipo);
+                    this.mostrarComponente(this.Cmp.importe_retgar);
+                    this.mostrarComponente(this.Cmp.id_auxiliar);
+                }
+
+
+            },
+
+
+            onEdit: function () {
+                this.Cmp.nit.modificado = true;
+                this.Cmp.nro_autorizacion.modificado = true;
+                this.Cmp.fecha.setReadOnly(false);
+                this.accionFormulario = 'EDIT';
+                if (this.data.datosOriginales) {
+                    this.loadForm(this.data.datosOriginales);
+                }
+
+
+                this.esconderImportes();
+                //carga configuracion de plantilla
+                this.getPlantilla(this.Cmp.id_plantilla.getValue());
+
+                this.Cmp.id_depto_conta.setValue(this.data.id_depto);
+                this.Cmp.id_gestion.setValue(this.data.id_gestion);
+                this.Cmp.tipo.setValue(this.data.tipoDoc);
+
+
+                //load detalle de conceptos
+                if (this.regitrarDetalle == 'si') {
+                    this.detCmp.id_centro_costo.store.baseParams.id_depto = this.data.id_depto;
+                    this.mestore.baseParams.id_doc_compra_venta = this.Cmp.id_doc_compra_venta.getValue();
+                    this.mestore.load()
+                }
+
+                this.disableComponentes();
+
+
+            },
+
+            onNew: function () {
+
+                this.accionFormulario = 'NEW';
+                this.Cmp.nit.modificado = true;
+                this.Cmp.nro_autorizacion.modificado = true;
+                this.esconderImportes();
+
+                this.Cmp.id_depto_conta.setValue(this.data.id_depto);
+                this.Cmp.id_gestion.setValue(this.data.id_gestion);
+                this.Cmp.tipo.setValue(this.data.tipoDoc);
+
+                this.Cmp.id_plantilla.itemCt.dom.childNodes[1].style.margin = '5px';
+                this.Cmp.codigo_qr.itemCt.dom.childNodes[1].style.margin = '5px';
+                this.Cmp.id_moneda.itemCt.dom.childNodes[1].style.margin = '5px';
+                this.Cmp.id_proveedor.itemCt.dom.childNodes[1].style.margin = '5px';
+                this.Cmp.razon_social.itemCt.dom.childNodes[1].style.margin = '5px';
+                this.Cmp.nit.itemCt.dom.childNodes[1].style.margin = '5px';
+                this.Cmp.nro_autorizacion.itemCt.dom.childNodes[1].style.margin = '5px';
+
+
+            },
+
+            onSubmit: function (o) {
+                var me = this;
+                if (me.regitrarDetalle == 'si') {
+                    //  validar formularios
+                    var arra = [], total_det = 0.0, i;
+                    for (i = 0; i < me.megrid.store.getCount(); i++) {
+                        record = me.megrid.store.getAt(i);
+                        arra[i] = record.data;
+                        total_det = total_det + (record.data.precio_total) * 1
+
+                    }
+
+                    //si tiene conceptos eliminados es necesari oincluirlos ...
+
+
+                    me.argumentExtraSubmit = {
+                        'regitrarDetalle': me.regitrarDetalle,
+                        'id_doc_conceto_elis': this.conceptos_eliminados.join(),
+                        'json_new_records': JSON.stringify(arra, function replacer(key, value) {
+                            if (typeof value === 'string') {
+                                return String(value).replace(/&/g, "%26")
+                            }
+                            return value;
+                        })
+                    };
+
+                    if (i > 0 && !this.editorDetail.isVisible()) {
+
+                        if (this.aux != 'Póliza de Importación - DUI') {
+                            // importe_pago_liquido
+                            if ((total_det.toFixed(2) * 1) == this.Cmp.importe_doc.getValue()) {
+                                Phx.vista.FormCompraVentaFuncionario.superclass.onSubmit.call(this, o, undefined, true);
+                            }
+                            else {
+                                alert('El total del detalle no cuadra con el total del documento');
+                            }
+
+                        } else {
+
+
+                            if ((total_det.toFixed(2) * 1) == this.Cmp.importe_pago_liquido.getValue()) {
+                                Phx.vista.FormCompraVentaFuncionario.superclass.onSubmit.call(this, o, undefined, true);
+                            }
+                            else {
+                                alert('El total del detalle no cuadra con el Liquido Pagado');
+                            }
+
+                        }
                     }
                     else {
-                        this.ocultarComponente(this.Cmp.tipo_cambio);
-                    }
-                }
-            }
-        },
-        iniciarImportes: function () {
-            this.Cmp.importe_excento.setValue(0);
-            this.Cmp.importe_iva.setValue(0);
-            this.Cmp.importe_it.setValue(0);
-            this.Cmp.importe_ice.setValue(0);
-            this.Cmp.importe_descuento_ley.setValue(0);
-            this.Cmp.importe_descuento.setValue(0);
-
-            this.Cmp.importe_pendiente.setValue(0);
-            this.Cmp.importe_anticipo.setValue(0);
-            this.Cmp.importe_retgar.setValue(0);
-        },
-
-        mostrarImportes: function (datos) {
-            if (datos.porc_ice !== '0') {
-                this.mostrarComponente(this.Cmp.importe_ice);
-            }
-            if (datos.porc_it !== '0') {
-                this.mostrarComponente(this.Cmp.importe_it);
-            }
-            if (datos.porc_iva_cf !== '0') {
-                this.mostrarComponente(this.Cmp.importe_iva);
-            }
-            if (datos.porc_iva_df !== '0') {
-                this.mostrarComponente(this.Cmp.importe_iva);
-            }
-
-            if (datos.descuento_porc !== '0') {
-                this.mostrarComponente(this.Cmp.importe_descuento_ley);
-            }
-            //puntero
-            if (this.mostrarFormaPago) {
-                this.mostrarComponente(this.Cmp.importe_pendiente);
-                this.mostrarComponente(this.Cmp.importe_anticipo);
-                this.mostrarComponente(this.Cmp.importe_retgar);
-                this.mostrarComponente(this.Cmp.id_auxiliar);
-            }
-
-
-        },
-
-
-        onEdit: function () {
-            this.Cmp.nit.modificado = true;
-            this.Cmp.nro_autorizacion.modificado = true;
-            this.Cmp.fecha.setReadOnly(false);
-            this.accionFormulario = 'EDIT';
-            if (this.data.datosOriginales) {
-                this.loadForm(this.data.datosOriginales);
-            }
-
-
-            this.esconderImportes();
-            //carga configuracion de plantilla
-            this.getPlantilla(this.Cmp.id_plantilla.getValue());
-
-            this.Cmp.id_depto_conta.setValue(this.data.id_depto);
-            this.Cmp.id_gestion.setValue(this.data.id_gestion);
-            this.Cmp.tipo.setValue(this.data.tipoDoc);
-
-
-            //load detalle de conceptos
-            if (this.regitrarDetalle == 'si') {
-                this.detCmp.id_centro_costo.store.baseParams.id_depto = this.data.id_depto;
-                this.mestore.baseParams.id_doc_compra_venta = this.Cmp.id_doc_compra_venta.getValue();
-                this.mestore.load()
-            }
-
-			this.disableComponentes();
-
-
-        },
-
-        onNew: function () {
-
-            this.accionFormulario = 'NEW';
-            this.Cmp.nit.modificado = true;
-            this.Cmp.nro_autorizacion.modificado = true;
-            this.esconderImportes();
-
-            this.Cmp.id_depto_conta.setValue(this.data.id_depto);
-            this.Cmp.id_gestion.setValue(this.data.id_gestion);
-            this.Cmp.tipo.setValue(this.data.tipoDoc);
-
-            this.Cmp.id_plantilla.itemCt.dom.childNodes[1].style.margin = '5px';
-            this.Cmp.codigo_qr.itemCt.dom.childNodes[1].style.margin = '5px';
-            this.Cmp.id_moneda.itemCt.dom.childNodes[1].style.margin = '5px';
-            this.Cmp.id_proveedor.itemCt.dom.childNodes[1].style.margin = '5px';
-            this.Cmp.razon_social.itemCt.dom.childNodes[1].style.margin = '5px';
-            this.Cmp.nit.itemCt.dom.childNodes[1].style.margin = '5px';
-            this.Cmp.nro_autorizacion.itemCt.dom.childNodes[1].style.margin = '5px';
-
-
-        },
-
-        onSubmit: function (o) {
-            var me = this;
-            if (me.regitrarDetalle == 'si') {
-                //  validar formularios
-                var arra = [], total_det = 0.0, i;
-                for (i = 0; i < me.megrid.store.getCount(); i++) {
-                    record = me.megrid.store.getAt(i);
-                    arra[i] = record.data;
-                    total_det = total_det + (record.data.precio_total) * 1
-
-                }
-
-                //si tiene conceptos eliminados es necesari oincluirlos ...
-
-
-                me.argumentExtraSubmit = {
-                    'regitrarDetalle': me.regitrarDetalle,
-                    'id_doc_conceto_elis': this.conceptos_eliminados.join(),
-                    'json_new_records': JSON.stringify(arra, function replacer(key, value) {
-                        if (typeof value === 'string') {
-                            return String(value).replace(/&/g, "%26")
-                        }
-                        return value;
-                    })
-                };
-
-                if (i > 0 && !this.editorDetail.isVisible()) {
-
-                    if (this.aux != 'Póliza de Importación - DUI') {
-                        // importe_pago_liquido
-                        if ((total_det.toFixed(2) * 1) == this.Cmp.importe_doc.getValue()) {
-                            Phx.vista.FormCompraVentaFuncionario.superclass.onSubmit.call(this, o, undefined, true);
-                        }
-                        else {
-                            alert('El total del detalle no cuadra con el total del documento');
-                        }
-
-                    } else {
-
-
-                        if ((total_det.toFixed(2) * 1) == this.Cmp.importe_pago_liquido.getValue()) {
-                            Phx.vista.FormCompraVentaFuncionario.superclass.onSubmit.call(this, o, undefined, true);
-                        }
-                        else {
-                            alert('El total del detalle no cuadra con el Liquido Pagado');
-                        }
-
+                        alert('no tiene ningun concepto  en el documento')
                     }
                 }
                 else {
-                    alert('no tiene ningun concepto  en el documento')
+                    me.argumentExtraSubmit = {'regitrarDetalle': me.regitrarDetalle};
+                    Phx.vista.FormCompraVentaFuncionario.superclass.onSubmit.call(this, o, undefined, true);
                 }
-            }
-            else {
-                me.argumentExtraSubmit = {'regitrarDetalle': me.regitrarDetalle};
-                Phx.vista.FormCompraVentaFuncionario.superclass.onSubmit.call(this, o, undefined, true);
-            }
-        },
+            },
 
 
-        successSave: function (resp) {
-            Phx.CP.loadingHide();
-            Phx.CP.getPagina(this.idContenedorPadre).reload();
-            this.panel.close();
-        },
+            successSave: function (resp) {
+                Phx.CP.loadingHide();
+                Phx.CP.getPagina(this.idContenedorPadre).reload();
+                this.panel.close();
+            },
 
-        checkRelacionConcepto: function (cfg) {
-            var me = this;
-            Phx.CP.loadingShow();
-            Ext.Ajax.request({
-                url: '../../sis_contabilidad/control/DocConcepto/verificarRelacionConcepto',
-                params: {
-                    id_centro_costo: cfg.id_centro_costo,
-                    id_gestion: cfg.id_gestion,
-                    id_concepto_ingas: cfg.id_concepto_ingas,
-                    relacion: me.data.tipoDoc
-                },
-                success: function (resp) {
-                    Phx.CP.loadingHide();
-                    var objRes = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-
-                },
-                failure: function (resp) {
-
-                    this.conexionFailure(resp);
-                    Phx.CP.loadingHide();
-                },
-                timeout: this.timeout,
-                scope: this
-            });
-
-        },
-        getPlantilla: function (id_plantilla) {
-            Phx.CP.loadingShow();
-
-            Ext.Ajax.request({
-                // form:this.form.getForm().getEl(),
-                url: '../../sis_parametros/control/Plantilla/listarPlantilla',
-                params: {id_plantilla: id_plantilla, start: 0, limit: 1},
-                success: this.successPlantilla,
-                failure: this.conexionFailure,
-                timeout: this.timeout,
-                scope: this
-            });
-
-        },
-        successPlantilla: function (resp) {
-            Phx.CP.loadingHide();
-            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-            if (reg.total == 1) {
-
-                this.Cmp.id_plantilla.fireEvent('select', this.Cmp.id_plantilla, {data: reg.datos[0]}, 0);
-                this.Cmp.nro_autorizacion.fireEvent('change', this.Cmp.nro_autorizacion, this.data.datosOriginales.data.nro_autorizacion)
-
-
-            } else {
-                alert('error al recuperar la plantilla para editar, actualice su navegador');
-            }
-        },
-
-        obtenerVariableGlobal: function (config) {
-            var me = this;
-            //Verifica que la fecha y la moneda hayan sido elegidos
-            Phx.CP.loadingShow();
-            Ext.Ajax.request({
-                url: '../../sis_seguridad/control/Subsistema/obtenerVariableGlobal',
-                params: {
-                    codigo: 'conta_partidas'
-                },
-                success: function (resp) {
-                    Phx.CP.loadingHide();
-                    var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-
-                    if (reg.ROOT.error) {
-                        Ext.Msg.alert('Error', 'Error a recuperar la variable global')
-                    } else {
-                        if (reg.ROOT.datos.valor != 'si') {
-                            me.listadoConcepto = '../../sis_parametros/control/ConceptoIngas/listarConceptoIngas';
-                            me.parFilConcepto = 'desc_ingas';
-                            me.mostrarPartidas = false;
-                        }
-
-
-                        me.constructorEtapa2(config);
-
-                    }
-                },
-                failure: this.conexionFailure,
-                timeout: this.timeout,
-                scope: this
-            });
-
-        },
-
-        cargarRazonSocial: function (nit) {
-            //Busca en la base de datos la razon social en función del NIT digitado. Si Razon social no esta vacío, entonces no hace nada
-            if (this.getComponente('razon_social').getValue() == '') {
+            checkRelacionConcepto: function (cfg) {
+                var me = this;
                 Phx.CP.loadingShow();
                 Ext.Ajax.request({
-                    url: '../../sis_contabilidad/control/DocCompraVenta/obtenerRazonSocialxNIT',
-                    params: {'nit': this.Cmp.nit.getValue()},
+                    url: '../../sis_contabilidad/control/DocConcepto/verificarRelacionConcepto',
+                    params: {
+                        id_centro_costo: cfg.id_centro_costo,
+                        id_gestion: cfg.id_gestion,
+                        id_concepto_ingas: cfg.id_concepto_ingas,
+                        relacion: me.data.tipoDoc
+                    },
                     success: function (resp) {
                         Phx.CP.loadingHide();
                         var objRes = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-                        var razonSocial = objRes.ROOT.datos.razon_social;
-                        this.getComponente('razon_social').setValue(razonSocial);
-                        this.getComponente('id_moneda').setValue(1);
-                        this.getComponente('id_moneda').setRawValue('Bolivianos');
 
+                    },
+                    failure: function (resp) {
+
+                        this.conexionFailure(resp);
+                        Phx.CP.loadingHide();
+                    },
+                    timeout: this.timeout,
+                    scope: this
+                });
+
+            },
+            getPlantilla: function (id_plantilla) {
+                Phx.CP.loadingShow();
+
+                Ext.Ajax.request({
+                    // form:this.form.getForm().getEl(),
+                    url: '../../sis_parametros/control/Plantilla/listarPlantilla',
+                    params: {id_plantilla: id_plantilla, start: 0, limit: 1},
+                    success: this.successPlantilla,
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
+                });
+
+            },
+            successPlantilla: function (resp) {
+                Phx.CP.loadingHide();
+                var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                if (reg.total == 1) {
+
+                    this.Cmp.id_plantilla.fireEvent('select', this.Cmp.id_plantilla, {data: reg.datos[0]}, 0);
+                    this.Cmp.nro_autorizacion.fireEvent('change', this.Cmp.nro_autorizacion, this.data.datosOriginales.data.nro_autorizacion)
+
+
+                } else {
+                    alert('error al recuperar la plantilla para editar, actualice su navegador');
+                }
+            },
+
+            obtenerVariableGlobal: function (config) {
+                var me = this;
+                //Verifica que la fecha y la moneda hayan sido elegidos
+                Phx.CP.loadingShow();
+                Ext.Ajax.request({
+                    url: '../../sis_seguridad/control/Subsistema/obtenerVariableGlobal',
+                    params: {
+                        codigo: 'conta_partidas'
+                    },
+                    success: function (resp) {
+                        Phx.CP.loadingHide();
+                        var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+
+                        if (reg.ROOT.error) {
+                            Ext.Msg.alert('Error', 'Error a recuperar la variable global')
+                        } else {
+                            if (reg.ROOT.datos.valor != 'si') {
+                                me.listadoConcepto = '../../sis_parametros/control/ConceptoIngas/listarConceptoIngas';
+                                me.parFilConcepto = 'desc_ingas';
+                                me.mostrarPartidas = false;
+                            }
+
+
+                            me.constructorEtapa2(config);
+
+                        }
                     },
                     failure: this.conexionFailure,
                     timeout: this.timeout,
                     scope: this
                 });
+
+            },
+
+            cargarRazonSocial: function (nit) {
+                //Busca en la base de datos la razon social en función del NIT digitado. Si Razon social no esta vacío, entonces no hace nada
+                if (this.getComponente('razon_social').getValue() == '') {
+                    Phx.CP.loadingShow();
+                    Ext.Ajax.request({
+                        url: '../../sis_contabilidad/control/DocCompraVenta/obtenerRazonSocialxNIT',
+                        params: {'nit': this.Cmp.nit.getValue()},
+                        success: function (resp) {
+                            Phx.CP.loadingHide();
+                            var objRes = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                            var razonSocial = objRes.ROOT.datos.razon_social;
+                            this.getComponente('razon_social').setValue(razonSocial);
+                            this.getComponente('id_moneda').setValue(1);
+                            this.getComponente('id_moneda').setRawValue('Bolivianos');
+
+                        },
+                        failure: this.conexionFailure,
+                        timeout: this.timeout,
+                        scope: this
+                    });
+                }
+
+            },
+            mensaje_: function (titulo, mensaje) {
+
+                var tipo = 'ext-mb-warning';
+                Ext.MessageBox.show({
+                    title: titulo,
+                    msg: mensaje,
+                    buttons: Ext.MessageBox.OK,
+                    icon: tipo
+                })
+
+            },
+            controlMiles: function (value) {
+                return value.replace(',', "")
             }
 
-        },
-        mensaje_: function (titulo, mensaje) {
 
-            var tipo = 'ext-mb-warning';
-            Ext.MessageBox.show({
-                title: titulo,
-                msg: mensaje,
-                buttons: Ext.MessageBox.OK,
-                icon: tipo
-            })
-
-        },
-        controlMiles: function (value) {
-            return value.replace(',', "")
-        }
-
-
-    })
+        })
 </script>

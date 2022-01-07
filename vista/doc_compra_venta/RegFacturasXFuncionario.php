@@ -494,6 +494,158 @@ header("content-type: text/javascript; charset=UTF-8");
                     grid: true,
                     form: false
                 },
+
+                {
+                    config: {
+                        name: 'importe_iehd',
+                        fieldLabel: 'Importe IEHD',
+                        allowBlank: false,
+                        anchor: '80%',
+                        gwidth: 80,
+                        galign: 'right ',
+                        maxLength: 1179650,
+                        renderer: function (value, p, record) {
+                            if (record.data.tipo_reg != 'summary') {
+                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                            else {
+                                Ext.util.Format.usMoney
+                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                        }
+                    },
+                    type: 'NumberField',
+                    filters: {pfiltro: 'dcv.importe_iehd', type: 'numeric'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false
+                },
+                {
+                    config: {
+                        name: 'importe_ipj',
+                        fieldLabel: 'Importe IPJ',
+                        allowBlank: false,
+                        anchor: '80%',
+                        gwidth: 80,
+                        galign: 'right ',
+                        maxLength: 1179650,
+                        renderer: function (value, p, record) {
+                            if (record.data.tipo_reg != 'summary') {
+                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                            else {
+                                Ext.util.Format.usMoney
+                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                        }
+                    },
+                    type: 'NumberField',
+                    filters: {pfiltro: 'dcv.importe_ipj', type: 'numeric'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false
+                },
+                {
+                    config: {
+                        name: 'importe_tasas',
+                        fieldLabel: 'Tasas',
+                        allowBlank: false,
+                        anchor: '80%',
+                        gwidth: 80,
+                        galign: 'right ',
+                        maxLength: 1179650,
+                        renderer: function (value, p, record) {
+                            if (record.data.tipo_reg != 'summary') {
+                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                            else {
+                                Ext.util.Format.usMoney
+                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                        }
+                    },
+                    type: 'NumberField',
+                    filters: {pfiltro: 'dcv.importe_tasas', type: 'numeric'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false
+                },
+                {
+                    config: {
+                        name: 'importe_gift_card',
+                        fieldLabel: 'Importe Gift Card',
+                        allowBlank: false,
+                        anchor: '80%',
+                        gwidth: 80,
+                        galign: 'right ',
+                        maxLength: 1179650,
+                        renderer: function (value, p, record) {
+                            if (record.data.tipo_reg != 'summary') {
+                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                            else {
+                                Ext.util.Format.usMoney
+                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                        }
+                    },
+                    type: 'NumberField',
+                    filters: {pfiltro: 'dcv.importe_gift_card', type: 'numeric'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false
+                },
+                {
+                    config: {
+                        name: 'otro_no_sujeto_credito_fiscal',
+                        fieldLabel: 'Otro No Sujeto A Credito Fiscal',
+                        allowBlank: false,
+                        anchor: '80%',
+                        gwidth: 80,
+                        galign: 'right ',
+                        maxLength: 1179650,
+                        renderer: function (value, p, record) {
+                            if (record.data.tipo_reg != 'summary') {
+                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                            else {
+                                Ext.util.Format.usMoney
+                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                        }
+                    },
+                    type: 'NumberField',
+                    filters: {pfiltro: 'dcv.otro_no_sujeto_credito_fiscal', type: 'numeric'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false
+                },
+                {
+                    config: {
+                        name: 'importe_compras_gravadas_tasa_cero',
+                        fieldLabel: 'Importe Compras Gravadas Tasa Cero',
+                        allowBlank: false,
+                        anchor: '80%',
+                        gwidth: 80,
+                        galign: 'right ',
+                        maxLength: 1179650,
+                        renderer: function (value, p, record) {
+                            if (record.data.tipo_reg != 'summary') {
+                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                            else {
+                                Ext.util.Format.usMoney
+                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                        }
+                    },
+                    type: 'NumberField',
+                    filters: {pfiltro: 'dcv.importe_compras_gravadas_tasa_cero', type: 'numeric'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false
+                },
+
                 {
                     config: {
                         name: 'id_plantilla',
@@ -1350,7 +1502,14 @@ header("content-type: text/javascript; charset=UTF-8");
             'desc_tipo_doc_compra_venta', 'id_tipo_doc_compra_venta', 'nro_tramite',
             'desc_comprobante', 'id_int_comprobante', 'id_auxiliar', 'codigo_auxiliar', 'nombre_auxiliar', 'tipo_reg',
             'estacion', 'id_punto_venta', 'nombre', 'id_agencia', 'codigo_noiata', 'codigo_int', 'c31',
-            {name: 'fecha_vencimiento', type: 'date', dateFormat: 'Y-m-d'}, 'tipo_cambio'
+            {name: 'fecha_vencimiento', type: 'date', dateFormat: 'Y-m-d'}, 'tipo_cambio',
+            {name: 'importe_iehd', type: 'numeric'},
+            {name: 'importe_ipj', type: 'numeric'},
+            {name: 'importe_tasas', type: 'numeric'},
+            {name: 'importe_gift_card', type: 'numeric'},
+            {name: 'otro_no_sujeto_credito_fiscal', type: 'numeric'},
+            {name: 'importe_compras_gravadas_tasa_cero', type: 'numeric'},
+
         ],
 
         sortInfo: {
@@ -1384,7 +1543,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     modal: true,
                     width: '80%',
-                    height: (me.regitrarDetalle == 'si') ? '100%' : '60%',
+                    height: (me.regitrarDetalle == 'si') ? '100%' : '80%',
                 }, {
                     data: {
                         objPadre: me,

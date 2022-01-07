@@ -130,7 +130,13 @@ BEGIN
                             (dcv.importe_doc -  COALESCE(dcv.importe_descuento,0) - COALESCE(dcv.importe_excento,0))     as importe_aux_neto,
                             dcv.id_plan_pago,
                             dcv.fecha_vencimiento,
-                            dcv.tipo_cambio
+                            dcv.tipo_cambio,
+                            dcv.importe_iehd,
+                            dcv.importe_ipj,
+                            dcv.importe_tasas,
+                            dcv.importe_gift_card,
+                            dcv.otro_no_sujeto_credito_fiscal,
+                            dcv.importe_compras_gravadas_tasa_cero
 
 						from conta.tdoc_compra_venta dcv
                           inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
@@ -285,6 +291,12 @@ BEGIN
                             ic.c31,
                             dcv.fecha_vencimiento,
                             dcv.tipo_cambio
+                            ,dcv.importe_iehd,
+                            dcv.importe_ipj,
+                            dcv.importe_tasas,
+                            dcv.importe_gift_card,
+                            dcv.otro_no_sujeto_credito_fiscal,
+                            dcv.importe_compras_gravadas_tasa_cero
 
 						from conta.tdoc_compra_venta dcv
                           inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
@@ -1495,7 +1507,14 @@ BEGIN
                             ob.codigo_int,
                             ic.c31,
                             dcv.fecha_vencimiento,
-                            dcv.tipo_cambio
+                            dcv.tipo_cambio,
+
+                            dcv.importe_iehd,
+                            dcv.importe_ipj,
+                            dcv.importe_tasas,
+                            dcv.importe_gift_card,
+                            dcv.otro_no_sujeto_credito_fiscal,
+                            dcv.importe_compras_gravadas_tasa_cero
 
 						from conta.tdoc_compra_venta dcv
                           inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg

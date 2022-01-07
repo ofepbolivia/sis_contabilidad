@@ -92,6 +92,15 @@ DECLARE
     v_id_plan_pago_pp	integer;
     v_id_int_comprobante_pp	integer;
 
+  -- nuevos impuestos
+    v_importe_iehd 			numeric(14,2)=0;
+    v_importe_ipj 			numeric(14,2)=0;
+    v_importe_tasas 		numeric(14,2)=0;
+    v_importe_gift_card 	numeric(14,2)=0;
+    v_otro_no_sujeto_credito_fiscal 	numeric(14,2)=0;
+    v_compras_gravadas_tasa_cero 	numeric(14,2)=0;
+
+
 BEGIN
 
   v_nombre_funcion = 'conta.ft_doc_compra_venta_ime';
@@ -208,6 +217,17 @@ END IF;
     ELSE
         v_id_depto_contatipo = v_parametros.id_depto_conta;
     END IF;
+
+    IF (v_id_depto_contatipo is null) THEN
+    	v_id_depto_contatipo = v_id_depto_destino;
+
+        IF (v_id_depto_contatipo is null) THEN
+        	RAISE EXCEPTION 'El Departamento Contable del Documento de Compra/Venta no puede ser nulo.';
+		END IF;
+    END IF;
+
+
+
 --raise exception 'llega  f %=%',v_parametros.id_depto_conta, v_id_depto_contatipo;
      --
 
@@ -479,6 +499,31 @@ END IF;
               END IF;
          END IF;
 
+	--
+    if (pxp.f_existe_parametro(p_tabla, 'importe_iehd'))then
+    	v_importe_iehd = v_parametros.importe_iehd;
+    end if;
+
+    if (pxp.f_existe_parametro(p_tabla, 'importe_ipj'))then
+    	v_importe_ipj = v_parametros.importe_ipj;
+    end if;
+
+    if (pxp.f_existe_parametro(p_tabla, 'importe_tasas'))then
+    	v_importe_tasas = v_parametros.importe_tasas;
+    end if;
+
+    if (pxp.f_existe_parametro(p_tabla, 'importe_gift_card'))then
+    	v_importe_gift_card = v_parametros.importe_gift_card;
+    end if;
+
+    if (pxp.f_existe_parametro(p_tabla, 'otro_no_sujeto_credito_fiscal'))then
+    	v_otro_no_sujeto_credito_fiscal = v_parametros.otro_no_sujeto_credito_fiscal;
+    end if;
+
+    if (pxp.f_existe_parametro(p_tabla, 'importe_compras_gravadas_tasa_cero'))then
+    	v_compras_gravadas_tasa_cero = v_parametros.importe_compras_gravadas_tasa_cero;
+    end if;
+
 IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
 
 		--Sentencia de la insercion
@@ -524,7 +569,15 @@ IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
         nro_tramite,
         id_plan_pago,
         fecha_vencimiento,
-        tipo_cambio
+        tipo_cambio,
+
+        --30-12-2021(may)
+        importe_iehd,
+        importe_ipj,
+        importe_tasas,
+        importe_gift_card,
+        otro_no_sujeto_credito_fiscal,
+        importe_compras_gravadas_tasa_cero
 
       ) values(
         v_parametros.tipo,
@@ -569,7 +622,15 @@ IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
         v_nro_tramite,
         v_plan_pago,
         v_fecha_venci,
-        COALESCE(v_tipo_cambio,1)
+        COALESCE(v_tipo_cambio,1),
+
+        --30-12-2021(may)
+        v_importe_iehd,
+        v_importe_ipj,
+        v_importe_tasas,
+        v_importe_gift_card,
+        v_otro_no_sujeto_credito_fiscal,
+        v_compras_gravadas_tasa_cero
 
       )RETURNING id_doc_compra_venta into v_id_doc_compra_venta;
 
@@ -1049,10 +1110,47 @@ END IF;
         END IF;
 	END IF;*/
      --
+
+
+    if (pxp.f_existe_parametro(p_tabla,'id_plan_pago')) then
+
+          SELECT dd.id_depto_destino
+          INTO v_id_depto_destino
+          FROM  param.tdepto_depto dd
+          inner join tes.tobligacion_pago op on op.id_depto = dd.id_depto_origen
+          inner join tes.tplan_pago pp on pp.id_obligacion_pago = op.id_obligacion_pago
+          WHERE pp.id_plan_pago = v_parametros.id_plan_pago;
+
+          IF (v_id_depto_destino is null) THEN
+          		RAISE EXCEPTION 'El Departamento Contable del Documento de Compra/Venta no puede ser nulo.';
+          END IF;
+
+          IF v_tipo_informe = 'lcv' THEN
+               -- valida que periodO de libro de compras y ventas este abierto
+               --0---161
+               v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_id_depto_destino, v_rec.po_id_periodo);
+          END IF;
+
+          v_id_depto_contatipo = v_id_depto_destino;
+
+    ELSE
+
+     	IF v_tipo_informe = 'lcv' THEN
+               -- valida que periodO de libro de compras y ventas este abierto
+               --0---161
+               v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+        END IF;
+
+        v_id_depto_contatipo = v_parametros.id_depto_conta;
+
+     END IF;
+
+
+
 --raise exception 'llega %',v_tipo_informe;
-    IF v_tipo_informe = 'lcv' THEN
+     /*IF v_tipo_informe = 'lcv' THEN
 	      v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
-	  END IF;
+	  END IF;*/
 
     /* --raise exception 'llega %',v_id_depto_destino;
       IF v_tipo_informe = 'lcv' THEN
@@ -1086,7 +1184,8 @@ END IF;
 	  v_rec = param.f_get_periodo_gestion(v_registros.fecha);
 	  -- valida que period de libro de compras y ventas este abierto para la antigua fecha
       IF v_tipo_informe = 'lcv' THEN
-	      v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+	      --v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+          v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_id_depto_contatipo, v_rec.po_id_periodo);
 	  END IF;
 
       IF  v_registros.revisado = 'si' THEN
@@ -1242,6 +1341,30 @@ END IF;
         end if;
         -- fin control
 
+      if (pxp.f_existe_parametro(p_tabla, 'importe_iehd'))then
+      	v_importe_iehd = v_parametros.importe_iehd;
+      end if;
+
+      if (pxp.f_existe_parametro(p_tabla, 'importe_ipj'))then
+      	v_importe_ipj = v_parametros.importe_ipj;
+      end if;
+
+      if (pxp.f_existe_parametro(p_tabla, 'importe_tasas'))then
+      	v_importe_tasas = v_parametros.importe_tasas;
+      end if;
+
+      if (pxp.f_existe_parametro(p_tabla, 'importe_gift_card'))then
+      	v_importe_gift_card = v_parametros.importe_gift_card;
+      end if;
+
+      if (pxp.f_existe_parametro(p_tabla, 'otro_no_sujeto_credito_fiscal'))then
+      	v_otro_no_sujeto_credito_fiscal = v_parametros.otro_no_sujeto_credito_fiscal;
+      end if;
+
+      if (pxp.f_existe_parametro(p_tabla, 'importe_compras_gravadas_tasa_cero'))then
+      	v_compras_gravadas_tasa_cero = v_parametros.importe_compras_gravadas_tasa_cero;
+      end if;
+
       --Sentencia de la modificacion
       update conta.tdoc_compra_venta set
         tipo = v_parametros.tipo,
@@ -1257,7 +1380,7 @@ END IF;
         importe_descuento_ley = COALESCE(v_parametros.importe_descuento_ley,0),
         importe_pago_liquido = COALESCE(v_parametros.importe_pago_liquido,0),
         importe_doc = COALESCE(v_parametros.importe_doc,0),
-        id_depto_conta = v_parametros.id_depto_conta,
+        id_depto_conta = v_id_depto_contatipo, -- v_parametros.id_depto_conta,
         obs = v_parametros.obs,
         codigo_control =  upper(v_codigo_control),
         importe_it = v_parametros.importe_it,
@@ -1276,7 +1399,13 @@ END IF;
         fecha_vencimiento = v_fecha_venci,
         tipo_cambio = COALESCE(v_tipo_cambio,1),
         fecha_mod = now(),
-        id_usuario_mod = p_id_usuario
+        id_usuario_mod = p_id_usuario,
+        importe_iehd = v_importe_iehd,
+        importe_ipj = v_importe_ipj,
+        importe_tasas = v_importe_tasas,
+        importe_gift_card  = v_importe_gift_card,
+        otro_no_sujeto_credito_fiscal = v_otro_no_sujeto_credito_fiscal,
+        importe_compras_gravadas_tasa_cero =  v_compras_gravadas_tasa_cero
       where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
 
 
@@ -1427,6 +1556,29 @@ END IF;
         	v_codigo_control = v_parametros.codigo_control;
         end if;
 
+        if (pxp.f_existe_parametro(p_tabla, 'importe_iehd'))then
+        	v_importe_iehd = v_parametros.importe_iehd;
+        end if;
+
+        if (pxp.f_existe_parametro(p_tabla, 'importe_ipj'))then
+        	v_importe_ipj = v_parametros.importe_ipj;
+        end if;
+
+        if (pxp.f_existe_parametro(p_tabla, 'importe_tasas'))then
+        	v_importe_tasas = v_parametros.importe_tasas;
+        end if;
+
+        if (pxp.f_existe_parametro(p_tabla, 'importe_gift_card'))then
+        	v_importe_gift_card = v_parametros.importe_gift_card;
+        end if;
+
+        if (pxp.f_existe_parametro(p_tabla, 'otro_no_sujeto_credito_fiscal'))then
+          v_otro_no_sujeto_credito_fiscal = v_parametros.otro_no_sujeto_credito_fiscal;
+        end if;
+
+        if (pxp.f_existe_parametro(p_tabla, 'importe_compras_gravadas_tasa_cero'))then
+          v_compras_gravadas_tasa_cero = v_parametros.importe_compras_gravadas_tasa_cero;
+        end if;
 
       --Sentencia de la modificacion
       update conta.tdoc_compra_venta set
@@ -1459,7 +1611,13 @@ END IF;
         id_cliente = v_id_cliente,
         id_auxiliar = v_parametros.id_auxiliar,
         id_int_comprobante = v_id_int_comprobante,
-        estacion = v_parametros.estacion
+        estacion = v_parametros.estacion,
+        importe_iehd = v_importe_iehd,
+        importe_ipj = v_importe_ipj,
+        importe_tasas = v_importe_tasas,
+        importe_gift_card  = v_importe_gift_card,
+        otro_no_sujeto_credito_fiscal = v_otro_no_sujeto_credito_fiscal,
+        importe_compras_gravadas_tasa_cero = v_compras_gravadas_tasa_cero
       where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
 
       if (pxp.f_existe_parametro(p_tabla,'id_tipo_compra_venta')) then

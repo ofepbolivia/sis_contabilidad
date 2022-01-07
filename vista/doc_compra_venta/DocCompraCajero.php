@@ -76,7 +76,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     modal:true,
                     width:'83%',
-                    height:'60%'
+                    height:'75%'
 
                 }, { data: {
                     objPadre: me ,

@@ -745,7 +745,14 @@ header("content-type: text/javascript; charset=UTF-8");
             'importe_pago_liquido','nro_dui','id_moneda','desc_moneda','id_auxiliar','codigo_auxiliar','nombre_auxiliar',
             'fecha_vencimiento',
             'id_plan_pago',
-            'tipo_cambio'
+            'tipo_cambio',
+            {name:'importe_iehd', type: 'numeric'},
+            {name:'importe_ipj', type: 'numeric'},
+            {name:'importe_tasas', type: 'numeric'},
+            {name:'importe_no_sujeto_iva', type: 'numeric'},
+            {name:'importe_gift_card', type: 'numeric'},
+            {name:'otro_no_sujeto_credito_fiscal', type: 'numeric'},
+            {name:'importe_compras_gravadas_tasa_cero', type: 'numeric'},            
 
         ],
         sortInfo:{
@@ -763,7 +770,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     modal:true,
                     width:'80%',
-                    height:'50%'
+                    height:'80%'
                 }, { data: {
                         objPadre: me ,
                         tipoDoc: (record)?record.data.tipo:'compra',

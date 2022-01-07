@@ -14,13 +14,13 @@ header("content-type: text/javascript; charset=UTF-8");
         tam_pag: 10,
         tabEnter: true,
         codigoSistema: 'ADQ',
-        mostrarFormaPago: true,
+        mostrarFormaPago: false,
         mostrarPartidas: false,
         regitrarDetalle: 'si',
         id_moneda_defecto: 0,  // 0 quiere decir todas las monedas
         //layoutType: 'wizard',
         layout: 'fit',
-        autoScroll: false,
+        autoScroll: true,
         breset: false,
         heightHeader: 290,
         conceptos_eliminados: [],
@@ -972,7 +972,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                 fields: ['id_plantilla', 'nro_linea', 'desc_plantilla', 'tipo',
                                     'sw_tesoro', 'sw_compro', 'sw_monto_excento', 'sw_descuento',
                                     'sw_autorizacion', 'sw_codigo_control', 'tipo_plantilla', 'sw_nro_dui', 'sw_ic', 'tipo_excento', 'valor_excento', 'sw_qr', 'sw_nit', 'plantilla_qr',
-                                    'sw_estacion', 'sw_punto_venta', 'sw_codigo_no_iata'],
+                                    'sw_estacion', 'sw_punto_venta', 'sw_codigo_no_iata', 'importe_iehd', 'importe_ipj', 'importe_tasas', 'importe_gift_card', 'otro_no_sujeto_credito_fiscal', 'importe_compras_gravadas_tasa_cero'],
                                 remoteSort: true,
                                 baseParams: {par_filtro: 'plt.desc_plantilla', sw_compro: 'si', sw_tesoro: 'si'}
                             }),
@@ -1431,22 +1431,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 2,
                     form: true
                 },
-                {
-                    config: {
-                        name: 'importe_neto',
-                        qtip: 'Importe del documento menos descuentos, sobre este monto se calcula el iva',
-                        fieldLabel: 'Monto Neto',
-                        allowBlank: false,
-                        allowNegative: false,
-                        readOnly: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 1179650
-                    },
-                    type: 'NumberField',
-                    id_grupo: 2,
-                    form: true
-                },
+
                 {
                     config: {
                         name: 'importe_excento',
@@ -1548,20 +1533,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 2,
                     form: true
                 },
-                {
-                    config: {
-                        name: 'importe_iva',
-                        fieldLabel: 'IVA',
-                        allowBlank: true,
-                        readOnly: true,
-                        allowNegative: false,
-                        anchor: '80%',
-                        gwidth: 100
-                    },
-                    type: 'NumberField',
-                    id_grupo: 2,
-                    form: true
-                },
+
                 {
                     config: {
                         name: 'importe_it',
@@ -1570,6 +1542,125 @@ header("content-type: text/javascript; charset=UTF-8");
                         allowNegative: false,
                         anchor: '80%',
                         readOnly: true,
+                        gwidth: 100
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+
+                {
+                    config: {
+                        name: 'importe_iehd',
+                        fieldLabel: 'Importe IEHD',
+                        allowBlank: true,
+                        allowNegative: false,
+                        qtip: 'Importe del IEHD, no esta sujeto al IVA.',
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'importe_ipj',
+                        fieldLabel: 'Importe IPJ',
+                        allowBlank: true,
+                        allowNegative: false,
+                        qtip: 'Importe del IPJ, no esta sujeto al IVA.',
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'importe_tasas',
+                        fieldLabel: 'Tasas',
+                        allowBlank: true,
+                        allowNegative: false,
+                        qtip: 'Importe de la tasa, consignada en la factura de compra no está sujeto al IVA.',
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'otro_no_sujeto_credito_fiscal',
+                        fieldLabel: 'Otro No Sujeto a Crédito Fiscal',
+                        allowBlank: true,
+                        allowNegative: false,
+                        readOnly: false,
+                        anchor: '80%',
+                        gwidth: 100
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+				},                
+                {
+                    config: {
+                        name: 'importe_gift_card',
+                        fieldLabel: 'Importe Gift Card',
+                        allowBlank: true,
+                        allowNegative: false,
+                        qtip: 'Importe de la Gift Card.',
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'importe_compras_gravadas_tasa_cero',
+                        fieldLabel: 'Importe Compras Gravadas a Tasa Cero',
+                        allowBlank: true,
+                        allowNegative: false,
+                        readOnly: false,
+                        anchor: '80%',
+                        gwidth: 100
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+				},
+                {
+                    config: {
+                        name: 'importe_neto',
+                        qtip: 'Importe del documento menos descuentos, sobre este monto se calcula el iva',
+                        fieldLabel: 'Monto Neto',
+                        allowBlank: false,
+                        allowNegative: false,
+                        readOnly: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'importe_iva',
+                        fieldLabel: 'IVA',
+                        allowBlank: true,
+                        readOnly: true,
+                        allowNegative: false,
+                        anchor: '80%',
                         gwidth: 100
                     },
                     type: 'NumberField',
@@ -1738,6 +1829,44 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.importe_descuento.setValue(0);
                 }
 
+
+                if (rec.data.importe_iehd == 'si') {
+                    this.mostrarComponente(this.Cmp.importe_iehd);
+                } else {
+                    this.ocultarComponente(this.Cmp.importe_iehd);
+                    this.Cmp.importe_iehd.setValue(0);
+                }
+                if (rec.data.importe_ipj == 'si') {
+                    this.mostrarComponente(this.Cmp.importe_ipj);
+                } else {
+                    this.ocultarComponente(this.Cmp.importe_ipj);
+                    this.Cmp.importe_ipj.setValue(0);
+                }
+                if (rec.data.importe_tasas == 'si') {
+                    this.mostrarComponente(this.Cmp.importe_tasas);
+                } else {
+                    this.ocultarComponente(this.Cmp.importe_tasas);
+                    this.Cmp.importe_tasas.setValue(0);
+                }
+                if (rec.data.importe_gift_card == 'si') {
+                    this.mostrarComponente(this.Cmp.importe_gift_card);
+                } else {
+                    this.ocultarComponente(this.Cmp.importe_gift_card);
+                    this.Cmp.importe_gift_card.setValue(0);
+                }
+                if (rec.data.otro_no_sujeto_credito_fiscal == 'si') {
+                    this.mostrarComponente(this.Cmp.otro_no_sujeto_credito_fiscal);
+                } else {
+                    this.ocultarComponente(this.Cmp.otro_no_sujeto_credito_fiscal);
+                    this.Cmp.otro_no_sujeto_credito_fiscal.setValue(0);
+                }
+                if (rec.data.importe_compras_gravadas_tasa_cero == 'si') {
+                    this.mostrarComponente(this.Cmp.importe_compras_gravadas_tasa_cero);
+                } else {
+                    this.ocultarComponente(this.Cmp.importe_compras_gravadas_tasa_cero);
+                    this.Cmp.importe_compras_gravadas_tasa_cero.setValue(0);
+                } 
+
                 if (rec.data.sw_autorizacion == 'si') {
                     this.mostrarComponente(this.Cmp.nro_autorizacion);
                     //para que se oculte el listado del proveedor, porque llena automaticamente el num de autorizacion
@@ -1835,6 +1964,12 @@ header("content-type: text/javascript; charset=UTF-8");
 
             this.Cmp.tipo_cambio.on('change', this.calculaMontoPago, this);
 
+            this.Cmp.importe_iehd.on('change', this.calculaMontoPago, this);
+            this.Cmp.importe_ipj.on('change', this.calculaMontoPago, this);
+            this.Cmp.importe_tasas.on('change', this.calculaMontoPago, this);
+            this.Cmp.importe_gift_card.on('change', this.calculaMontoPago, this);
+            this.Cmp.otro_no_sujeto_credito_fiscal.on('change', this.calculaMontoPago, this);
+            this.Cmp.importe_compras_gravadas_tasa_cero.on('change', this.calculaMontoPago, this);
 
             this.Cmp.nro_autorizacion.on('change', function (fild, newValue, oldValue) {
                 if (newValue[3] == '4' || newValue[3] == '8' || newValue[3] == '6') {
@@ -1963,12 +2098,20 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.resetearMontos();
                     return;
                 }
-                this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - this.Cmp.importe_descuento.getValue());
+                //(07-01-2022)
+                //this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - this.Cmp.importe_descuento.getValue());
+                this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - (this.Cmp.importe_descuento.getValue() + this.Cmp.importe_excento.getValue()
+                    + this.Cmp.importe_iehd.getValue() + this.Cmp.importe_ipj.getValue() + this.Cmp.importe_tasas.getValue()
+                    + this.Cmp.importe_gift_card.getValue() + this.Cmp.otro_no_sujeto_credito_fiscal.getValue()
+                    + this.Cmp.importe_compras_gravadas_tasa_cero.getValue()));
                 this.Cmp.porc_descuento.setValue(this.Cmp.importe_descuento.getValue() / this.Cmp.importe_doc.getValue());
 
-
             } else {
-                this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue());
+                //(07-01-2022)
+                //this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue());
+                this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - (this.Cmp.importe_iehd.getValue() + this.Cmp.importe_excento.getValue()
+                    + this.Cmp.importe_ipj.getValue() + this.Cmp.importe_tasas.getValue() + this.Cmp.importe_gift_card.getValue() + this.Cmp.otro_no_sujeto_credito_fiscal.getValue()
+                    + this.Cmp.importe_compras_gravadas_tasa_cero.getValue()));
                 this.Cmp.porc_descuento.setValue(0);
             }
 
@@ -2054,7 +2197,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.Cmp.id_auxiliar.validate();
             }
             if (this.aux != 'Póliza de Importación - DUI') {
-                var liquido = this.Cmp.importe_neto.getValue() - this.Cmp.importe_retgar.getValue() - this.Cmp.importe_anticipo.getValue() - this.Cmp.importe_pendiente.getValue() - this.Cmp.importe_descuento_ley.getValue();
+                //(07-01-2022)
+                //var liquido = this.Cmp.importe_neto.getValue() - this.Cmp.importe_retgar.getValue() - this.Cmp.importe_anticipo.getValue() - this.Cmp.importe_pendiente.getValue() - this.Cmp.importe_descuento_ley.getValue();
+                var liquido = this.Cmp.importe_doc.getValue() - this.Cmp.importe_descuento.getValue()- this.Cmp.importe_retgar.getValue() - this.Cmp.importe_anticipo.getValue() - this.Cmp.importe_pendiente.getValue() - this.Cmp.importe_descuento_ley.getValue();
                 this.Cmp.importe_pago_liquido.setValue(liquido > 0 ? liquido : 0);
             }
 
@@ -2131,6 +2276,13 @@ header("content-type: text/javascript; charset=UTF-8");
             this.ocultarComponente(this.Cmp.estacion);
             this.ocultarComponente(this.Cmp.id_punto_venta);
             this.ocultarComponente(this.Cmp.id_agencia);
+
+            this.ocultarComponente(this.Cmp.importe_iehd);
+            this.ocultarComponente(this.Cmp.importe_ipj);
+            this.ocultarComponente(this.Cmp.importe_tasas);            
+            this.ocultarComponente(this.Cmp.importe_gift_card);
+            this.ocultarComponente(this.Cmp.otro_no_sujeto_credito_fiscal);
+            this.ocultarComponente(this.Cmp.importe_compras_gravadas_tasa_cero);
         },
 		disableComponentes: function () {
             //03-01-2020 (may) modificacion porque mostraba a todos su codigo de control
@@ -2218,6 +2370,13 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.importe_pendiente.setValue(0);
             this.Cmp.importe_anticipo.setValue(0);
             this.Cmp.importe_retgar.setValue(0);
+
+            this.Cmp.importe_iehd.setValue(0);
+            this.Cmp.importe_ipj.setValue(0);
+            this.Cmp.importe_tasas.setValue(0);
+            this.Cmp.importe_gift_card.setValue(0);
+            this.Cmp.otro_no_sujeto_credito_fiscal.setValue(0);
+            this.Cmp.importe_compras_gravadas_tasa_cero.setValue(0);
         },
 
         mostrarImportes: function (datos) {

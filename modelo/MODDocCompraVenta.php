@@ -106,6 +106,13 @@ class MODDocCompraVenta extends MODbase
         $this->captura('fecha_vencimiento', 'date');
         $this->captura('tipo_cambio', 'numeric');
 
+        $this->captura('importe_iehd', 'numeric');
+        $this->captura('importe_ipj', 'numeric');
+        $this->captura('importe_tasas', 'numeric');
+        $this->captura('importe_gift_card', 'numeric');
+        $this->captura('otro_no_sujeto_credito_fiscal', 'numeric');
+        $this->captura('importe_compras_gravadas_tasa_cero', 'numeric');
+
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -213,6 +220,13 @@ class MODDocCompraVenta extends MODbase
         $this->captura('c31', 'varchar');
         $this->captura('fecha_vencimiento', 'date');
         $this->captura('tipo_cambio', 'numeric');
+
+        $this->captura('importe_iehd', 'numeric');
+        $this->captura('importe_ipj', 'numeric');
+        $this->captura('importe_tasas', 'numeric');
+        $this->captura('importe_gift_card', 'numeric');
+        $this->captura('otro_no_sujeto_credito_fiscal', 'numeric');
+        $this->captura('importe_compras_gravadas_tasa_cero', 'numeric');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -526,6 +540,14 @@ class MODDocCompraVenta extends MODbase
             $this->setParametro('id_plan_pago', 'id_plan_pago', 'integer');
             $this->setParametro('fecha_vencimiento', 'fecha_vencimiento', 'date');
             $this->setParametro('tipo_cambio', 'tipo_cambio', 'numeric');
+
+            $this->setParametro('importe_iehd', 'importe_iehd', 'numeric');
+            $this->setParametro('importe_ipj', 'importe_ipj', 'numeric');
+            $this->setParametro('importe_tasas', 'importe_tasas', 'numeric');
+            $this->setParametro('importe_gift_card', 'importe_gift_card', 'numeric');
+            $this->setParametro('otro_no_sujeto_credito_fiscal', 'otro_no_sujeto_credito_fiscal', 'numeric');
+            $this->setParametro('importe_compras_gravadas_tasa_cero', 'importe_compras_gravadas_tasa_cero', 'numeric');
+
 
             //Ejecuta la instruccion
             $this->armarConsulta();
@@ -890,6 +912,15 @@ class MODDocCompraVenta extends MODbase
 
             $this->setParametro('fecha_vencimiento', 'fecha_vencimiento', 'date');
             $this->setParametro('tipo_cambio', 'tipo_cambio', 'numeric');
+
+            $this->setParametro('importe_iehd', 'importe_iehd', 'numeric');
+            $this->setParametro('importe_ipj', 'importe_ipj', 'numeric');
+            $this->setParametro('importe_tasas', 'importe_tasas', 'numeric');
+            $this->setParametro('importe_gift_card', 'importe_gift_card', 'numeric');
+            $this->setParametro('otro_no_sujeto_credito_fiscal', 'otro_no_sujeto_credito_fiscal', 'numeric');
+            $this->setParametro('importe_compras_gravadas_tasa_cero', 'importe_compras_gravadas_tasa_cero', 'numeric');
+
+            $this->setParametro('id_plan_pago', 'id_plan_pago', 'integer');
 
             //Ejecuta la instruccion
             $this->armarConsulta();
@@ -2566,6 +2597,13 @@ class MODDocCompraVenta extends MODbase
         $this->captura('c31', 'varchar');
         $this->captura('fecha_vencimiento', 'date');
         $this->captura('tipo_cambio', 'numeric');
+
+        $this->captura('importe_iehd', 'numeric');
+        $this->captura('importe_ipj', 'numeric');
+        $this->captura('importe_tasas', 'numeric');
+        $this->captura('importe_gift_card', 'numeric');
+        $this->captura('otro_no_sujeto_credito_fiscal', 'numeric');
+        $this->captura('importe_compras_gravadas_tasa_cero', 'numeric');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
