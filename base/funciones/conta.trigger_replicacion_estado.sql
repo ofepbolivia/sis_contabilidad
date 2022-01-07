@@ -74,19 +74,35 @@ $body$
              v_puerto=pxp.f_get_variable_global('sincroniza_puerto_facturacion');
              v_dbname='db_facturas_'||v_gestion_rec;
 
-             select  usu.cuenta,
-                     usu.contrasena
-                     into
-                     v_cuenta_usu,
-                     v_pass_usu
-              from segu.tusuario usu
-              where usu.id_usuario = new.id_usuario_mod;
+             if (current_user != 'dbkerp_conexion') then
+                 select  usu.cuenta,
+                         usu.contrasena
+                         into
+                         v_cuenta_usu,
+                         v_pass_usu
+                  from segu.tusuario usu
+                  where usu.id_usuario = new.id_usuario_mod;
 
-             p_user= current_user;
+                 p_user= current_user;
 
-             v_semilla = pxp.f_get_variable_global('semilla_erp');
+                 v_semilla = pxp.f_get_variable_global('semilla_erp');
 
-             select md5(v_semilla||v_pass_usu) into v_password;
+                 select md5(v_semilla||v_pass_usu) into v_password;
+             else
+             	select  usu.cuenta,
+                         usu.contrasena
+                         into
+                         v_cuenta_usu,
+                         v_pass_usu
+                  from segu.tusuario usu
+                  where usu.id_usuario = 366;
+
+                 p_user= 'dbkerp_notificaciones';
+
+                 v_semilla = pxp.f_get_variable_global('semilla_erp');
+
+                 select md5(v_semilla||v_pass_usu) into v_password;
+             end if;
 
              v_cadena_cnx = 'hostaddr='||v_host||' port='||v_puerto||' dbname='||v_dbname||' user='||p_user||' password='||v_password;
 

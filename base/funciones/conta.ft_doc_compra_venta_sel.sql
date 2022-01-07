@@ -1898,7 +1898,8 @@ BEGIN
                                 importe_iehd,
                                 importe_ipj,
                                 importe_gift_card,
-                                tipo_de_venta
+                                tipo_de_venta,
+                                otros_no_sujetos_al_iva
                         from sfe.tfactura tfa
                         where '||v_boletos_filtro||' and tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.estado_reg = ''''activo''''
                         order by tfa.fecha_factura asc --limit 100';
@@ -1982,7 +1983,8 @@ BEGIN
                                         fac.importe_iehd,
                                         fac.importe_ipj,
                                         fac.importe_gift_card,
-                                        fac.tipo_de_venta
+                                        fac.tipo_de_venta,
+                                        fac.otros_no_sujetos_al_iva
 
                                  from dblink(''' || v_cadena_factura || ''', '''|| v_consulta ||''') as
                             		fac(
@@ -2010,7 +2012,8 @@ BEGIN
                                         importe_iehd numeric,
                                         importe_ipj numeric,
                                         importe_gift_card numeric,
-                                        tipo_de_venta integer
+                                        tipo_de_venta integer,
+                                        otros_no_sujetos_al_iva numeric
                                     ) where case when (('||date_part('month',v_fecha_ini)||'=1 and '||date_part('year',v_fecha_ini)||'=2021) or ('||date_part('month',v_fecha_fin)||'=1 and '||date_part('year',v_fecha_fin)||'=2021)) then 0=0 else fac.nro_factura not in (
                                     select nro_boleto from vef.tboletos_asociados_fact tba
                                     inner join vef.tventa tv on tv.id_venta = tba.id_venta
