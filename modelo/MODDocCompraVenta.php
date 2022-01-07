@@ -2697,6 +2697,7 @@ class MODDocCompraVenta extends MODbase
         $this->captura('importe_ipj', 'NUMERIC');
         $this->captura('importe_gift_card', 'NUMERIC');
         $this->captura('tipo_de_venta', 'integer');
+        $this->captura('otros_no_sujetos_al_iva', 'NUMERIC');
 
 
         //Ejecuta la instruccion
