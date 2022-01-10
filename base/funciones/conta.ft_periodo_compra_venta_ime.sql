@@ -398,6 +398,7 @@ BEGIN
                         and pcv.id_depto = v_registros.id_depto
                         and pcv.id_periodo = v_id_periodo;
 
+						if v_perido_compra_venta is not null then
                         --if  (v_perido_compra_venta.estado = 'abierto')then
 
                             update conta.tperiodo_compra_venta set
@@ -423,7 +424,7 @@ BEGIN
                                   null,
                                   'Cierre automatico programado por contabilidad');
                       --  end if;
-
+						end if;
                 end loop;
               end if;
             end if;
@@ -442,7 +443,7 @@ EXCEPTION
 
 	WHEN OTHERS THEN
 		v_resp='';
-		v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
+		v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM||' registro: '||v_registros);
 		v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
 		v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 		raise exception '%',v_resp;
