@@ -1825,10 +1825,13 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.mostrarComponente(this.Cmp.importe_excento);
                     this.Cmp.tipo_excento.setValue(rec.data.tipo_excento);
                     this.Cmp.valor_excento.setValue(rec.data.valor_excento);
+                    //10-01-2022 (may) ya no el importe excento, es el importe IEHD
                     if (rec.data.tipo_excento == 'variable') {
-                        this.Cmp.importe_excento.setReadOnly(false);
+                        //this.Cmp.importe_excento.setReadOnly(false);
+                        this.Cmp.importe_iehd.setReadOnly(false);
                     } else {
-                        this.Cmp.importe_excento.setReadOnly(true);
+                        //this.Cmp.importe_excento.setReadOnly(true);
+                        this.Cmp.importe_iehd.setReadOnly(true);
                     }
 
                 }
@@ -2112,9 +2115,20 @@ header("content-type: text/javascript; charset=UTF-8");
 
         calculaMontoPago: function () {
 
+
+            if (this.Cmp.tipo_excento.getValue() == 'constante') {
+                this.Cmp.importe_excento.setValue(this.Cmp.valor_excento.getValue())
+            }
+
+            if (this.Cmp.tipo_excento.getValue() == 'porcentual') {
+                //10-01-2022 (may) ya no el importe excento, es el importe IEHD
+                //this.Cmp.importe_excento.setValue(this.Cmp.importe_neto.getValue() * this.Cmp.valor_excento.getValue())
+                this.Cmp.importe_iehd.setValue(this.Cmp.importe_doc.getValue() * this.Cmp.valor_excento.getValue())
+            }
+
             var me = this,
                 descuento_ley = 0.00;
-            v_importe_descuento = typeof(this.Cmp.importe_descuento.getValue())=='string'?0:this.Cmp.importe_descuento.getValue(),
+                v_importe_descuento = typeof(this.Cmp.importe_descuento.getValue())=='string'?0:this.Cmp.importe_descuento.getValue(),
                 v_importe_excento = typeof(this.Cmp.importe_excento.getValue())=='string'?0:this.Cmp.importe_excento.getValue(),
                 v_importe_iehd= typeof(this.Cmp.importe_iehd.getValue())=='string'?0:this.Cmp.importe_iehd.getValue(),
                 v_importe_ipj = typeof(this.Cmp.importe_ipj.getValue())=='string'?0:this.Cmp.importe_ipj.getValue(),
@@ -2161,13 +2175,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.Cmp.importe_excento.setValue(this.Cmp.importe_neto.getValue() * this.tmp_porc_monto_excento_var)
             }
 
-            if (this.Cmp.tipo_excento.getValue() == 'constante') {
-                this.Cmp.importe_excento.setValue(this.Cmp.valor_excento.getValue())
-            }
-
-            if (this.Cmp.tipo_excento.getValue() == 'porcentual') {
-                this.Cmp.importe_excento.setValue(this.Cmp.importe_neto.getValue() * this.Cmp.valor_excento.getValue())
-            }
 
 
             if (this.Cmp.importe_excento.getValue() == 0) {
