@@ -625,12 +625,12 @@ IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
         COALESCE(v_tipo_cambio,1),
 
         --30-12-2021(may)
-        v_importe_iehd,
-        v_importe_ipj,
-        v_importe_tasas,
-        v_importe_gift_card,
-        v_otro_no_sujeto_credito_fiscal,
-        v_compras_gravadas_tasa_cero
+        COALESCE(v_importe_iehd,0),
+        COALESCE(v_importe_ipj,0),
+        COALESCE(v_importe_tasas,0),
+        COALESCE(v_importe_gift_card,0),
+        COALESCE(v_otro_no_sujeto_credito_fiscal,0),
+        COALESCE(v_compras_gravadas_tasa_cero,0)
 
       )RETURNING id_doc_compra_venta into v_id_doc_compra_venta;
 
@@ -1400,12 +1400,12 @@ END IF;
         tipo_cambio = COALESCE(v_tipo_cambio,1),
         fecha_mod = now(),
         id_usuario_mod = p_id_usuario,
-        importe_iehd = v_importe_iehd,
-        importe_ipj = v_importe_ipj,
-        importe_tasas = v_importe_tasas,
-        importe_gift_card  = v_importe_gift_card,
-        otro_no_sujeto_credito_fiscal = v_otro_no_sujeto_credito_fiscal,
-        importe_compras_gravadas_tasa_cero =  v_compras_gravadas_tasa_cero
+        importe_iehd = COALESCE(v_importe_iehd,0),
+        importe_ipj = COALESCE(v_importe_ipj,0),
+        importe_tasas = COALESCE(v_importe_tasas,0),
+        importe_gift_card  = COALESCE(v_importe_gift_card,0),
+        otro_no_sujeto_credito_fiscal = COALESCE(v_otro_no_sujeto_credito_fiscal,0),
+        importe_compras_gravadas_tasa_cero =  COALESCE(v_compras_gravadas_tasa_cero,0)
       where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
 
 
@@ -1612,12 +1612,12 @@ END IF;
         id_auxiliar = v_parametros.id_auxiliar,
         id_int_comprobante = v_id_int_comprobante,
         estacion = v_parametros.estacion,
-        importe_iehd = v_importe_iehd,
-        importe_ipj = v_importe_ipj,
-        importe_tasas = v_importe_tasas,
-        importe_gift_card  = v_importe_gift_card,
-        otro_no_sujeto_credito_fiscal = v_otro_no_sujeto_credito_fiscal,
-        importe_compras_gravadas_tasa_cero = v_compras_gravadas_tasa_cero
+        importe_iehd = COALESCE(v_importe_iehd,0),
+        importe_ipj = COALESCE(v_importe_ipj,0),
+        importe_tasas = COALESCE(v_importe_tasas,0),
+        importe_gift_card  = COALESCE(v_importe_gift_card,0),
+        otro_no_sujeto_credito_fiscal = COALESCE(v_otro_no_sujeto_credito_fiscal,0),
+        importe_compras_gravadas_tasa_cero = COALESCE(v_compras_gravadas_tasa_cero,0)
       where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
 
       if (pxp.f_existe_parametro(p_tabla,'id_tipo_compra_venta')) then
