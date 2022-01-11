@@ -1754,6 +1754,8 @@ header("content-type: text/javascript; charset=UTF-8");
             }, this);
 
 
+
+
             this.Cmp.nit.on('select', function (cmb, rec, i) {
                 this.Cmp.razon_social.setValue(rec.data.razon_social);
             }, this);
@@ -1802,13 +1804,14 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.tipo_excento.setValue(rec.data.tipo_excento);
                     this.Cmp.valor_excento.setValue(rec.data.valor_excento);
                     //10-01-2022 (may) ya no el importe excento, es el importe IEHD
-                    if (rec.data.tipo_excento == 'variable') {
+                    //10-01-2022 (may) se comenta por que sera editable
+                    /*if (rec.data.tipo_excento == 'variable') {
                         //this.Cmp.importe_excento.setReadOnly(false);
                         this.Cmp.importe_iehd.setReadOnly(false);
                     } else {
                         //this.Cmp.importe_excento.setReadOnly(true);
                         this.Cmp.importe_iehd.setReadOnly(true);
-                    }
+                    }*/
 
                 }
                 else {
@@ -2091,16 +2094,27 @@ header("content-type: text/javascript; charset=UTF-8");
         },
 
         calculaMontoPago: function () {
+            
+            //this.Cmp.importe_doc.on('change', function (cmb, newval, oldval) {
+                if (this.Cmp.tipo_excento.getValue() == 'constante') {
+                    this.Cmp.importe_excento.setValue(this.Cmp.valor_excento.getValue())
+                }
 
-            if (this.Cmp.tipo_excento.getValue() == 'constante') {
-                this.Cmp.importe_excento.setValue(this.Cmp.valor_excento.getValue())
-            }
+                if (this.Cmp.tipo_excento.getValue() == 'porcentual' && this.Cmp.otro_no_sujeto_credito_fiscal.getValue() <= 0) {
+                    //10-01-2022 (may) ya no el importe excento, es el importe otro_no_sujeto_credito_fiscal
+                    //this.Cmp.importe_excento.setValue(this.Cmp.importe_neto.getValue() * this.Cmp.valor_excento.getValue())
+                    this.Cmp.otro_no_sujeto_credito_fiscal.setValue(this.Cmp.importe_doc.getValue() * this.Cmp.valor_excento.getValue())
+                }
 
-            if (this.Cmp.tipo_excento.getValue() == 'porcentual') {
-                //10-01-2022 (may) ya no el importe excento, es el importe IEHD
-                //this.Cmp.importe_excento.setValue(this.Cmp.importe_neto.getValue() * this.Cmp.valor_excento.getValue())
-                this.Cmp.importe_iehd.setValue(this.Cmp.importe_doc.getValue() * this.Cmp.valor_excento.getValue())
-            }
+
+            //}, this);
+
+            /*this.Cmp.otro_no_sujeto_credito_fiscal.on('change', function (cmb, newval, oldval) {
+                console.log('lleganval ', newval)
+                 this.Cmp.otro_no_sujeto_credito_fiscal.setValue(newval);
+            },this);*/
+
+
 
             var me = this,
                 descuento_ley = 0.00,
@@ -2460,6 +2474,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.accionFormulario = 'NEW';
             this.Cmp.nit.modificado = true;
             this.Cmp.nro_autorizacion.modificado = true;
+            this.Cmp.otro_no_sujeto_credito_fiscal.modificado = true;
             this.esconderImportes();
 
 

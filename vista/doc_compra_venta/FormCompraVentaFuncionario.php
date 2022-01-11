@@ -1717,13 +1717,14 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.tipo_excento.setValue(rec.data.tipo_excento);
                     this.Cmp.valor_excento.setValue(rec.data.valor_excento);
                     //10-01-2022 (may) ya no el importe excento, es el importe IEHD
-                    if (rec.data.tipo_excento == 'variable') {
+                    //10-01-2022 (may) se comenta por que sera editable
+                    /*if (rec.data.tipo_excento == 'variable') {
                         //this.Cmp.importe_excento.setReadOnly(false);
                         this.Cmp.importe_iehd.setReadOnly(false);
                     } else {
                         //this.Cmp.importe_excento.setReadOnly(true);
                         this.Cmp.importe_iehd.setReadOnly(true);
-                    }
+                    }*/
 
                 }
                 else {
@@ -2013,10 +2014,10 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.importe_excento.setValue(this.Cmp.valor_excento.getValue())
                 }
 
-                if (this.Cmp.tipo_excento.getValue() == 'porcentual') {
-                    //10-01-2022 (may) ya no el importe excento, es el importe IEHD
+                if (this.Cmp.tipo_excento.getValue() == 'porcentual' && this.Cmp.otro_no_sujeto_credito_fiscal.getValue() <= 0) {
+                    //10-01-2022 (may) ya no el importe excento, es el importe otro_no_sujeto_credito_fiscal
                     //this.Cmp.importe_excento.setValue(this.Cmp.importe_neto.getValue() * this.Cmp.valor_excento.getValue())
-                    this.Cmp.importe_iehd.setValue(this.Cmp.importe_doc.getValue() * this.Cmp.valor_excento.getValue())
+                    this.Cmp.otro_no_sujeto_credito_fiscal.setValue(this.Cmp.importe_doc.getValue() * this.Cmp.valor_excento.getValue())
                 }
 
                 var me = this,
