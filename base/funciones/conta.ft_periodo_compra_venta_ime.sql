@@ -51,6 +51,11 @@ DECLARE
     v_estado_periodo			varchar;
     v_periodo_literal			varchar;
 
+    v_gestion_recu				integer;
+    v_id_periodo_update			integer;
+    v_id_periodo_rec			integer;
+     v_estado_rec				varchar;
+
 BEGIN
 
     v_nombre_funcion = 'conta.ft_periodo_compra_venta_ime';
@@ -180,9 +185,11 @@ BEGIN
 
              /*Aumentando para que se jale informacion de la tabla sfe.tfactura para los comisionistas*/
              --Modifi (Ismael Valdivia 13/04/2021)
-             select pcv.id_depto
+             select pcv.id_depto,
+             	    pcv.id_periodo
              	    into
-                    v_id_depto_cv
+                    v_id_depto_cv,
+                    v_id_periodo_update
              from conta.tperiodo_compra_venta pcv
              where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta;
 
@@ -192,8 +199,23 @@ BEGIN
              from param.tdepto dep
              where trim(dep.codigo) = 'CON';
 
+             select ges.gestion
+             		into
+                    v_gestion_recu
+             from conta.tperiodo_compra_venta pcv
+             inner join param.tperiodo per on per.id_periodo = pcv.id_periodo
+             inner join param.tgestion ges on ges.id_gestion = per.id_gestion
+             where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta;
+
              if (v_id_depto_cv = v_id_depto) then
-             	v_traer_data = vef.ft_insertar_acumulacion_comisionistas_ime();
+
+             	v_traer_data = vef.ft_insertar_acumulacion_comisionistas_ime(v_gestion_recu,v_id_periodo_update);
+
+                update vef.tacumulacion_comisionistas set
+                  estado = v_estado
+                where id_periodo = v_id_periodo_update
+                and id_gestion = v_id_gestion_periodo;
+
              end if;
 
 
@@ -236,9 +258,11 @@ BEGIN
 
              /*Aumentando para que se jale informacion de la tabla sfe.tfactura para los comisionistas*/
              --Modifi (Ismael Valdivia 13/04/2021)
-             select pcv.id_depto
+             select pcv.id_depto,
+             		pcv.id_periodo
              	    into
-                    v_id_depto_cv
+                    v_id_depto_cv,
+                    v_id_periodo_update
              from conta.tperiodo_compra_venta pcv
              where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta;
 
@@ -248,8 +272,22 @@ BEGIN
              from param.tdepto dep
              where trim(dep.codigo) = 'CON';
 
+             select ges.gestion
+             		into
+                    v_gestion_recu
+             from conta.tperiodo_compra_venta pcv
+             inner join param.tperiodo per on per.id_periodo = pcv.id_periodo
+             inner join param.tgestion ges on ges.id_gestion = per.id_gestion
+             where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta;
+
              if (v_id_depto_cv = v_id_depto) then
-             	v_traer_data = vef.ft_insertar_acumulacion_comisionistas_ime();
+             	v_traer_data = vef.ft_insertar_acumulacion_comisionistas_ime(v_gestion_recu,v_id_periodo_update);
+
+                update vef.tacumulacion_comisionistas set
+                  estado = v_estado
+                where id_periodo = v_id_periodo_update
+                and id_gestion = v_id_gestion_periodo;
+
              end if;
              /*****************************************************************************************/
             ELSE
@@ -298,8 +336,8 @@ BEGIN
              estado = v_estado
              where id_periodo >= (select per.id_periodo
              					 from conta.tperiodo_compra_venta per
-             					 where per.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta);
-
+             					 where per.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta)
+             and id_gestion = v_id_gestion_periodo;
 
             END IF;
 
