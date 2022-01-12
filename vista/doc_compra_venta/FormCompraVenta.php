@@ -1816,10 +1816,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 }
                 else {
                     this.ocultarComponente(this.Cmp.importe_excento);
-                    this.Cmp.importe_excento.setReadOnly(false);
-                    this.Cmp.tipo_excento.setValue('variable');
+                    //this.Cmp.importe_excento.setReadOnly(false);
+                    //this.Cmp.tipo_excento.setValue('variable');
                     this.Cmp.importe_excento.setValue(0);
-                    this.Cmp.valor_excento.setValue(0);
+                    //this.Cmp.valor_excento.setValue(0);
+
+                    this.Cmp.tipo_excento.setValue(rec.data.tipo_excento);
+                    this.Cmp.valor_excento.setValue(rec.data.valor_excento);
 
                 }
 
@@ -1977,6 +1980,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.otro_no_sujeto_credito_fiscal.on('change', this.calculaMontoPago, this);
             this.Cmp.importe_compras_gravadas_tasa_cero.on('change', this.calculaMontoPago, this);
 
+            this.Cmp.importe_ice.on('change', this.calculaMontoPago, this);
+
             this.Cmp.nro_autorizacion.on('change', function (fild, newValue, oldValue) {
                 if (newValue[3] == '4' || newValue[3] == '8' || newValue[3] == '6') {
                     this.mostrarComponente(this.Cmp.codigo_control);
@@ -2074,7 +2079,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 // else{
                 // 	alert('la plantilla de array no se corresponde con el QR');
                 //  }
-
+                this.Cmp.importe_excento.setValue(0);
                 this.calculaMontoPago();
 
 
@@ -2094,30 +2099,23 @@ header("content-type: text/javascript; charset=UTF-8");
         },
 
         calculaMontoPago: function () {
-            
-            //this.Cmp.importe_doc.on('change', function (cmb, newval, oldval) {
-                if (this.Cmp.tipo_excento.getValue() == 'constante') {
-                    this.Cmp.importe_excento.setValue(this.Cmp.valor_excento.getValue())
-                }
-
-                if (this.Cmp.tipo_excento.getValue() == 'porcentual' && this.Cmp.otro_no_sujeto_credito_fiscal.getValue() <= 0) {
-                    //10-01-2022 (may) ya no el importe excento, es el importe otro_no_sujeto_credito_fiscal
-                    //this.Cmp.importe_excento.setValue(this.Cmp.importe_neto.getValue() * this.Cmp.valor_excento.getValue())
-                    this.Cmp.otro_no_sujeto_credito_fiscal.setValue(this.Cmp.importe_doc.getValue() * this.Cmp.valor_excento.getValue())
-                }
 
 
-            //}, this);
+            if (this.Cmp.tipo_excento.getValue() == 'constante') {
+                this.Cmp.importe_excento.setValue(this.Cmp.valor_excento.getValue())
+            }
 
-            /*this.Cmp.otro_no_sujeto_credito_fiscal.on('change', function (cmb, newval, oldval) {
-                console.log('lleganval ', newval)
-                 this.Cmp.otro_no_sujeto_credito_fiscal.setValue(newval);
-            },this);*/
-
+            if (this.Cmp.tipo_excento.getValue() == 'porcentual' && this.Cmp.otro_no_sujeto_credito_fiscal.getValue() <= 0) {
+                //10-01-2022 (may) ya no el importe excento, es el importe otro_no_sujeto_credito_fiscal
+                //this.Cmp.importe_excento.setValue(this.Cmp.importe_neto.getValue() * this.Cmp.valor_excento.getValue())
+                this.Cmp.importe_excento.setValue(0);
+                this.Cmp.otro_no_sujeto_credito_fiscal.setValue(this.Cmp.importe_doc.getValue() * this.Cmp.valor_excento.getValue())
+            }
 
 
             var me = this,
                 descuento_ley = 0.00,
+                v_importe_ice = typeof(this.Cmp.importe_ice.getValue())=='string'?0:this.Cmp.importe_ice.getValue(),
                 v_importe_descuento = typeof(this.Cmp.importe_descuento.getValue())=='string'?0:this.Cmp.importe_descuento.getValue(),
                 v_importe_excento = typeof(this.Cmp.importe_excento.getValue())=='string'?0:this.Cmp.importe_excento.getValue(),
                 v_importe_iehd= typeof(this.Cmp.importe_iehd.getValue())=='string'?0:this.Cmp.importe_iehd.getValue(),
@@ -2137,7 +2135,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 //this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - this.Cmp.importe_descuento.getValue());
                 this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - ( v_importe_descuento + v_importe_excento
                     + v_importe_iehd + v_importe_ipj + v_importe_tasas
-                    + v_importe_gift_card + v_otro_no_sujeto_credito_fiscal + v_importe_compras_gravadas_tasa_cero));
+                    + v_importe_gift_card + v_otro_no_sujeto_credito_fiscal + v_importe_compras_gravadas_tasa_cero + v_importe_ice));
                 this.Cmp.porc_descuento.setValue(this.Cmp.importe_descuento.getValue() / this.Cmp.importe_doc.getValue());
 
             } else {
@@ -2145,7 +2143,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 //this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue());
                 this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - (v_importe_iehd + v_importe_excento
                     + v_importe_ipj + v_importe_tasas + v_importe_gift_card + v_otro_no_sujeto_credito_fiscal
-                    + v_importe_compras_gravadas_tasa_cero));
+                    + v_importe_compras_gravadas_tasa_cero + v_importe_ice));
                 this.Cmp.porc_descuento.setValue(0);
             }
 

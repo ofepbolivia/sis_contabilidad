@@ -130,7 +130,7 @@ BEGIN
 
                             (dcv.importe_doc -  (COALESCE(dcv.importe_descuento,0) + COALESCE(dcv.importe_excento,0)+ COALESCE(dcv.importe_iehd,0) +
                              COALESCE(dcv.importe_ipj,0)+COALESCE(dcv.importe_tasas,0)+ COALESCE(dcv.importe_gift_card,0) + COALESCE(dcv.otro_no_sujeto_credito_fiscal,0) +
-                             COALESCE(dcv.importe_compras_gravadas_tasa_cero,0))  )     as importe_aux_neto,
+                             COALESCE(dcv.importe_compras_gravadas_tasa_cero,0) + COALESCE(dcv.importe_ice,0) )  )     as importe_aux_neto,
 
                             dcv.id_plan_pago,
                             dcv.fecha_vencimiento,
@@ -189,7 +189,7 @@ BEGIN
 
                               COALESCE(sum(dcv.importe_doc - (COALESCE(dcv.importe_descuento,0) + COALESCE(dcv.importe_excento,0)+ COALESCE(dcv.importe_iehd,0) +
                               COALESCE(dcv.importe_ipj,0)+COALESCE(dcv.importe_tasas,0)+ COALESCE(dcv.importe_gift_card,0) + COALESCE(dcv.otro_no_sujeto_credito_fiscal,0) +
-                              COALESCE(dcv.importe_compras_gravadas_tasa_cero,0)) ),0) as total_importe_aux_neto
+                              COALESCE(dcv.importe_compras_gravadas_tasa_cero,0)  + COALESCE(dcv.importe_ice,0) ) ),0) as total_importe_aux_neto
 
 					   from conta.tdoc_compra_venta dcv
                           inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
@@ -291,7 +291,7 @@ BEGIN
 
                             (dcv.importe_doc -  (COALESCE(dcv.importe_descuento,0) + COALESCE(dcv.importe_excento,0)+ COALESCE(dcv.importe_iehd,0) +
                              COALESCE(dcv.importe_ipj,0)+COALESCE(dcv.importe_tasas,0)+ COALESCE(dcv.importe_gift_card,0) + COALESCE(dcv.otro_no_sujeto_credito_fiscal,0) +
-                             COALESCE(dcv.importe_compras_gravadas_tasa_cero,0))  )     as importe_aux_neto,
+                             COALESCE(dcv.importe_compras_gravadas_tasa_cero,0) + COALESCE(dcv.importe_ice,0) ))     as importe_aux_neto,
 
                             dcv.estacion,
                             dcv.id_punto_venta,
@@ -374,9 +374,9 @@ BEGIN
 
                               COALESCE(sum(dcv.importe_doc -  (COALESCE(dcv.importe_descuento,0) + COALESCE(dcv.importe_excento,0)+ COALESCE(dcv.importe_iehd,0) +
                               COALESCE(dcv.importe_ipj,0)+COALESCE(dcv.importe_tasas,0)+ COALESCE(dcv.importe_gift_card,0) + COALESCE(dcv.otro_no_sujeto_credito_fiscal,0) +
-                              COALESCE(dcv.importe_compras_gravadas_tasa_cero,0)) ),0) as total_importe_aux_neto
+                              COALESCE(dcv.importe_compras_gravadas_tasa_cero,0)  + COALESCE(dcv.importe_ice,0)) ),0) as total_importe_aux_neto
 
-					  ffrom conta.tdoc_compra_venta dcv
+					  from conta.tdoc_compra_venta dcv
                           inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
                           inner join param.tplantilla pla on pla.id_plantilla = dcv.id_plantilla
                           inner join param.tmoneda mon on mon.id_moneda = dcv.id_moneda
@@ -887,7 +887,7 @@ BEGIN
 
                             (dcv.importe_doc -  (COALESCE(dcv.importe_descuento,0) + COALESCE(dcv.importe_excento,0)+ COALESCE(dcv.importe_iehd,0) +
                              COALESCE(dcv.importe_ipj,0)+COALESCE(dcv.importe_tasas,0)+ COALESCE(dcv.importe_gift_card,0) + COALESCE(dcv.otro_no_sujeto_credito_fiscal,0) +
-                             COALESCE(dcv.importe_compras_gravadas_tasa_cero,0)) )     as importe_aux_neto,
+                             COALESCE(dcv.importe_compras_gravadas_tasa_cero,0)  + COALESCE(dcv.importe_ice,0) ) )     as importe_aux_neto,
 
                             dcv.id_plan_pago,
                             dcv.fecha_vencimiento,
@@ -941,7 +941,7 @@ BEGIN
 
                               COALESCE(sum(dcv.importe_doc - (COALESCE(dcv.importe_descuento,0) + COALESCE(dcv.importe_excento,0)+ COALESCE(dcv.importe_iehd,0) +
                               COALESCE(dcv.importe_ipj,0)+COALESCE(dcv.importe_tasas,0)+ COALESCE(dcv.importe_gift_card,0) + COALESCE(dcv.otro_no_sujeto_credito_fiscal,0) +
-                              COALESCE(dcv.importe_compras_gravadas_tasa_cero,0)) ),0) as total_importe_aux_neto
+                              COALESCE(dcv.importe_compras_gravadas_tasa_cero,0)  + COALESCE(dcv.importe_ice,0) ) ),0) as total_importe_aux_neto
 
 					   from conta.tdoc_compra_venta dcv
                           inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
@@ -1028,7 +1028,7 @@ BEGIN
 
                             (dcv.importe_doc -  (COALESCE(dcv.importe_descuento,0) + COALESCE(dcv.importe_excento,0)+ COALESCE(dcv.importe_iehd,0) +
                              COALESCE(dcv.importe_ipj,0)+COALESCE(dcv.importe_tasas,0)+ COALESCE(dcv.importe_gift_card,0) + COALESCE(dcv.otro_no_sujeto_credito_fiscal,0) +
-                             COALESCE(dcv.importe_compras_gravadas_tasa_cero,0)) )     as importe_aux_neto,
+                             COALESCE(dcv.importe_compras_gravadas_tasa_cero,0)  + COALESCE(dcv.importe_ice,0) ) )     as importe_aux_neto,
 
                             dcv.id_plan_pago,
                             dcv.fecha_vencimiento,
@@ -1526,7 +1526,7 @@ BEGIN
 
                             (dcv.importe_doc -  (COALESCE(dcv.importe_descuento,0) + COALESCE(dcv.importe_excento,0)+ COALESCE(dcv.importe_iehd,0) +
                              COALESCE(dcv.importe_ipj,0)+COALESCE(dcv.importe_tasas,0)+ COALESCE(dcv.importe_gift_card,0) + COALESCE(dcv.otro_no_sujeto_credito_fiscal,0) +
-                             COALESCE(dcv.importe_compras_gravadas_tasa_cero,0))  )     as importe_aux_neto,
+                             COALESCE(dcv.importe_compras_gravadas_tasa_cero,0) + COALESCE(dcv.importe_ice,0) )  )     as importe_aux_neto,
 
                             dcv.estacion,
                             dcv.id_punto_venta,
@@ -1595,7 +1595,7 @@ BEGIN
 
                               COALESCE(sum(dcv.importe_doc - (COALESCE(dcv.importe_descuento,0) + COALESCE(dcv.importe_excento,0)+ COALESCE(dcv.importe_iehd,0) +
                               COALESCE(dcv.importe_ipj,0)+COALESCE(dcv.importe_tasas,0)+ COALESCE(dcv.importe_gift_card,0) + COALESCE(dcv.otro_no_sujeto_credito_fiscal,0) +
-                              COALESCE(dcv.importe_compras_gravadas_tasa_cero,0)) ),0) as total_importe_aux_neto
+                              COALESCE(dcv.importe_compras_gravadas_tasa_cero,0) + COALESCE(dcv.importe_ice,0) ) ),0) as total_importe_aux_neto
 
 					  from conta.tdoc_compra_venta dcv
                           inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
