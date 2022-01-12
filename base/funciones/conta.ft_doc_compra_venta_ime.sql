@@ -351,11 +351,15 @@ END IF;
       -- considerando el ice, par ano hacer mayores cambios
       --12-01-2022 (may) segun observaciones por Veronica Mamani el ICE tendra un valor propio que registraran desde la fecha se realiza el combio
 
-      v_importe_ice = NULL;
-      /*IF v_registros.sw_ic = 'si' then
+      /*v_importe_ice = NULL;
+      IF v_registros.sw_ic = 'si' then
         v_importe_ice = v_parametros.importe_excento;
       END IF;*/
-      v_importe_ice = v_parametros.importe_ice;
+      if (pxp.f_existe_parametro(p_tabla,'importe_ice')) then
+        v_importe_ice = v_parametros.importe_ice;
+      end if;
+
+      v_importe_ice = v_importe_ice;
       --
 
       ----validacion exento mayot monto mmv
@@ -1237,11 +1241,15 @@ END IF;
       --si tiene habilitado el ic copiamos el monto excento
       --12-01-2022 (may) segun observaciones por Veronica Mamani el ICE tendra un valor propio que registraran desde la fecha se realiza el combio
 
-      v_importe_ice = NULL;
-      /*IF v_registros.sw_ic = 'si' then
+      /*v_importe_ice = NULL;
+      IF v_registros.sw_ic = 'si' then
         v_importe_ice = v_parametros.importe_excento;
       END IF;*/
-      v_importe_ice = v_parametros.importe_ice;
+      if (pxp.f_existe_parametro(p_tabla,'importe_ice')) then
+        v_importe_ice = v_parametros.importe_ice;
+      end if;
+
+      v_importe_ice = v_importe_ice;
       --
 
       IF v_parametros.importe_pendiente > 0 or v_parametros.importe_anticipo > 0 or v_parametros.importe_retgar > 0 THEN
@@ -1546,11 +1554,15 @@ END IF;
       --si tiene habilitado el ic copiamos el monto excento
       --12-01-2022 (may) segun observaciones por Veronica Mamani el ICE tendra un valor propio que registraran desde la fecha se realiza el combio
 
-      v_importe_ice = NULL;
-      /*IF v_registros.sw_ic = 'si' then
+      /*v_importe_ice = NULL;
+      IF v_registros.sw_ic = 'si' then
         v_importe_ice = v_parametros.importe_excento;
       END IF;*/
-      v_importe_ice = v_parametros.importe_ice;
+      if (pxp.f_existe_parametro(p_tabla,'importe_ice')) then
+        v_importe_ice = v_parametros.importe_ice;
+      end if;
+
+      v_importe_ice = v_importe_ice;
       --
 
 
