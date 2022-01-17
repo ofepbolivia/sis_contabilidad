@@ -365,11 +365,12 @@ END IF;
       ----validacion exento mayot monto mmv
 
       --may 27-03-2020 modificacion solo para estacion central Bolivia
-      IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
+      --17-01-2022 se quita el control del importe porque en el neto ya swe descuenta el excento.
+      /*IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
           IF v_parametros.importe_excento > v_parametros.importe_neto THEN
           raise exception 'El Importe Exento: %, no puede ser mayor al Monto Total: %. Revise los importes.',v_parametros.importe_excento,v_parametros.importe_neto;
           END IF;
-       END IF;
+       END IF;*/
 
 
       select p.sw_nit, p.sw_autorizacion

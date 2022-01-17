@@ -2193,19 +2193,19 @@ header("content-type: text/javascript; charset=UTF-8");
                 }
                 if (this.Cmp.porc_iva_cf.getValue() > 0) {
                     //validacion excento mayot monto mmv
-                    if (excento > this.Cmp.importe_neto.getValue()) {
+                    if (excento > (this.Cmp.importe_neto.getValue()+this.Cmp.importe_excento.getValue() )) {
                         alert('El Importe Exento: ' + excento + ', no puede ser mayor al Monto Total: ' + this.Cmp.importe_neto.getValue() + '. Revise los importes.');
                     } else {
-                        this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_cf.getValue() * (this.Cmp.importe_neto.getValue() - excento));
+                        this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_cf.getValue() * ((this.Cmp.importe_neto.getValue()+this.Cmp.importe_excento.getValue()) - excento));
                     }
 
                 }
                 else {
                     //validacion excento mayot monto mmv
-                    if (excento > this.Cmp.importe_neto.getValue()) {
+                    if (excento > (this.Cmp.importe_neto.getValue() + this.Cmp.importe_excento.getValue()) ) {
                         alert('El Importe Exento: ' + excento + ', no puede ser mayor al Monto Total: ' + this.Cmp.importe_neto.getValue() + '. Revise los importes.');
                     } else {
-                        this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_df.getValue() * (this.Cmp.importe_neto.getValue() - excento));
+                        this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_df.getValue() * ((this.Cmp.importe_neto.getValue()+this.Cmp.importe_excento.getValue()) - excento));
                     }
                 }
             }
