@@ -2192,7 +2192,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.Cmp.importe_descuento_ley.setValue(descuento_ley);
             }
             else {
-                descuento_ley = (this.Cmp.importe_neto.getValue() * 1.00 - this.Cmp.importe_excento.getValue() * 1.00) * this.Cmp.porc_descuento_ley.getValue();
+                //17-01-2022 comentado por tipo documento RC-IVA, importe_excento ya descontamos en calculo de importe_neto }
+                //descuento_ley = (this.Cmp.importe_neto.getValue() * 1.00 - this.Cmp.importe_excento.getValue() * 1.00) * this.Cmp.porc_descuento_ley.getValue();
+                descuento_ley = (this.Cmp.importe_neto.getValue() * 1.00 ) * this.Cmp.porc_descuento_ley.getValue();
                 this.Cmp.importe_descuento_ley.setValue(descuento_ley);
             }
 
