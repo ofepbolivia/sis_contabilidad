@@ -2699,12 +2699,19 @@ class MODDocCompraVenta extends MODbase
             $this->setParametro('tipo_lcv', 'tipo_lcv', 'VARCHAR');
             $this->setParametro('id_periodo', 'id_periodo', 'INTEGER');
             $this->setParametro('id_gestion', 'id_gestion', 'INTEGER');
+            $this->setParametro('origen', 'origen', 'varchar');
 
         }else{
             $this->setParametro('filtro_sql', 'filtro_sql', 'VARCHAR');
             $this->setParametro('tipo_lcv', 'tipo_lcv', 'VARCHAR');
             $this->setParametro('fecha_ini', 'fecha_ini', 'date');
             $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+            $this->setParametro('origen', 'origen', 'varchar');
+        }
+
+        if ( $this->objParam->getParametro('tipo_lcv') == 'lve_siat' && $this->objParam->getParametro('origen') == 'secundario' ){
+            $this->setParametro('index', 'index', 'integer');
+            $this->setParametro('partition', 'partition', 'integer');
         }
 
         //Definicion de la lista del resultado del query
@@ -2739,7 +2746,11 @@ class MODDocCompraVenta extends MODbase
 
 
         //Ejecuta la instruccion
-        $this->armarConsulta(); //echo ($this->consulta);exit;
+        $this->armarConsulta();
+        /*if ( $this->objParam->getParametro('tipo_lcv') == 'lve_siat' && $this->objParam->getParametro('origen') == 'secundario' ) {
+            echo($this->consulta);
+            exit;
+        }*/
         $this->ejecutarConsulta();
 
         //Devuelve la respuesta
@@ -3097,6 +3108,45 @@ class MODDocCompraVenta extends MODbase
         return $this->respuesta;
     }
     /**{developer:franklin.espinoza, date:20/01/2021 , description: Obtener Datos para el reporte Ingresos Gravados}**/
+
+    /**{developer:franklin.espinoza, date:10/01/2021, description: Reporte Libro de Ventas}**/
+    function totalRegistrosRepLibroVentas(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento = 'conta.ft_doc_compra_venta_sel';
+        $this->transaccion = 'CONTA_REG_SIAT_TOTAL';
+        $this->tipo_procedimiento = 'SEL';//tipo de transaccion
+        $this->setCount(false);
+
+        if($this->objParam->getParametro('filtro_sql') == 'periodo'){
+            $this->setParametro('filtro_sql', 'filtro_sql', 'VARCHAR');
+            $this->setParametro('tipo_lcv', 'tipo_lcv', 'VARCHAR');
+            $this->setParametro('id_periodo', 'id_periodo', 'INTEGER');
+            $this->setParametro('id_gestion', 'id_gestion', 'INTEGER');
+            $this->setParametro('origen', 'origen', 'varchar');
+
+        }else{
+            $this->setParametro('filtro_sql', 'filtro_sql', 'VARCHAR');
+            $this->setParametro('tipo_lcv', 'tipo_lcv', 'VARCHAR');
+            $this->setParametro('fecha_ini', 'fecha_ini', 'date');
+            $this->setParametro('fecha_fin', 'fecha_fin', 'date');
+            $this->setParametro('origen', 'origen', 'varchar');
+        }
+
+        if ( $this->objParam->getParametro('tipo_lcv') == 'lve_siat' && $this->objParam->getParametro('origen') == 'secundario' ){
+            $this->setParametro('index', 'index', 'integer');
+            $this->setParametro('partition', 'partition', 'integer');
+        }
+
+        //Definicion de la lista del resultado del query
+        $this->captura('total', 'integer');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    /**{developer:franklin.espinoza, date:10/01/2021, description: Reporte Libro de Ventas}**/
 
 }
 

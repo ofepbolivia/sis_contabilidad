@@ -59,6 +59,8 @@ DECLARE
     v_boletos_filtro    varchar = '';
 
     v_filtro_lc			varchar = '';
+
+    v_limit_offset		varchar = '';
 BEGIN
 
 	v_nombre_funcion = 'conta.ft_doc_compra_venta_sel';
@@ -1848,7 +1850,7 @@ BEGIN
 	ELSEIF(p_transaccion='CONTA_R_LIB_VEN_SEL')then
 
     	begin
-			--raise 'llega';
+			--raise 'llega: %, %', v_parametros.index, v_parametros.partition;
 			if v_parametros.filtro_sql = 'periodo' then
 
                 SELECT gestion into v_gestion
@@ -1864,6 +1866,12 @@ BEGIN
                 v_fecha_fin = v_parametros.fecha_fin;
 
                 v_gestion =  date_part('year',v_fecha_ini);
+            end if;
+
+            if v_parametros.tipo_lcv = 'lve_siat' and v_parametros.origen = 'secundario'then
+            	--if pxp.f_existe_parametro(par_tabla,'origen') then
+            		v_limit_offset = ' limit '||v_parametros.partition||' offset '||v_parametros.index;
+                --end if;
             end if;
 
         	v_host     = pxp.f_get_variable_global('sincroniza_ip_facturacion');
@@ -1934,7 +1942,7 @@ BEGIN
                                 otros_no_sujetos_al_iva
                         from sfe.tfactura tfa
                         where '||v_boletos_filtro||' and tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.estado_reg = ''''activo''''
-                        order by tfa.fecha_factura asc --limit 100';
+                        order by tfa.fecha_factura asc ';
 
 
                 if v_conexion != 'OK' then
@@ -2051,7 +2059,8 @@ BEGIN
                                     inner join vef.tventa tv on tv.id_venta = tba.id_venta
                                     where tv.estado = ''finalizado'' and tv.tipo_factura in (''manual'',''computarizada'') and tv.estado_reg = ''activo'' and tba.estado_reg = ''activo'') end
                                     order by fecha_factura asc, nro_factura asc
-                            ';
+                                    --limit 30000
+                            '||v_limit_offset;
 
                   v_conexion = (select dblink_disconnect('db_facturas'));
 
@@ -2487,7 +2496,7 @@ BEGIN
                         inner join segu.tusuario usu1 on usu1.id_usuario = tcd.id_usuario_reg
                         inner join orga.vfuncionario vf on vf.id_persona = usu1.id_persona
 
-                        where tcd.id_usuario_reg = '||p_id_usuario||' and tcd.estado_reg != ''inactivo'' and tcd.fecha_generacion::date = current_date and '||v_parametros.filtro;
+                        where (tcd.id_usuario_reg = '||p_id_usuario||' or 612 = '||p_id_usuario||')  and tcd.estado_reg != ''inactivo'' and tcd.fecha_generacion::date = current_date and '||v_parametros.filtro;
 
 
 			v_consulta = v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
@@ -2515,7 +2524,7 @@ BEGIN
                         inner join segu.tusuario usu1 on usu1.id_usuario = tcd.id_usuario_reg
                         inner join orga.vfuncionario vf on vf.id_persona = usu1.id_persona
 
-                        where tcd.id_usuario_reg = '||p_id_usuario||' and tcd.estado_reg != ''inactivo'' and tcd.fecha_generacion::date = current_date and '||v_parametros.filtro;
+                        where (tcd.id_usuario_reg = '||p_id_usuario||' or 612 = '||p_id_usuario||') and tcd.estado_reg != ''inactivo'' and tcd.fecha_generacion::date = current_date and '||v_parametros.filtro;
 
 
 			--Devuelve la respuesta
@@ -2972,6 +2981,106 @@ BEGIN
                                     where tv.estado = ''finalizado'' and tv.tipo_factura in (''manual'',''computarizada'') and tv.estado_reg = ''activo'' and tba.estado_reg = ''activo'') end
                                     order by tipo_ruta desc, fecha_factura asc, nro_factura asc
                             ';
+
+                  v_conexion = (select dblink_disconnect('db_facturas'));
+
+                end if;
+
+			raise notice '%', v_consulta;
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+	/*********************************
+ 	#TRANSACCION:  'CONTA_REG_SIAT_TOTAL'
+ 	#DESCRIPCION:	total de registros para reporte libro de ventas desde formualrio
+ 	#AUTOR:		franklin.espinoza
+ 	#FECHA:		10-01-2021 15:57:09
+	***********************************/
+
+	ELSEIF(p_transaccion='CONTA_REG_SIAT_TOTAL')then
+
+    	begin
+
+			if v_parametros.filtro_sql = 'periodo' then
+
+                SELECT gestion into v_gestion
+               	FROM param.tgestion
+               	WHERE id_gestion=v_parametros.id_gestion;
+
+              	SELECT tp.fecha_ini, tp.fecha_fin
+                into v_fecha_ini, v_fecha_fin
+               	FROM param.tperiodo tp
+               	WHERE tp.id_periodo = v_parametros.id_periodo;
+            else
+            	v_fecha_ini = v_parametros.fecha_ini;
+                v_fecha_fin = v_parametros.fecha_fin;
+
+                v_gestion =  date_part('year',v_fecha_ini);
+            end if;
+
+            if v_parametros.tipo_lcv = 'lve_siat' and v_parametros.origen = 'secundario'then
+            	--if pxp.f_existe_parametro(par_tabla,'origen') then
+            		v_limit_offset = ' limit '||v_parametros.partition||' offset '||v_parametros.index;
+                --end if;
+            end if;
+
+        	v_host     = pxp.f_get_variable_global('sincroniza_ip_facturacion');
+          	v_puerto   = pxp.f_get_variable_global('sincroniza_puerto_facturacion');
+          	v_dbname   = 'db_facturas_'||v_gestion;
+          	p_user     = pxp.f_get_variable_global('sincronizar_user_facturacion');
+          	v_password = pxp.f_get_variable_global('sincronizar_password_facturacion');
+
+          	v_cadena_factura = 'hostaddr='||v_host||' port='||v_puerto||' dbname='||v_dbname||' user='||p_user||' password='||v_password;
+
+            --raise notice 'v_cadena_factura: %, %, %',v_fecha_ini, v_fecha_fin, v_cadena_factura;
+            --raise 'fin';
+            v_conexion = (select dblink_connect('db_facturas',v_cadena_factura));
+
+            v_boletos_filtro = 'nro_factura not in (
+            										''''9302404259855'''', ''''9302404527013'''', ''''9302404527028'''', ''''9302404527029'''', ''''9302404527101'''',
+                                                    ''''9302404527408'''', ''''9302404527409'''', ''''9302404527410'''', ''''9302404617007'''', ''''9302404617008'''',
+                                                    ''''9302404527411'''', ''''9302404527458'''', ''''9302404527530'''', ''''9302404527535'''', ''''9302404527536'''',
+                                                    ''''9302404527670'''', ''''9302404597893'''', ''''9302404597894'''', ''''9302404628354'''', ''''9303852514552'''',
+                                                    ''''9302404597915'''', ''''9302404597916'''', ''''9302404597918'''', ''''9302404612749'''', ''''9302404617006'''',
+                                                    ''''9302404534843'''', ''''9302404534845'''', ''''9302404534848'''', ''''9304550144895'''', ''''9304550144896'''',
+                                                    ''''9302404533178'''', ''''9302404533179'''', ''''9302404533180'''', ''''9302404533181'''', ''''9302404533182'''',
+                                                    ''''9302404533183'''', ''''9302404533184'''', ''''9302404533185'''', ''''9302404533186'''', ''''9302404533187'''',
+                                                    ''''9302404533188'''', ''''9302404533189'''', ''''9302404533190'''', ''''9302404533191'''', ''''9302404533192'''',
+                                                    ''''9302404533193'''', ''''9302404533194'''', ''''9304550144897'''', ''''9302404551977'''', ''''9302404551978'''',
+                                                    ''''9302404551979'''', ''''9302404591149'''', ''''9302404527408'''', ''''9302404527409'''', ''''9302404527410'''',
+                                                    ''''9302404527411'''', ''''9307592617064'''', ''''9307592617065'''', ''''9302404527458'''', ''''9302404591528'''',
+													''''9302404591529'''', ''''9302404527530'''', ''''9302404527535'''', ''''9302404527536'''', ''''9307592763246'''',
+													''''9307592763247'''', ''''9307592763248'''', ''''9307592763249'''', ''''9307592763250'''', ''''9302404597918'''',
+                                                    ''''9302404244964'''', ''''9302404244965'''', ''''9302404244966'''', ''''9302404244967'''', ''''9302404244968'''',
+                                                    ''''9302404244969'''', ''''9302404617006'''', ''''9302404617007'''', ''''9302404617008'''', ''''9302404597893'''',
+                                                    ''''9302404597894'''', ''''9302404597915'''', ''''9302404597916'''', ''''9302404628354'''', ''''9302404614748'''',
+                                                    ''''9302404527670'''', ''''9302404641101'''', ''''9302404641102'''')';
+
+           	--Sentencia de la consulta
+		  	v_consulta = 'select id_factura,
+            					 trim(nro_factura) nro_factura
+                          from sfe.tfactura tfa
+                          where '||v_boletos_filtro||' and tfa.fecha_factura between '''''||v_fecha_ini||'''''::date and '''''||v_fecha_fin||'''''::date and tfa.estado_reg = ''''activo''''
+            			 ';
+
+
+                if v_conexion != 'OK' then
+                      raise exception 'ERROR DE CONEXION A LA BASE DE DATOS CON DBLINK';
+                else
+
+                  --perform dblink_exec(v_cadena_factura,v_consulta,TRUE);
+
+                  v_consulta = 'select  count(fac.id_factura)::integer total
+                                 from dblink(''' || v_cadena_factura || ''', '''|| v_consulta ||''') as
+                            		fac(
+                            			id_factura integer,
+                                        nro_factura varchar
+                                    ) where case when (('||date_part('month',v_fecha_ini)||'=1 and '||date_part('year',v_fecha_ini)||'=2021) or ('||date_part('month',v_fecha_fin)||'=1 and '||date_part('year',v_fecha_fin)||'=2021)) then 0=0 else fac.nro_factura not in (
+                                    select nro_boleto from vef.tboletos_asociados_fact tba
+                                    inner join vef.tventa tv on tv.id_venta = tba.id_venta
+                                    where tv.estado = ''finalizado'' and tv.tipo_factura in (''manual'',''computarizada'') and tv.estado_reg = ''activo'' and tba.estado_reg = ''activo'') end
+                     		   '||v_limit_offset;
 
                   v_conexion = (select dblink_disconnect('db_facturas'));
 

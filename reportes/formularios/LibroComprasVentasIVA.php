@@ -38,6 +38,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     allowBlank: false,
                     emptyText:'Entidad...',
                     msgTarget: 'side',
+                    editable: false,
                     store:new Ext.data.JsonStore(
                         {
                             url: '../../sis_parametros/control/Entidad/listarEntidad',
@@ -127,6 +128,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     emptyText:'Filtro...',
                     selectOnFocus:true,
                     mode:'local',
+                    editable:false,
                     store:new Ext.data.ArrayStore({
                         fields: ['ID', 'valor'],
                         data :	[['periodo','Gestión y Periodo'],
@@ -149,6 +151,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     fieldLabel:'Gestión',
                     allowBlank:true,
                     emptyText:'Gestión...',
+                    editable: false,
                     store: new Ext.data.JsonStore({
                         url: '../../sis_parametros/control/Gestion/listarGestion',
                         id: 'id_gestion',
@@ -197,6 +200,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     allowBlank:true,
                     emptyText:'Periodo...',
                     msgTarget: 'side',
+                    editable: false,
                     store: new Ext.data.JsonStore({
                         url: '../../sis_parametros/control/Periodo/listarPeriodo',
                         id: 'id_periodo',
@@ -245,6 +249,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     width: 177,
                     gwidth: 100,
                     format: 'd/m/Y',
+                    editable: false,
                     renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
                 },
                 type:'DateField',
@@ -262,6 +267,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     width: 177,
                     gwidth: 100,
                     format: 'd/m/Y',
+                    editable: false,
                     renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
                 },
                 type:'DateField',
@@ -277,6 +283,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     allowBlank:false,
                     emptyText:'Usuario...',
                     msgTarget: 'side',
+                    editable: false,
                     store: new Ext.data.JsonStore({
 
                         url: '../../sis_seguridad/control/Usuario/listarUsuario',
@@ -323,6 +330,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     selectOnFocus:true,
                     mode:'local',
                     msgTarget: 'side',
+                    editable: false,
                     store:new Ext.data.ArrayStore({
                         fields: ['ID', 'valor'],
                         data :	[['txt','TXT'],
@@ -473,6 +481,15 @@ header("content-type: text/javascript; charset=UTF-8");
                 }
 
             }, this);
+
+            this.current_date = new Date();
+            this.diasMes = [31, new Date(this.current_date.getFullYear(), 2, 0).getDate(), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+            this.Cmp.fecha_ini.on('select', function (rec, date) {
+                let fecha_max = new Date(date.getFullYear() ,date.getMonth(), this.diasMes[date.getMonth()])
+                this.Cmp.fecha_fin.setMaxValue(fecha_max);
+                this.Cmp.fecha_fin.setMinValue(this.Cmp.fecha_ini.getValue());
+            },this);
         },
 
 
@@ -529,6 +546,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 Ext.Msg.show({
                     title: 'Información',
                     msg: '<b>Estimado Funcionario: ' + '\n' + ' El Reporte se esta Generando..........</b>',
+                    //msg: '<b>Actualmente se esta evaluando la generación del reporte, le confirmaremos para que pueda generar el reporte.</b>',
                     buttons: Ext.Msg.OK,
                     width: 512,
                     icon: Ext.Msg.INFO
@@ -536,7 +554,10 @@ header("content-type: text/javascript; charset=UTF-8");
             }
 
             var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-            console.log('reg', reg);
+
+            /*let raiz = reg.ROOT;
+            console.log('raiz',raiz);*/
+
             if (reg.ROOT.error) {
                 alert('error al procesar');
                 return
@@ -547,19 +568,87 @@ header("content-type: text/javascript; charset=UTF-8");
                 nomRep = Phx.CP.CRIPT.Encriptar(nomRep);
             }
 
-            if(this.Cmp.formato_reporte.getValue()=='pdf'){
-                window.open('../../../lib/lib_control/Intermediario.php?r='+nomRep+'&t='+new Date().toLocaleTimeString())
-            }
-            else if(this.Cmp.formato_reporte_iata.getValue()=='txt' && this.Cmp.tipo_lcv.getValue()=='repo_iata'){
-                          var data = "&extension=txt";
-            							  data += "&name_file="+nomRep;
-            								data += "&url=../../../reportes_generados/"+nomRep;
-            								window.open('../../../lib/lib_control/CTOpenFile.php?' + data);
-            }
-            else{
-                window.open('../../../reportes_generados/'+nomRep+'?t='+new Date().toLocaleTimeString())
+
+
+            if (this.Cmp.formato_reporte.getValue() == 'pdf') {
+                window.open('../../../lib/lib_control/Intermediario.php?r=' + nomRep + '&t=' + new Date().toLocaleTimeString())
+            } else if (this.Cmp.formato_reporte_iata.getValue() == 'txt' && this.Cmp.tipo_lcv.getValue() == 'repo_iata') {
+                var data = "&extension=txt";
+                data += "&name_file=" + nomRep;
+                data += "&url=../../../reportes_generados/" + nomRep;
+                window.open('../../../lib/lib_control/CTOpenFile.php?' + data);
+            } else {
+                if ( ( this.Cmp.tipo_lcv.getValue() != 'lve_siat' && (this.Cmp.formato_reporte.getValue() == 'xls' || this.Cmp.formato_reporte.getValue() == 'txt') ) || (this.Cmp.tipo_lcv.getValue() == 'lve_siat' && this.Cmp.formato_reporte.getValue() == 'txt') ) {
+                    window.open('../../../reportes_generados/' + nomRep + '?t=' + new Date().toLocaleTimeString());
+                }
             }
 
+            if ( this.Cmp.tipo_lcv.getValue() == 'lve_siat' && this.Cmp.formato_reporte.getValue() == 'xls'  ) {
+
+                let raiz = reg.ROOT.datos;
+                let partition = 30000;//30000
+                let number_sheets = Math.ceil(raiz.total / partition);
+                let index = 0;
+                //console.log('root', raiz);
+
+                let min_inc = 8;
+                let min_con = 60000;//1 min
+                let min_var = min_con*min_inc;//8 min
+                for (var ind = 1; ind <= number_sheets; ind++) { console.log('ind', ind, 'number_sheets', number_sheets);
+
+                    let root = {
+                        file_name     : 'RegistroVentasEstandarSiat_' + raiz.periodo + '_' + raiz.gestion + '_' + ind + '_de_' + number_sheets + '_',
+                        index         : index,
+                        partition     : partition,
+                        dataEntidad   : JSON.stringify(raiz.dataEntidad.datos),
+                        dataPeriodo   : JSON.stringify(raiz.dataPeriodo.datos),
+                        filtro_sql    : raiz.filtro_sql,
+                        tipo_lcv      : raiz.tipo_lcv,
+                        id_gestion    : raiz.id_gestion,
+                        id_periodo    : raiz.id_periodo,
+                        fecha_ini     : raiz.fecha_ini,
+                        fecha_fin     : raiz.fecha_fin,
+                        number_sheets : number_sheets,
+                        contador      : ind
+                    };
+
+                    setTimeout(this.crearListadoArchivoExcelSIAT, min_var, root);
+                    console.log('minutos', min_var);
+
+                    min_inc += 8;
+                    min_var = min_con * min_inc;
+                    index += partition;
+                }
+            }
+
+        },
+        crearListadoArchivoExcelSIAT:  function(root){
+            Ext.Ajax.request({
+                url: '../../sis_contabilidad/control/DocCompraVentaForm/crearListadoArchivoExcelSIAT',
+                params: {
+                    file_name     : root.file_name,
+                    index         : root.index,
+                    partition     : root.partition,
+                    dataEntidad   : root.dataEntidad,
+                    dataPeriodo   : root.dataPeriodo,
+                    filtro_sql    : root.filtro_sql,
+                    tipo_lcv      : root.tipo_lcv,
+                    id_gestion    : root.id_gestion,
+                    id_periodo    : root.id_periodo,
+                    fecha_ini     : root.fecha_ini,
+                    fecha_fin     : root.fecha_fin,
+                    number_sheets : root.number_sheets,
+                    contador      : root.contador
+
+                },
+                success: function(response){
+                    let root = (Ext.util.JSON.decode(Ext.util.Format.trim(response.responseText))).ROOT;
+                    console.log('root', root)
+                },
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope: this
+            });
         }
     })
 </script>
