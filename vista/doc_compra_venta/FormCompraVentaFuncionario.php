@@ -1993,6 +1993,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     // else{
                     // 	alert('la plantilla de array no se corresponde con el QR');
                     //  }
+                    this.Cmp.importe_ice.setValue(0);
                     this.Cmp.importe_excento.setValue(0);
                     this.calculaMontoPago();
 
