@@ -139,6 +139,7 @@ DECLARE
     v_id_depto_libro				integer;
 
     v_libro_bancos               record;
+    v_convertido				varchar;
 
 BEGIN
 
@@ -2944,6 +2945,82 @@ BEGIN
                      v_resp = pxp.f_agrega_clave(v_resp,'mensaje','fue volcado en borrador el cbte : id '||v_parametros.id_int_comprobante::varchar);
                   end if;
 
+
+
+                  /*Aqui cambiamos el estado del plan de pago a un estado anterior*/
+                  --Actualizamos el estado de convertido cuando se revierta el comprobante
+                  --Ismael Valdivia 11/01/2022
+                  --Se regresara el estado a todos los comprobantes revertidos
+                  /*select pp.convertido into v_convertido
+                  from tes.tplan_pago pp
+                  where pp.id_int_comprobante = v_parametros.id_int_comprobante;*/
+
+                  --if (v_convertido = 'si') then
+
+
+                          select pp.id_estado_wf
+                                 into
+                                 v_id_estado_wf
+                          from tes.tplan_pago pp
+                          where pp.id_int_comprobante = v_parametros.id_int_comprobante;
+
+                          SELECT
+
+                                   ps_id_tipo_estado,
+                                   ps_id_funcionario,
+                                   ps_id_usuario_reg,
+                                   ps_id_depto,
+                                   ps_codigo_estado,
+                                   ps_id_estado_wf_ant
+                                into
+                                   v_id_tipo_estado,
+                                   v_id_funcionario,
+                                   v_id_usuario_reg,
+                                   v_id_depto,
+                                   v_codigo_estado,
+                                   v_id_estado_wf_ant
+                                FROM wf.f_obtener_estado_ant_log_wf(v_id_estado_wf);
+
+                     --configurar acceso directo para la alarma
+                         v_acceso_directo = '';
+                         v_clase = '';
+                         v_parametros_ad = '';
+                         v_tipo_noti = 'notificacion';
+                         v_titulo  = 'Reversion de Comprobante';
+
+                      -- registra nuevo estado
+
+                      v_id_estado_actual = wf.f_registra_estado_wf(
+                          v_id_tipo_estado,                --  id_tipo_estado al que retrocede
+                          v_id_funcionario,                --  funcionario del estado anterior
+                          v_id_estado_wf,       		   --  estado actual ...
+                          v_id_proceso_wf,                 --  id del proceso actual
+                          p_id_usuario,                    -- usuario que registra
+                          v_parametros._id_usuario_ai,
+                          v_parametros._nombre_usuario_ai,
+                          v_id_depto,                       --depto del estado anterior
+                          '[Comprobante Revertido]',
+                          v_acceso_directo,
+                          v_clase,
+                          v_parametros_ad,
+                          v_tipo_noti,
+                          v_titulo);
+
+
+                          update tes.tplan_pago set
+                          id_estado_wf = v_id_estado_actual,
+                          estado = v_codigo_estado,
+                          convertido = 'no'
+                          where id_int_comprobante = v_parametros.id_int_comprobante;
+
+                  --end if;
+
+
+                  -----------------------------------------------------------------------------------
+                  /****************************************************************/
+
+
+
                   --Definicion de la respuesta
 
                   v_resp = pxp.f_agrega_clave(v_resp,'id_int_comprobante',v_parametros.id_int_comprobante::varchar);
@@ -3677,3 +3754,6 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
+
+ALTER FUNCTION conta.ft_int_comprobante_ime (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;
