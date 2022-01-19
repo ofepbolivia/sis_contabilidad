@@ -1717,21 +1717,25 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.tipo_excento.setValue(rec.data.tipo_excento);
                     this.Cmp.valor_excento.setValue(rec.data.valor_excento);
                     //10-01-2022 (may) ya no el importe excento, es el importe IEHD
-                    if (rec.data.tipo_excento == 'variable') {
+                    //10-01-2022 (may) se comenta por que sera editable
+                    /*if (rec.data.tipo_excento == 'variable') {
                         //this.Cmp.importe_excento.setReadOnly(false);
                         this.Cmp.importe_iehd.setReadOnly(false);
                     } else {
                         //this.Cmp.importe_excento.setReadOnly(true);
                         this.Cmp.importe_iehd.setReadOnly(true);
-                    }
+                    }*/
 
                 }
                 else {
                     this.ocultarComponente(this.Cmp.importe_excento);
-                    this.Cmp.importe_excento.setReadOnly(false);
-                    this.Cmp.tipo_excento.setValue('variable');
+                    //this.Cmp.importe_excento.setReadOnly(false);
+                    //this.Cmp.tipo_excento.setValue('variable');
                     this.Cmp.importe_excento.setValue(0);
-                    this.Cmp.valor_excento.setValue(0);
+                    //this.Cmp.valor_excento.setValue(0);
+
+                    this.Cmp.tipo_excento.setValue(rec.data.tipo_excento);
+                    this.Cmp.valor_excento.setValue(rec.data.valor_excento);
 
                 }
 
@@ -1892,6 +1896,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.otro_no_sujeto_credito_fiscal.on('change', this.calculaMontoPago, this);
             this.Cmp.importe_compras_gravadas_tasa_cero.on('change', this.calculaMontoPago, this);
 
+            this.Cmp.importe_ice.on('change', this.calculaMontoPago, this);
+
             this.Cmp.nro_autorizacion.on('change', function (fild, newValue, oldValue) {
                     if (newValue[3] == '4' || newValue[3] == '8' || newValue[3] == '6') {
                         this.mostrarComponente(this.Cmp.codigo_control);
@@ -1987,7 +1993,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     // else{
                     // 	alert('la plantilla de array no se corresponde con el QR');
                     //  }
-
+                    this.Cmp.importe_ice.setValue(0);
+                    this.Cmp.importe_excento.setValue(0);
                     this.calculaMontoPago();
 
 
@@ -2013,14 +2020,17 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.importe_excento.setValue(this.Cmp.valor_excento.getValue())
                 }
 
-                if (this.Cmp.tipo_excento.getValue() == 'porcentual') {
+                if (this.Cmp.tipo_excento.getValue() == 'porcentual' && this.Cmp.otro_no_sujeto_credito_fiscal.getValue() <= 0) {
                     //10-01-2022 (may) ya no el importe excento, es el importe IEHD
                     //this.Cmp.importe_excento.setValue(this.Cmp.importe_neto.getValue() * this.Cmp.valor_excento.getValue())
-                    this.Cmp.importe_iehd.setValue(this.Cmp.importe_doc.getValue() * this.Cmp.valor_excento.getValue())
+                    this.Cmp.otro_no_sujeto_credito_fiscal.setReadOnly(true);
+                    this.Cmp.importe_excento.setValue(0);
+                    this.Cmp.otro_no_sujeto_credito_fiscal.setValue(this.Cmp.importe_doc.getValue() * this.Cmp.valor_excento.getValue())
                 }
 
                 var me = this,
                     descuento_ley = 0.00;
+                    v_importe_ice = typeof(this.Cmp.importe_ice.getValue())=='string'?0:this.Cmp.importe_ice.getValue(),
                     v_importe_descuento = typeof(this.Cmp.importe_descuento.getValue())=='string'?0:this.Cmp.importe_descuento.getValue(),
                     v_importe_excento = typeof(this.Cmp.importe_excento.getValue())=='string'?0:this.Cmp.importe_excento.getValue(),
                     v_importe_iehd= typeof(this.Cmp.importe_iehd.getValue())=='string'?0:this.Cmp.importe_iehd.getValue(),
@@ -2040,7 +2050,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     //this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - this.Cmp.importe_descuento.getValue());
                     this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - ( v_importe_descuento + v_importe_excento
                         + v_importe_iehd + v_importe_ipj + v_importe_tasas
-                        + v_importe_gift_card + v_otro_no_sujeto_credito_fiscal + v_importe_compras_gravadas_tasa_cero));
+                        + v_importe_gift_card + v_otro_no_sujeto_credito_fiscal + v_importe_compras_gravadas_tasa_cero + v_importe_ice));
                     this.Cmp.porc_descuento.setValue(this.Cmp.importe_descuento.getValue() / this.Cmp.importe_doc.getValue());
 
                 } else {
@@ -2048,7 +2058,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     //this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue());
                     this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - (v_importe_iehd + v_importe_excento
                         + v_importe_ipj + v_importe_tasas + v_importe_gift_card + v_otro_no_sujeto_credito_fiscal
-                        + v_importe_compras_gravadas_tasa_cero));
+                        + v_importe_compras_gravadas_tasa_cero + + v_importe_ice));
                     this.Cmp.porc_descuento.setValue(0);
                 }
 
@@ -2075,7 +2085,9 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.importe_descuento_ley.setValue(descuento_ley);
                 }
                 else {
-                    descuento_ley = (this.Cmp.importe_neto.getValue() * 1.00 - this.Cmp.importe_excento.getValue() * 1.00) * this.Cmp.porc_descuento_ley.getValue();
+                    //17-01-2022 comentado por tipo documento RC-IVA, importe_excento ya descontamos en calculo de importe_neto }
+                    //descuento_ley = (this.Cmp.importe_neto.getValue() * 1.00 - this.Cmp.importe_excento.getValue() * 1.00) * this.Cmp.porc_descuento_ley.getValue();
+                    descuento_ley = (this.Cmp.importe_neto.getValue() * 1.00 ) * this.Cmp.porc_descuento_ley.getValue();
                     this.Cmp.importe_descuento_ley.setValue(descuento_ley);
                 }
 
@@ -2094,19 +2106,19 @@ header("content-type: text/javascript; charset=UTF-8");
                     }
                     if (this.Cmp.porc_iva_cf.getValue() > 0) {
                         //validacion excento mayot monto mmv
-                        if (excento > this.Cmp.importe_neto.getValue()) {
+                        if (excento > (this.Cmp.importe_neto.getValue()+this.Cmp.importe_excento.getValue() )) {
                             alert('El Importe Exento: ' + excento + ', no puede ser mayor al Monto Total: ' + this.Cmp.importe_neto.getValue() + '. Revise los importes.');
                         } else {
-                            this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_cf.getValue() * (this.Cmp.importe_neto.getValue() - excento));
+                            this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_cf.getValue() * ((this.Cmp.importe_neto.getValue()+this.Cmp.importe_excento.getValue()) - excento));
                         }
 
                     }
                     else {
                         //validacion excento mayot monto mmv
-                        if (excento > this.Cmp.importe_neto.getValue()) {
+                        if (excento > (this.Cmp.importe_neto.getValue() + this.Cmp.importe_excento.getValue()) ) {
                             alert('El Importe Exento: ' + excento + ', no puede ser mayor al Monto Total: ' + this.Cmp.importe_neto.getValue() + '. Revise los importes.');
                         } else {
-                            this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_df.getValue() * (this.Cmp.importe_neto.getValue() - excento));
+                            this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_df.getValue() * ((this.Cmp.importe_neto.getValue()+this.Cmp.importe_excento.getValue()) - excento));
                         }
                     }
                 }

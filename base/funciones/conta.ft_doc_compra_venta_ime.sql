@@ -349,19 +349,28 @@ END IF;
       --si tiene habilitado el ic copiamos el monto excento
       -- OJO considerar que todos los calculos con el monto excento ya estaran
       -- considerando el ice, par ano hacer mayores cambios
+      --12-01-2022 (may) segun observaciones por Veronica Mamani el ICE tendra un valor propio que registraran desde la fecha se realiza el combio
 
-      v_importe_ice = NULL;
+      /*v_importe_ice = NULL;
       IF v_registros.sw_ic = 'si' then
         v_importe_ice = v_parametros.importe_excento;
-      END IF;
+      END IF;*/
+      if (pxp.f_existe_parametro(p_tabla,'importe_ice')) then
+        v_importe_ice = v_parametros.importe_ice;
+      end if;
+
+      v_importe_ice = v_importe_ice;
+      --
+
       ----validacion exento mayot monto mmv
 
       --may 27-03-2020 modificacion solo para estacion central Bolivia
-      IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
+      --17-01-2022 se quita el control del importe porque en el neto ya swe descuenta el excento.
+      /*IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
           IF v_parametros.importe_excento > v_parametros.importe_neto THEN
           raise exception 'El Importe Exento: %, no puede ser mayor al Monto Total: %. Revise los importes.',v_parametros.importe_excento,v_parametros.importe_neto;
           END IF;
-       END IF;
+       END IF;*/
 
 
       select p.sw_nit, p.sw_autorizacion
@@ -586,7 +595,7 @@ IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
         v_parametros.fecha,
         v_parametros.nro_documento,
         v_parametros.nit,
-        v_importe_ice,
+        COALESCE(v_importe_ice,0),
         v_parametros.nro_autorizacion,
         COALESCE(v_parametros.importe_iva,0),
         COALESCE(v_parametros.importe_descuento,0),
@@ -690,7 +699,7 @@ ELSE  --(MAY) para las estaciones Internacionales, tienen mas parametros
         v_parametros.fecha,
         v_parametros.nro_documento,
         v_parametros.nit,
-        v_importe_ice,
+        COALESCE(v_importe_ice,0),
         v_parametros.nro_autorizacion,
         COALESCE(v_parametros.importe_iva,0),
         COALESCE(v_parametros.importe_descuento,0),
@@ -1231,10 +1240,18 @@ END IF;
       where pla.id_plantilla = v_parametros.id_plantilla;
 
       --si tiene habilitado el ic copiamos el monto excento
-      v_importe_ice = NULL;
+      --12-01-2022 (may) segun observaciones por Veronica Mamani el ICE tendra un valor propio que registraran desde la fecha se realiza el combio
+
+      /*v_importe_ice = NULL;
       IF v_registros.sw_ic = 'si' then
         v_importe_ice = v_parametros.importe_excento;
-      END IF;
+      END IF;*/
+      if (pxp.f_existe_parametro(p_tabla,'importe_ice')) then
+        v_importe_ice = v_parametros.importe_ice;
+      end if;
+
+      v_importe_ice = v_importe_ice;
+      --
 
       IF v_parametros.importe_pendiente > 0 or v_parametros.importe_anticipo > 0 or v_parametros.importe_retgar > 0 THEN
 
@@ -1373,7 +1390,7 @@ END IF;
         fecha = v_parametros.fecha,
         nro_documento = v_parametros.nro_documento,
         nit = v_parametros.nit,
-        importe_ice = v_importe_ice,
+        importe_ice = COALESCE(v_importe_ice,0),
         nro_autorizacion =  upper(COALESCE(v_parametros.nro_autorizacion,'0')),
         importe_iva = COALESCE(v_parametros.importe_iva,0),
         importe_descuento = COALESCE(v_parametros.importe_descuento,0),
@@ -1536,10 +1553,20 @@ END IF;
       where pla.id_plantilla = v_parametros.id_plantilla;
 
       --si tiene habilitado el ic copiamos el monto excento
-      v_importe_ice = NULL;
+      --12-01-2022 (may) segun observaciones por Veronica Mamani el ICE tendra un valor propio que registraran desde la fecha se realiza el combio
+
+      /*v_importe_ice = NULL;
       IF v_registros.sw_ic = 'si' then
         v_importe_ice = v_parametros.importe_excento;
-      END IF;
+      END IF;*/
+      if (pxp.f_existe_parametro(p_tabla,'importe_ice')) then
+        v_importe_ice = v_parametros.importe_ice;
+      end if;
+
+      v_importe_ice = v_importe_ice;
+      --
+
+
 
       IF v_parametros.importe_pendiente > 0 or v_parametros.importe_anticipo > 0 or v_parametros.importe_retgar > 0 THEN
 
@@ -1588,7 +1615,7 @@ END IF;
         fecha = v_parametros.fecha,
         nro_documento = v_parametros.nro_documento,
         nit = v_parametros.nit,
-        importe_ice = v_importe_ice,
+        importe_ice = COALESCE(v_importe_ice,0),
         nro_autorizacion =  upper(COALESCE(v_parametros.nro_autorizacion,'0')),
         importe_iva = COALESCE(v_parametros.importe_iva,0),
         importe_descuento = COALESCE(v_parametros.importe_descuento,0),

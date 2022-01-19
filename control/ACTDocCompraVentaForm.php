@@ -90,6 +90,7 @@ class ACTDocCompraVentaForm extends ACTbase{
                     $dataSource = $this->recuperarDatosErpEndensisLCV();
                 }else{
                     if ( 'lcv_ventas' == $this->objParam->getParametro('tipo_lcv')){
+						$this->objParam->addParametro('origen', 'principal');
                         $this->objFunc = $this->create('MODDocCompraVenta');
                         $dataSource = $this->objFunc->listarRepLibroVentas($this->objParam);
                         //$this->datos = $this->res->getDatos();
@@ -333,6 +334,7 @@ class ACTDocCompraVentaForm extends ACTbase{
 						$this->res = $this->objFun->listarRepLCVFormErpEndesis();
 					} else {
 						if ('lcv_ventas' == $this->objParam->getParametro('tipo_lcv')) {
+							$this->objParam->addParametro('origen', 'principal');
 							$this->objFunc = $this->create('MODDocCompraVenta');
 							$this->res = $this->objFunc->listarRepLibroVentas($this->objParam);
 						} else {
@@ -510,34 +512,47 @@ class ACTDocCompraVentaForm extends ACTbase{
 
 			}else{
 
+				$id_gestion = $this->objParam->getParametro('id_gestion');
+				$id_periodo = $this->objParam->getParametro('id_periodo');
 				$tipo_libro = $this->objParam->getParametro('tipo_lcv');
-        		if ( $tipo_libro == 'lce_siat' || $tipo_libro == 'lc_on_siat' || $tipo_libro == 'lc_es_on_siat' ) {
-					$nombreArchivo = uniqid('RegistroComprasEstandarSiat') . '.xls';
-				}else{
-					$nombreArchivo = uniqid('RegistroVentasEstandarSiat') . '.xls';
+
+
+
+				if ($id_gestion != '' && $id_periodo != '' /*&& ( $tipo_libro == 'lce_siat' || $tipo_libro == 'lc_on_siat' || $tipo_libro == 'lc_es_on_siat' )*/) {
+
+
+					$cone = new conexion();
+					$link = $cone->conectarpdo();
+					$sql = "select tper.periodo, tges.gestion
+                	from param.tperiodo tper
+                	inner join param.tgestion tges on tges.id_gestion = tper.id_gestion
+               	 	where  tper.id_periodo = " . $id_periodo . " and tper.id_gestion = " . $id_gestion;
+
+					$registros = $link->prepare($sql);
+					$registros->execute();
+					$registros = $registros->fetchAll(PDO::FETCH_OBJ);
+
+					$periodo = $registros[0]->periodo;
+					$gestion = $registros[0]->gestion;
+
+
+				} else {
+					$fecha_ini = $this->objParam->getParametro('fecha_ini');
+					$date_part = explode('/', $fecha_ini);
+					$periodo = $date_part[1];
+					$gestion = $date_part[2];
 				}
 
-				if ( 'lve_siat' == $tipo_libro && true ) {
+				//$cone->desconectarnp($link);
 
-					$NEW_LINE = "\r\n";
-
-					ignore_user_abort(true);
-
-					header('Connection: close' . $NEW_LINE);
-					header('Content-Encoding: none' . $NEW_LINE);
-					ob_start();
-
-					$this->mensajeExito = new Mensaje();
-					$this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado ' . $nombreArchivo, 'Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
-					$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
-
-					$size = ob_get_length();
-					header('Content-Length: ' . $size, TRUE);
-					ob_end_flush();
-					ob_flush();
-					flush();
-					session_write_close();
-
+        		if ( $tipo_libro == 'lce_siat' ) {
+					$nombreArchivo = uniqid('RegistroComprasEstandarSiat_'.$periodo.'_'.$gestion.'_') . '.xls';
+				}else if ( $tipo_libro == 'lc_on_siat' ) {
+					$nombreArchivo = uniqid('RegistroComprasOnlineSiat_'.$periodo.'_'.$gestion.'_') . '.xls';
+				}else if ( $tipo_libro == 'lc_es_on_siat' ){
+					$nombreArchivo = uniqid('RegistroComprasEstandarOnlineSiat_'.$periodo.'_'.$gestion.'_') . '.xls';
+				}else {
+					$nombreArchivo = uniqid('RegistroVentasEstandarSiat_'.$periodo.'_'.$gestion.'_') . '.xls';
 				}
 
 				if ( $tipo_libro == 'lce_siat' || $tipo_libro == 'lc_on_siat' || $tipo_libro == 'lc_es_on_siat' ) {
@@ -558,124 +573,73 @@ class ACTDocCompraVentaForm extends ACTbase{
 
 				} else if ( $tipo_libro == 'lve_siat' || $tipo_libro == 'lv_on_siat' || $tipo_libro == 'lv_es_on_siat' ) {
 
-					$this->objFunc = $this->create('MODDocCompraVenta');
-					$dataSource = $this->objFunc->listarRepLibroVentas($this->objParam);
-
-					$this->objParam->addParametro('nombre_archivo', $nombreArchivo);
-					$this->objParam->addParametro('datos', $dataSource->getDatos());
-
-					$dataEntidad = $this->recuperarDatosEntidad();
-					$dataPeriodo = $this->recuperarDatosPeriodo();
-					$this->objParam->addParametro('dataEntidad', $dataEntidad->getDatos());
-					$this->objParam->addParametro('dataPeriodo', $dataPeriodo->getDatos());
-
-					$this->objReporteFormato = new RLibroVentasSiatXLS($this->objParam);
-
-					$this->objReporteFormato->imprimeDatos();
-					$url_file_xls = $this->objReporteFormato->generarReporte();
-				}
-
-
-				if ( 'lve_siat' == $tipo_libro && true ) {
-
-
-					/** Convertir a megas **/
-					$file_size = filesize($url_file_xls);
-					$units = array('B', 'KB', 'MB', 'GB', 'TB');
-
-					$bytes = max($file_size, 0);
-					$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-					$pow = min($pow, count($units) - 1);
-
-					$equivalencia = 1;
-					if ($units[$pow] == 'KB') {
-						$equivalencia = 1024;
-					}else if ($units[$pow] == 'MB'){
-						$equivalencia = 1048576;
-					}else if ($units[$pow] == 'GB'){
-						$equivalencia = 1073741824;
-					}
-
-					$file_size = round($bytes/$equivalencia, 2) . ' ' . $units[$pow];
-					/** Convertir a megas **/
-
-					//$url_absolute = './../../../reportes_generados/'.$nombreArchivo;
-					$url_absolute = $url_file_xls;
-
+					/****************************** UPDATE GLOBAL PROCESSING ******************************/
 					$cone = new conexion();
 					$link = $cone->conectarpdo();
+					$sql = "select vg.valor
+							from pxp.variable_global vg
+							where vg.variable = 'processing_report_iva'";
 
-					$sql = "UPDATE  conta.tdocumento_generado SET
-                      estado_reg = 'OLD'
-                    WHERE format = 'xls' and estado_reg != 'inactivo'";
+					$registros = $link->prepare($sql);
+					$registros->execute();
+					$registros = $registros->fetchAll(PDO::FETCH_OBJ);
+					$valor = $registros[0]->valor;
 
-					$stmt = $link->prepare($sql);
-					$stmt->execute();
-
-					$id_gestion = $this->objParam->getParametro('id_gestion');
-					$id_periodo = $this->objParam->getParametro('id_periodo');
-
-					if ($id_gestion != '' && $id_periodo != '') {
-
-						$sql = "select tper.periodo, tges.gestion
-                	from param.tperiodo tper
-                	inner join param.tgestion tges on tges.id_gestion = tper.id_gestion
-               	 	where  tper.id_periodo = " . $id_periodo . " and tper.id_gestion = " . $id_gestion;
-
+					if ( $valor == 'no' ){
+						$sql = "update pxp.variable_global set
+									valor = 'si'
+								where variable = 'processing_report_iva'";
 						$registros = $link->prepare($sql);
 						$registros->execute();
-						$registros = $registros->fetchAll(PDO::FETCH_OBJ);
-						$periodo = $registros[0]->periodo;
-						$gestion = $registros[0]->gestion;
 
-						$fecha_ini = date('d/m/Y', mktime(0, 0, 0, $periodo, 1, $gestion));
-						$dia = date("d", mktime(0, 0, 0, $periodo + 1, 0, $gestion));
-						$fecha_fin = date('d/m/Y', mktime(0, 0, 0, $periodo, $dia, $gestion));
-
-					} else {
-						$fecha_ini = $this->objParam->getParametro('fecha_ini');
-						$fecha_fin = $this->objParam->getParametro('fecha_fin');
+						$this->objParam->addParametro('origen', 'principal');
+						$this->objFunc = $this->create('MODDocCompraVenta');
+						$dataSource = $this->objFunc->totalRegistrosRepLibroVentas($this->objParam);
+						$total_rec = $dataSource->getDatos();
+						$total_rec = $total_rec[0]['total'];
+						/****************************** AUX ********************************/
+						$this->objParam->addParametro('nombre_archivo', $nombreArchivo);
+						$dataEntidad = $this->recuperarDatosEntidad();
+						$dataPeriodo = $this->recuperarDatosPeriodo();
+						$this->objParam->addParametro('dataEntidad', $dataEntidad->getDatos());
+						$this->objParam->addParametro('dataPeriodo', $dataPeriodo->getDatos());
+						/****************************** AUX ********************************/
 					}
+					/****************************** UPDATE GLOBAL PROCESSING ******************************/
 
-					$sql = "INSERT INTO conta.tdocumento_generado(id_usuario_reg, url, size, fecha_generacion, file_name, format, estado_reg, fecha_ini, fecha_fin) VALUES (" . $_SESSION["ss_id_usuario"] . "::integer, '" . $url_absolute . "', '" . $file_size . "', now(), '" . $nombreArchivo . "', 'xls', 'NEW', '" . $fecha_ini . "'::date, '" . $fecha_fin . "'::date) ";
+					if ( $valor == 'no' ) {
+						$this->res = new Mensaje();
 
-					$stmt = $link->prepare($sql);
-					$stmt->execute();
+						$object = new stdClass();
+						$object->periodo = $periodo;
+						$object->gestion = $gestion;
+						//$object->total = 19854/*360025*/;//count($dataSource->getDatos());
+						$object->total = intval($total_rec);//count($dataSource->getDatos());
+						$object->dataEntidad = $dataEntidad;
+						$object->dataPeriodo = $dataPeriodo;
+						$object->filtro_sql = $this->objParam->getParametro('filtro_sql');
+						$object->tipo_lcv = $this->objParam->getParametro('tipo_lcv');
+						$object->id_gestion = $this->objParam->getParametro('id_gestion');
+						$object->id_periodo = $this->objParam->getParametro('id_periodo');
+						$object->fecha_ini = $this->objParam->getParametro('fecha_ini');
+						$object->fecha_fin = $this->objParam->getParametro('fecha_fin');
 
-					/**enviar alert al usuario para indicar que el reporte ha sido generado**/
-					$evento = "enviarMensajeUsuario";
-
-					//mandamos datos al websocket
-					$data = array(
-						"mensaje" => 'Estimado Funcionario, su Reporte ya ha sido generado: ' . $nombreArchivo,
-						"tipo_mensaje" => 'alert',
-						"titulo" => 'Alerta Reporte',
-						"id_usuario" => $_SESSION["ss_id_usuario"],
-						"destino" => 'Unico',
-						"evento" => $evento,
-						"url" => 'url_prueba'
-					);
-
-					$send = array(
-						"tipo" => "enviarMensajeUsuario",
-						"data" => $data
-					);
-
-					$usuarios_socket = $this->dispararEventoWS($send);
-
-					$usuarios_socket = json_decode($usuarios_socket, true);
-					/**enviar alert al usuario para indicar que el reporte ha sido generado**/
-					//chmod($url_move, 0777);
-					//copy ( $url_move, '/var/www/html/kerp/uploaded_files/sis_workflow/DocumentoWf/');
-					//copy ( $url_move, '/var/www/html/kerp/uploaded_files/sis_contabilidad/');
+						$this->res->datos = $object;
+						$this->res->setMensaje('EXITO', 'Reporte.php', 'Reporte generado', 'Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
+						$this->res->imprimirRespuesta($this->res->generarJson());
+					}else{
+						$this->res = new Mensaje();
+						$this->res->setMensaje('ERROR', 'ACTDocCompraVentaForm.php', '<br><b style="color:red;">Actualmente se esta procesando la generación de un Reporte Registro de Ventas SIAT.</b>', 'Actualmente se esta procesando la generación de un Reporte Registro de Ventas SIAT.', 'control');
+						$this->res->imprimirRespuesta($this->res->generarJson());
+					}
 				}
 
-
-
-				$this->mensajeExito = new Mensaje();
-				$this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado', 'Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
-				$this->mensajeExito->setArchivoGenerado($nombreArchivo);
-				$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+				if ( $tipo_libro != 'lve_siat' ) {
+					$this->mensajeExito = new Mensaje();
+					$this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado', 'Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
+					$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+					$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+				}
 			}
         }
         if($this->objParam->getParametro('formato_reporte')!='pdf' && $this->objParam->getParametro('formato_reporte')!='xls'){
@@ -685,6 +649,7 @@ class ACTDocCompraVentaForm extends ACTbase{
 
 					if ('lcv_ventas' == $this->objParam->getParametro('tipo_lcv')) {
 
+						$this->objParam->addParametro('origen', 'principal');
 						$this->objFunc = $this->create('MODDocCompraVenta');
 						$this->res = $this->objFunc->listarRepLibroVentas($this->objParam);
 
@@ -741,6 +706,8 @@ class ACTDocCompraVentaForm extends ACTbase{
 					$this->res = $this->recuperarDatosLCV();
 					$nombreArchivo = $this->crearLibroComprasVentasSiatTXT($this->res, $this->objParam);
 				} else if ($this->objParam->getParametro('tipo_lcv') == 'lve_siat') {
+
+					$this->objParam->addParametro('origen', 'principal');
 					$this->objFunc = $this->create('MODDocCompraVenta');
 					$this->res = $this->objFunc->listarRepLibroVentas($this->objParam);
 					$nombreArchivo = $this->crearLibroComprasVentasSiatTXT($this->res, $this->objParam);
@@ -1606,6 +1573,181 @@ function crearArchivoExportacionIata($datos, $parm, $nit_linea_aerea, $cod_iata)
 		}
 
 	 return $fileName;
+	}
+
+	function crearListadoArchivoExcelSIAT(){
+
+		//var_dump('desarrollo');exit;
+		$file_name = $this->objParam->getParametro('file_name');
+		$index = $this->objParam->getParametro('index');
+		$partition = $this->objParam->getParametro('partition');
+		$dataEntidad = json_decode($this->objParam->getParametro('dataEntidad'), true);
+		$dataPeriodo = json_decode($this->objParam->getParametro('dataPeriodo'), true);
+		/*$dataEntidad = $this->recuperarDatosEntidad();
+		$dataPeriodo = $this->recuperarDatosPeriodo();*/
+		$filtro_sql = $this->objParam->getParametro('filtro_sql');
+		$tipo_lcv = $this->objParam->getParametro('tipo_lcv');
+		$id_gestion = $this->objParam->getParametro('id_gestion');
+		$id_periodo = $this->objParam->getParametro('id_periodo');
+		$fecha_ini = $this->objParam->getParametro('fecha_ini');
+		$fecha_fin = $this->objParam->getParametro('fecha_fin');
+		$number_sheets = $this->objParam->getParametro('number_sheets');
+		$contador = $this->objParam->getParametro('contador');
+
+		$nombreArchivo = uniqid($file_name).'.xls';
+		//var_dump($nombreArchivo, $index, $partition, $dataEntidad, $dataPeriodo);exit;
+
+		$this->objParam->addParametro('index', $index);
+		$this->objParam->addParametro('partition', $partition);
+		$this->objParam->addParametro('filtro_sql', $filtro_sql);
+		$this->objParam->addParametro('tipo_lcv', $tipo_lcv);
+		$this->objParam->addParametro('id_gestion', $id_gestion);
+		$this->objParam->addParametro('id_periodo', $id_periodo);
+		$this->objParam->addParametro('fecha_ini', $fecha_ini);
+		$this->objParam->addParametro('fecha_fin', $fecha_fin);
+
+		$this->objParam->addParametro('origen', 'secundario');
+		$this->objFunc = $this->create('MODDocCompraVenta');
+		$dataSource = $this->objFunc->listarRepLibroVentas($this->objParam);
+
+		$this->objParam->addParametro('nombre_archivo', $nombreArchivo);
+		$this->objParam->addParametro('datos', $dataSource->getDatos());
+		$this->objParam->addParametro('dataEntidad', $dataEntidad);
+		$this->objParam->addParametro('dataPeriodo', $dataPeriodo);
+
+		//set_time_limit(0);
+		//ini_set('memory_limit','-1');
+
+		/****************************** RETURN CONTROL ********************************/
+		$NEW_LINE = "\r\n";
+		ignore_user_abort(true);
+		header('Connection: close' . $NEW_LINE);
+		header('Content-Encoding: none' . $NEW_LINE);
+		ob_start();
+
+		$this->mensajeExito = new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado ' . $nombreArchivo, 'Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+		$size = ob_get_length();
+		header('Content-Length: ' . $size, TRUE);
+		ob_end_flush();
+		ob_flush();
+		flush();
+		session_write_close();
+		/****************************** RETURN CONTROL ********************************/
+
+		/****************************** AUX ********************************/
+		$this->objReporteFormato = new RLibroVentasSiatXLS($this->objParam);
+        $this->objReporteFormato->imprimeDatos();
+        $url_file_xls = $this->objReporteFormato->generarReporte();
+		/****************************** AUX ********************************/
+
+		/****************************** UPDATE GLOBAL PROCESSING ******************************/
+		if( $contador == $number_sheets ){
+			$cone = new conexion();
+			$link = $cone->conectarpdo();
+			$sql = "update pxp.variable_global set
+					valor = 'no'
+					where variable = 'processing_report_iva'";
+
+			$registros = $link->prepare($sql);
+			$registros->execute();
+		}
+		/****************************** UPDATE GLOBAL PROCESSING ******************************/
+
+		/****************************** AUX ********************************/
+		if ( 'lve_siat' == $tipo_lcv && true ) {
+
+			/** Convertir a megas **/
+			$file_size = filesize($url_file_xls);
+			$units = array('B', 'KB', 'MB', 'GB', 'TB');
+
+			$bytes = max($file_size, 0);
+			$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+			$pow = min($pow, count($units) - 1);
+
+			$equivalencia = 1;
+			if ($units[$pow] == 'KB') {
+				$equivalencia = 1024;
+			}else if ($units[$pow] == 'MB'){
+				$equivalencia = 1048576;
+			}else if ($units[$pow] == 'GB'){
+				$equivalencia = 1073741824;
+			}
+
+			$file_size = round($bytes/$equivalencia, 2) . ' ' . $units[$pow];
+			/** Convertir a megas **/
+
+			$url_absolute = $url_file_xls;
+
+			$cone = new conexion();
+			$link = $cone->conectarpdo();
+
+			$sql = "UPDATE  conta.tdocumento_generado SET
+		  			estado_reg = 'OLD'
+					WHERE format = 'xls' and estado_reg != 'inactivo'";
+
+			$stmt = $link->prepare($sql);
+			$stmt->execute();
+
+			$id_gestion = $this->objParam->getParametro('id_gestion');
+			$id_periodo = $this->objParam->getParametro('id_periodo');
+
+			if ($id_gestion != '' && $id_periodo != '') {
+				$sql = "select tper.periodo, tges.gestion
+				from param.tperiodo tper
+				inner join param.tgestion tges on tges.id_gestion = tper.id_gestion
+				where  tper.id_periodo = " . $id_periodo . " and tper.id_gestion = " . $id_gestion;
+
+				$registros = $link->prepare($sql);
+				$registros->execute();
+				$registros = $registros->fetchAll(PDO::FETCH_OBJ);
+				$periodo = $registros[0]->periodo;
+				$gestion = $registros[0]->gestion;
+
+				$fecha_ini = date('d/m/Y', mktime(0, 0, 0, $periodo, 1, $gestion));
+				$dia = date("d", mktime(0, 0, 0, $periodo + 1, 0, $gestion));
+				$fecha_fin = date('d/m/Y', mktime(0, 0, 0, $periodo, $dia, $gestion));
+
+			} else {
+				$fecha_ini = $this->objParam->getParametro('fecha_ini');
+				$fecha_fin = $this->objParam->getParametro('fecha_fin');
+			}
+
+			$sql = "INSERT INTO conta.tdocumento_generado(id_usuario_reg, url, size, fecha_generacion, file_name, format, estado_reg, fecha_ini, fecha_fin) VALUES (" . $_SESSION["ss_id_usuario"] . "::integer, '" . $url_absolute . "', '" . $file_size . "', now(), '" . $nombreArchivo . "', 'xls', 'NEW', '" . $fecha_ini . "'::date, '" . $fecha_fin . "'::date) ";
+
+			$stmt = $link->prepare($sql);
+			$stmt->execute();
+
+			/**enviar alert al usuario para indicar que el reporte ha sido generado**/
+			$evento = "enviarMensajeUsuario";
+
+			//mandamos datos al websocket
+			$data = array(
+				"mensaje" => 'Estimado Funcionario, su Reporte ya ha sido generado: ' . $nombreArchivo,
+				"tipo_mensaje" => 'alert',
+				"titulo" => 'Alerta Reporte',
+				"id_usuario" => $_SESSION["ss_id_usuario"],
+				"destino" => 'Unico',
+				"evento" => $evento,
+				"url" => 'url_prueba'
+			);
+
+			$send = array(
+				"tipo" => "enviarMensajeUsuario",
+				"data" => $data
+			);
+			$usuarios_socket = $this->dispararEventoWS($send);
+			$usuarios_socket = json_decode($usuarios_socket, true);
+			/**enviar alert al usuario para indicar que el reporte ha sido generado**/
+		}
+		/****************************** AUX ********************************/
+		$this->mensajeExito = new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado', 'Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
 	}
 
 

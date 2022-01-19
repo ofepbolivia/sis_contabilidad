@@ -1,5 +1,6 @@
 <?php
-
+/*set_time_limit(0);//avoid timeout
+ini_set('memory_limit','-1');*/
 class RLibroVentasSiatXLS
 {
     private $docexcel;
@@ -15,9 +16,9 @@ class RLibroVentasSiatXLS
         $this->objParam = $objParam;
         $this->url_archivo = "../../../reportes_generados/".$this->objParam->getParametro('nombre_archivo');
         //ini_set('memory_limit','512M');
-        set_time_limit(400);
+        //set_time_limit(420);
         $cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_to_phpTemp;
-        $cacheSettings = array('memoryCacheSize'  => '10MB');
+        $cacheSettings = array('memoryCacheSize'  => '32MB');
         PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);
 
         $this->docexcel = new PHPExcel();
@@ -355,7 +356,8 @@ class RLibroVentasSiatXLS
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $key+1);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, '2');
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, DateTime::createFromFormat('Y-m-d', $rec['fecha_factura'])->format('d/m/Y'));
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $rec['nro_factura']);
+            //$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $rec['nro_factura']);
+            $this->docexcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $fila, trim($rec['nro_factura']), PHPExcel_Cell_DataType::TYPE_STRING);
             //$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $rec['nro_autorizacion']);
             $this->docexcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(4, $fila, trim($rec['nro_autorizacion']), PHPExcel_Cell_DataType::TYPE_STRING);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $rec['nit_ci_cli']);
@@ -407,6 +409,7 @@ class RLibroVentasSiatXLS
     function generarReporte(){
         //$this->imprimeDatos();
         $this->docexcel->setActiveSheetIndex(0);
+        //$this->objWriter = PHPExcel_IOFactory::createWriter($this->docexcel, 'Excel2007');
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->docexcel, 'Excel5');
         $this->objWriter->save($this->url_archivo);
         return $this->url_archivo;
