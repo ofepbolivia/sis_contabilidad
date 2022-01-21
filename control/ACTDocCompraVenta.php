@@ -55,7 +55,9 @@ class ACTDocCompraVenta extends ACTbase
             //20/07/2020 (may) modificacion para que se puedan ver facturas hasta de una gestion anterior
             $fecha_gestion_anterior = $fecha_gestion-1 ;
 
-            $this->objParam->addFiltro("dcv.fecha  between '' 1/1/".$fecha_gestion_anterior. "'' and '' 31/12/".$fecha_gestion. "'' ");
+            //$this->objParam->addFiltro("dcv.fecha  between '' 1/1/".$fecha_gestion_anterior. "'' and '' 31/12/".($fecha_gestion). "'' ");
+            //(21-01-2022) (may) caso ecepcional si es proceso del 2021 y necesiten listar facturas 2022
+            $this->objParam->addFiltro("dcv.fecha  between '' 1/1/".$fecha_gestion_anterior. "'' and '' 31/12/".($fecha_gestion+1). "'' ");
             //
 
         } else {
