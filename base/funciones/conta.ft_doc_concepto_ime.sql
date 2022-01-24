@@ -182,8 +182,7 @@ BEGIN
                                   FROM pre.tpartida par
                                   WHERE par.id_partida = v_id_partida;
 
-                                  --IF (v_partida.importe < v_parametros.precio_total ) THEN
-                                  IF (v_total_rendido < v_parametros.precio_total ) THEN
+                                  IF (v_partida.importe < v_parametros.precio_total ) THEN
                                       RAISE EXCEPTION 'El importe de la Partida % es de % y no puede ser mayor al importe solicitado %, importe devengado %, en el Fondo en Avance %.',upper(v_nombre_partida_registro), v_parametros.precio_total, v_partida.importe,COALESCE(v_total_rendido,0),cuenta_doc_det.nro_tramite;
                                   END IF;
                              END IF;
