@@ -271,7 +271,7 @@ BEGIN
 
                       from conta.tdoc_compra_venta doc
                   left join conta.tplan_pago_documento_airbp relacionado on relacionado.id_documento = doc.id_doc_compra_venta
-                  where doc.nit =''1015497027'' and doc.fecha > ''2019-12-31'' and doc.fecha < ''2021-01-01''
+                  where doc.nit =''1015497027'' and doc.fecha > ''2020-12-31'' and doc.fecha < ''2022-01-01''
 
         ';
 

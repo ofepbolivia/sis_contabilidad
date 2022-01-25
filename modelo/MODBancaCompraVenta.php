@@ -47,7 +47,7 @@ class MODBancaCompraVenta extends MODbase{
 		$this->captura('fecha_documento','date');
 		$this->captura('modalidad_transaccion','int4');
 		$this->captura('tipo_transaccion','int4');
-		$this->captura('autorizacion','numeric');
+		$this->captura('autorizacion','varchar');
 		$this->captura('monto_pagado','numeric');
 		$this->captura('fecha_de_pago','date');
 		$this->captura('razon','varchar');
@@ -140,7 +140,7 @@ class MODBancaCompraVenta extends MODbase{
 		$this->setParametro('fecha_documento','fecha_documento','date');
 		$this->setParametro('modalidad_transaccion','modalidad_transaccion','int4');
 		$this->setParametro('tipo_transaccion','tipo_transaccion','int4');
-		$this->setParametro('autorizacion','autorizacion','numeric');
+		$this->setParametro('autorizacion','autorizacion','varchar');
 		$this->setParametro('monto_pagado','monto_pagado','numeric');
 		$this->setParametro('fecha_de_pago','fecha_de_pago','date');
 		$this->setParametro('razon','razon','varchar');
@@ -196,7 +196,7 @@ class MODBancaCompraVenta extends MODbase{
 		$this->setParametro('fecha_documento','fecha_documento','date');
 		$this->setParametro('modalidad_transaccion','modalidad_transaccion','int4');
 		$this->setParametro('tipo_transaccion','tipo_transaccion','int4');
-		$this->setParametro('autorizacion','autorizacion','numeric');
+		$this->setParametro('autorizacion','autorizacion','varchar');
 		$this->setParametro('monto_pagado','monto_pagado','numeric');
 		$this->setParametro('fecha_de_pago','fecha_de_pago','date');
 		$this->setParametro('razon','razon','varchar');
@@ -402,7 +402,8 @@ class MODBancaCompraVenta extends MODbase{
        						"num_documento_pago" => $arr_temp[12],
        						"tipo_documento_pago" => $arr_temp[13],
        						"fecha_de_pago" => $arr_temp[14],
-       						
+       						"comentario" => $arr_temp[15],
+
 						);
 					}else if($this->aParam->getParametro('tipo')=='Ventas'){
 						$arra[] = array(

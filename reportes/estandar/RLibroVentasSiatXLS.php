@@ -189,7 +189,8 @@ class RLibroVentasSiatXLS
         $color_pestana = array('ff0000','1100ff','55ff00','3ba3ff','ff4747','697dff','78edff','ba8cff',
             'ff80bb','ff792b','ffff5e','52ff97','bae3ff','ffaf9c','bfffc6','b370ff','ffa8b4','7583ff','9aff17','ff30c8');
 
-        $this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,7);
+        //$this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,7);
+        $this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,3);
         $this->docexcel->getActiveSheet()->getTabColor()->setRGB($color_pestana[$index]);
 
         $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
@@ -219,7 +220,7 @@ class RLibroVentasSiatXLS
         $this->docexcel->getActiveSheet()->getColumnDimension('X')->setWidth(15);
 
         /*logo*/
-        $objDrawing = new PHPExcel_Worksheet_Drawing();
+        /*$objDrawing = new PHPExcel_Worksheet_Drawing();
         $objDrawing->setName('BoA ERP');
         $objDrawing->setDescription('BoA ERP');
         $objDrawing->setPath('../../lib/imagenes/logos/logo.jpg');
@@ -228,11 +229,11 @@ class RLibroVentasSiatXLS
         $objDrawing->setOffsetY(0);
         $objDrawing->setWidth(105);
         $objDrawing->setHeight(75);
-        $objDrawing->setWorksheet($this->docexcel->getActiveSheet());
+        $objDrawing->setWorksheet($this->docexcel->getActiveSheet());*/
         /*logo*/
 
 
-        $this->docexcel->getActiveSheet()->getStyle('A1:X4')->applyFromArray($styleTitulos);
+        /*$this->docexcel->getActiveSheet()->getStyle('A1:X4')->applyFromArray($styleTitulos);
 
         $this->docexcel->getActiveSheet()->getStyle('A1:X2')->getAlignment()->setWrapText(true);
         $this->docexcel->getActiveSheet()->mergeCells('A1:W2');
@@ -275,66 +276,67 @@ class RLibroVentasSiatXLS
         $this->docexcel->getActiveSheet()->setCellValue('O4',$dataEntidad['nit']);
 
         $this->docexcel->getActiveSheet()->setCellValue('X1', 'Fecha');
-        $this->docexcel->getActiveSheet()->setCellValue('X2', $fecha);
+        $this->docexcel->getActiveSheet()->setCellValue('X2', $fecha);*/
 
-        $this->docexcel->getActiveSheet()->getStyle('A5:X6')->applyFromArray($styleTitulos1);
+        $row = 1;
+        $this->docexcel->getActiveSheet()->getStyle('A'.$row.':X'.($row+1))->applyFromArray($styleTitulos1);
 
-        $this->docexcel->getActiveSheet()->mergeCells('A5:A6');
-        $this->docexcel->getActiveSheet()->mergeCells('B5:B6');
-        $this->docexcel->getActiveSheet()->mergeCells('C5:C6');
-        $this->docexcel->getActiveSheet()->mergeCells('D5:D6');
-        $this->docexcel->getActiveSheet()->mergeCells('E5:E6');
-        $this->docexcel->getActiveSheet()->mergeCells('F5:F6');
-        $this->docexcel->getActiveSheet()->mergeCells('G5:G6');
-        $this->docexcel->getActiveSheet()->mergeCells('H5:H6');
-        $this->docexcel->getActiveSheet()->mergeCells('I5:I6');
-        $this->docexcel->getActiveSheet()->mergeCells('J5:J6');
-        $this->docexcel->getActiveSheet()->mergeCells('K5:K6');
-        $this->docexcel->getActiveSheet()->mergeCells('L5:L6');
-        $this->docexcel->getActiveSheet()->mergeCells('M5:M6');
-        $this->docexcel->getActiveSheet()->mergeCells('N5:N6');
-        $this->docexcel->getActiveSheet()->mergeCells('O5:O6');
-        $this->docexcel->getActiveSheet()->mergeCells('P5:P6');
-        $this->docexcel->getActiveSheet()->mergeCells('Q5:Q6');
-        $this->docexcel->getActiveSheet()->mergeCells('R5:R6');
-        $this->docexcel->getActiveSheet()->mergeCells('S5:S6');
-        $this->docexcel->getActiveSheet()->mergeCells('T5:T6');
-        $this->docexcel->getActiveSheet()->mergeCells('U5:U6');
-        $this->docexcel->getActiveSheet()->mergeCells('V5:V6');
-        $this->docexcel->getActiveSheet()->mergeCells('W5:W6');
-        $this->docexcel->getActiveSheet()->mergeCells('X5:X6');
+        $this->docexcel->getActiveSheet()->mergeCells('A'.$row.':A'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('B'.$row.':B'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('C'.$row.':C'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('D'.$row.':D'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('E'.$row.':E'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('F'.$row.':F'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('G'.$row.':G'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('H'.$row.':H'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('I'.$row.':I'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('J'.$row.':J'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('K'.$row.':K'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('L'.$row.':L'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('M'.$row.':M'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('N'.$row.':N'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('O'.$row.':O'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('P'.$row.':P'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('Q'.$row.':Q'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('R'.$row.':R'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('S'.$row.':S'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('T'.$row.':T'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('U'.$row.':U'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('V'.$row.':V'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('W'.$row.':W'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('X'.$row.':X'.($row+1));
 
-        $this->docexcel->getActiveSheet()->getStyle('A5:X6')->getAlignment()->setWrapText(true);
+        $this->docexcel->getActiveSheet()->getStyle('A'.$row.':X'.($row+1))->getAlignment()->setWrapText(true);
 
-        $this->docexcel->getActiveSheet()->setCellValue('A5','N°');
-        $this->docexcel->getActiveSheet()->setCellValue('B5','ESPECIFICACIÓN');
-        $this->docexcel->getActiveSheet()->setCellValue('C5',"FECHA DE \nLA FACTURA");
-        $this->docexcel->getActiveSheet()->setCellValue('D5',"N° DE \nLA FACTURA");
-        $this->docexcel->getActiveSheet()->setCellValue('E5',"CODIGO DE \nAUTORIZACION");
-        $this->docexcel->getActiveSheet()->setCellValue('F5',"NIT / CI CLIENTE");
-        $this->docexcel->getActiveSheet()->setCellValue('G5',"COMPLEMENTO");
-        $this->docexcel->getActiveSheet()->setCellValue('H5',"NOMBRE O RAZÓN SOCIAL");
-        $this->docexcel->getActiveSheet()->setCellValue('I5',"IMPORTE TOTAL \n VENTA");
+        $this->docexcel->getActiveSheet()->setCellValue('A'.$row,'N°');
+        $this->docexcel->getActiveSheet()->setCellValue('B'.$row,'ESPECIFICACIÓN');
+        $this->docexcel->getActiveSheet()->setCellValue('C'.$row,"FECHA DE \nLA FACTURA");
+        $this->docexcel->getActiveSheet()->setCellValue('D'.$row,"N° DE \nLA FACTURA");
+        $this->docexcel->getActiveSheet()->setCellValue('E'.$row,"CODIGO DE \nAUTORIZACION");
+        $this->docexcel->getActiveSheet()->setCellValue('F'.$row,"NIT / CI CLIENTE");
+        $this->docexcel->getActiveSheet()->setCellValue('G'.$row,"COMPLEMENTO");
+        $this->docexcel->getActiveSheet()->setCellValue('H'.$row,"NOMBRE O RAZÓN SOCIAL");
+        $this->docexcel->getActiveSheet()->setCellValue('I'.$row,"IMPORTE TOTAL \n VENTA");
 
-        $this->docexcel->getActiveSheet()->setCellValue('J5',"IMPORTE ICE");
-        $this->docexcel->getActiveSheet()->setCellValue('K5',"IMPORTE IEHD");
-        $this->docexcel->getActiveSheet()->setCellValue('L5',"IMPORTE IPJ");
-        $this->docexcel->getActiveSheet()->setCellValue('M5',"TASAS");
-        $this->docexcel->getActiveSheet()->setCellValue('N5',"OTRO NO SUJETO \n AL IVA");
-        $this->docexcel->getActiveSheet()->setCellValue('O5',"EXPORTACIONES Y\n OPERACIONES EXENTAS");
-        $this->docexcel->getActiveSheet()->setCellValue('P5',"VENTAS GRAVADAS\n A TASA CERO");
-        $this->docexcel->getActiveSheet()->setCellValue('Q5',"SUBTOTAL");
+        $this->docexcel->getActiveSheet()->setCellValue('J'.$row,"IMPORTE ICE");
+        $this->docexcel->getActiveSheet()->setCellValue('K'.$row,"IMPORTE IEHD");
+        $this->docexcel->getActiveSheet()->setCellValue('L'.$row,"IMPORTE IPJ");
+        $this->docexcel->getActiveSheet()->setCellValue('M'.$row,"TASAS");
+        $this->docexcel->getActiveSheet()->setCellValue('N'.$row,"OTRO NO SUJETO \n AL IVA");
+        $this->docexcel->getActiveSheet()->setCellValue('O'.$row,"EXPORTACIONES Y\n OPERACIONES EXENTAS");
+        $this->docexcel->getActiveSheet()->setCellValue('P'.$row,"VENTAS GRAVADAS\n A TASA CERO");
+        $this->docexcel->getActiveSheet()->setCellValue('Q'.$row,"SUBTOTAL");
 
-        $this->docexcel->getActiveSheet()->setCellValue('R5',"DESCUENTOS, BONIFICACIONES Y\n REBAJAS SUJETAS AL IVA");
-        $this->docexcel->getActiveSheet()->setCellValue('S5',"IMPORTE GIFT CARD");
-        $this->docexcel->getActiveSheet()->setCellValue('T5',"IMPORTE BASE PARA\n DÉBITO FISCAL");
-        $this->docexcel->getActiveSheet()->setCellValue('U5',"DEBITO FISCAL");
-        $this->docexcel->getActiveSheet()->setCellValue('V5',"ESTADO");
-        $this->docexcel->getActiveSheet()->setCellValue('W5',"CÓDIGO DE CONTROL");
-        $this->docexcel->getActiveSheet()->setCellValue('X5',"TIPO DE VENTA");
+        $this->docexcel->getActiveSheet()->setCellValue('R'.$row,"DESCUENTOS, BONIFICACIONES Y\n REBAJAS SUJETAS AL IVA");
+        $this->docexcel->getActiveSheet()->setCellValue('S'.$row,"IMPORTE GIFT CARD");
+        $this->docexcel->getActiveSheet()->setCellValue('T'.$row,"IMPORTE BASE PARA\n DÉBITO FISCAL");
+        $this->docexcel->getActiveSheet()->setCellValue('U'.$row,"DEBITO FISCAL");
+        $this->docexcel->getActiveSheet()->setCellValue('V'.$row,"ESTADO");
+        $this->docexcel->getActiveSheet()->setCellValue('W'.$row,"CÓDIGO DE CONTROL");
+        $this->docexcel->getActiveSheet()->setCellValue('X'.$row,"TIPO DE VENTA");
 
 
-        $fila = 7;
+        $fila = 3;
 
         $color_cell = array('b4c6e7','d9e1f2','ffc7ce','9bbb59');
 
@@ -409,8 +411,8 @@ class RLibroVentasSiatXLS
     function generarReporte(){
         //$this->imprimeDatos();
         $this->docexcel->setActiveSheetIndex(0);
-        //$this->objWriter = PHPExcel_IOFactory::createWriter($this->docexcel, 'Excel2007');
-        $this->objWriter = PHPExcel_IOFactory::createWriter($this->docexcel, 'Excel5');
+        $this->objWriter = PHPExcel_IOFactory::createWriter($this->docexcel, 'Excel2007');
+        //$this->objWriter = PHPExcel_IOFactory::createWriter($this->docexcel, 'Excel5');
         $this->objWriter->save($this->url_archivo);
         return $this->url_archivo;
     }

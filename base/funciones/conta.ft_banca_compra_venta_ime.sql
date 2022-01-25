@@ -556,7 +556,7 @@ BEGIN
 
 
             FOR v_registros_json IN (SELECT *
-                                     FROM json_populate_recordset(NULL :: conta.json_imp_banca_compra_venta_dos,
+                                     FROM json_populate_recordset(NULL :: conta.json_imp_banca_compra_venta_tres,
                                                                   v_parametros.arra_json :: JSON)) LOOP
 
                     IF v_registros_json.fecha_documento::DATE >= v_registros_json.fecha_de_pago::DATE THEN
@@ -617,7 +617,8 @@ BEGIN
                         revisado,
                         tramite_cuota,
                         num_contrato,
-                        saldo
+                        saldo,
+                        comentario
                     ) VALUES (
                                  v_registros_json.num_cuenta_pago,
                                  v_registros_json.tipo_documento_pago::numeric,
@@ -629,7 +630,7 @@ BEGIN
                                  v_registros_json.fecha_documento::date,
                                  v_registros_json.modalidad_transaccion::INTEGER,
                                  v_registros_json.tipo_transaccion::INTEGER,
-                                 v_registros_json.autorizacion::numeric,
+                                 v_registros_json.autorizacion::varchar,
                                  v_registros_json.monto_pagado::numeric,
                                  v_registros_json.fecha_de_pago::date,
                                  v_registros_json.razon,
@@ -646,13 +647,14 @@ BEGIN
                                  NULL,
                                  'importado',
                                  4,
-                                 3397,--id del proveedor 398 AIRBP - (178 LACTEOSBOL) (242 tab) , (3397 SEDEM)
+                                 398,--id del proveedor 398 AIRBP - (178 LACTEOSBOL) (242 tab) , (3397 SEDEM)
                                  61,
                                  '10-0017-15',
                                  'si',
                                  'SIN TRAMITE',
                                  0,
-                                 v_saldo
+                                 v_saldo,
+                                 v_registros_json.comentario
 
 
                              );
@@ -1246,7 +1248,7 @@ BEGIN
                                 THEN
 
                                     IF v_record_plan_pago_pxp.nro_autorizacion is null or v_record_plan_pago_pxp.nro_autorizacion = '' THEN
-                                        v_record_plan_pago_pxp.nro_autorizacion = 0;
+                                        v_record_plan_pago_pxp.nro_autorizacion = '0';
                                     END IF;
 
 
@@ -1323,7 +1325,7 @@ BEGIN
                                                  v_record_plan_pago_pxp.fecha_documento,
                                                  v_modalidad_de_transaccion,
                                                  v_tipo_transaccion,
-                                                 v_record_plan_pago_pxp.nro_autorizacion :: NUMERIC,
+                                                 v_record_plan_pago_pxp.nro_autorizacion :: varchar,
                                                  v_monto_pagado,
 
                                                  v_fecha_libro_o_entrega,
@@ -1619,7 +1621,7 @@ and (
                     IF EXISTS(SELECT 0
                               FROM conta.tbanca_compra_venta
                               WHERE num_documento = v_record_plan_pago_pxp.nro_documento :: VARCHAR
-                                AND autorizacion = v_record_plan_pago_pxp.nro_autorizacion :: NUMERIC
+                                AND autorizacion = v_record_plan_pago_pxp.nro_autorizacion :: varchar
                                 AND tipo_bancarizacion = 'devolucion')
                     THEN
 
@@ -1833,7 +1835,7 @@ and (
 
 
                                 IF v_record_plan_pago_pxp.nro_autorizacion is null or v_record_plan_pago_pxp.nro_autorizacion = '' THEN
-                                    v_record_plan_pago_pxp.nro_autorizacion = 0;
+                                    v_record_plan_pago_pxp.nro_autorizacion = '0';
                                 END IF;
 
 
@@ -1895,7 +1897,7 @@ and (
                                              v_record_plan_pago_pxp.fecha_documento,
                                              v_modalidad_de_transaccion,
                                              v_tipo_transaccion,
-                                             v_record_plan_pago_pxp.nro_autorizacion :: NUMERIC,
+                                             v_record_plan_pago_pxp.nro_autorizacion :: varchar,
                                              v_monto_pagado,
 
                                              v_fecha_libro_o_entrega,

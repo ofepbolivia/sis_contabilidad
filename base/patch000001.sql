@@ -5364,3 +5364,15 @@ alter table conta.tdoc_compra_venta
 
 comment on column conta.tdoc_compra_venta.importe_compras_gravadas_tasa_cero is 'Importe de las compras gravadas a Tasa Cero. Para este caso se deberá registrar el 100% del Importe Total de la compra. Caso contrario registrar cero (0).';
 /***********************************F-SCP-FEA-CONTA-0-05/01/2022****************************************/
+
+/***********************************I-SCP-FFP-CONTA-0-25/01/2022****************************************/
+
+DROP VIEW v_banca_erp1;
+DROP VIEW v_banca_erp2;
+DROP VIEW v_banca_pxp;
+
+
+alter table conta.tbanca_compra_venta alter column autorizacion type varchar(255) using autorizacion::varchar(255);
+
+
+/***********************************F-SCP-FFP-CONTA-0-25/01/2022****************************************/
