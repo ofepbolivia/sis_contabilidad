@@ -258,7 +258,7 @@ BEGIN
                  		end as iva_prorrateado,*/                       
                          case
                            when (doc.importe_pago_liquido - (
-                             COALESCE(doc.importe_excento, 0)) +
+                             COALESCE(doc.importe_excento, 0) +
                              COALESCE(doc.importe_iehd, 0) +
                              COALESCE(doc.importe_ipj, 0) +
                              COALESCE(doc.importe_tasas, 0) +
@@ -266,7 +266,7 @@ BEGIN
                              COALESCE(doc.otro_no_sujeto_credito_fiscal, 0) +
                              COALESCE(doc.importe_compras_gravadas_tasa_cero, 0) +
                              COALESCE(doc.importe_ice, 0)       
-                             ) != 0
+                             )) != 0
                                 then round((doc.importe_pago_liquido - 
                                     (  COALESCE(doc.importe_excento,0) +
                                        COALESCE(doc.importe_iehd, 0) +
