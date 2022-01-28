@@ -230,7 +230,7 @@ BEGIN
                          doc.importe_pago_liquido::numeric as liquido,
 	                      --{ dev:bvasquez, date: 20/01/2021, desc: adicion para resta a liquido con nuevos impuestos }
                  		 --COALESCE((doc.importe_pago_liquido - COALESCE(doc.importe_excento, 0)),0)::numeric as importe_sujeto,
-                         COALESCE((doc.importe_pago_liquido - (
+                         (COALESCE(doc.importe_pago_liquido,0) - (
                                      COALESCE(doc.importe_excento, 0) +
                                      COALESCE(doc.importe_iehd, 0) +
                                      COALESCE(doc.importe_ipj, 0) +
@@ -239,7 +239,7 @@ BEGIN
                                      COALESCE(doc.otro_no_sujeto_credito_fiscal, 0) +
                                      COALESCE(doc.importe_compras_gravadas_tasa_cero, 0) +               
                                      COALESCE(doc.importe_ice, 0)
-                                )),0)::numeric as importe_sujeto,                         
+                                ))::numeric as importe_sujeto,                        
                  		 doc.importe_iva::numeric,
                  		 con.precio_total_final::numeric as importe_gasto,
                  		 (con.precio_total_final / doc.importe_pago_liquido)::numeric as porc_gasto_prorrateado,
@@ -353,7 +353,16 @@ BEGIN
                 doc.importe_pago_liquido::numeric as liquido,
                 --{ dev:bvasquez, date: 20/01/2021, desc: importe_sujeto sin importe_excento ya sustraido desde la interfaz }
                 --COALESCE((doc.importe_neto - COALESCE(doc.importe_excento,0)),0)::numeric as importe_sujeto,
-                COALESCE(doc.importe_neto,0)::numeric as importe_sujeto,
+                (COALESCE(doc.importe_pago_liquido,0) - (
+                            COALESCE(doc.importe_excento, 0) +
+                            COALESCE(doc.importe_iehd, 0) +
+                            COALESCE(doc.importe_ipj, 0) +
+                            COALESCE(doc.importe_tasas, 0) +
+                            COALESCE(doc.importe_gift_card, 0) +
+                            COALESCE(doc.otro_no_sujeto_credito_fiscal, 0) +
+                            COALESCE(doc.importe_compras_gravadas_tasa_cero, 0) +               
+                            COALESCE(doc.importe_ice, 0)
+                      ))::numeric as importe_sujeto,                
                 doc.importe_iva::numeric,                 
                 round((sum(tra.importe_gasto) /(1 - tra.factor_reversion)),2)::numeric as importe_gasto,
                 (sum(tra.importe_gasto) /(1 - tra.factor_reversion) / conta.f_importe_gasto_comprobante(cmp.id_int_comprobante))::numeric as porc_gasto_prorrateado,
