@@ -2351,7 +2351,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.ocultarComponente(this.Cmp.tipo_cambio);
                 }
 
-                if (((this.data.objPadre.mycls == 'RendicionDetReg' || this.data.objPadre.mycls== 'RendicionDetTes')  && this.mycls == 'FormRendicionCD') || ((this.data.objPadre.mycls == 'SolicitudRendicionDet')  && this.mycls == 'FormRendicion') ){
+                if (((this.data.objPadre.mycls == 'RendicionDetReg' || this.data.objPadre.mycls== 'RendicionDetTes' || this.data.objPadre.mycls== 'RendicionDetRegDetalle')  && (this.mycls == 'FormRendicionCD' || this.mycls == 'FormRendicionCDDetalle') ) || ((this.data.objPadre.mycls == 'SolicitudRendicionDet')  && this.mycls == 'FormRendicion') ){
 
                     if (this.data.datosOriginales.data.revisado == 'si' || this.data.boton_rendicion=='readOnly') {
                         this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
