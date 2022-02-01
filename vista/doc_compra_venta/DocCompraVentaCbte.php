@@ -57,7 +57,16 @@ header("content-type: text/javascript; charset=UTF-8");
                     iconCls: 'btag_accept',
                     disabled: false,
                     handler: this.newDocGesAnt,
-                    tooltip: 'Permite relacionar un documento existente al Cbte desde Getiones Anteriores'
+                    tooltip: 'Permite relacionar un documento existente al Cbte desde Gestiones Anteriores'
+                }
+            );
+            this.addButton('btnNewDocGesPost',
+                {
+                    text: 'Relacionar Doc. Gest. Posteriores',
+                    iconCls: 'btag_accept',
+                    disabled: false,
+                    handler: this.newDocGesPos,
+                    tooltip: 'Permite relacionar un documento existente al Cbte desde Getiones Posteriores'
                 }
             );
             console.log('maestrom', this.maestro, this.disparador);
@@ -841,6 +850,19 @@ header("content-type: text/javascript; charset=UTF-8");
                     fecha_cbte: this.fecha,
                     sin_cbte: 'no',
                     manual: 'si'});
+
+            this.Cmp.id_doc_compra_venta.modificado = true;
+
+        },
+
+        //01-02-2022 (may) facturas de gestiones posteriores
+        newDocGesPos: function() {
+
+            Phx.vista.DocCompraVentaCbte.superclass.onButtonNew.call(this);
+            this.Cmp.id_doc_compra_venta.store.baseParams = Ext.apply(this.Cmp.id_doc_compra_venta.store.baseParams,
+                {
+                    fecha_cbte: this.fecha,
+                    ges_post: 'si'});
 
             this.Cmp.id_doc_compra_venta.modificado = true;
 

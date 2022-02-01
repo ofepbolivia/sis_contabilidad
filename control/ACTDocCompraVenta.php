@@ -25,6 +25,13 @@ class ACTDocCompraVenta extends ACTbase
         if ($this->objParam->getParametro('id_periodo') != '') {
             $this->objParam->addFiltro("dcv.id_periodo = " . $this->objParam->getParametro('id_periodo'));
         }
+        //31-01-2022 (may) para facturas de fondos anteriores
+        if ($this->objParam->getParametro('fecha') != '') {
+            $fecha = new DateTime($this->objParam->getParametro('fecha'));
+            $fecha_gestion =  date_format($fecha,'Y');
+
+            $this->objParam->addFiltro("dcv.fecha  between '' 1/1/".$fecha_gestion. "'' and '' 31/12/".($fecha_gestion). "'' ");
+        }
 
         //filtro para facturas para cada plan de pagos
 //        if ($this->objParam->getParametro('id_int_comprobante') == '') {
@@ -66,10 +73,27 @@ class ACTDocCompraVenta extends ACTbase
                 $this->objParam->addFiltro("dcv.manual = ''".$this->objParam->getParametro('manual')."''");
             }*/
 
-            if ($this->objParam->getParametro('fecha_cbte') != '') {
-                $this->objParam->addFiltro("dcv.fecha <= ''" . $this->objParam->getParametro('fecha_cbte') . "''::date");
+            //01-02-2022 (may) facturas de gestiones posteriores
+            if ($this->objParam->getParametro('ges_post') == 'si') {
+
+                $fecha = new DateTime($this->objParam->getParametro('fecha_cbte'));
+                $fecha_gestion =  date_format($fecha,'Y');
+                $fecha_gestion_posterior = $fecha_gestion + 1 ;
+                $this->objParam->addFiltro("dcv.fecha  between ''01/01/".$fecha_gestion_posterior."'' and ''31/12/".$fecha_gestion_posterior."'' ");
+
+            }else {
+
+                if ($this->objParam->getParametro('fecha_cbte') != '') {
+                    $this->objParam->addFiltro("dcv.fecha <= ''" . $this->objParam->getParametro('fecha_cbte') . "''::date");
+                }
+
             }
+
+
         }
+
+
+
 
         if ($this->objParam->getParametro('filtro_usuario') == 'si') {
             $this->objParam->addFiltro("dcv.id_usuario_reg = " . $_SESSION["ss_id_usuario"]);
