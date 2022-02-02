@@ -29,8 +29,9 @@ class ACTDocCompraVenta extends ACTbase
         if ($this->objParam->getParametro('fecha') != '') {
             $fecha = new DateTime($this->objParam->getParametro('fecha'));
             $fecha_gestion =  date_format($fecha,'Y');
+            $fecha_gestion_anterior = $fecha_gestion-1 ;
 
-            $this->objParam->addFiltro("dcv.fecha  between '' 1/1/".$fecha_gestion. "'' and '' 31/12/".($fecha_gestion). "'' ");
+            $this->objParam->addFiltro("dcv.fecha  between '' 1/1/".$fecha_gestion_anterior. "'' and '' 31/12/".($fecha_gestion_anterior). "'' ");
         }
 
         //filtro para facturas para cada plan de pagos

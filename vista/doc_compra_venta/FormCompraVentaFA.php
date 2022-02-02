@@ -360,7 +360,10 @@ header("content-type: text/javascript; charset=UTF-8");
             this.detCmp.id_orden_trabajo.store.baseParams.fecha_solicitud = this.Cmp.fecha.getValue().dateFormat('d/m/Y');
             this.detCmp.id_orden_trabajo.modificado = true;
 
-            this.detCmp.id_centro_costo.store.baseParams.id_gestion = this.Cmp.id_gestion.getValue();
+            console.log('llegaFrom', this.data)
+            //02-02-2022 (may) se quita filtro gestion porque ya se tiene gestion de la solicitud
+            //this.detCmp.id_centro_costo.store.baseParams.id_gestion = this.Cmp.id_gestion.getValue();
+
             //this.detCmp.id_centro_costo.store.baseParams.codigo_subsistema = this.codigoSistema;
             //this.detCmp.id_centro_costo.store.baseParams.id_depto = this.Cmp.id_depto_conta.getValue();
 
@@ -378,7 +381,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.detCmp.id_centro_costo.modificado = true;
             //cuando esta el la inteface de presupeustos no filtra por bienes o servicios
             //this.detCmp.id_concepto_ingas.store.baseParams.movimiento = (this.Cmp.tipo.getValue() == 'compra') ? 'gasto' : 'recurso';
-            this.detCmp.id_concepto_ingas.store.baseParams.id_gestion = this.Cmp.id_gestion.getValue();
+            //02-02-2022 (may) se quita filtro gestion porque ya se tiene gestion de la solicitud
+            // this.detCmp.id_concepto_ingas.store.baseParams.id_gestion = this.Cmp.id_gestion.getValue();
             this.detCmp.id_concepto_ingas.modificado = true;
 
         },

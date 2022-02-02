@@ -849,7 +849,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     fecha_cbte: this.fecha,
                     sin_cbte: 'no',
-                    ges_post: 'no', 
+                    ges_post: 'no',
                     manual: 'si'});
 
             this.Cmp.id_doc_compra_venta.modificado = true;

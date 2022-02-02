@@ -46,6 +46,10 @@ DECLARE
     v_nombre_centro_registro	varchar;
     v_total_rendido				numeric;
 
+    v_gestion					integer;
+    v_id_gestion_sol			integer;
+    v_id_gestion				integer;
+
 BEGIN
 
     v_nombre_funcion = 'conta.ft_doc_concepto_ime';
@@ -93,7 +97,21 @@ BEGIN
                v_codigo_rel = 'CUEVENT';  --codigo de relacion contable para ventas
             END IF;
             
-            --Validar si tiene relacion contable        
+            --02-02-2022 (may) se quita filtro gestion porque ya se tiene gestion de la solicitud
+            SELECT cco.id_gestion
+            INTO v_id_gestion_sol
+            FROM param.tcentro_costo cco
+            WHERE cco.id_centro_costo = v_parametros.id_centro_costo;
+
+            --02-02-2022 (may) si la gestion de la solicitud no es la misma a la gestion de la factura, se tomara en cuenta la gestion de la solicitud
+            IF (v_registros_doc.id_gestion != v_id_gestion_sol) THEN
+            	v_id_gestion  = v_id_gestion_sol;
+            ELSE -- si la gestion de la solicitud es IGUAL a la gestion de la factura, se tomara la gestion normal como lo hace de la factura
+            	v_id_gestion  = v_registros_doc.id_gestion;
+            END IF;
+            --
+
+            --Validar si tiene relacion contable
             SELECT 
               ps_id_partida ,
               ps_id_cuenta,
@@ -103,7 +121,7 @@ BEGIN
               v_id_cuenta, 
               v_id_auxiliar
             FROM conta.f_get_config_relacion_contable(v_codigo_rel, 
-                                                     v_registros_doc.id_gestion, 
+                                                     v_id_gestion, --v_registros_doc.id_gestion,
                                                      v_parametros.id_concepto_ingas, 
                                                      v_parametros.id_centro_costo,  
                                                      'No se encontro relación contable para el conceto de gasto: '||v_registros_cig.desc_ingas||'. <br> Mensaje: ');
@@ -300,7 +318,21 @@ BEGIN
                v_codigo_rel = 'CUEVENT';  --codigo de relacion contable para ventas
             END IF;
             
-            --Validar si tiene relacion contable        
+            --02-02-2022 (may) se quita filtro gestion porque ya se tiene gestion de la solicitud
+            SELECT cco.id_gestion
+            INTO v_id_gestion_sol
+            FROM param.tcentro_costo cco
+            WHERE cco.id_centro_costo = v_parametros.id_centro_costo;
+
+            --02-02-2022 (may) si la gestion de la solicitud no es la misma a la gestion de la factura, se tomara en cuenta la gestion de la solicitud
+            IF (v_registros_doc.id_gestion != v_id_gestion_sol) THEN
+            	v_id_gestion  = v_id_gestion_sol;
+            ELSE -- si la gestion de la solicitud es IGUAL a la gestion de la factura, se tomara la gestion normal como lo hace de la factura
+            	v_id_gestion  = v_registros_doc.id_gestion;
+            END IF;
+            --
+
+            --Validar si tiene relacion contable
             SELECT 
               ps_id_partida ,
               ps_id_cuenta,
@@ -310,7 +342,7 @@ BEGIN
               v_id_cuenta, 
               v_id_auxiliar
             FROM conta.f_get_config_relacion_contable(v_codigo_rel, 
-                                                     v_registros_doc.id_gestion, 
+                                                     v_id_gestion, --v_registros_doc.id_gestion,
                                                      v_parametros.id_concepto_ingas, 
                                                      v_parametros.id_centro_costo,  
                                                      'No se encontro relación contable para el conceto de gasto: '||v_registros_cig.desc_ingas||'. <br> Mensaje: ');
