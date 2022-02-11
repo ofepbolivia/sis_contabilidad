@@ -257,7 +257,7 @@ BEGIN
                          else 0::numeric
                  		end as iva_prorrateado,*/                       
                          case
-                           when (doc.importe_pago_liquido - (
+                           when (COALESCE(doc.importe_pago_liquido,0) - (
                              COALESCE(doc.importe_excento, 0) +
                              COALESCE(doc.importe_iehd, 0) +
                              COALESCE(doc.importe_ipj, 0) +
@@ -373,20 +373,37 @@ BEGIN
                  case when doc.id_int_comprobante is not null then
                  	round((doc.importe_pago_liquido - COALESCE(doc.importe_excento, 0)) * (sum(tra.importe_gasto) /(1 - tra.factor_reversion) / conta.f_importe_gasto_comprobante(cmp.id_int_comprobante))*0.13,2)::numeric
                  else doc.importe_iva::numeric end as iva_prorrateado,*/                 
-                case when doc.id_int_comprobante is not null then
-                round((doc.importe_pago_liquido - ( 
-                       COALESCE(doc.importe_excento, 0) +
-                       COALESCE(doc.importe_iehd, 0) +
-                       COALESCE(doc.importe_ipj, 0) +
-                       COALESCE(doc.importe_tasas, 0) +
-                       COALESCE(doc.importe_gift_card, 0) +
-                       COALESCE(doc.otro_no_sujeto_credito_fiscal, 0) +
-                       COALESCE(doc.importe_compras_gravadas_tasa_cero, 0) +
-                       COALESCE(doc.importe_ice, 0)           
-                      )
-                ) * (sum(tra.importe_gasto) /(1 - tra.factor_reversion) / conta.f_importe_gasto_comprobante(cmp.id_int_comprobante)),2)::numeric
-                
-                else (doc.importe_pago_liquido - (
+                  case when 
+                   doc.id_int_comprobante is not null and 
+                  COALESCE(
+                round((COALESCE(doc.importe_pago_liquido,0) - ( 
+                         COALESCE(doc.importe_excento, 0) +
+                         COALESCE(doc.importe_iehd, 0) +
+                         COALESCE(doc.importe_ipj, 0) +
+                         COALESCE(doc.importe_tasas, 0) +
+                         COALESCE(doc.importe_gift_card, 0) +
+                         COALESCE(doc.otro_no_sujeto_credito_fiscal, 0) +
+                         COALESCE(doc.importe_compras_gravadas_tasa_cero, 0) +
+                         COALESCE(doc.importe_ice, 0)           
+                        )
+              ) * (sum(tra.importe_gasto) /(1 - tra.factor_reversion) / COALESCE(conta.f_importe_gasto_comprobante(cmp.id_int_comprobante),0)),2)::numeric, 0)
+               != 0
+                  
+                   then
+                  
+                  round((COALESCE(doc.importe_pago_liquido,0) - ( 
+                         COALESCE(doc.importe_excento, 0) +
+                         COALESCE(doc.importe_iehd, 0) +
+                         COALESCE(doc.importe_ipj, 0) +
+                         COALESCE(doc.importe_tasas, 0) +
+                         COALESCE(doc.importe_gift_card, 0) +
+                         COALESCE(doc.otro_no_sujeto_credito_fiscal, 0) +
+                         COALESCE(doc.importe_compras_gravadas_tasa_cero, 0) +
+                         COALESCE(doc.importe_ice, 0)           
+                        )
+                  ) * (sum(tra.importe_gasto) /(1 - tra.factor_reversion) / COALESCE(conta.f_importe_gasto_comprobante(cmp.id_int_comprobante),0)),2)::numeric
+                  
+                else (COALESCE(doc.importe_pago_liquido,0) - (
                         COALESCE(doc.importe_excento,0) +
                         COALESCE(doc.importe_iehd, 0) +
                         COALESCE(doc.importe_ipj, 0) +
@@ -397,6 +414,7 @@ BEGIN
                         COALESCE(doc.importe_ice, 0)   
                         )
                 )::numeric end as sujeto_prorrateado,
+                                        
                 
                 case when doc.id_int_comprobante is not null then
                 round((doc.importe_pago_liquido - (
@@ -411,7 +429,7 @@ BEGIN
                       )
                 
                 ) * (sum(tra.importe_gasto) /(1 - tra.factor_reversion) / conta.f_importe_gasto_comprobante(cmp.id_int_comprobante))*0.13,2)::numeric
-                else doc.importe_iva::numeric end as iva_prorrateado,                 
+                else doc.importe_iva::numeric end as iva_prorrateado,                
                  par.codigo::varchar,
                  cta.nro_cuenta::varchar,
                  case when pla.desc_plantilla ='Facturas por Comisiones' then 'Ingresos'
@@ -424,7 +442,7 @@ BEGIN
                LEFT JOIN conta.tint_comprobante cmp on cmp.id_int_comprobante =
                  doc.id_int_comprobante
                LEFT JOIN conta.tint_transaccion tra on tra.id_int_comprobante =
-                 cmp.id_int_comprobante and tra.id_partida_ejecucion_dev is not null
+                 cmp.id_int_comprobante and tra.id_partida_ejecucion_dev is not null and cmp.id_int_comprobante_fks is null and cmp.estado_reg = 'validado'
                LEFT JOIN pre.tpartida par on par.id_partida = tra.id_partida
                INNER JOIN param.tplantilla pla on pla.id_plantilla = doc.id_plantilla
                LEFT JOIN conta.tcuenta cta on cta.id_cuenta = tra.id_cuenta
