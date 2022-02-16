@@ -2101,12 +2101,11 @@ header("content-type: text/javascript; charset=UTF-8");
 
         calculaMontoPago: function () {
 
-
             if (this.Cmp.tipo_excento.getValue() == 'constante') {
                 this.Cmp.importe_excento.setValue(this.Cmp.valor_excento.getValue())
             }
 
-            if (this.Cmp.tipo_excento.getValue() == 'porcentual' && this.Cmp.otro_no_sujeto_credito_fiscal.getValue() <= 0) {
+            if (this.Cmp.tipo_excento.getValue() == 'porcentual' && this.Cmp.otro_no_sujeto_credito_fiscal.getValue() < 0) {
                 //10-01-2022 (may) ya no el importe excento, es el importe otro_no_sujeto_credito_fiscal
                 //this.Cmp.importe_excento.setValue(this.Cmp.importe_neto.getValue() * this.Cmp.valor_excento.getValue())
                 this.Cmp.otro_no_sujeto_credito_fiscal.setReadOnly(true);
@@ -2148,7 +2147,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     + v_importe_compras_gravadas_tasa_cero + v_importe_ice));
                 this.Cmp.porc_descuento.setValue(0);
             }
-
             var porc_descuento = this.Cmp.porc_descuento.getValue();
 
 
