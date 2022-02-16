@@ -172,7 +172,7 @@ header("content-type: text/javascript; charset=UTF-8");
                             },
                             {
                                 text: '<b style="color: red">Revertir ENTREGA</b>',
-                                iconCls: 'brever-sigep',
+                                iconCls: 'brev-sigep',
                                 argument: {
                                     'news': true,
                                     def: 'csv'

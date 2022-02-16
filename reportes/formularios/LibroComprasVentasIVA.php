@@ -385,6 +385,17 @@ header("content-type: text/javascript; charset=UTF-8");
 
         constructor : function(config) {
             Phx.vista.ReporteLibroComprasVentasIVA.superclass.constructor.call(this, config);
+
+            this.tbar.add('-');
+            this.tbar.add('-');
+            this.tbar.add(this.progressBar);
+            this.tbar.add('-');
+            this.tbar.add('-');
+            this.init();
+
+            that  = this;
+            that.progress = this.progressBar;
+
             this.init();
 
             this.ocultarComponente(this.Cmp.fecha_fin);
@@ -394,6 +405,12 @@ header("content-type: text/javascript; charset=UTF-8");
             this.ocultarComponente(this.Cmp.formato_reporte_iata);
             this.iniciarEventos();
         },
+
+        progressBar : new Ext.ProgressBar({
+            id: 'pbar',
+            width: 300,
+            text:'<b style="text-align: center;">0 %</b>'
+        }),
 
         iniciarEventos:function(){
 
@@ -594,7 +611,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 let min_inc = 8;
                 let min_con = 60000;//1 min
                 let min_var = min_con*min_inc;//8 min
-                for (var ind = 1; ind <= number_sheets; ind++) { console.log('ind', ind, 'number_sheets', number_sheets);
+                for (var ind = 1; ind <= number_sheets; ind++) { //console.log('ind', ind, 'number_sheets', number_sheets);
 
                     let root = {
                         file_name     : 'RegistroVentasEstandarSiat_' + raiz.periodo + '_' + raiz.gestion + '_' + ind + '_de_' + number_sheets + '_',
@@ -611,18 +628,35 @@ header("content-type: text/javascript; charset=UTF-8");
                         number_sheets : number_sheets,
                         contador      : ind
                     };
-
-                    setTimeout(this.crearListadoArchivoExcelSIAT, min_var, root);
-                    console.log('minutos', min_var);
-
-                    min_inc += 8;
-                    min_var = min_con * min_inc;
+                    if ( ind == 1 ) {
+                        setTimeout(this.crearListadoArchivoExcelSIAT, 1000, root);
+                    }else {
+                        setTimeout(this.crearListadoArchivoExcelSIAT, min_var, root);
+                        min_inc += 8;
+                        min_var = min_con * min_inc;
+                    }
+                    //console.log('minutos', min_var);
                     index += partition;
                 }
+
+                that.progress.wait({
+                    interval: 1000,
+                    duration: min_var,
+                    increment: (1/number_sheets)*100,
+                    text: '<b style="text-align: center;">0 %</b>',
+                    scope: this,
+                    fn: function(){
+                        that.progress.updateText('Reporte Generado!');
+                    }
+                });
             }
 
         },
         crearListadoArchivoExcelSIAT:  function(root){
+
+            let valor = (root.contador/root.number_sheets)*100;
+            that.progress.updateText('<b style="text-align: center;">'+valor+' %'+'</b>');
+
             Ext.Ajax.request({
                 url: '../../sis_contabilidad/control/DocCompraVentaForm/crearListadoArchivoExcelSIAT',
                 params: {

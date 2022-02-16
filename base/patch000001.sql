@@ -5363,6 +5363,33 @@ alter table conta.tdoc_compra_venta
 	add importe_compras_gravadas_tasa_cero numeric(14,2);
 
 comment on column conta.tdoc_compra_venta.importe_compras_gravadas_tasa_cero is 'Importe de las compras gravadas a Tasa Cero. Para este caso se deberá registrar el 100% del Importe Total de la compra. Caso contrario registrar cero (0).';
+
+ALTER TABLE conta.tint_comprobante
+  ADD COLUMN momento_devengado VARCHAR(4);
+
+COMMENT ON COLUMN conta.tint_comprobante.momento_devengado
+IS 'Campo que indica momento devengado para documento C21.';
+
+
+ALTER TABLE conta.tint_comprobante
+  ADD COLUMN momento_percibido VARCHAR(4);
+
+COMMENT ON COLUMN conta.tint_comprobante.momento_percibido
+IS 'Campo que indica momento percibido para documento C21.';
+
+ALTER TABLE conta.tint_comprobante
+  ADD COLUMN c21 VARCHAR(16);
+
+COMMENT ON COLUMN conta.tint_comprobante.c21
+IS 'Campo para almacenar el numero de documento C21.';
+
+ALTER TABLE conta.tint_comprobante
+  ADD COLUMN fecha_c21 DATE;
+
+COMMENT ON COLUMN conta.tint_comprobante.fecha_c21
+IS 'Campo que almacena la fecha en la que se genera el documento C21.';
+
+
 /***********************************F-SCP-FEA-CONTA-0-05/01/2022****************************************/
 
 /***********************************I-SCP-FFP-CONTA-0-25/01/2022****************************************/

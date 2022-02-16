@@ -190,7 +190,7 @@ class RLibroVentasSiatXLS
             'ff80bb','ff792b','ffff5e','52ff97','bae3ff','ffaf9c','bfffc6','b370ff','ffa8b4','7583ff','9aff17','ff30c8');
 
         //$this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,7);
-        $this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,3);
+        $this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,2);
         $this->docexcel->getActiveSheet()->getTabColor()->setRGB($color_pestana[$index]);
 
         $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
@@ -279,34 +279,34 @@ class RLibroVentasSiatXLS
         $this->docexcel->getActiveSheet()->setCellValue('X2', $fecha);*/
 
         $row = 1;
-        $this->docexcel->getActiveSheet()->getStyle('A'.$row.':X'.($row+1))->applyFromArray($styleTitulos1);
+        $this->docexcel->getActiveSheet()->getStyle('A'.$row.':X'.$row)->applyFromArray($styleTitulos1);
 
-        $this->docexcel->getActiveSheet()->mergeCells('A'.$row.':A'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('B'.$row.':B'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('C'.$row.':C'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('D'.$row.':D'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('E'.$row.':E'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('F'.$row.':F'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('G'.$row.':G'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('H'.$row.':H'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('I'.$row.':I'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('J'.$row.':J'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('K'.$row.':K'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('L'.$row.':L'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('M'.$row.':M'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('N'.$row.':N'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('O'.$row.':O'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('P'.$row.':P'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('Q'.$row.':Q'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('R'.$row.':R'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('S'.$row.':S'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('T'.$row.':T'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('U'.$row.':U'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('V'.$row.':V'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('W'.$row.':W'.($row+1));
-        $this->docexcel->getActiveSheet()->mergeCells('X'.$row.':X'.($row+1));
+        $this->docexcel->getActiveSheet()->mergeCells('A'.$row.':A'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('B'.$row.':B'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('C'.$row.':C'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('D'.$row.':D'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('E'.$row.':E'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('F'.$row.':F'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('G'.$row.':G'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('H'.$row.':H'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('I'.$row.':I'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('J'.$row.':J'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('K'.$row.':K'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('L'.$row.':L'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('M'.$row.':M'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('N'.$row.':N'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('O'.$row.':O'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('P'.$row.':P'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('Q'.$row.':Q'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('R'.$row.':R'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('S'.$row.':S'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('T'.$row.':T'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('U'.$row.':U'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('V'.$row.':V'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('W'.$row.':W'.$row);
+        $this->docexcel->getActiveSheet()->mergeCells('X'.$row.':X'.$row);
 
-        $this->docexcel->getActiveSheet()->getStyle('A'.$row.':X'.($row+1))->getAlignment()->setWrapText(true);
+        $this->docexcel->getActiveSheet()->getStyle('A'.$row.':X'.$row)->getAlignment()->setWrapText(true);
 
         $this->docexcel->getActiveSheet()->setCellValue('A'.$row,'N°');
         $this->docexcel->getActiveSheet()->setCellValue('B'.$row,'ESPECIFICACIÓN');
@@ -336,7 +336,7 @@ class RLibroVentasSiatXLS
         $this->docexcel->getActiveSheet()->setCellValue('X'.$row,"TIPO DE VENTA");
 
 
-        $fila = 3;
+        $fila = 2;
 
         $color_cell = array('b4c6e7','d9e1f2','ffc7ce','9bbb59');
 
@@ -359,9 +359,9 @@ class RLibroVentasSiatXLS
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, '2');
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, DateTime::createFromFormat('Y-m-d', $rec['fecha_factura'])->format('d/m/Y'));
             //$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $rec['nro_factura']);
-            $this->docexcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $fila, trim($rec['nro_factura']), PHPExcel_Cell_DataType::TYPE_STRING);
+            $this->docexcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $fila, trim($rec['nro_factura']), PHPExcel_Cell_DataType::TYPE_NUMERIC);
             //$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $rec['nro_autorizacion']);
-            $this->docexcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(4, $fila, trim($rec['nro_autorizacion']), PHPExcel_Cell_DataType::TYPE_STRING);
+            $this->docexcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(4, $fila, trim($rec['nro_autorizacion']), PHPExcel_Cell_DataType::TYPE_NUMERIC);//TYPE_STRING
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $rec['nit_ci_cli']);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $rec['complemento_nit']);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $rec['razon_social_cli']);
