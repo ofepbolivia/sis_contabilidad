@@ -25,7 +25,7 @@ header("content-type: text/javascript; charset=UTF-8");
         heightHeader: 290,
         conceptos_eliminados: [],
         listadoConcepto: '../../sis_parametros/control/ConceptoIngas/listarConceptoIngasMasPartida',
-        parFilConcepto: 'desc_ingas#par.codigo',
+        parFilConcepto: 'desc_ingas#par.codigo#par.nombre_partida',
         tipo_pres_gasto: 'gasto',
         tipo_pres_recurso: 'recurso',
         aux: '',
