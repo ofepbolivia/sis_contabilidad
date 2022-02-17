@@ -26,7 +26,7 @@ header("content-type: text/javascript; charset=UTF-8");
         conceptos_eliminados: [],
         //listadoConcepto: '../../sis_parametros/control/ConceptoIngas/listarConceptoIngasMasPartida',
         listadoConcepto: '../../sis_parametros/control/ConceptoIngas/listarConceptoIngasParFA',
-        parFilConcepto: 'desc_ingas#par.codigo',
+        parFilConcepto: 'desc_ingas#par.codigo#par.nombre_partida',
         tipo_pres_gasto: 'gasto',
         tipo_pres_recurso: 'recurso',
         aux: '',
@@ -122,7 +122,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     pageSize: 10,
                     queryDelay: 1000,
                     minChars: 2,
-                    qtip: 'Si el conceto de gasto que necesita no existe por favor  comuniquese con el área de presupuestos para solictar la creación',
+                    qtip: 'Si el concepto de gasto que necesita no existe por favor  comuniquese con el área de presupuestos para solicitar la creación',
                     tpl: '<tpl for="."><div class="x-combo-list-item"><p><b>{desc_ingas}</b></p><strong>{tipo}</strong><p>PARTIDA: {desc_partida}</p></div></tpl>',
                 })
             };
