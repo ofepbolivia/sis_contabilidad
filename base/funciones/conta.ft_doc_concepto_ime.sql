@@ -173,8 +173,9 @@ BEGIN
              and dc.id_doc_compra_venta = v_parametros.id_doc_compra_venta;
 
 
-
-             FOR v_partida in ( SELECT sum(cdd.importe) as importe,  cdd.id_partida, cdd.id_cc
+             --18-02-2022 (may) modificacion de importe a nuevo campo importe_ajuste que es segun a los importes del ajuste por presupuestos
+             --FOR v_partida in ( SELECT sum(cdd.importe) as importe,  cdd.id_partida, cdd.id_cc
+             FOR v_partida in ( SELECT sum(cdd.importe_ajuste) as importe,  cdd.id_partida, cdd.id_cc
                                  FROM cd.tcuenta_doc_det cdd
                                  inner join cd.tcuenta_doc cd on cd.id_cuenta_doc = cdd.id_cuenta_doc
                                  inner join cd.trendicion_det rd on rd.id_cuenta_doc = cd.id_cuenta_doc
