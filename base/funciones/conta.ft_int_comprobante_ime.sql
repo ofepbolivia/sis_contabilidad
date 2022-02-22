@@ -145,6 +145,7 @@ DECLARE
 
     v_momento_devengado				varchar;
     v_momento_percibido				varchar;
+    v_plan_pago					integer;
 
 BEGIN
 
@@ -1617,11 +1618,13 @@ BEGIN
                   --Actualizamos el estado de convertido cuando se revierta el comprobante
                   --Ismael Valdivia 11/01/2022
                   --Se regresara el estado a todos los comprobantes revertidos
-                  /*select pp.convertido into v_convertido
-                  from tes.tplan_pago pp
-                  where pp.id_int_comprobante = v_parametros.id_int_comprobante;*/
 
-                  --if (v_convertido = 'si') then
+                  select count(pp.id_plan_pago) into v_plan_pago
+                  from tes.tplan_pago pp
+                  where pp.id_int_comprobante = v_parametros.id_int_comprobante
+                  and pp.estado_reg = 'activo';
+
+                  if (v_plan_pago > 0) then
 
 
                           select pp.id_estado_wf,
@@ -1712,7 +1715,7 @@ BEGIN
                           convertido = 'no'
                           where id_int_comprobante = v_parametros.id_int_comprobante;
 
-                  --end if;
+            	end if;
 
 
                   -----------------------------------------------------------------------------------
@@ -3077,7 +3080,12 @@ BEGIN
                   from tes.tplan_pago pp
                   where pp.id_int_comprobante = v_parametros.id_int_comprobante;*/
 
-                  --if (v_convertido = 'si') then
+                   select count(pp.id_plan_pago) into v_plan_pago
+                  from tes.tplan_pago pp
+                  where pp.id_int_comprobante = v_parametros.id_int_comprobante
+                  and pp.estado_reg = 'activo';
+
+                  if (v_plan_pago > 0) then
 
 
                           select pp.id_estado_wf,
@@ -3170,7 +3178,7 @@ BEGIN
                           convertido = 'no'
                           where id_int_comprobante = v_parametros.id_int_comprobante;
 
-                  --end if;
+                  end if;
 
 
                   -----------------------------------------------------------------------------------
