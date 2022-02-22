@@ -2167,7 +2167,7 @@ header("content-type: text/javascript; charset=UTF-8");
         fwidth: '90%',
         fheight: '50%',
         south: {
-            url: '../../../sis_contabilidad/vista/int_transaccion/IntTransaccionRubro.php',
+            url: '../../../sis_contabilidad/vista/int_transaccion_c21/IntTransaccionRubro.php',
             title: 'Imputaciones',
             height: '50%', //altura de la ventana hijo
             cls: 'IntTransaccionRubro'

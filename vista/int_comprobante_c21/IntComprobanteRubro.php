@@ -480,23 +480,11 @@ header("content-type: text/javascript; charset=UTF-8");
             var rec = this.getSelectedData();
             console.log('envio sigep', rec.id_clase_comprobante, rec);
             if(rec.estado_reg == 'borrador' && rec.reversion == 'no') {
-                if (rec.id_clase_comprobante == 6) {
+                if ( rec.id_clase_comprobante == 6 ) {
                     if (rec.tipo_cbte == 'c21'){
                         this.onRegistroConFlujoC21(wizard, resp, 'REG_CON_FLUJO_C21');
                     }else{
                         this.onSigepSip(wizard, resp);
-                    }
-                }else if (rec.id_clase_comprobante == 7){
-                    if (rec.tipo_cbte == 'internacional'){
-                        this.onSigepReguC(wizard, resp, 'REGULARIZAC');
-                    }else{
-                        if( rec.tipo_cbte == 'pago_exterior' ){
-                            this.onSigepCIPEXT(wizard, resp, 'CON_IMPUTACION_EXT');
-                        }else{
-                            console.log('onSigepCIP');
-                            this.onSigepCIP(wizard, resp, 'CON_IMPUTACION');
-                        }
-
                     }
                 }
             }else{
@@ -537,7 +525,7 @@ header("content-type: text/javascript; charset=UTF-8");
             console.log('wizardSIGP ENTREGA:',wizard,'respSIGP:',resp, rec);
             Phx.CP.loadingShow();
             Ext.Ajax.request({
-                url: '../../sis_sigep/control/SigepAdqDet/cargarConFlujoC21',
+                url: '../../sis_sigep/control/SigepLoad/cargarConFlujoC21',
                 params: {
                     id_proceso_wf : rec.id_proceso_wf,
                     momento : momento,
@@ -562,7 +550,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     /*Phx.CP.loadingHide();
                     Phx.CP.loadingShow();*/
                     Ext.Ajax.request({
-                        url: '../../sis_sigep/control/SigepAdq/getParametrosC21',
+                        url: '../../sis_sigep/control/SigepActionC21/getParametrosC21',
                         params: {
                             id_sigep_adq: porciones[i],
                             ids: reg.id_sigep
@@ -575,22 +563,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     });
                 }
             }
-            /*else{
-                Ext.Ajax.request({
-                    url: '../../sis_sigep/control/SigepAdq/getParametrosC21',
-                    params: {
-                        id_sigep_adq: rest.id_sigep_cont
-                    },
-                    success: this.successReg,
-                    failure: this.failureC, //chequea si esta en verificacion presupeusto para enviar correo de transferencia
-                    //argument: {wizard: wizard},
-                    timeout: this.timeout,
-                    scope: this
-                });
-            }
-            if(!reg.ROOT.error){
-                this.reload();
-            }*/
         },
 
         successReg:function(resp, opt){
@@ -599,7 +571,7 @@ header("content-type: text/javascript; charset=UTF-8");
             console.log('successReg',reg);
             //let service_code = opt.argument.momento;
             Ext.Ajax.request({
-                url: '../../sis_sigep/control/SigepAdq/registrarServicesC21',
+                url: '../../sis_sigep/control/SigepActionC21/registrarServicesC21',
                 params: {
                     list : JSON.stringify(reg),
                     service_code : opt.argument.momento,
@@ -626,7 +598,7 @@ header("content-type: text/javascript; charset=UTF-8");
             console.log('successProc reg', reg);
             console.log('successProc opt', opt);
             Ext.Ajax.request({
-                url: '../../sis_sigep/control/SigepAdq/StatusC21',
+                url: '../../sis_sigep/control/SigepActionC21/StatusC21',
                 params: {
                     id_service_request: reg.id_service_request,
                     id_sigep_adq: reg.id_sigep_adq,
@@ -670,7 +642,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 if( rest.service_code == 'REG_CON_FLUJO_C21' || rest.service_code == 'REG_CON_FLUJO_C21_REV' ){
                     //Phx.CP.loadingHide();
                     Ext.Ajax.request({
-                        url: '../../sis_sigep/control/SigepAdq/registrarResultado',
+                        url: '../../sis_sigep/control/SigepActionC21/registrarResultadoC21',
                         params: {
                             id_sigep_adq: rest.id_sigep_adq,
                             nro_preventivo: rest.docDevengado,
@@ -694,7 +666,7 @@ header("content-type: text/javascript; charset=UTF-8");
             console.log('ResultadosP 7777: ==============================================',reg,'opt',opt);
 
             Ext.Ajax.request({
-                url: '../../sis_sigep/control/SigepAdq/resultadoMsgC21',
+                url: '../../sis_sigep/control/SigepActionC21/resultadoMsgC21',
                 params: {
                     ids: opt.argument.id_sigep_adq
                 },
@@ -2181,7 +2153,7 @@ header("content-type: text/javascript; charset=UTF-8");
         fwidth: '90%',
         fheight: '50%',
         south: {
-            url: '../../../sis_contabilidad/vista/int_transaccion/IntTransaccionRubro.php',
+            url: '../../../sis_contabilidad/vista/int_transaccion_c21/IntTransaccionRubro.php',
             title: '<b style="color:#00B167;">Imputaciones</b>',
             height: '50%', //altura de la ventana hijo
             cls: 'IntTransaccionRubro'

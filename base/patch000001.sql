@@ -85,6 +85,11 @@ CREATE TABLE conta.tclase_comprobante(
     INHERITS (pxp.tbase);
 
 
+ALTER TABLE conta.tclase_comprobante
+  ADD COLUMN clase VARCHAR(4);
+
+COMMENT ON COLUMN conta.tclase_comprobante.clase
+IS 'Identifica la clase de comprobante C21, C31, etc.';
 
 /***********************************F-SCP-RAC-CONTA-05-29/05/2013****************************************/
 

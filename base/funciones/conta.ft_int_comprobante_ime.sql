@@ -143,6 +143,9 @@ DECLARE
     v_id_proceso_wf_recu		integer;
     v_datos_recuperados			record;
 
+    v_momento_devengado				varchar;
+    v_momento_percibido				varchar;
+
 BEGIN
 
     v_nombre_funcion = 'conta.ft_int_comprobante_ime';
@@ -390,7 +393,7 @@ BEGIN
             else
 
           --begin (franklin.espinoza) 08/10/2020
-          if v_parametros.id_depto IN (49,50, 79, 80, 81) then
+          if v_parametros.id_depto IN (49, 50, 79, 80, 81) then
             v_localidad = 'internacional';
           else
             v_localidad = 'nacional';
@@ -407,7 +410,7 @@ BEGIN
             END IF;
             --end franklin.espinoza 09/10/2020
           --if v_id_dl is null and v_id_cb is null then
-          if v_parametros.id_depto NOT IN (49, 79, 80, 81) then
+          if v_parametros.id_depto NOT IN (49, 50, 79, 80, 81) then
             insert into conta.tint_comprobante(
                   id_clase_comprobante,
                   id_subsistema,
@@ -3885,6 +3888,535 @@ BEGIN
           --Devuelve la respuesta
           return v_resp;
       end;
+
+    /*********************************
+ 	#TRANSACCION:   'CONTA_CBTE_C21_INS'
+ 	#DESCRIPCION:	Insercion de registros
+ 	#AUTOR:			franklin.espinoza
+ 	#FECHA:			19-08-2021 15:28:30
+	***********************************/
+
+	elsif(p_transaccion='CONTA_CBTE_C21_INS')then
+
+        begin
+
+              ------------------
+              -- VALIDACIONES
+              ------------------
+              select id_subsistema
+              into v_id_subsistema_conta
+              from segu.tsubsistema
+              where codigo = 'CONTA';
+
+              --SUBSISTEMA: Obtiene el id_subsistema del Sistema de Contabilidad si es que no llega como parámetro
+              IF  pxp.f_existe_parametro(p_tabla,'id_subsistema') THEN
+
+                   IF v_parametros.id_subsistema is not NULL THEN
+                       v_id_subsistema = v_parametros.id_subsistema;
+                   else
+                      v_id_subsistema = v_id_subsistema_conta;
+                   end if;
+              ELSE
+                  v_id_subsistema = v_id_subsistema_conta;
+              END IF;
+
+
+              v_id_moneda_tri  = param.f_get_moneda_triangulacion();
+              v_id_moneda_act  = param.f_get_moneda_actualizacion();
+
+              --validacion de tipos de cambios
+              IF v_parametros.tipo_cambio is NULL or  v_parametros.tipo_cambio_2 is NULL or  v_parametros.tipo_cambio_3 is NULL THEN
+                raise exception 'no se definieron los tipos de cambio';
+              END IF;
+
+              IF  v_parametros.id_config_cambiaria is NULL  THEN
+                raise exception 'la configuracion cambiara no puede ser nula';
+              END IF;
+
+
+              v_momento_devengado = 'no';
+              v_momento_percibido = 'no';
+
+              --momentos presupeustarios
+              IF v_parametros.momento_devengado = 'true' THEN
+                  v_momento_devengado = 'si';
+              END IF;
+              IF v_parametros.momento_percibido = 'true' THEN
+                  v_momento_percibido = 'si';
+              END IF;
+
+
+
+              --segun la clase  del comprobante definir si es presupeustario o contable
+              select cc.tipo_comprobante, cc.descripcion
+              into v_tipo_comprobante, v_clcbt_desc
+              from conta.tclase_comprobante cc
+              where cc.id_clase_comprobante = v_parametros.id_clase_comprobante;
+
+
+              --PERIODO  Obtiene el periodo a partir de la fecha
+              v_rec = param.f_get_periodo_gestion(v_parametros.fecha);
+              IF  pxp.f_existe_parametro(p_tabla , 'id_int_comprobante_fks')  THEN
+              	va_id_int_cbte_fk = (string_to_array(v_parametros.id_int_comprobante_fks,','))::INTEGER[];
+        	  END IF;
+
+              --raise exception '%', va_id_int_cbte_fk;
+
+              -------------------------------
+              --   GENERAR PROCESO DEL WF
+              -------------------------------
+
+             -- raise exception 'sss ---  %  ',va_id_int_cbte_fk;
+              IF va_id_int_cbte_fk is not null and va_id_int_cbte_fk [1] is not null THEN
+
+                  --  dispara proceso
+                  --  si tiene  un cbte relacion recuperar el nro de tramite
+
+                   select
+                      cbte.nro_tramite,
+                      cbte.id_proceso_wf,
+                      cbte.id_estado_wf
+                   into
+                     v_rec_cbte_fk
+                   from conta.tint_comprobante cbte
+                   where cbte.id_int_comprobante = va_id_int_cbte_fk[1];
+
+                   -----------------------------------
+                   -- dispara el comprobante
+                   ----------------------------------
+                     SELECT ps_id_proceso_wf,ps_id_estado_wf, ps_codigo_estado, ps_nro_tramite
+                     into v_id_proceso_wf,v_id_estado_wf,v_codigo_estado, v_num_tramite
+                     FROM wf.f_registra_proceso_disparado_wf(
+                                  p_id_usuario,
+                                  v_parametros._id_usuario_ai,
+                                  v_parametros._nombre_usuario_ai,
+                                  v_rec_cbte_fk.id_estado_wf,
+                                  NULL,  --id_funcionario wf
+                                  v_parametros.id_depto,
+                                  'Registro Manual de Cbte Relacionado',
+                                  'CBTE', --dispara proceso del comprobante
+                                  '');
+
+              ELSE
+                      --  inicia tramite nuevo
+                      v_codigo_proceso_macro = pxp.f_get_variable_global('conta_codigo_macro_wf_cbte');
+                      --obtener id del proceso macro
+                      select pm.id_proceso_macro
+                      into v_id_proceso_macro
+                      from wf.tproceso_macro pm
+                      where pm.codigo = v_codigo_proceso_macro;
+
+                      If v_id_proceso_macro is NULL THEN
+                        raise exception 'El proceso macro  de codigo % no esta configurado en el sistema WF',v_codigo_proceso_macro;
+                      END IF;
+
+                     --   obtener el codigo del tipo_proceso
+                      select   tp.codigo
+                       into v_codigo_tipo_proceso
+                      from  wf.ttipo_proceso tp
+                      where   tp.id_proceso_macro = v_id_proceso_macro
+                            and tp.estado_reg = 'activo' and tp.inicio = 'si';
+
+                      IF v_codigo_tipo_proceso is NULL THEN
+                       raise exception 'No existe un proceso inicial para el proceso macro indicado % (Revise la configuración)',v_codigo_proceso_macro;
+                      END IF;
+
+                    -- inciar el tramite en el sistema de WF
+                      SELECT
+                         ps_num_tramite ,
+                         ps_id_proceso_wf ,
+                         ps_id_estado_wf ,
+                         ps_codigo_estado
+                        into
+                         v_num_tramite,
+                         v_id_proceso_wf,
+                         v_id_estado_wf,
+                         v_codigo_estado
+
+                      FROM wf.f_inicia_tramite(
+                         p_id_usuario,
+                         v_parametros._id_usuario_ai,
+                         v_parametros._nombre_usuario_ai,
+                         v_rec.po_id_gestion,
+                         v_codigo_tipo_proceso,
+                         null,--v_parametros.id_funcionario,
+                         v_parametros.id_depto,
+                         'Registro de Cbte manual',
+                         '' );
+
+
+                      IF  v_codigo_estado != 'borrador' THEN
+                        raise exception 'el estado inicial para cbtes debe ser borrador, revise la configuración del WF';
+                      END IF;
+
+              END IF;
+
+
+
+              select per.id_gestion into v_id_gestion_cbte
+              from param.tperiodo per
+              where  v_parametros.fecha BETWEEN per.fecha_ini and per.fecha_fin;
+
+
+              -----------------------------
+              --REGISTRO DEL COMPROBANTE
+              -----------------------------
+              if true then
+                --begin (franklin.espinoza) 08/10/2020
+                if v_parametros.id_depto IN (49, 50, 79, 80, 81) then
+                  v_localidad = 'internacional';
+                else
+                  v_localidad = 'nacional';
+                end if;
+                --end (franklin.espinoza) 08/10/2020
+
+
+                v_reversion = 'no';
+
+                --franklin.espinoza 06/11/2020 bandera que indica si un comprobante es de reversion
+                IF  pxp.f_existe_parametro(p_tabla , 'reversion')  THEN
+                  IF v_parametros.reversion = 'true' THEN
+                   v_reversion = 'si';
+                  END IF;
+                END IF;
+
+                IF  pxp.f_existe_parametro(p_tabla , 'id_depto_libro')  THEN
+                    v_id_depto_libro = v_parametros.id_depto_libro;
+                END IF;
+                IF  pxp.f_existe_parametro(p_tabla , 'id_cuenta_bancaria')  THEN
+                    v_id_cuenta_bancaria = v_parametros.id_cuenta_bancaria;
+                END IF;
+				--raise 'momentos, %, %',v_momento_devengado, v_momento_percibido;
+                insert into conta.tint_comprobante(
+                 	id_depto,
+                    id_depto_libro,
+                    id_cuenta_bancaria,
+                    glosa1,
+                    fecha,
+                    id_moneda,
+                    forma_cambio,
+                    tipo_cambio,
+                    tipo_cambio_2,
+                    tipo_cambio_3,
+                    id_clase_comprobante,
+                    momento_devengado,
+                    momento_percibido,
+
+                    id_subsistema,
+                    id_periodo,
+
+                    estado_reg,
+                    id_usuario_reg,
+                    fecha_reg,
+                    id_usuario_mod,
+                    fecha_mod,
+                    id_usuario_ai,
+                    usuario_ai,
+                    manual,
+
+                    momento,
+                    id_config_cambiaria,
+                    localidad,
+
+                    id_moneda_tri,
+                    nro_tramite,
+                    id_proceso_wf,
+                    id_estado_wf,
+                    id_moneda_act,
+                    tipo_cbte,
+                    reversion
+                ) values(
+                	v_parametros.id_depto,
+                    v_id_depto_libro,
+                    v_id_cuenta_bancaria,
+                    v_parametros.glosa1,
+                    v_parametros.fecha,
+                    v_parametros.id_moneda,
+                    v_parametros.forma_cambio,
+                    v_parametros.tipo_cambio,
+                    v_parametros.tipo_cambio_2,
+                    v_parametros.tipo_cambio_3,
+                    v_parametros.id_clase_comprobante,
+                    v_momento_devengado,
+                    v_momento_percibido,
+
+                    v_id_subsistema,
+                    v_rec.po_id_periodo,
+
+                    'borrador',
+                    p_id_usuario,
+                    now(),
+                    null,
+                    null,
+                    v_parametros._id_usuario_ai,
+                    v_parametros._nombre_usuario_ai,
+                    'si',
+                    v_tipo_comprobante,
+                    v_parametros.id_config_cambiaria,
+                    'nacional', --(franklin.espinoza) 08/10/2020
+                    v_id_moneda_tri,
+                    v_num_tramite,
+                    v_id_proceso_wf,
+                    v_id_estado_wf,
+                    v_id_moneda_act,
+                    'c21',
+                    v_reversion
+
+                )RETURNING id_int_comprobante into v_id_int_comprobante;
+
+			end if;
+            update wf.tproceso_wf p set
+              descripcion = descripcion||' ('||v_clcbt_desc||'id:'||v_id_int_comprobante::varchar||')'
+            where p.id_proceso_wf = v_id_proceso_wf;
+
+
+			--Definicion de la respuesta
+			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Comprobante almacenado(a) con exito (id_int_comprobante'||v_id_int_comprobante||')');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_int_comprobante',v_id_int_comprobante::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
+    /*********************************
+ 	#TRANSACCION:   'CONTA_CBTE_C21_MOD'
+ 	#DESCRIPCION:	Modificacion de registros
+ 	#AUTOR:		    franklin.espinoza
+ 	#FECHA:			19-08-2021 15:28:30
+	***********************************/
+
+	elsif(p_transaccion='CONTA_CBTE_C21_MOD')then
+
+		begin
+
+			------------------
+        	-- VALIDACIONES
+        	------------------
+            select id_subsistema into v_id_subsistema_conta
+            from segu.tsubsistema
+            where codigo = 'CONTA';
+
+            select * into v_reg_cbte
+            from conta.tint_comprobante ic where ic.id_int_comprobante = v_parametros.id_int_comprobante;
+
+            IF v_reg_cbte.estado_reg not in ('borrador','elaborado') THEN
+               raise exception 'solo puede editar comprobantes en borrador';
+            END IF;
+
+            IF v_reg_cbte.volcado = 'si' THEN
+               raise exception 'no puede editar comprobantes volcados';
+            END IF;
+
+            --SUBSISTEMA: Obtiene el id_subsistema del Sistema de Contabilidad si es que no llega como parámetro
+
+            --RAC, 15/08/2017
+            --  este cambio trabjo problema al editar comprobante de planillas (integrascion con libro de bancos, lo cbte de planillas no generan cheques,  OJO ANALIZAR)
+            --  parece logico no cambiar el sistema donde se origina el cbte
+            -- sin embargo no me acerudo por que se hizo, probablemente es por alguna validacion que solo se aplica al sistema contable
+
+             IF v_reg_cbte.id_subsistema is not NULL THEN
+               	     v_id_subsistema = v_reg_cbte.id_subsistema;
+             else
+                    v_id_subsistema = v_id_subsistema_conta;
+             end if;
+
+
+        	--PERIODO
+        	--Obtiene el periodo a partir de la fecha
+        	v_rec = param.f_get_periodo_gestion(v_parametros.fecha);
+
+            --segun la clase del comprobante definir si es presupeustario o contable
+            select
+              cc.tipo_comprobante
+            into
+              v_tipo_comprobante
+            from conta.tclase_comprobante cc
+            where cc.id_clase_comprobante = v_parametros.id_clase_comprobante;
+
+            --momentos presupeustarios
+			v_momento_devengado = 'no';
+            v_momento_percibido = 'no';
+
+            --momentos presupeustarios
+            IF v_parametros.momento_devengado = 'true' THEN
+                v_momento_devengado = 'si';
+            END IF;
+            IF v_parametros.momento_percibido = 'true' THEN
+                v_momento_percibido = 'si';
+            END IF;
+
+            --  el tipo de cambio puede variar solo si sw_tipo_cambio = 'no' ...
+            IF  v_reg_cbte.sw_tipo_cambio = 'si' THEN
+
+              v_tc_1 = v_reg_cbte.tipo_cambio;
+              v_tc_2 = v_reg_cbte.tipo_cambio_2;
+              v_tc_3 = v_reg_cbte.tipo_cambio_3;
+
+
+
+            ELSE
+
+              IF v_parametros.tipo_cambio is  NULL or v_parametros.tipo_cambio_2 is  NULL  or v_parametros.tipo_cambio_3 is  NULL THEN
+                raise exception 'No se definieron los tipos de cambio para cbte';
+              END IF;
+
+              v_tc_1 = v_parametros.tipo_cambio;
+              v_tc_2 = v_parametros.tipo_cambio_2;
+              v_tc_3 = v_parametros.tipo_cambio_3;
+
+
+            END IF;
+
+            -------------------------------------------------
+            --  validar fechas de costos de inicio o fin
+            --  a solicitud del area de cosots la fecha incial de costo no puede ser de una gestion menor a la gestion
+            --  de la fecha de comprobante
+            --  RAC 29/08/2017
+            -----------------------------------------------
+
+            select
+              per.id_gestion
+            into
+              v_id_gestion_cbte
+            from param.tperiodo per
+            where  v_parametros.fecha BETWEEN per.fecha_ini and per.fecha_fin;
+
+
+
+
+			------------------------------
+			--Sentencia de la modificacion
+			------------------------------
+			--begin franklin.espinoza 27/09/2020
+        IF  pxp.f_existe_parametro(p_tabla , 'id_depto_libro')  THEN
+          v_id_dl = v_parametros.id_depto_libro;
+        END IF;
+
+        IF  pxp.f_existe_parametro(p_tabla , 'id_cuenta_bancaria')  THEN
+          v_id_cb = v_parametros.id_cuenta_bancaria;
+        END IF;
+      --end franklin.espinoza 27/09/2020
+      if v_id_dl is null and v_id_cb is null then
+        update conta.tint_comprobante set
+                  id_clase_comprobante = v_parametros.id_clase_comprobante,
+                  momento = v_tipo_comprobante,
+                  id_subsistema = v_id_subsistema,
+                  id_depto = v_parametros.id_depto,
+                  id_moneda = v_parametros.id_moneda,
+                  id_periodo = v_rec.po_id_periodo,
+                  tipo_cambio = v_tc_1,
+                  -- beneficiario = v_parametros.beneficiario,
+
+                  glosa1 = v_parametros.glosa1,
+                  fecha = v_parametros.fecha,
+
+
+                  -- momento = v_parametros.momento,
+                  id_usuario_mod = p_id_usuario,
+                  fecha_mod = now(),
+                  id_usuario_ai = v_parametros._id_usuario_ai,
+                  usuario_ai = v_parametros._nombre_usuario_ai,
+
+                  momento_devengado = v_momento_devengado,
+                  momento_percibido = v_momento_percibido,
+                  tipo_cambio_2 = v_tc_2,
+                  tipo_cambio_3 = v_tc_3,
+                  forma_cambio = v_parametros.forma_cambio
+        where id_int_comprobante = v_parametros.id_int_comprobante;
+
+      else
+
+      	IF v_parametros.reversion = 'true' THEN
+           v_reversion = 'si';
+        ELSE
+           v_reversion = 'no';
+        END IF;
+            	update conta.tint_comprobante set
+                  id_clase_comprobante = v_parametros.id_clase_comprobante,
+                  momento = v_tipo_comprobante,
+                  id_subsistema = v_id_subsistema,
+                  id_depto = v_parametros.id_depto,
+                  id_moneda = v_parametros.id_moneda,
+                  id_periodo = v_rec.po_id_periodo,
+                  tipo_cambio = v_tc_1,
+                  --beneficiario = v_parametros.beneficiario,
+
+                  glosa1 = v_parametros.glosa1,
+                  fecha = v_parametros.fecha,
+
+                  -- momento = v_parametros.momento,
+                  id_usuario_mod = p_id_usuario,
+                  fecha_mod = now(),
+                  id_usuario_ai = v_parametros._id_usuario_ai,
+                  usuario_ai = v_parametros._nombre_usuario_ai,
+
+                  momento_devengado = v_momento_devengado,
+                  momento_percibido = v_momento_percibido,
+                  tipo_cambio_2 = v_tc_2,
+                  tipo_cambio_3 = v_tc_3,
+                  forma_cambio = v_parametros.forma_cambio,
+                  --franklin.espinoza 27/09/2020
+                  id_cuenta_bancaria = v_parametros.id_cuenta_bancaria,
+                  id_depto_libro = v_parametros.id_depto_libro,
+                  reversion = v_reversion
+
+              where id_int_comprobante = v_parametros.id_int_comprobante;
+      end if;
+
+
+
+            -- si el tipo de cambio varia es encesario recalcular las equivalenscias en todas las transacciones
+            IF    v_parametros.tipo_cambio != v_reg_cbte.tipo_cambio
+               or v_parametros.tipo_cambio_2 != v_reg_cbte.tipo_cambio_2
+               or v_parametros.tipo_cambio_3 != v_reg_cbte.tipo_cambio_3 THEN
+
+              IF  not conta.f_int_trans_recalcular_tc(v_parametros.id_int_comprobante) THEN
+                raise exception 'Error al reprocesar el tipo de cambio';
+              END IF;
+
+            END IF;
+
+            -- procesar las trasaaciones (con diversos propositos, ejm validar  cuentas bancarias)
+
+
+            IF not conta.f_int_trans_procesar(v_parametros.id_int_comprobante) THEN
+              raise exception 'Error al procesar transacciones';
+            END IF;
+
+            -- si la fecha varia revisar si es necesario cambiar de gestion
+
+            IF v_parametros.fecha != v_reg_cbte.fecha THEN
+
+               --revisamos si son de diferente gestión
+               SELECT * into v_ges_1 FROM param.f_get_limites_gestion(v_reg_cbte.fecha);
+               SELECT * into v_ges_2 FROM param.f_get_limites_gestion(v_parametros.fecha);
+
+               --sin son diferentes gestiones
+               IF v_ges_1.po_id_gestion  != v_ges_2.po_id_gestion THEN
+
+                  IF not  conta.f_act_gestion_transaccion(
+                          v_parametros.id_int_comprobante,
+                          v_ges_2.po_id_gestion,
+                          v_ges_1.po_id_gestion) THEN
+
+                            raise exception 'error al actualizar gestion';
+                   END IF;
+
+               END IF;
+
+
+            END IF;
+
+
+
+			--Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Comprobante modificado(a)');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_int_comprobante',v_parametros.id_int_comprobante::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
 
     else
 

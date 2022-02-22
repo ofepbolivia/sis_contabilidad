@@ -447,7 +447,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         fields: ['id_clase_comprobante', 'tipo_comprobante', 'descripcion', 'codigo', 'momento_comprometido', 'momento_ejecutado', 'momento_pagado'],
                         remoteSort: true,
                         baseParams: {
-                            par_filtro: 'ccom.tipo_comprobante#ccom.descripcion'
+                            par_filtro: 'ccom.tipo_comprobante#ccom.descripcion',
+                            clase: 'c31'
                         }
                     }),
                     valueField: 'id_clase_comprobante',
@@ -1529,7 +1530,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 baseParams: {
                     par_filtro: 'deppto.nombre#deppto.codigo',
                     estado: 'activo',
-                    codigo_subsistema: 'CONTA'
+                    codigo_subsistema: 'CONTA',
+                    bandeja : 'integracion'
                 }
             }),
             valueField: 'id_depto',

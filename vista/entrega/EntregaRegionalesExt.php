@@ -191,14 +191,14 @@ header("content-type: text/javascript; charset=UTF-8");
                 handler: this.loadCheckDocumentosRecWf,
                 tooltip: '<b>Documentos del Reclamo</b><br/>Subir los documetos requeridos en el Reclamo seleccionado.'
             });
-            this.addButton('fin_entrega', {
+            /*this.addButton('fin_entrega', {
                 text : 'Registrar Entrega',
                 grupo: [0, 1, 2, 3],
                 iconCls : 'btag_accept',
                 disabled : true,
                 handler : this.cambiarEstado,
                 tooltip: '<b>Finaliza la entrega, defini el nro de Cbte relacionado en SIGMA/SIGEP/OTRO</b>'
-            });
+            });*/
 
             //Botón para Imprimir el Comprobante
             this.addButton('btnImprimir', {
@@ -1062,6 +1062,9 @@ header("content-type: text/javascript; charset=UTF-8");
 
             var rec = this.getSelectedData();
             console.log('envio sigep', rec.id_clase_comprobante, rec);
+
+            let pago_adicional = ['refrigerio','viatico_administrativo','viatico_operativo'];
+
             if(rec.estado == 'borrador' && rec.reversion == 'no') {
                 if (rec.id_clase_comprobante == 5) {
                     if (rec.tipo_cbte == 'internacional'){
@@ -1075,6 +1078,10 @@ header("content-type: text/javascript; charset=UTF-8");
                     }else{
                         if( rec.tipo_cbte == 'pago_exterior' ){
                             this.onSigepCIPEXT(wizard, resp, 'CON_IMPUTACION_EXT');
+
+                        }else if( pago_adicional.includes(rec.tipo_cbte) ){
+
+                            this.onSigepPVRCIP(wizard, resp, 'DOC_C31_REF_VIA');
                         }else{
                             console.log('onSigepCIP');
                             this.onSigepCIP(wizard, resp, 'CON_IMPUTACION');
@@ -1119,6 +1126,30 @@ header("content-type: text/javascript; charset=UTF-8");
         },
 
         /*================================= END SIGUIENTE ESTADO =======================================*/
+
+        /*================================= BEGIN PROCESO PVR CIP =======================================*/
+        onSigepPVRCIP:function(wizard,resp, momento){
+            var rec = this.sm.getSelected().data;
+            console.log('ENTREGA SIGEP:',wizard,'respSIGP:',resp, rec, 'MOMENTO', momento);
+            resp.sigep_adq='vbsigepconta';
+            Phx.CP.loadingShow();
+
+            Ext.Ajax.request({
+                url: '../../sis_sigep/control/SigepAdqDet/cargarEntregaSigepPVRCIP',
+                params: {
+                    id_proceso_wf: rec.id_proceso_wf,
+                    momento: momento,
+                    sigep_adq: resp.sigep_adq,
+                    localidad: rec.tipo_cbte
+                },
+                success: this.successConsu, //successConsu
+                failure: this.failureCheck, //chequea si esta en verificacion presupeusto para enviar correo de transferencia
+                argument: {wizard: wizard, resp : resp, momento: momento},
+                timeout: this.timeout,
+                scope: this
+            });
+        },
+        /*================================= END PROCESOS PVR CIP =======================================*/
 
         /*================================= BEGIN PROCESOS CIP =======================================*/
         onSigepCIP:function(wizard,resp, momento){
@@ -1296,7 +1327,7 @@ header("content-type: text/javascript; charset=UTF-8");
             var id = reg.ROOT.datos.id_sigep;
             this.ids = id;
             var porciones = id.split(',');
-            if( opt.argument.momento == 'REGULARIZAC' || opt.argument.momento == 'REGULARIZAS' || opt.argument.momento == 'CON_IMPUTACION' || opt.argument.momento == 'CON_IMPUTACION_EXT' || opt.argument.momento == 'REGULARIZAC_REV' || opt.argument.momento == 'REGULARIZAS_REV' || opt.argument.momento == 'CON_IMPUTACION_REV'){
+            if( opt.argument.momento == 'REGULARIZAC' || opt.argument.momento == 'REGULARIZAS' || opt.argument.momento == 'CON_IMPUTACION' || opt.argument.momento == 'CON_IMPUTACION_EXT' || opt.argument.momento == 'REGULARIZAC_REV' || opt.argument.momento == 'REGULARIZAS_REV' || opt.argument.momento == 'CON_IMPUTACION_REV' || opt.argument.momento == 'DOC_C31_REF_VIA'){
                 for (let i=0 ; i < porciones.length ; i++) {
                     console.log('identify:', porciones[i]);
                     Ext.Ajax.request({
@@ -1352,6 +1383,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 service_code = 'REGULARIZAS_REV';
             }else if( opt.argument.momento == 'CON_IMPUTACION_REV' ){
                 service_code = 'CON_IMPUTACION_REV';
+            }else{
+                service_code = opt.argument.momento;
             }
             /*else{
                 service_code = 'CON_IMPUTACION_V';
@@ -1363,7 +1396,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     list : JSON.stringify(data),
                     service_code : service_code,
                     estado_c31 : record.estado_reg,
-                    momento : 'new'
+                    momento : 'new',
+                    tipo_cbte : record.tipo_cbte
                 },
                 success: this.successProc,
                 failure: this.failureC, //chequea si esta en verificacion presupeusto para enviar correo de transferencia
@@ -1754,7 +1788,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('btnImprimir').enable();
             this.getBoton('diagrama_gantt').enable();
             this.getBoton('btnChequeoDocumentosWf').enable();
-            this.getBoton('fin_entrega').enable();
+            //this.getBoton('fin_entrega').enable();
             this.getBoton('btnObs').enable();
 
             this.getBoton('sigep_ext_entrega').enable();
@@ -1766,7 +1800,7 @@ header("content-type: text/javascript; charset=UTF-8");
             var tb = Phx.vista.EntregaRegionalesExt.superclass.liberaMenu.call(this);
             this.getBoton('sig_estado').disable();
             this.getBoton('btnImprimir').disable();
-            this.getBoton('fin_entrega').disable();
+            //this.getBoton('fin_entrega').disable();
             this.getBoton('btnChequeoDocumentosWf').disable();
             this.getBoton('ant_estado').disable();
             this.getBoton('diagrama_gantt').disable();
