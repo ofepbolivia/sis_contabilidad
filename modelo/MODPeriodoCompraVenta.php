@@ -22,6 +22,7 @@ class MODPeriodoCompraVenta extends MODbase{
 		//Definicion de la lista del resultado del query
 		$this->captura('id_periodo_compra_venta','int4');
 		$this->captura('estado','varchar');
+		$this->captura('estado_comisionistas','varchar');
 		$this->captura('id_periodo','int4');
 		$this->captura('estado_reg','varchar');
 		$this->captura('id_depto','int4');
@@ -42,6 +43,9 @@ class MODPeriodoCompraVenta extends MODbase{
 		$this->captura('cantidad_cerrado','int4');
 		$this->captura('cantidad_abierto','int4');
 		$this->captura('cantidad_cerrado_parcial','int4');
+
+		$this->captura('cantidad_abierto_comisionistas','int4');
+		$this->captura('cantidad_cerrado_comisionistas','int4');
 		//Ejecuta la instruccion
         $this->armarConsulta();
         //echo($this->consulta);exit;
@@ -136,5 +140,44 @@ class MODPeriodoCompraVenta extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+
+		function cerrarAbrirPeriodoComisionistas(){
+		 //Definicion de variables para ejecucion del procedimiento
+		 $this->procedimiento='conta.ft_periodo_compra_venta_ime';
+		 $this->transaccion='CONTA_PERCOMI_IME';
+		 $this->tipo_procedimiento='IME';
+
+		 //Define los parametros para la funcion
+		 $this->setParametro('id_periodo_compra_venta','id_periodo_compra_venta','int4');
+		 $this->setParametro('tipo','tipo','varchar');
+		 $this->setParametro('observacion','observacion','text');
+		 //Ejecuta la instruccion
+		 $this->armarConsulta();
+		 $this->ejecutarConsulta();
+
+		 //Devuelve la respuesta
+		 return $this->respuesta;
+	 }
+
+	 function listarHistorialPeriodoCompraComisionistas() {
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='conta.ft_periodo_compra_venta_sel';
+		$this->transaccion='CONTA_LOGCOMI_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+        //Definicion de la lista del resultado del query
+		$this->setParametro('id_periodo_compra_venta','id_periodo_compra_venta','int4');
+
+		$this->captura('datos','text');
+
+		//Ejecuta la instruccion
+    $this->armarConsulta();
+        //echo($this->consulta);exit;
+		$this->ejecutarConsulta();
+		//var_dump("aqui llega la respuesta",$this->respuesta);exit;
+		//Devuelve la respuesta
+		return $this->respuesta;
+   }
+
 }
 ?>

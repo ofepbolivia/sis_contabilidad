@@ -56,6 +56,9 @@ DECLARE
     v_id_periodo_rec			integer;
      v_estado_rec				varchar;
 
+     v_nombre_tabla				varchar;
+     v_consulta_dinamica	 	varchar;
+
 BEGIN
 
     v_nombre_funcion = 'conta.ft_periodo_compra_venta_ime';
@@ -185,7 +188,7 @@ BEGIN
 
              /*Aumentando para que se jale informacion de la tabla sfe.tfactura para los comisionistas*/
              --Modifi (Ismael Valdivia 13/04/2021)
-             select pcv.id_depto,
+             /*select pcv.id_depto,
              	    pcv.id_periodo
              	    into
                     v_id_depto_cv,
@@ -216,7 +219,7 @@ BEGIN
                 where id_periodo = v_id_periodo_update
                 and id_gestion = v_id_gestion_periodo;
 
-             end if;
+             end if;*/
 
 
              /*****************************************************************************************/
@@ -258,7 +261,7 @@ BEGIN
 
              /*Aumentando para que se jale informacion de la tabla sfe.tfactura para los comisionistas*/
              --Modifi (Ismael Valdivia 13/04/2021)
-             select pcv.id_depto,
+             /*select pcv.id_depto,
              		pcv.id_periodo
              	    into
                     v_id_depto_cv,
@@ -288,7 +291,7 @@ BEGIN
                 where id_periodo = v_id_periodo_update
                 and id_gestion = v_id_gestion_periodo;
 
-             end if;
+             end if;*/
              /*****************************************************************************************/
             ELSE
 
@@ -332,12 +335,12 @@ BEGIN
 
 
              /*Abrimos el periodo en la tabla tacumulacion comisionistas para traer la data*/
-             update vef.tacumulacion_comisionistas set
+             /*update vef.tacumulacion_comisionistas set
              estado = v_estado
              where id_periodo >= (select per.id_periodo
              					 from conta.tperiodo_compra_venta per
              					 where per.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta)
-             and id_gestion = v_id_gestion_periodo;
+             and id_gestion = v_id_gestion_periodo;*/
 
             END IF;
 
@@ -470,6 +473,229 @@ BEGIN
             --Devuelve la respuesta
             return v_resp;
         end;
+
+
+    /*********************************
+ 	#TRANSACCION:  'CONTA_PERCOMI_IME'
+ 	#DESCRIPCION:	abr y cierra el periodo para comisionistas
+ 	#AUTOR:		    Ismael Valdivia Aranibar
+ 	#FECHA:			14-02-2022 08:30:30
+	***********************************/
+
+	elsif(p_transaccion='CONTA_PERCOMI_IME')then
+
+		begin
+			v_periodos_permitidos = pxp.f_get_variable_global('conta_periodos_mod_mes');
+           select (date_trunc('month', now()) + interval '1 month' - interval '1 day')::date-(v_periodos_permitidos||' month')::interval
+           into v_fecha_permitida;
+           select
+             per.fecha_fin
+           into
+             v_fecha_fin
+           from conta.tperiodo_compra_venta pcv
+           inner join param.tperiodo per on per.id_periodo = pcv.id_periodo
+            where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta;
+
+
+        	--todo para abrir el perido revisar que el periodo de conta del periodo correspondiente este cerrado
+            IF not param.f_periodo_subsistema_abierto(v_fecha_fin, 'CONTA') THEN
+              raise exception 'El periodo se encuentra cerrado en contabilidad';
+            END IF;
+
+			IF v_fecha_fin <= v_fecha_permitida THEN
+             -- raise exception 'No se puede abrir periodos que ya cumplieron mas de % meses de antiguedad.', v_periodos_permitidos;
+            END IF;
+
+            IF  v_parametros.tipo = 'cerrar' THEN
+             v_estado = 'cerrado';
+
+
+             /*Control para no cerrar periodos despues del periodo actual Ismael Valdivia (15/11/2021)*/
+              select per.id_gestion,
+                     pcv.id_depto
+                     into
+                     v_id_gestion_periodo,
+                     v_id_depto_periodo
+              from conta.tperiodo_compra_venta pcv
+              inner join param.tperiodo per on per.id_periodo = pcv.id_periodo
+              where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta;
+
+
+              select
+                     pcv.estado_comisionistas,
+                     (param.f_literal_periodo(pcv.id_periodo))
+                     into
+                     v_estado_periodo,
+                     v_periodo_literal
+              from conta.tperiodo_compra_venta pcv
+              inner join param.tperiodo per on per.id_periodo = pcv.id_periodo
+              where per.id_gestion = v_id_gestion_periodo and pcv.id_depto = v_id_depto_periodo
+              and pcv.id_periodo_compra_venta < v_parametros.id_periodo_compra_venta
+              order by pcv.id_periodo_compra_venta DESC
+              limit 1;
+
+
+             if (v_estado_periodo = 'abierto' or v_estado_periodo = 'cerrado_parcial') then
+             	raise exception 'El periodo <b>%</b> se encuentra en estado <b>%</b>, favor cerrar el periodo mencionado para realizar el cierre seleccionado',v_periodo_literal,v_estado_periodo;
+             end if;
+             /*****************************************************************************/
+
+             /*Aumentando para que se jale informacion de la tabla sfe.tfactura para los comisionistas*/
+             --Modifi (Ismael Valdivia 13/04/2021)
+             select pcv.id_depto,
+             	    pcv.id_periodo
+             	    into
+                    v_id_depto_cv,
+                    v_id_periodo_update
+             from conta.tperiodo_compra_venta pcv
+             where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta;
+
+             select dep.id_depto
+             into
+             v_id_depto
+             from param.tdepto dep
+             where trim(dep.codigo) = 'CON';
+
+             select ges.gestion
+             		into
+                    v_gestion_recu
+             from conta.tperiodo_compra_venta pcv
+             inner join param.tperiodo per on per.id_periodo = pcv.id_periodo
+             inner join param.tgestion ges on ges.id_gestion = per.id_gestion
+             where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta;
+
+             if (v_id_depto_cv = v_id_depto) then
+
+             	v_traer_data = vef.ft_insertar_acumulacion_comisionistas_ime(v_gestion_recu,v_id_periodo_update);
+
+
+                /*Armamos la consulta para que sea cambiante*/
+                 if (v_gestion_recu = 2021) then
+                      v_nombre_tabla = 'vef.tacumulacion_comisionistas';
+                  else
+                      v_nombre_tabla = 'vef.tacumulacion_comisionistas_'||v_gestion_recu;
+                 end if;
+
+             	v_consulta_dinamica = 'update '||v_nombre_tabla||' set
+                                        estado = '''||v_estado||'''
+                                        where id_periodo = '||v_id_periodo_update||'
+                                        and id_gestion = '||v_id_gestion_periodo||'';
+
+                execute v_consulta_dinamica;
+
+
+             end if;
+
+
+             /*****************************************************************************************/
+            ELSE
+             v_estado = 'abierto';
+
+             /*Control para no cerrar periodos despues del periodo actual Ismael Valdivia (15/11/2021)*/
+              select per.id_gestion,
+                     pcv.id_depto
+                     into
+                     v_id_gestion_periodo,
+                     v_id_depto_periodo
+              from conta.tperiodo_compra_venta pcv
+              inner join param.tperiodo per on per.id_periodo = pcv.id_periodo
+              where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta;
+
+
+
+              select
+                     pcv.estado_comisionistas,
+                     (param.f_literal_periodo(pcv.id_periodo))
+                     into
+                     v_estado_periodo,
+                     v_periodo_literal
+              from conta.tperiodo_compra_venta pcv
+              inner join param.tperiodo per on per.id_periodo = pcv.id_periodo
+              where per.id_gestion = v_id_gestion_periodo and pcv.id_depto = v_id_depto_periodo
+              and pcv.id_periodo_compra_venta > v_parametros.id_periodo_compra_venta
+              order by pcv.id_periodo_compra_venta ASC
+              limit 1;
+
+
+             if (v_estado_periodo = 'cerrado' or v_estado_periodo = 'cerrado_parcial') then
+             	raise exception 'El periodo <b>%</b> se encuentra en estado <b>%</b>, favor Abrir el periodo mencionado para realizar el cierre seleccionado',v_periodo_literal,v_estado_periodo;
+             end if;
+             /*****************************************************************************/
+
+             /*Abrimos el periodo en la tabla tacumulacion comisionistas para traer la data*/
+             select ges.gestion
+             		into
+                    v_gestion_recu
+             from conta.tperiodo_compra_venta pcv
+             inner join param.tperiodo per on per.id_periodo = pcv.id_periodo
+             inner join param.tgestion ges on ges.id_gestion = per.id_gestion
+             where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta;
+
+             if (v_gestion_recu = 2021) then
+                  v_nombre_tabla = 'vef.tacumulacion_comisionistas';
+              else
+                  v_nombre_tabla = 'vef.tacumulacion_comisionistas_'||v_gestion_recu;
+             end if;
+
+             v_consulta_dinamica = 'update '||v_nombre_tabla||' set
+                                     estado = '''||v_estado||'''
+                                     where id_periodo >= (select per.id_periodo
+                                                         from conta.tperiodo_compra_venta per
+                                                         where per.id_periodo_compra_venta = '||v_parametros.id_periodo_compra_venta||')
+                                     and id_gestion = '||v_id_gestion_periodo||'';
+
+             execute v_consulta_dinamica;
+
+
+
+             /*update vef.tacumulacion_comisionistas set
+             estado = v_estado
+             where id_periodo >= (select per.id_periodo
+             					 from conta.tperiodo_compra_venta per
+             					 where per.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta)
+             and id_gestion = v_id_gestion_periodo;*/
+
+            END IF;
+
+            -- modificado (breydi.vasquez) incremento de columans no registradas y
+            -- control de veces que fueron cerradas y abiertas los periodos
+            update conta.tperiodo_compra_venta pcv set
+              estado_comisionistas = v_estado,
+			  id_usuario_mod = p_id_usuario,
+              fecha_mod = now(),
+              id_usuario_ai = v_parametros._id_usuario_ai,
+              usuario_ai = v_parametros._nombre_usuario_ai
+            where pcv.id_periodo_compra_venta = v_parametros.id_periodo_compra_venta;
+
+            -- registro log de cambios de periodos de compra contabilidad
+            insert into conta.tlog_periodo_compra_comisionistas
+                        (
+                          id_usuario_reg,
+                          fecha_reg,
+                          estado_reg,
+                          id_periodo_compra_venta,
+                          estado,
+                          id_usuario_ai,
+                          observacion
+                        )
+                        VALUES (
+                           p_id_usuario,
+                           now(),
+                          'activo',
+                          v_parametros.id_periodo_compra_venta,
+                          v_estado,
+                          v_parametros._id_usuario_ai,
+                          v_parametros.observacion
+                        );
+
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','periodo de libro de compra y ventas pasa al estado: ' || v_estado);
+            v_resp = pxp.f_agrega_clave(v_resp,'id_periodo_compra_venta',v_parametros.id_periodo_compra_venta::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
 
 	else
 

@@ -1,0 +1,189 @@
+<style>
+#cabezaTabla th {
+  font-size: 12px;
+  color:#ffffff;
+}
+
+#detalleTabla {
+  font-size: 12px;
+}
+
+#cuerpo {
+  background-color: rgba(0,0,0,.03);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+
+</style>
+
+
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <script src="../../../lib/jsGanttImproved-jsgantt-improved/jquery-3.3.1.js"></script>
+    <title>Hello, world!</title>
+  </head>
+  <body id="cuerpo">
+    <!-- Aqui armamos el script para traer datos -->
+      <script type="text/javascript">
+        // Recuperamos el Id para hacer la peticion
+          function getUrlVars1() {
+              var vars = {};
+              var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+                  vars[key] = value;
+              });
+              return vars;
+          }
+          var id_periodo_compra_venta = getUrlVars1()["id_periodo_compra_venta"];
+        /******************************************************/
+
+        //Armamos para llamar al modelo y recuperar datos
+        $.ajax({
+            // la URL para la petición
+            url : '../../../lib/lib_control/Intermediario.php',
+            // la información a enviar
+            // (también es posible utilizar una cadena de datos)
+            data:'p={"id_periodo_compra_venta":"'+id_periodo_compra_venta+'"}'
+                +'&x=../../sis_contabilidad/control/PeriodoCompraVenta/listarHistorialPeriodoCompraComisionistas',
+
+            // especifica si será una petición POST o GET
+            type : 'POST',
+
+            // el tipo de información que se espera de respuesta
+            dataType : 'json',
+
+            // código a ejecutar si la petición es satisfactoria;
+            // la respuesta es pasada como argumento a la función
+            success : function(json) {
+
+                var resp = JSON.parse(json.datos[0].datos);
+                console.log("aqui llega el detalle log",resp);
+                var dibujarTabla = '';
+
+                tituloDetalle = document.getElementById("titulo");
+                cuerpoBody = document.getElementById("cuerpoBody");
+                //
+                tituloDetalle.innerHTML = '<b>Historial Periodo Comisionistas</b>';
+                //
+                cabeza = document.getElementById("cabezaTabla");
+                cuerpoBody.innerHTML = '';
+                //
+                console.log("aqui llega el detalle",resp.historial_comisionistas);
+
+                if (resp.historial_comisionistas == null) {
+                  cuerpoBody.innerHTML =
+
+                                  '<blockquote class="blockquote mb-0">'+
+                                  '<p>No se tiene ningun registro</p>'+
+                                  '</blockquote>';
+
+                } else {
+                  for (var i = 0; i < resp.historial_comisionistas.length; i++) {
+
+                   tabladet = document.getElementById("detalleTabla");
+
+                   dibujarTabla2 = '<tr><td>'+resp.historial_comisionistas[i].estado+'</td>'+
+                                  '<td>'+resp.historial_comisionistas[i].fecha_reg+'</td>'+
+                                  '<td>'+resp.historial_comisionistas[i].persona_reg+'</td>'+
+                                  '<td>'+resp.historial_comisionistas[i].observacion+'</td>'+
+                                  '<td>'+resp.historial_comisionistas[i].usr_reg+'</td>'+
+                                  '<td>'+resp.historial_comisionistas[i].estado_reg+'</td></tr>';
+
+                   dibujarTabla = dibujarTabla + dibujarTabla2;
+                 }
+                 tabladet.innerHTML = dibujarTabla;
+
+                 cabeza.innerHTML = '<tr class="bg-primary">'+
+                                    '<th scope="col" style="width: 50px;"><center>Estado</center></th>'+
+                                    '<th scope="col" style="width: 50px;"><center>Fecha Cierre</center></th>'+
+                                    '<th scope="col" style="width: 100px;"><center>Cerrado Por</center></th>'+
+                                    '<th scope="col" style="width: 100px;"><center>Observacion</center></th>'+
+                                    '<th scope="col" style="width: 100px;"><center>Cuenta Usuario</center></th>'+
+                                    '<th scope="col" style="width: 50px;"><center>Estado Reg</center></th>'+
+                                   '</tr>';
+                }
+
+
+             },
+
+            error : function(xhr, status) {
+                cuerpoBody = document.getElementById("cuerpoBody");
+                cuerpoBody.innerHTML = '';
+
+                Alerta = document.getElementById("Alerta");
+                Alerta.innerHTML = '<div class="alert alert-warning" role="alert"><b>Mensaje:</b> '+xhr.responseJSON.ROOT.detalle.mensaje+' Favor contactarse con Sistemas.</div>';
+
+
+
+
+
+            },
+
+
+         });
+
+
+
+
+
+      </script>
+    <!-- --------------------------------------- -->
+    <div id="Alerta">
+
+    </div>
+
+      <div class="card bg-light">
+        <div class="card-header">
+        <center><h6 id="titulo"></h6></center>
+        </div>
+        <div class="card-body">
+          <div id="cuerpoBody">
+            <div class="text-center">
+              <div class="spinner-grow text-primary" role="status">
+                <span class="sr-only"></span>
+              </div>
+              <div class="spinner-grow text-secondary" role="status">
+                <span class="sr-only"></span>
+              </div>
+              <div class="spinner-grow text-success" role="status">
+                <span class="sr-only"></span>
+              </div>
+              <div class="spinner-grow text-danger" role="status">
+                <span class="sr-only"></span>
+              </div>
+              <div class="spinner-grow text-warning" role="status">
+                <span class="sr-only"></span>
+              </div>
+              <div class="spinner-grow text-info" role="status">
+                <span class="sr-only"></span>
+              </div>
+              <div class="spinner-grow text-light" role="status">
+                <span class="sr-only"></span>
+              </div>
+              <div class="spinner-grow text-dark" role="status">
+                <span class="sr-only"></span>
+              </div>
+            </div>
+          </div>
+          <table class="table table-bordered table-striped border-dark" id="table-header">
+            <thead id="cabezaTabla">
+
+            </thead>
+            <tbody id="detalleTabla">
+
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+  </body>
+</html>

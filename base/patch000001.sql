@@ -85,11 +85,6 @@ CREATE TABLE conta.tclase_comprobante(
     INHERITS (pxp.tbase);
 
 
-ALTER TABLE conta.tclase_comprobante
-  ADD COLUMN clase VARCHAR(4);
-
-COMMENT ON COLUMN conta.tclase_comprobante.clase
-IS 'Identifica la clase de comprobante C21, C31, etc.';
 
 /***********************************F-SCP-RAC-CONTA-05-29/05/2013****************************************/
 
@@ -5368,33 +5363,6 @@ alter table conta.tdoc_compra_venta
 	add importe_compras_gravadas_tasa_cero numeric(14,2);
 
 comment on column conta.tdoc_compra_venta.importe_compras_gravadas_tasa_cero is 'Importe de las compras gravadas a Tasa Cero. Para este caso se deberá registrar el 100% del Importe Total de la compra. Caso contrario registrar cero (0).';
-
-ALTER TABLE conta.tint_comprobante
-  ADD COLUMN momento_devengado VARCHAR(4);
-
-COMMENT ON COLUMN conta.tint_comprobante.momento_devengado
-IS 'Campo que indica momento devengado para documento C21.';
-
-
-ALTER TABLE conta.tint_comprobante
-  ADD COLUMN momento_percibido VARCHAR(4);
-
-COMMENT ON COLUMN conta.tint_comprobante.momento_percibido
-IS 'Campo que indica momento percibido para documento C21.';
-
-ALTER TABLE conta.tint_comprobante
-  ADD COLUMN c21 VARCHAR(16);
-
-COMMENT ON COLUMN conta.tint_comprobante.c21
-IS 'Campo para almacenar el numero de documento C21.';
-
-ALTER TABLE conta.tint_comprobante
-  ADD COLUMN fecha_c21 DATE;
-
-COMMENT ON COLUMN conta.tint_comprobante.fecha_c21
-IS 'Campo que almacena la fecha en la que se genera el documento C21.';
-
-
 /***********************************F-SCP-FEA-CONTA-0-05/01/2022****************************************/
 
 /***********************************I-SCP-FFP-CONTA-0-25/01/2022****************************************/
@@ -5408,3 +5376,34 @@ alter table conta.tbanca_compra_venta alter column autorizacion type varchar(255
 
 
 /***********************************F-SCP-FFP-CONTA-0-25/01/2022****************************************/
+
+/***********************************I-SCP-IRVA-CONTA-0-07/03/2022****************************************/
+ALTER TABLE conta.tperiodo_compra_venta
+  ADD COLUMN estado_comisionistas VARCHAR(20) DEFAULT 'abierto' NOT NULL;
+
+COMMENT ON COLUMN conta.tperiodo_compra_venta.estado_comisionistas
+IS 'Estado de los periodos de comisionistas';
+
+
+CREATE TABLE conta.tlog_periodo_compra_comisionistas (
+  id_log_periodo_compra SERIAL,
+  id_periodo_compra_venta INTEGER NOT NULL,
+  estado VARCHAR(20),
+  observacion TEXT,
+  CONSTRAINT tlog_periodo_compra_comisionistas_pkey PRIMARY KEY(id_log_periodo_compra)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE conta.tlog_periodo_compra_comisionistas
+  ALTER COLUMN id_log_periodo_compra SET STATISTICS 0;
+
+COMMENT ON TABLE conta.tlog_periodo_compra_comisionistas
+IS 'Log de estado registrado de los cambios ejecutados (abierto, cerrado, cerrado parcial) en el control
+de periodos del sistema de contabilidad. ';
+
+COMMENT ON COLUMN conta.tlog_periodo_compra_comisionistas.estado
+IS 'Estado de periodo de libro de bancos, cerrado, cerrado_parcial, abierto.';
+
+ALTER TABLE conta.tlog_periodo_compra_comisionistas
+  OWNER TO postgres;
+/***********************************F-SCP-IRVA-CONTA-0-07/03/2022****************************************/

@@ -9,6 +9,7 @@
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
+
 <script>
 Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 
@@ -68,6 +69,47 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
             handler : this.logPeriodo,
             tooltip : '<b>Historial</b> de cierre, apertura y apertura temporal del periodo.'
         });
+
+
+		/*Aumentando para los botones de comisionistas (Ismael Valdivia 11/02/2022)*/
+				this.addButton('btn1', {
+					text : '               ',
+					//iconCls : 'block',
+					disabled : true,
+					//handler : this.onCerrarPeriodoComisionistas,
+					//tooltip : '<b>Cerrar</b> Cerrar el periodo , nadie puede insertar ni modificar documentos'
+				});
+
+			this.addButton('btnCerrarPeriodoComisionistas', {
+				text : 'Cerrar Comisionistas',
+				iconCls : 'block',
+				disabled : true,
+				id : 'botonComisionistas',
+				handler : this.onCerrarPeriodoComisionistas,
+				tooltip : '<b>Cerrar</b> Cerrar el periodo para comisionistas'
+			});
+
+
+			this.addButton('btnAbrirPeriodoComisionistas', {
+				text : 'Abrir Comisionistas',
+				iconCls : 'bunlock',
+				disabled : true,
+				id : 'botonComisionistasAbierto',
+				handler : this.onAbrirPeriodoComisionistas,
+				tooltip : '<b>Abrir</b> Abrir el periodo para comisionistas'
+			});
+
+			this.addButton('btnLogPeriodoComisionistas', {
+					text : 'Historial de cambios Comisionistas.',
+					iconCls : 'blist',
+					disabled : true,
+					id : 'logComisionistas',
+					handler : this.logPeriodoComisionistas,
+					tooltip : '<b>Historial</b> de cierre, apertura y apertura temporal del periodo de Comisionistas.'
+			});
+		/***************************************************************************/
+
+
 
 		this.bloquearMenus();
 		//this.load({params:{start:0, limit:this.tam_pag}})
@@ -263,6 +305,67 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:false
 		},
+
+		/*Aqui Para comisionistas 24/02/2022 (Ismael Valdivia)*/
+		{
+			config:{
+				name: 'estado_comisionistas',
+				fieldLabel: 'Estado Comisionistas',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 150,
+				maxLength:20,
+                //breydi.vasquez 10/12/2019
+                renderer:function (value, rec, i ){
+                        var llave = '';
+                        switch(value){
+                            case 'cerrado': llave = 'Cerrado'
+                            break;
+                            case 'abierto': llave = 'Abierto'
+                            break;
+                        }
+                        return String.format('<b style="color:blue;">{0}</b>', llave);
+                    }
+			},
+				type:'TextField',
+				filters:{pfiltro:'pcv.estado',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:false
+		},
+		{
+			config:{
+				name: 'cantidad_abierto_comisionistas',
+				fieldLabel: 'Cant Abiertos Comisionistas',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 170,
+                renderer: function(value, rec, i){
+                    return String.format('<div style="color:blue; text-align: center; font-size:12px; font-weight:bold;">{0}</div>', value);
+                }
+			},
+				type:'NumberField',
+				id_grupo:1,
+				grid:true,
+				form:false
+		},
+		{
+			config:{
+				name: 'cantidad_cerrado_comisionistas',
+				fieldLabel: 'Cant. CerradosComisionistas',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 170,
+                renderer: function(value, rec, i){
+                    return String.format('<div style="color:blue; text-align: center; font-size:12px; font-weight:bold;">{0}</div>', value);
+                }
+			},
+				type:'NumberField',
+				id_grupo:1,
+				grid:true,
+				form:false
+		},
+		/*********************************************************/
 		{
 			config:{
 				name: 'fecha_reg',
@@ -397,7 +500,10 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
         {name:'mes', type:'string'},
         {name:'cantidad_cerrado', type:'string'},
 		{name:'cantidad_abierto', type:'string'},
-        {name:'cantidad_cerrado_parcial', type:'string'}
+		{name:'cantidad_cerrado_parcial', type:'string'},
+		{name:'cantidad_abierto_comisionistas', type:'string'},
+		{name:'cantidad_cerrado_comisionistas', type:'string'},
+        {name:'estado_comisionistas', type:'string'},
 	],
 	sortInfo:{
 		field: 'per.periodo',
@@ -503,6 +609,11 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 	onCerrarParPeriodo: function(){this.cerrarAbrirPeriodo('cerrar_parcial')},
 	onAbrirPeriodo: function(){this.cerrarAbrirPeriodo('abrir')},
 
+	/*Aumentando para comisionistas Ismael Valdivia (14/02/2022)*/
+	onCerrarPeriodoComisionistas: function(){this.cerrarAbrirPeriodoComisionistas('cerrar');},
+	onAbrirPeriodoComisionistas: function(){this.cerrarAbrirPeriodoComisionistas('abrir')},
+	/***********************************************************/
+
 	onSubmitCierre: function (data) {
 			var rec = this.sm.getSelected();
 			var obs = this.formObs.getForm().findField('observacion').getValue();
@@ -537,11 +648,107 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 			}
 	},
 
+	onSubmitCierreComisionistas: function (data) {
+			var rec = this.sm.getSelected();
+			var obs = this.formObsComisionistas.getForm().findField('observacion').getValue();
+			if ((obs=='') || (obs.length<3)) {
+				alert('Registre su observacion previamente')
+			}else {
+				  this.windowObserComisionistas.hide();
+				if(rec){
+				 Phx.CP.loadingShow();
+			 Ext.Ajax.request({
+					 url : '../../sis_contabilidad/control/PeriodoCompraVenta/cerrarAbrirPeriodoComisionistas',
+					 params : {
+						 id_periodo_compra_venta : rec.data.id_periodo_compra_venta,
+						 tipo: data.tipoEvent,
+						 observacion: obs
+					 },
+					 success : function(resp){
+						 Phx.CP.loadingHide();
+						 var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+						 if (reg.ROOT.error) {
+							 Ext.Msg.alert('Error','no se pudo proceder: '+reg.ROOT.error)
+						 } else {
+							 this.reload();
+							 Ext.Msg.alert('Mensaje','Proceso ejecutado con éxito')
+						 }
+					 },
+					 failure: this.conexionFailure,
+					 timeout: this.timeout,
+					 scope:this
+				 });
+			 }
+			}
+	},
+
+	/*Aumentando para los comisionistas 14/02/2022*/
+	cerrarAbrirPeriodoComisionistas: function(estado){
+		this.creaFormObservacionComisionistas(estado);
+		this.windowObserComisionistas.show();
+		},
+
+
+	creaFormObservacionComisionistas: function (estado) {
+
+				this.formObsComisionistas = new Ext.form.FormPanel({
+						id: this.idContenedor + '_OBSERVA',
+						bodyStyle: 'padding: 10px;',
+						items: [
+								new Ext.form.TextArea({
+										fieldLabel: 'Observacion',
+										name: 'observacion',
+										height: 60,
+										allowBlank: false,
+										width: '95%',
+								})
+						],
+						autoScroll: false,
+						autoDestroy: true,
+						autoScroll: true
+				});
+
+
+				// Definicion de la ventana que contiene al formulario
+				this.windowObserComisionistas = new Ext.Window({
+						// id:this.idContenedor+'_W',
+						title: '<h6 style="font-size:11pt;">Registre previamente su observacion</h6>',
+						modal: true,
+						width: 400,
+						height: 200,
+						bodyStyle: 'padding: 10px;',
+						layout: 'fit',
+						hidden: true,
+						autoScroll: false,
+						maximizable: true,
+						buttons: [{
+								text: 'Guardar',
+								arrowAlign: 'bottom',
+								handler: this.onSubmitCierreComisionistas,
+								argument: {
+										'news': false
+								},
+								scope: this,
+								tipoEvent: estado
+
+						},
+								{
+										text: 'Declinar',
+										handler: this.onDeclinarCierreComisionistas,
+										scope: this
+								}],
+						items: this.formObsComisionistas,
+						autoDestroy: true,
+						closeAction: 'hide'
+				});
+		},
+
+  /**********************************************/
+
 	cerrarAbrirPeriodo: function(estado){
 		this.creaFormObservacion(estado);
 		this.windowObser.show();
 	},
-
 
         creaFormObservacion: function (estado) {
 
@@ -600,6 +807,10 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 	onDeclinarCierre: function () {
           this.windowObser.hide();
   },
+
+	onDeclinarCierreComisionistas: function () {
+          this.windowObserComisionistas.hide();
+  },
 	preparaMenu: function(n) {
 		var tb = Phx.vista.PeriodoCompraVenta.superclass.preparaMenu.call(this);
         // modificado breydi.vasquez 10/12/2019
@@ -622,7 +833,24 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
                 this.getBoton('btnAbrirPeriodo').setDisabled(false);
                 break;
         }
-	   	this.getBoton('btnLogPeriodo').setDisabled(false);
+
+				if (rec.estado == 'cerrado') {
+					switch (rec.estado_comisionistas) {
+	            case 'cerrado':
+									Ext.getCmp('botonComisionistas').setDisabled(true);
+									Ext.getCmp('botonComisionistasAbierto').setDisabled(false);
+	                break;
+	            case 'abierto':
+	                Ext.getCmp('botonComisionistas').setDisabled(false);
+	                Ext.getCmp('botonComisionistasAbierto').setDisabled(true);
+	                break;
+	        }
+				}
+				this.getBoton('btnLogPeriodo').setDisabled(false);
+				Ext.getCmp('logComisionistas').setDisabled(false);
+				//this.getBoton('btnCerrarPeriodoComisionistas').setDisabled(false);
+				//this.getBoton('btnAbrirPeriodoComisionistas').setDisabled(false);
+		   	this.getBoton('btn1').setDisabled(true);
 
   		return tb;
 	},
@@ -630,8 +858,55 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		var tb = Phx.vista.PeriodoCompraVenta.superclass.liberaMenu.call(this);
 		this.getBoton('btnCerrarParPeriodo').setDisabled(true);
 	   	this.getBoton('btnCerrarPeriodo').setDisabled(true);
-	   	this.getBoton('btnAbrirPeriodo').setDisabled(true)
-        this.getBoton('btnLogPeriodo').setDisabled(true)
+	   	this.getBoton('btnAbrirPeriodo').setDisabled(true);
+			this.getBoton('btnLogPeriodo').setDisabled(true);
+			Ext.getCmp('logComisionistas').setDisabled(true);
+			//this.getBoton('btnCerrarPeriodoComisionistas').setDisabled(true);
+			Ext.getCmp('botonComisionistas').setDisabled(true);
+			Ext.getCmp('botonComisionistasAbierto').setDisabled(true);
+      //this.getBoton('btnAbrirPeriodoComisionistas').setDisabled(true);
+			this.getBoton('btn1').setDisabled(true);
+
+			Ext.getCmp('botonComisionistas').el.dom.onmouseover = function () {
+				Ext.getCmp('botonComisionistas').btnEl.dom.style.backgroundColor = '#0EB9B2';
+				Ext.getCmp('botonComisionistas').btnEl.dom.style.color = '#ffffff';
+				Ext.getCmp('botonComisionistas').btnEl.dom.style.fontWeight = 'bold';
+
+			};
+
+			Ext.getCmp('botonComisionistas').el.dom.onmouseout = function () {
+				Ext.getCmp('botonComisionistas').btnEl.dom.style.backgroundColor = '';
+				Ext.getCmp('botonComisionistas').btnEl.dom.style.color = '';
+				Ext.getCmp('botonComisionistas').btnEl.dom.style.fontWeight = '';
+			};
+
+			Ext.getCmp('botonComisionistasAbierto').el.dom.onmouseover = function () {
+				Ext.getCmp('botonComisionistasAbierto').btnEl.dom.style.backgroundColor = '#0EB9B2';
+				Ext.getCmp('botonComisionistasAbierto').btnEl.dom.style.color = '#ffffff';
+				Ext.getCmp('botonComisionistasAbierto').btnEl.dom.style.fontWeight = 'bold';
+
+			};
+
+			Ext.getCmp('botonComisionistasAbierto').el.dom.onmouseout = function () {
+				Ext.getCmp('botonComisionistasAbierto').btnEl.dom.style.backgroundColor = '';
+				Ext.getCmp('botonComisionistasAbierto').btnEl.dom.style.color = '';
+				Ext.getCmp('botonComisionistasAbierto').btnEl.dom.style.fontWeight = '';
+			};
+
+			Ext.getCmp('logComisionistas').el.dom.onmouseover = function () {
+				Ext.getCmp('logComisionistas').btnEl.dom.style.backgroundColor = '#0EB9B2';
+				Ext.getCmp('logComisionistas').btnEl.dom.style.color = '#ffffff';
+				Ext.getCmp('logComisionistas').btnEl.dom.style.fontWeight = 'bold';
+
+			};
+
+			Ext.getCmp('logComisionistas').el.dom.onmouseout = function () {
+				Ext.getCmp('logComisionistas').btnEl.dom.style.backgroundColor = '';
+				Ext.getCmp('logComisionistas').btnEl.dom.style.color = '';
+				Ext.getCmp('logComisionistas').btnEl.dom.style.fontWeight = '';
+			};
+
+
 	},
 
 
@@ -655,7 +930,32 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
             }else{
                 Ext.MessageBox.alert('Alerta', 'Antes debe seleccionar un item.');
             }
-    }
+    },
     //fin
+
+		/*Interfaz para mostrar el log de los cambios en botonComisionistas*/
+		logPeriodoComisionistas: function(){
+            var rec = this.getSelectedData();
+            var NumSelect=this.sm.getCount();
+						console.log("aqui llega los datos",rec);
+            if (NumSelect != 0 ){
+							Phx.CP.loadWindows('../../../sis_contabilidad/vista/periodo_compra_venta/PanelLogComisionistas.php',
+							'', {
+								width:'90%',
+								height:'90%'
+								}, {
+									id_periodo_compra_venta: rec.id_periodo_compra_venta,
+									link: true
+								},
+								this.idContenedor,
+								'PanelLogComisionistas'
+							);
+            }else{
+                Ext.MessageBox.alert('Alerta', 'Antes debe seleccionar un item.');
+            }
+    }
+		/*******************************************************************/
+
+
 })
 </script>
