@@ -1789,7 +1789,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.nro_dui.allowBlank = false;
                     this.mostrarComponente(this.Cmp.nro_dui);
                     this.Cmp.nro_documento.setValue(0);
-                    this.Cmp.nro_documento.setReadOnly(true);
+                    // this.Cmp.nro_documento.setReadOnly(true);
 
                 }
                 else {
