@@ -91,6 +91,13 @@ DECLARE
     v_prioridad2_firm			integer;
     v_prioridad3_firm    		integer;
 
+    -- bvasquez 03/09/2022
+    v_id_int_comprobante_diario integer;
+    v_tc_com_diario				numeric;
+    v_tc_com2_diario			numeric;
+    v_tc_com3_diario			numeric;
+    v_reg_cbte					record;    
+
 BEGIN
 
     v_nombre_funcion:='conta.f_gen_comprobante';
@@ -804,7 +811,42 @@ BEGIN
          END IF;
      END IF;
 
+	--ini {dev:bvasquez, date: 07/03/2022, desc: tipos de cambio de comprobante diario en comprobante de pago }
 
+	  --comprobante diario original
+      select  com.id_int_comprobante, com.tipo_cambio, com.tipo_cambio_2, com.tipo_cambio_3 
+         into v_id_int_comprobante_diario, v_tc_com_diario, v_tc_com2_diario, v_tc_com3_diario
+      from tes.tplan_pago pl
+      inner join tes.tplan_pago pi on pi.id_plan_pago = pl.id_plan_pago_fk
+      inner join conta.tint_comprobante com on com.id_int_comprobante = pi.id_int_comprobante
+      where pl.id_plan_pago = p_id_tabla_valor;
+      
+      --comprobante de pago nuevo
+          select
+            *
+          into
+           v_reg_cbte
+          from conta.tint_comprobante ic where ic.id_int_comprobante = v_id_int_comprobante;
+                
+      if (v_id_int_comprobante_diario is not null and (
+                   v_tc_com_diario != v_reg_cbte.tipo_cambio
+             	or v_tc_com2_diario != v_reg_cbte.tipo_cambio_2
+             	or v_tc_com3_diario != v_reg_cbte.tipo_cambio_3)) then
+         
+      	-- actualiza comprobante de pago creado       
+         update conta.tint_comprobante cbt set
+           tipo_cambio = v_tc_com_diario,
+           tipo_cambio_2 = v_tc_com2_diario,
+           tipo_cambio_3 = v_tc_com3_diario
+         where cbt.id_int_comprobante = v_id_int_comprobante;
+         
+        -- si el tipo de cambio varia es encesario recalcular las equivalenscias en todas las transacciones
+            IF  not conta.f_int_trans_recalcular_tc(v_id_int_comprobante) THEN
+              raise exception 'Error al reprocesar el tipo de cambio';
+            END IF;       
+      end if;      
+            
+	-- fin
     ----------------------------------------------------------------------
     --   Si la gestion de la fecha no correponde con la gestion del pago
     --   se tiene que actualizar las cuentas, centros de costos y partidas
