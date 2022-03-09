@@ -1624,7 +1624,7 @@ BEGIN
                   where pp.id_int_comprobante = v_parametros.id_int_comprobante
                   and pp.estado_reg = 'activo';
 
-                  if (v_plan_pago > 0) then
+                  if (v_plan_pago > 0 and v_parametros.sw_validar = 'si') then
 
 
                           select pp.id_estado_wf,
