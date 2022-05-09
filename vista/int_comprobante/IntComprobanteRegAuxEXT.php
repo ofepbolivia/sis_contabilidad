@@ -57,8 +57,112 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: '<b>Hacer editable</b><br/>Si la edición esta deshabilitada toma un backup y la habilita'
             });
 
+            this.addButton('chkEntregas',{	text:'Entregas',
+                iconCls: 'blist',
+                disabled: true,
+                handler: this.crearEntrega,
+                tooltip: '<b>Crear Entregas </b><p>Las entregas permiten asociar con cbte en otros subsistema (por ejemplo SIGMA o SIGEP)</p>'
+            });
+
+            this.addBotonesAjusteIgualar();
+
             this.init();
 
+        },
+
+        //may
+        cbtePerdida: function (sw_validar) {
+
+            if (confirm("Esta seguro de generar un nuevo comprobante, este proceso iguala importes por cuestion del Tipo de Cambio en distintas fechas  ")) {
+                if (confirm("¿Esta realmente seguro?")) {
+                    var rec = this.sm.getSelected().data;
+                    Phx.CP.loadingShow();
+                    Ext.Ajax.request({
+                        url: '../../sis_contabilidad/control/IntComprobante/cbtePerdidaCbte',
+                        params: {
+                            id_int_comprobante: rec.id_int_comprobante,
+                            sw_validar: (sw_validar == 'si') ? 'si' : 'no'
+                        },
+                        success: function (resp) {
+                            Phx.CP.loadingHide();
+                            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                            if (reg.ROOT.error) {
+                                Ext.Msg.alert('Error', 'Al generar el cbte: ' + reg.ROOT.error)
+                            } else {
+                                this.reload()
+                            }
+                        },
+                        failure: this.conexionFailure,
+                        timeout: this.timeout,
+                        scope: this
+                    });
+                }
+            }
+
+        },
+        //may
+        cbteIncremento: function (sw_validar) {
+
+            if (confirm("Esta seguro de generar un nuevo comprobante, este proceso iguala importes por cuestion del Tipo de Cambio en distintas fechas  ")) {
+                if (confirm("¿Esta realmente seguro?")) {
+                    var rec = this.sm.getSelected().data;
+                    Phx.CP.loadingShow();
+                    Ext.Ajax.request({
+                        url: '../../sis_contabilidad/control/IntComprobante/cbteIncrementoCbte',
+                        params: {
+                            id_int_comprobante: rec.id_int_comprobante,
+                            sw_validar: (sw_validar == 'si') ? 'si' : 'no'
+                        },
+                        success: function (resp) {
+                            Phx.CP.loadingHide();
+                            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                            if (reg.ROOT.error) {
+                                Ext.Msg.alert('Error', 'Al generar el cbte: ' + reg.ROOT.error)
+                            } else {
+                                this.reload()
+                            }
+                        },
+                        failure: this.conexionFailure,
+                        timeout: this.timeout,
+                        scope: this
+                    });
+                }
+            }
+
+        },
+
+
+        addBotonesAjusteIgualar: function () {
+            this.menuAjusteIgualar = new Ext.Toolbar.SplitButton({
+                id: 'b-btnVolcar-' + this.idContenedor,
+                text: 'Generar Cbte. Tipo de Cambio',
+                disabled: true,
+                grupo: [0, 1, 2, 3],
+                iconCls: 'balert',
+                scope: this,
+                menu: {
+                    items: [{
+                        id: 'b-volb-' + this.idContenedor,
+                        text: 'Cbte Pérdida',
+                        tooltip: '<b>Cbte de Perdida para procesos internacionales que no igualan por el tipo de cambio</b>',
+                        handler: function () {
+                            this.cbtePerdida('no')
+                        },
+                        scope: this
+                    }, {
+                        id: 'b-vol-' + this.idContenedor,
+                        //text: 'Reversión Total (Validado)',
+                        text: 'Cbte Incremento',
+                        tooltip: '<b>Cbte de Incremento para procesos internacionales que no igualan por el tipo de cambio</b>',
+                        handler: function () {
+                            this.cbteIncremento('si')
+                        },
+                        scope: this
+                    }
+                    ]
+                }
+            });
+            this.tbar.add(this.menuAjusteIgualar);
         },
 
 
@@ -170,6 +274,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('btnRelDev').disable();
                 this.getBoton('btnIgualarCbte').disable();
                 this.getBoton('btnDocCmpVnt').disable();
+
+                this.getBoton('chkEntregas').disable();
+                this.getBoton('btnVolcar').disable();
             } else {
                 if (rec.data.sw_editable == 'no') {
                     this.getBoton('btnSwEditble').setDisabled(false);
@@ -185,6 +292,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('btnChequeoDocumentosWf').enable();
                 this.getBoton('diagrama_gantt').enable();
                 this.getBoton('btnObs').enable();
+
+                this.getBoton('chkEntregas').enable();
+                this.getBoton('btnVolcar').enable();
             }
             if (rec.data.momento == 'presupuestario') {
                 this.getBoton('btnDocCmpVnt').enable();
@@ -207,6 +317,9 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('btnChequeoDocumentosWf').disable();
             this.getBoton('diagrama_gantt').disable();
             this.getBoton('btnObs').disable()
+
+            this.getBoton('chkEntregas').disable()
+            this.getBoton('btnVolcar').disable()
 
 
         },
@@ -352,6 +465,51 @@ header("content-type: text/javascript; charset=UTF-8");
                 height: 300
             }, rec, this.idContenedor, 'WizardCbte')
         },
+
+
+        crearEntrega: function(){
+            var filas=this.sm.getSelections(),
+                total= 0,tmp='',me = this;
+
+            for(var i=0;i<this.sm.getCount();i++){
+                aux={};
+                if(total == 0){
+                    tmp = filas[i].data[this.id_store];
+                }
+                else{
+                    tmp = tmp + ','+ filas[i].data[this.id_store];
+                }
+                total = total + 1;
+            }
+            if(total != 0){
+                if(confirm("¿Esta  seguro de Crear esta entrega?") ){
+                    Phx.CP.loadingShow();
+                    Ext.Ajax.request({
+                        url : '../../sis_contabilidad/control/Entrega/crearEntrega',
+                        params : {
+                            id_int_comprobantes : tmp,
+                            id_depto_conta: me.cmbDepto.getValue(),
+                            total_cbte: total
+                        },
+                        success : function(resp) {
+                            Phx.CP.loadingHide();
+                            alert('La entrega fue creada con exito, incluye cbte(s): '+ total);
+                            this.reload();
+
+                        },
+                        failure : this.conexionFailure,
+                        timeout : this.timeout,
+                        scope : this
+                    });
+                }
+            }
+            else{
+                alert ('No selecciono ningun comprobante');
+            }
+        },
+
+
+
         south: {
             url: '../../../sis_contabilidad/vista/int_transaccion/IntTransaccionAux.php',
             title: 'Transacciones',

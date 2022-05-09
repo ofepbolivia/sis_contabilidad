@@ -10,7 +10,7 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
     Phx.vista.SolDocCompraVentaCbte = Ext.extend(Phx.gridInterfaz, {
-        fheight: '80%',
+        fheight: '93%',
         fwidth: '70%',
         tabEnter: true,
         constructor: function (config) {
@@ -278,7 +278,7 @@ header("content-type: text/javascript; charset=UTF-8");
             {
                 config: {
                     name: 'nit',
-                    fieldLabel: 'NIT',
+                    fieldLabel: 'CUIT',
                     qtip: 'Número de indentificación del proveedor',
                     allowBlank: false,
                     emptyText: 'nit ...',
@@ -292,7 +292,28 @@ header("content-type: text/javascript; charset=UTF-8");
                 form: false
             },
 
-
+            {
+                config: {
+                    name: 'id_proveedor',
+                    origen: 'PROVEEDOR',
+                    allowBlank: false,
+                    fieldLabel: 'Proveedor',
+                    gdisplayField: 'desc_proveedor',//mapea al store del grid
+                    gwidth: 120,
+                    width: 250,
+                    renderer: function (value, p, record) {
+                        return String.format('{0}', record.data['desc_proveedor']);
+                    }
+                },
+                type: 'ComboRec',
+                id_grupo: 0,
+                filters: {
+                    pfiltro: 'prov.desc_proveedor',
+                    type: 'string'
+                },
+                grid: true,
+                form: false
+            },
             {
                 config: {
                     name: 'razon_social',
@@ -305,6 +326,29 @@ header("content-type: text/javascript; charset=UTF-8");
                 id_grupo: 0,
                 grid: true,
                 bottom_filter: true,
+                form: false
+            },
+            {
+                config: {
+                    name: 'c_emisor',
+                    fieldLabel: 'C Emisor',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.c_emisor', type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
                 form: false
             },
             {
@@ -323,6 +367,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 bottom_filter: true,
                 form: false
             },
+
             {
                 config: {
                     name: 'nro_dui',
@@ -336,7 +381,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'TextField',
                 filters: {pfiltro: 'dcv.nro_dui', type: 'string'},
                 id_grupo: 0,
-                grid: true,
+                grid: false,
                 form: false
             },
             // {
@@ -397,7 +442,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_descuento', type: 'numeric'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -412,7 +457,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_doc', type: 'numeric'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -431,6 +476,29 @@ header("content-type: text/javascript; charset=UTF-8");
             },
             {
                 config: {
+                    name: 'no_gravado',
+                    fieldLabel: 'No Gravado',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.no_gravado', type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                form: false
+            },
+            {
+                config: {
                     name: 'importe_pendiente',
                     fieldLabel: 'Cuenta Pendiente',
                     qtip: 'Usualmente una cuenta pendiente de  cobrar o  pagar (dependiendo si es compra o venta), posterior a la emisión del documento',
@@ -441,7 +509,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_pendiente', type: 'numeric'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -456,7 +524,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_anticipo', type: 'numeric'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -471,7 +539,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_retgar', type: 'numeric'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -486,7 +554,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_descuento_ley', type: 'numeric'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -500,7 +568,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_ice', type: 'numeric'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -515,7 +583,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_iva', type: 'numeric'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -530,9 +598,371 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'NumberField',
                 filters: {pfiltro: 'dcv.importe_it', type: 'numeric'},
                 id_grupo: 1,
+                grid: false,
+                form: false
+            },
+
+            {
+                config: {
+                    name: 'base_21',
+                    fieldLabel: 'Base 21%',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.base_21', type: 'numeric'},
+                id_grupo: 1,
                 grid: true,
                 form: false
             },
+
+            {
+                config: {
+                    name: 'base_27',
+                    fieldLabel: 'Base 27%',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.base_27', type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                form: false
+            },
+
+            {
+                config: {
+                    name: 'base_10_5',
+                    fieldLabel: 'Base 10,5%',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.base_10_5', type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                form: false
+            },
+
+            {
+                config: {
+                    name: 'base_2_5',
+                    fieldLabel: 'Base 2,5%',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.base_2_5', type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                form: false
+            },
+            {
+                config: {
+                    name: 'percepcion_caba',
+                    fieldLabel: 'Percepción IIBB CABA',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.percepcion_caba', type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                form: false
+            },
+            {
+                config: {
+                    name: 'percepcion_bue',
+                    fieldLabel: 'Percepción IIBB BUE',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.percepcion_bue', type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                form: false
+            },
+            {
+                config: {
+                    name: 'percepcion_iva',
+                    fieldLabel: 'Percepción IVA',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.percepcion_iva', type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                form: false
+            },
+            {
+                config: {
+                    name: 'percepcion_salta',
+                    fieldLabel: 'Percepción IIBB SALTA',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.percepcion_salta', type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                form: false
+            },
+            {
+                config: {
+                    name: 'percepcion_tucuman',
+                    fieldLabel: 'Percepción IIBB TUCUMAN',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.percepcion_iva', type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                form: false
+            },
+            {
+                config: {
+                    name: 'percepcion_corrientes',
+                    fieldLabel: 'Percepción IIBB CORRIENTE',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.percepcion_corrientes', type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                form: false
+            },
+            {
+                config: {
+                    name: 'percepcion_neuquen',
+                    fieldLabel: 'Percepción IIBB NEUQUEN',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.percepcion_neuquen', type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                form: false
+            },
+            {
+                config: {
+                    name: 'imp_internos',
+                    fieldLabel: 'Imp. Internos',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.imp_internos', type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                form: false
+            },
+            {
+                config: {
+                    name: 'otros_impuestos',
+                    fieldLabel: 'Otros Impuestos',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.percepcion_iva', type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                form: false
+            },
+            {
+                config: {
+                    name: 'otros_impuestos',
+                    fieldLabel: 'Otros Impuestos',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    galign: 'right ',
+                    renderer: function (value, p, record) {
+                        if (record.data.tipo_reg != 'summary') {
+                            return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                        else {
+                            return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                        }
+                    }
+                },
+                type: 'NumberField',
+                filters: {pfiltro: 'dcvext.percepcion_iva', type: 'numeric'},
+                id_grupo: 1,
+                grid: true,
+                form: false
+            },
+            {
+                config: {
+                    name: 'importe_postergacion_covid',
+                    fieldLabel: 'Postergación Covid',
+                    allowBlank: true,
+                    allowDecimals: true,
+                    decimalPrecision : 2,
+                    enableKeyEvents : true,
+                    allowNegative: true,
+                    anchor: '80%',
+                    gwidth: 100
+                },
+                type: 'NumberField',
+                id_grupo: 1,
+                form: false,
+                grid: true
+            },
+            {
+                config:{
+                    name: 'costo_directo',
+                    fieldLabel: 'Costo Directo',
+                    allowBlank: true,
+                    anchor: '80%',
+                    gwidth: 100,
+                    typeAhead:true,
+                    triggerAction:'all',
+                    mode:'local',
+                    store:['si', 'no']
+                },
+                type:'ComboBox',
+                filters:{pfiltro:'dcvext.actividad',type:'string'},
+                id_grupo:5,
+                grid:false,
+                form:true
+            },
+
             {
                 config: {
                     name: 'importe_pago_liquido',
@@ -576,7 +1006,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'TextField',
                 filters: {pfiltro: 'dcv.sw_contabilizar', type: 'string'},
                 id_grupo: 1,
-                grid: true,
+                grid: false,
                 form: false
             },
             {
@@ -597,7 +1027,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'TextField',
                 filters: {pfiltro: 'aux.codigo_auxiliar#aux.nombre_auxiliar', type: 'string'},
                 id_grupo: 0,
-                grid: true,
+                grid: false,
                 bottom_filter: true,
                 form: false
             },
@@ -717,7 +1147,8 @@ header("content-type: text/javascript; charset=UTF-8");
         title: 'Documentos Compra Venta',
         ActSave: '../../sis_contabilidad/control/DocCompraVenta/agregarCbteDoc',
         ActDel: '../../sis_contabilidad/control/DocCompraVenta/quitarCbteDoc',
-        ActList: '../../sis_contabilidad/control/DocCompraVenta/listarDocCompraVenta',
+        //ActList: '../../sis_contabilidad/control/DocCompraVenta/listarDocCompraVenta',
+        ActList: '../../sis_contabilidad/control/DocCompraVenta/listarDocCompraVentaEXT',
         id_store: 'id_doc_compra_venta',
         fields: [
             {name: 'id_doc_compra_venta', type: 'string'},
@@ -760,8 +1191,31 @@ header("content-type: text/javascript; charset=UTF-8");
             'importe_descuento_ley',
             'importe_pago_liquido', 'nro_dui', 'id_moneda', 'desc_moneda', 'id_auxiliar', 'codigo_auxiliar', 'nombre_auxiliar',
             'id_plan_pago',
-            {name: 'fecha_vencimiento', type: 'date', dateFormat: 'Y-m-d'}
+            {name: 'fecha_vencimiento', type: 'date', dateFormat: 'Y-m-d'},
+            'tipo_cambio',
 
+            'num_proveedor',
+            'costo_directo',
+            'c_emisor',
+            'no_gravado',
+            'base_21',
+            'base_27',
+            'base_10_5',
+            'base_2_5',
+            'percepcion_caba',
+            'percepcion_bue',
+            'percepcion_iva',
+            'percepcion_salta',
+            'imp_internos',
+            'percepcion_tucuman',
+            'percepcion_corrientes',
+            'otros_impuestos',
+            'percepcion_neuquen',
+            'control',
+            'id_proveedor',
+            'condicion',
+            'desc_proveedor',
+            {name: 'importe_postergacion_covid', type: 'numeric'}
 
         ],
         sortInfo: {
@@ -780,8 +1234,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 'Formulario de Documento Compra/Venta',
                 {
                     modal: true,
-                    width: '80%',
-                    height: '60%'
+                    width: '70%',
+                    height: '93%'
                 }, {
                     data: {
                         objPadre: me,

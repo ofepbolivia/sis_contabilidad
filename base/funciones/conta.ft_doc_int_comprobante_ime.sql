@@ -215,35 +215,99 @@ BEGIN
     			TRUNCATE conta.tdoc_int_comprobante;
 
     			FOR v_registros IN (
-                  SELECT DISTINCT doc.fecha::date, doc.nit::varchar, doc.razon_social::varchar, pla.desc_plantilla::varchar, doc.nro_documento::varchar, doc.nro_dui::varchar,
-                 doc.nro_autorizacion::varchar, doc.codigo_control::varchar, doc.importe_doc::numeric, COALESCE(doc.importe_ice,0)::numeric as importe_ice,
-                  COALESCE(doc.importe_descuento,0)::numeric as importe_descuento,
-                 COALESCE(doc.importe_excento,0)::numeric as importe_excento, doc.importe_pago_liquido::numeric as liquido,
-                 COALESCE((doc.importe_pago_liquido - COALESCE(doc.importe_excento, 0)),0)::numeric as importe_sujeto,
-                 doc.importe_iva::numeric,
-                 con.precio_total_final::numeric as importe_gasto,
-                 (con.precio_total_final / doc.importe_pago_liquido)::numeric as porc_gasto_prorrateado,
-                 case
-                   when (doc.importe_pago_liquido - COALESCE(doc.importe_excento, 0)) != 0
-                     then round((doc.importe_pago_liquido - COALESCE(doc.importe_excento,
-                     0)) * con.precio_total_final / doc.importe_pago_liquido, 2)::numeric
-                   else 0::numeric
-                 end as sujeto_prorrateado,
-                 case
-                   when (doc.importe_pago_liquido - COALESCE(doc.importe_excento, 0)) != 0
-                     then round(doc.importe_iva * con.precio_total_final /
-                     doc.importe_pago_liquido, 2)::numeric
-                   else 0::numeric
-                 end as iva_prorrateado,
-                 par.codigo::varchar,
-                 cta.nro_cuenta::varchar,
-                 case when doc.tabla_origen = 'cd.trendicion_det' then 'Fondo en Avance'::varchar
-                 when doc.tabla_origen = 'tes.tsolicitud_rendicion_det' then 'Caja Chica'::varchar
-                 end as origen,
-                 COALESCE(doc.id_int_comprobante::varchar,'') as id_int_comprobante,
-                 doc.id_doc_compra_venta::integer,
-                 usu.cuenta,
-                 con.id_doc_concepto
+                  SELECT DISTINCT doc.fecha::date, 
+                  		 doc.nit::varchar, 
+                         doc.razon_social::varchar, 
+                         pla.desc_plantilla::varchar, 
+                         doc.nro_documento::varchar, 
+                         doc.nro_dui::varchar,
+                 		 doc.nro_autorizacion::varchar, 
+                         doc.codigo_control::varchar, 
+                         doc.importe_doc::numeric, 
+                         COALESCE(doc.importe_ice,0)::numeric as importe_ice,
+                  		 COALESCE(doc.importe_descuento,0)::numeric as importe_descuento,
+                 		 COALESCE(doc.importe_excento,0)::numeric as importe_excento, 
+                         doc.importe_pago_liquido::numeric as liquido,
+	                      --{ dev:bvasquez, date: 20/01/2021, desc: adicion para resta a liquido con nuevos impuestos }
+                 		 --COALESCE((doc.importe_pago_liquido - COALESCE(doc.importe_excento, 0)),0)::numeric as importe_sujeto,
+                         (COALESCE(doc.importe_pago_liquido,0) - (
+                                     COALESCE(doc.importe_excento, 0) +
+                                     COALESCE(doc.importe_iehd, 0) +
+                                     COALESCE(doc.importe_ipj, 0) +
+                                     COALESCE(doc.importe_tasas, 0) +
+                                     COALESCE(doc.importe_gift_card, 0) +
+                                     COALESCE(doc.otro_no_sujeto_credito_fiscal, 0) +
+                                     COALESCE(doc.importe_compras_gravadas_tasa_cero, 0) +               
+                                     COALESCE(doc.importe_ice, 0)
+                                ))::numeric as importe_sujeto,                        
+                 		 doc.importe_iva::numeric,
+                 		 con.precio_total_final::numeric as importe_gasto,
+                 		 (con.precio_total_final / doc.importe_pago_liquido)::numeric as porc_gasto_prorrateado,
+                      --{ dev:bvasquez, date: 20/01/2021, desc: adicion para resta a liquido con nuevos impuestos }
+                       /*case
+                         when (doc.importe_pago_liquido - COALESCE(doc.importe_excento, 0)) != 0
+                           then round((doc.importe_pago_liquido - COALESCE(doc.importe_excento,
+                           0)) * con.precio_total_final / doc.importe_pago_liquido, 2)::numeric
+                         else 0::numeric
+                       end as sujeto_prorrateado,
+                      case
+                         when (doc.importe_pago_liquido - COALESCE(doc.importe_excento, 0)) != 0
+                           then round(doc.importe_iva * con.precio_total_final /
+                           doc.importe_pago_liquido, 2)::numeric
+                         else 0::numeric
+                 		end as iva_prorrateado,*/                       
+                         case
+                           when (COALESCE(doc.importe_pago_liquido,0) - (
+                             COALESCE(doc.importe_excento, 0) +
+                             COALESCE(doc.importe_iehd, 0) +
+                             COALESCE(doc.importe_ipj, 0) +
+                             COALESCE(doc.importe_tasas, 0) +
+                             COALESCE(doc.importe_gift_card, 0) +
+                             COALESCE(doc.otro_no_sujeto_credito_fiscal, 0) +
+                             COALESCE(doc.importe_compras_gravadas_tasa_cero, 0) +
+                             COALESCE(doc.importe_ice, 0)       
+                             )) != 0
+                                then round((doc.importe_pago_liquido - 
+                                    (  COALESCE(doc.importe_excento,0) +
+                                       COALESCE(doc.importe_iehd, 0) +
+                                       COALESCE(doc.importe_ipj, 0) +
+                                       COALESCE(doc.importe_tasas, 0) +
+                                       COALESCE(doc.importe_gift_card, 0) +
+                                       COALESCE(doc.otro_no_sujeto_credito_fiscal, 0) +
+                                       COALESCE(doc.importe_compras_gravadas_tasa_cero, 0) +
+                                       COALESCE(doc.importe_ice, 0)                
+                                    )
+                                
+                                ) * con.precio_total_final / doc.importe_pago_liquido, 2)::numeric
+                           else 0::numeric
+                         end as sujeto_prorrateado,                       
+ 
+                       case
+                         when (doc.importe_pago_liquido - (
+                              COALESCE(doc.importe_excento, 0) +
+                              COALESCE(doc.importe_iehd, 0) +
+                              COALESCE(doc.importe_ipj, 0) +
+                              COALESCE(doc.importe_tasas, 0) +
+                              COALESCE(doc.importe_gift_card, 0) +
+                              COALESCE(doc.otro_no_sujeto_credito_fiscal, 0) +
+                              COALESCE(doc.importe_compras_gravadas_tasa_cero, 0) +
+                              COALESCE(doc.importe_ice, 0)          
+                            )
+                         ) != 0
+                           then round(doc.importe_iva * con.precio_total_final /
+                           doc.importe_pago_liquido, 2)::numeric
+                         else 0::numeric
+                        end as iva_prorrateado,                        
+                        
+                 		par.codigo::varchar,
+                 		cta.nro_cuenta::varchar,
+                 		case when doc.tabla_origen = 'cd.trendicion_det' then 'Fondo en Avance'::varchar
+                 			 when doc.tabla_origen = 'tes.tsolicitud_rendicion_det' then 'Caja Chica'::varchar
+                 			 end as origen,
+                 		COALESCE(doc.id_int_comprobante::varchar,'') as id_int_comprobante,
+                 		doc.id_doc_compra_venta::integer,
+                 		usu.cuenta,
+                 		con.id_doc_concepto
           FROM conta.tdoc_compra_venta doc
                INNER JOIN conta.tdoc_concepto con on con.id_doc_compra_venta =
                  doc.id_doc_compra_venta
@@ -257,21 +321,115 @@ BEGIN
           WHERE doc.fecha between v_parametros.fecha_ini and
                 v_parametros.fecha_fin      and
                 pla.tipo_informe = 'lcv'
+          group by 
+			doc.fecha, 
+            doc.nit, 
+            doc.razon_social, 
+            pla.desc_plantilla, 
+            doc.nro_documento, 
+            doc.nro_dui,
+            doc.nro_autorizacion, 
+            doc.codigo_control, 
+            doc.importe_doc,  
+            doc.id_doc_compra_venta,
+            usu.cuenta,
+            con.id_doc_concepto,
+            par.codigo,
+            cta.nro_cuenta       
           UNION ALL
-          SELECT doc.fecha::date, doc.nit::varchar, doc.razon_social::varchar, pla.desc_plantilla::varchar, doc.nro_documento::varchar, doc.nro_dui::varchar,
-                 doc.nro_autorizacion::varchar, doc.codigo_control::varchar, doc.importe_doc::numeric, COALESCE(doc.importe_ice,0)::numeric as importe_ice,
-                  COALESCE(doc.importe_descuento,0)::numeric as importe_descuento,
-                 COALESCE(doc.importe_excento,0)::numeric as importe_excento, doc.importe_pago_liquido::numeric as liquido,
-                 COALESCE((doc.importe_neto - COALESCE(doc.importe_excento,0)),0)::numeric as importe_sujeto,
-                 doc.importe_iva::numeric,
-                 round((tra.importe_gasto /(1 - tra.factor_reversion)),2)::numeric as importe_gasto,
-                 (tra.importe_gasto /(1 - tra.factor_reversion) / conta.f_importe_gasto_comprobante(cmp.id_int_comprobante))::numeric as porc_gasto_prorrateado,
-                 case when doc.id_int_comprobante is not null then
-                 round((doc.importe_pago_liquido - COALESCE(doc.importe_excento, 0)) * (tra.importe_gasto /(1 - tra.factor_reversion) / conta.f_importe_gasto_comprobante(cmp.id_int_comprobante)),2)::numeric
+      		SELECT 	
+      			doc.fecha::date, 
+                doc.nit::varchar, 
+                doc.razon_social::varchar, 
+                pla.desc_plantilla::varchar,
+                doc.nro_documento::varchar, 
+                doc.nro_dui::varchar,
+                doc.nro_autorizacion::varchar, 
+                doc.codigo_control::varchar, 
+                doc.importe_doc::numeric, 
+                COALESCE(doc.importe_ice,0)::numeric as importe_ice,
+                COALESCE(doc.importe_descuento,0)::numeric as importe_descuento,
+                COALESCE(doc.importe_excento,0)::numeric as importe_excento, 
+                doc.importe_pago_liquido::numeric as liquido,
+                --{ dev:bvasquez, date: 20/01/2021, desc: importe_sujeto sin importe_excento ya sustraido desde la interfaz }
+                --COALESCE((doc.importe_neto - COALESCE(doc.importe_excento,0)),0)::numeric as importe_sujeto,
+                (COALESCE(doc.importe_pago_liquido,0) - (
+                            COALESCE(doc.importe_excento, 0) +
+                            COALESCE(doc.importe_iehd, 0) +
+                            COALESCE(doc.importe_ipj, 0) +
+                            COALESCE(doc.importe_tasas, 0) +
+                            COALESCE(doc.importe_gift_card, 0) +
+                            COALESCE(doc.otro_no_sujeto_credito_fiscal, 0) +
+                            COALESCE(doc.importe_compras_gravadas_tasa_cero, 0) +               
+                            COALESCE(doc.importe_ice, 0)
+                      ))::numeric as importe_sujeto,                
+                doc.importe_iva::numeric,                 
+                round((sum(tra.importe_gasto) /(1 - tra.factor_reversion)),2)::numeric as importe_gasto,
+                (sum(tra.importe_gasto) /(1 - tra.factor_reversion) / conta.f_importe_gasto_comprobante(cmp.id_int_comprobante))::numeric as porc_gasto_prorrateado,
+                --{ dev:bvasquez, date: 20/01/2021, desc: adicion para resta a liquido con nuevos impuestos }
+                 /*case when doc.id_int_comprobante is not null then
+                 	round((doc.importe_pago_liquido - COALESCE(doc.importe_excento, 0)) * (sum(tra.importe_gasto) /(1 - tra.factor_reversion) / conta.f_importe_gasto_comprobante(cmp.id_int_comprobante)),2)::numeric
                  else (doc.importe_pago_liquido - COALESCE(doc.importe_excento,0))::numeric end as sujeto_prorrateado,
                  case when doc.id_int_comprobante is not null then
-                 round((doc.importe_pago_liquido - COALESCE(doc.importe_excento, 0)) * (tra.importe_gasto /(1 - tra.factor_reversion) / conta.f_importe_gasto_comprobante(cmp.id_int_comprobante))*0.13,2)::numeric
-                 else doc.importe_iva::numeric end as iva_prorrateado,
+                 	round((doc.importe_pago_liquido - COALESCE(doc.importe_excento, 0)) * (sum(tra.importe_gasto) /(1 - tra.factor_reversion) / conta.f_importe_gasto_comprobante(cmp.id_int_comprobante))*0.13,2)::numeric
+                 else doc.importe_iva::numeric end as iva_prorrateado,*/                 
+                  case when 
+                   doc.id_int_comprobante is not null and 
+                  COALESCE(
+                round((COALESCE(doc.importe_pago_liquido,0) - ( 
+                         COALESCE(doc.importe_excento, 0) +
+                         COALESCE(doc.importe_iehd, 0) +
+                         COALESCE(doc.importe_ipj, 0) +
+                         COALESCE(doc.importe_tasas, 0) +
+                         COALESCE(doc.importe_gift_card, 0) +
+                         COALESCE(doc.otro_no_sujeto_credito_fiscal, 0) +
+                         COALESCE(doc.importe_compras_gravadas_tasa_cero, 0) +
+                         COALESCE(doc.importe_ice, 0)           
+                        )
+              ) * (sum(tra.importe_gasto) /(1 - tra.factor_reversion) / COALESCE(conta.f_importe_gasto_comprobante(cmp.id_int_comprobante),0)),2)::numeric, 0)
+               != 0
+                  
+                   then
+                  
+                  round((COALESCE(doc.importe_pago_liquido,0) - ( 
+                         COALESCE(doc.importe_excento, 0) +
+                         COALESCE(doc.importe_iehd, 0) +
+                         COALESCE(doc.importe_ipj, 0) +
+                         COALESCE(doc.importe_tasas, 0) +
+                         COALESCE(doc.importe_gift_card, 0) +
+                         COALESCE(doc.otro_no_sujeto_credito_fiscal, 0) +
+                         COALESCE(doc.importe_compras_gravadas_tasa_cero, 0) +
+                         COALESCE(doc.importe_ice, 0)           
+                        )
+                  ) * (sum(tra.importe_gasto) /(1 - tra.factor_reversion) / COALESCE(conta.f_importe_gasto_comprobante(cmp.id_int_comprobante),0)),2)::numeric
+                  
+                else (COALESCE(doc.importe_pago_liquido,0) - (
+                        COALESCE(doc.importe_excento,0) +
+                        COALESCE(doc.importe_iehd, 0) +
+                        COALESCE(doc.importe_ipj, 0) +
+                        COALESCE(doc.importe_tasas, 0) +
+                        COALESCE(doc.importe_gift_card, 0) +
+                        COALESCE(doc.otro_no_sujeto_credito_fiscal, 0) +
+                        COALESCE(doc.importe_compras_gravadas_tasa_cero, 0) +
+                        COALESCE(doc.importe_ice, 0)   
+                        )
+                )::numeric end as sujeto_prorrateado,
+                                        
+                
+                case when doc.id_int_comprobante is not null then
+                round((doc.importe_pago_liquido - (
+                        COALESCE(doc.importe_excento, 0) +
+                        COALESCE(doc.importe_iehd, 0) +
+                        COALESCE(doc.importe_ipj, 0) +
+                        COALESCE(doc.importe_tasas, 0) +
+                        COALESCE(doc.importe_gift_card, 0) +
+                        COALESCE(doc.otro_no_sujeto_credito_fiscal, 0) +
+                        COALESCE(doc.importe_compras_gravadas_tasa_cero, 0) +
+                        COALESCE(doc.importe_ice, 0)          
+                      )
+                
+                ) * (sum(tra.importe_gasto) /(1 - tra.factor_reversion) / conta.f_importe_gasto_comprobante(cmp.id_int_comprobante))*0.13,2)::numeric
+                else doc.importe_iva::numeric end as iva_prorrateado,                
                  par.codigo::varchar,
                  cta.nro_cuenta::varchar,
                  case when pla.desc_plantilla ='Facturas por Comisiones' then 'Ingresos'
@@ -284,7 +442,7 @@ BEGIN
                LEFT JOIN conta.tint_comprobante cmp on cmp.id_int_comprobante =
                  doc.id_int_comprobante
                LEFT JOIN conta.tint_transaccion tra on tra.id_int_comprobante =
-                 cmp.id_int_comprobante and tra.id_partida_ejecucion_dev is not null
+                 cmp.id_int_comprobante and tra.id_partida_ejecucion_dev is not null and cmp.id_int_comprobante_fks is null and cmp.estado_reg = 'validado'
                LEFT JOIN pre.tpartida par on par.id_partida = tra.id_partida
                INNER JOIN param.tplantilla pla on pla.id_plantilla = doc.id_plantilla
                LEFT JOIN conta.tcuenta cta on cta.id_cuenta = tra.id_cuenta
@@ -292,7 +450,23 @@ BEGIN
           WHERE doc.fecha between v_parametros.fecha_ini and
                 v_parametros.fecha_fin and
                 pla.tipo_informe = 'lcv' and
-                doc.tabla_origen is null
+                doc.tabla_origen is null  
+              group by 
+              doc.fecha, doc.nit, doc.razon_social, pla.desc_plantilla, doc.nro_documento, doc.nro_dui,
+              doc.nro_autorizacion, doc.codigo_control, doc.importe_doc,
+              doc.importe_pago_liquido,
+              doc.importe_iva,
+              doc.importe_ice,
+              doc.importe_descuento,
+              doc.importe_excento,
+              doc.importe_neto,
+              tra.factor_reversion,
+              par.codigo, cta.nro_cuenta, doc.id_int_comprobante,
+              doc.id_doc_compra_venta,
+              tra.id_partida,
+              tra.id_cuenta,
+              usu.cuenta,
+              cmp.id_int_comprobante  				
           order by fecha, id_doc_compra_venta) LOOP
                 INSERT INTO conta.tdoc_int_comprobante
                 (fecha, nit, razon_social, desc_plantilla, nro_documento, nro_dui,

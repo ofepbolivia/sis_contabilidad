@@ -13,6 +13,8 @@ header("content-type: text/javascript; charset=UTF-8");
     var id_gestion = null;
 
     Phx.vista.IntComprobante = Ext.extend(Phx.gridInterfaz, {
+
+        bgantt: true,
         fheight: '90%',
         fwidth: '90%',
         nombreVista: 'IntComprobante',
@@ -28,6 +30,7 @@ header("content-type: text/javascript; charset=UTF-8");
             //Botón para Imprimir el Comprobante
             this.addButton('btnImprimir', {
                 text: 'Imprimir',
+                grupo: [0, 1, 2, 3, 4],
                 iconCls: 'bprint',
                 disabled: true,
                 handler: this.imprimirCbte,
@@ -76,7 +79,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.addButton('btnChequeoDocumentosWf',
                 {
                     text: 'Documentos',
-                    grupo: [0, 1, 2, 3],
+                    grupo: [0, 1, 2, 3, 4],
                     iconCls: 'bchecklist',
                     disabled: true,
                     handler: this.loadCheckDocumentosWf,
@@ -86,7 +89,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             this.addButton('btnObs', {
                 text: 'Obs Wf',
-                grupo: [0, 1, 2, 3],
+                grupo: [0, 1, 2, 3, 4],
                 iconCls: 'bchecklist',
                 disabled: true,
                 handler: this.onOpenObs,
@@ -271,6 +274,10 @@ header("content-type: text/javascript; charset=UTF-8");
             },
             type: 'Field',
             bottom_filtro: true,
+            filters: {
+                pfiltro: 'incbte.id_int_comprobante',
+                type: 'string'
+            },
             form: false,
             grid: true
         },
@@ -975,7 +982,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'date'
                 },
                 id_grupo: 3,
-                //egrid: true,
+                egrid: true,
                 grid: true,
                 form: true
             }, {
@@ -996,7 +1003,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'date'
                 },
                 id_grupo: 3,
-                //egrid: true,
+                egrid: true,
                 grid: true,
                 form: true
             }, {
@@ -1082,6 +1089,26 @@ header("content-type: text/javascript; charset=UTF-8");
                 filters: {
                     pfiltro: 'incbte.fecha_mod',
                     type: 'date'
+                },
+                id_grupo: 0,
+                grid: true,
+                form: false
+            },
+            {
+                config: {
+                    name: 'id_service_request',
+                    fieldLabel: 'Id. Service Request',
+                    allowBlank: true,
+                    readOnly: true,
+                    anchor: '90%',
+                    gwidth: 70,
+                    maxLength: 20,
+                    decimalPrecision: 6
+                },
+                type: 'NumberField',
+                filters: {
+                    pfiltro: 'incbte.id_service_request',
+                    type: 'numeric'
                 },
                 id_grupo: 0,
                 grid: true,
@@ -1254,13 +1281,13 @@ header("content-type: text/javascript; charset=UTF-8");
             'desc_tipo_relacion_comprobante', 'id_int_comprobante_fks', 'manual',
             'id_tipo_relacion_comprobante', 'tipo_cambio_2', 'id_moneda_tri', 'tipo_cambio_3', 'id_moneda_act',
             'sw_tipo_cambio', 'id_config_cambiaria', 'ope_1', 'ope_2', 'ope_3',
-            'desc_moneda_tri', 'localidad', 'sw_editable', 'cbte_reversion', 'volcado', 'c31', 'fecha_c31', 'forma_cambio'],
+            'desc_moneda_tri', 'localidad', 'sw_editable', 'cbte_reversion', 'volcado', 'c31', 'fecha_c31', 'forma_cambio', 'id_service_request', 'nro_preventivo'],
 
         rowExpander: new Ext.ux.grid.RowExpander({
             tpl: new Ext.Template('<br>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Departamento:&nbsp;&nbsp;</b> {desc_depto} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Clase cbte:&nbsp;&nbsp;</b> {desc_clase_comprobante}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Origen:&nbsp;&nbsp;</b> {desc_subsistema}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Beneficiario:&nbsp;&nbsp;</b> {beneficiario}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Glosa:&nbsp;&nbsp;</b> {glosa1} {glosa2}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Frima 1:&nbsp;&nbsp;</b> {desc_firma1} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Firma 2:&nbsp;&nbsp;</b> {desc_firma2} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Firma 3:&nbsp;&nbsp;</b> {desc_firma3} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:&nbsp;&nbsp;</b> {usr_reg}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Estado Registro:&nbsp;&nbsp;</b> {estado_reg}</p><br>')
         }),
 
-        arrayDefaultColumHidden: ['id_funcionario_firma1', 'id_funcionario_firma2', 'id_funcionario_firma3', 'id_subsistema', 'id_tipo_relacion_comprobante', 'fecha_mod', 'usr_reg', 'usr_mod', 'id_depto', 'estado', 'glosa1', 'momento', 'glosa2', 'desc_subsistema', 'desc_clase_comprobante', 'estado_reg', 'fecha_reg'],
+        arrayDefaultColumHidden: ['id_funcionario_firma1', 'id_funcionario_firma2', 'id_funcionario_firma3', 'id_subsistema', 'id_tipo_relacion_comprobante', 'fecha_mod', 'usr_reg', 'usr_mod', 'id_depto', 'estado', 'glosa1', 'momento', 'glosa2', 'desc_subsistema', 'desc_clase_comprobante', 'estado_reg', 'fecha_reg', 'id_service_request'],
 
         sortInfo: {
             field: 'id_int_comprobante',
@@ -1271,6 +1298,7 @@ header("content-type: text/javascript; charset=UTF-8");
         cmbDepto: new Ext.form.AwesomeCombo({
             name: 'id_depto',
             fieldLabel: 'Depto',
+            grupo: [0, 1, 2, 3, 4],
             typeAhead: false,
             forceSelection: true,
             allowBlank: false,
@@ -1312,7 +1340,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         cmbGestion: new Ext.form.ComboBox({
             fieldLabel: 'Gestion',
-            grupo: [0, 1, 2],
+            grupo: [0, 1, 2, 3, 4],
             allowBlank: false,
             blankText: '... ?',
             emptyText: 'Gestion...',

@@ -8,13 +8,13 @@ ALTER TABLE conta.tcuenta
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tcuenta
   ADD CONSTRAINT fk_tcuenta__id_cuenta_padre FOREIGN KEY (id_cuenta_padre)
     REFERENCES conta.tcuenta(id_cuenta)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
-    NOT DEFERRABLE;    
+    NOT DEFERRABLE;
 
 --tabla tauxiliar
 
@@ -25,7 +25,7 @@ ALTER TABLE conta.tauxiliar
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
 
-    
+
 /***********************************F-DEP-GSS-CONTA-48-20/02/2013*****************************************/
 
 /****************************************I-DEP-JRR-CONTA-0-15/05/2013************************************************/
@@ -49,28 +49,28 @@ ALTER TABLE conta.trelacion_contable
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.trelacion_contable
   ADD CONSTRAINT fk_trelacion_contable__id_cuenta FOREIGN KEY (id_cuenta)
     REFERENCES conta.tcuenta(id_cuenta)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.trelacion_contable
   ADD CONSTRAINT fk_trelacion_contable__id_gestion FOREIGN KEY (id_gestion)
     REFERENCES param.tgestion(id_gestion)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.trelacion_contable
   ADD CONSTRAINT fk_trelacion_contable__id_partida FOREIGN KEY (id_partida)
     REFERENCES pre.tpartida(id_partida)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.trelacion_contable
   ADD CONSTRAINT fk_trelacion_contable__id_tipo_relacion_contable FOREIGN KEY (id_tipo_relacion_contable)
     REFERENCES conta.ttipo_relacion_contable(id_tipo_relacion_contable)
@@ -98,112 +98,112 @@ ALTER TABLE conta.tcomprobante
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tcomprobante
   ADD CONSTRAINT fk_tcomprobante__id_comprobante_fk FOREIGN KEY (id_comprobante_fk)
     REFERENCES conta.tcomprobante(id_comprobante)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tcomprobante
   ADD CONSTRAINT fk_tcomprobante__id_subsistema FOREIGN KEY (id_subsistema)
     REFERENCES segu.tsubsistema(id_subsistema)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tcomprobante
   ADD CONSTRAINT fk_tcomprobante__id_depto FOREIGN KEY (id_depto)
     REFERENCES param.tdepto(id_depto)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tcomprobante
   ADD CONSTRAINT fk_tcomprobante__id_moneda FOREIGN KEY (id_moneda)
     REFERENCES param.tmoneda(id_moneda)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tcomprobante
   ADD CONSTRAINT fk_tcomprobante__id_periodo FOREIGN KEY (id_periodo)
     REFERENCES param.tperiodo(id_periodo)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tcomprobante
   ADD CONSTRAINT fk_tcomprobante__id_funcionario_firma1 FOREIGN KEY (id_funcionario_firma1)
     REFERENCES orga.tfuncionario(id_funcionario)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tcomprobante
   ADD CONSTRAINT fk_tcomprobante__id_funcionario_firma2 FOREIGN KEY (id_funcionario_firma2)
     REFERENCES orga.tfuncionario(id_funcionario)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tcomprobante
   ADD CONSTRAINT fk_tcomprobante__id_funcionario_firma3 FOREIGN KEY (id_funcionario_firma3)
     REFERENCES orga.tfuncionario(id_funcionario)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.ttransaccion
   ADD CONSTRAINT fk_ttransaccion__id_comprobante FOREIGN KEY (id_comprobante)
     REFERENCES conta.tcomprobante(id_comprobante)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.ttransaccion
   ADD CONSTRAINT fk_ttransaccion__id_cuenta FOREIGN KEY (id_cuenta)
     REFERENCES conta.tcuenta(id_cuenta)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.ttransaccion
   ADD CONSTRAINT fk_ttransaccion__id_auxiliar FOREIGN KEY (id_auxiliar)
     REFERENCES conta.tauxiliar(id_auxiliar)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.ttransaccion
   ADD CONSTRAINT fk_ttransaccion__id_centro_costo FOREIGN KEY (id_centro_costo)
     REFERENCES param.tcentro_costo(id_centro_costo)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.ttransaccion
   ADD CONSTRAINT fk_ttransaccion__id_partida FOREIGN KEY (id_partida)
     REFERENCES pre.tpartida(id_partida)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 /*ALTER TABLE conta.ttransaccion
   ADD CONSTRAINT fk_ttransaccion__id_partida_ejecucion FOREIGN KEY (id_partida_ejecucion)
     REFERENCES pre.tpartida_ejecucion(id_partida_ejecucion)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;*/
-    
+
 ALTER TABLE conta.ttransaccion
   ADD CONSTRAINT fk_ttransaccion__id_transaccion_fk FOREIGN KEY (id_transaccion_fk)
     REFERENCES conta.ttransaccion(id_transaccion)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.ttrans_val
   ADD CONSTRAINT fk_ttrans_val__id_transaccion FOREIGN KEY (id_transaccion)
     REFERENCES conta.ttransaccion(id_transaccion)
@@ -226,77 +226,77 @@ ALTER TABLE conta.tint_comprobante
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tint_comprobante
   ADD CONSTRAINT fk_tcomprobante__id_int_comprobante_fk FOREIGN KEY (id_int_comprobante_fk)
     REFERENCES conta.tint_comprobante(id_int_comprobante)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tint_comprobante
   ADD CONSTRAINT fk_tcomprobante__id_subsistema FOREIGN KEY (id_subsistema)
     REFERENCES segu.tsubsistema(id_subsistema)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tint_comprobante
   ADD CONSTRAINT fk_tcomprobante__id_depto FOREIGN KEY (id_depto)
     REFERENCES param.tdepto(id_depto)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tint_comprobante
   ADD CONSTRAINT fk_tcomprobante__id_moneda FOREIGN KEY (id_moneda)
     REFERENCES param.tmoneda(id_moneda)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tint_comprobante
   ADD CONSTRAINT fk_tcomprobante__id_periodo FOREIGN KEY (id_periodo)
     REFERENCES param.tperiodo(id_periodo)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tint_comprobante
   ADD CONSTRAINT fk_tcomprobante__id_funcionario_firma1 FOREIGN KEY (id_funcionario_firma1)
     REFERENCES orga.tfuncionario(id_funcionario)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tint_comprobante
   ADD CONSTRAINT fk_tcomprobante__id_funcionario_firma2 FOREIGN KEY (id_funcionario_firma2)
     REFERENCES orga.tfuncionario(id_funcionario)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tint_comprobante
   ADD CONSTRAINT fk_tcomprobante__id_funcionario_firma3 FOREIGN KEY (id_funcionario_firma3)
     REFERENCES orga.tfuncionario(id_funcionario)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tplantilla_calculo
   ADD CONSTRAINT fk_tplantilla_calculo__id_plantilla FOREIGN KEY (id_plantilla)
     REFERENCES param.tplantilla(id_plantilla)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tcomprobante
   ADD CONSTRAINT fk_tcomprobante__id_int_comprobante FOREIGN KEY (id_int_comprobante)
     REFERENCES conta.tint_comprobante(id_int_comprobante)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.ttransaccion
   ADD CONSTRAINT fk_ttransaccion__id_int_transaccion FOREIGN KEY (id_int_transaccion)
     REFERENCES conta.tint_transaccion(id_int_transaccion)
@@ -314,35 +314,35 @@ ALTER TABLE conta.tint_transaccion
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tint_transaccion
   ADD CONSTRAINT fk_tint_transaccion__id_cuenta FOREIGN KEY (id_cuenta)
     REFERENCES conta.tcuenta(id_cuenta)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tint_transaccion
   ADD CONSTRAINT fk_tint_transaccion__id_auxiliar FOREIGN KEY (id_auxiliar)
     REFERENCES conta.tauxiliar(id_auxiliar)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tint_transaccion
   ADD CONSTRAINT fk_tint_transaccion__id_centro_costo FOREIGN KEY (id_centro_costo)
     REFERENCES param.tcentro_costo(id_centro_costo)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tint_transaccion
   ADD CONSTRAINT fk_tint_transaccion__id_partida FOREIGN KEY (id_partida)
     REFERENCES pre.tpartida(id_partida)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE conta.tint_transaccion
   ADD CONSTRAINT fk_tint_transaccion__id_int_transaccion_fk FOREIGN KEY (id_int_transaccion_fk)
     REFERENCES conta.tint_transaccion(id_int_transaccion)
@@ -355,11 +355,11 @@ ALTER TABLE conta.tint_transaccion
 /***********************************I-DEP-RCM-CONTA-0-13/12/2013*****************************************/
 
 CREATE TRIGGER tr_trelacion_contable
-  		AFTER INSERT OR UPDATE OR DELETE 
-  		ON conta.trelacion_contable FOR EACH ROW 
+  		AFTER INSERT OR UPDATE OR DELETE
+  		ON conta.trelacion_contable FOR EACH ROW
   		EXECUTE PROCEDURE conta.f_tri_trelacion_contable();
 
-  		
+
 /***********************************F-DEP-RCM-CONTA-0-13/12/2013*****************************************/
 
 /***********************************I-DEP-JRR-CONTA-0-24/04/2014*****************************************/
@@ -491,9 +491,9 @@ ALTER TABLE conta.tplantilla_calculo
     REFERENCES conta.ttipo_relacion_contable(codigo_tipo_relacion)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
-    NOT DEFERRABLE;   
-   
-    
+    NOT DEFERRABLE;
+
+
 /***********************************F-DEP-RAC-CONTA-0-27/06/2014*****************************************/
 
 
@@ -600,17 +600,17 @@ AS
 --------------- SQL ---------------
 /*  RAC 14/07/"017 este triguer esta en desuso
 CREATE TRIGGER f_trig_insert_int_trans_val
-  AFTER INSERT OR UPDATE 
-  ON conta.tint_transaccion FOR EACH ROW 
+  AFTER INSERT OR UPDATE
+  ON conta.tint_transaccion FOR EACH ROW
   EXECUTE PROCEDURE conta.f_insert_int_trans_val();*/
 
 
 CREATE TRIGGER f_trig_insert_trans_val
-  AFTER INSERT OR UPDATE 
-  ON conta.ttransaccion FOR EACH ROW 
+  AFTER INSERT OR UPDATE
+  ON conta.ttransaccion FOR EACH ROW
   EXECUTE PROCEDURE conta.f_insert_trans_val();
-  
-  
+
+
 /***********************************F-DEP-RAC-CONTA-0-11/12/2014*****************************************/
 
 /***********************************I-DEP-RAC-CONTA-0-17/12/2014*****************************************/
@@ -619,12 +619,12 @@ CREATE TRIGGER f_trig_insert_trans_val
 
 ALTER TABLE conta.tint_comprobante
   DROP CONSTRAINT fk_tcomprobante__id_int_comprobante_fk RESTRICT;
-  
+
 --------------- SQL ---------------
 
 ALTER TABLE conta.tint_comprobante
   DROP COLUMN id_int_comprobante_fk;
-  
+
 /***********************************F-DEP-RAC-CONTA-0-17/12/2014*****************************************/
 
 
@@ -731,7 +731,7 @@ FROM conta.tint_comprobante incbte
        incbte.id_funcionario_firma3
    LEFT JOIN conta.ttipo_relacion_comprobante trc ON
        trc.id_tipo_relacion_comprobante = incbte.id_tipo_relacion_comprobante;
-   
+
 /***********************************F-DEP-RAC-CONTA-0-30/12/2014*****************************************/
 
 
@@ -840,7 +840,7 @@ AS
        LEFT JOIN conta.ttipo_relacion_comprobante trc ON
          trc.id_tipo_relacion_comprobante = incbte.id_tipo_relacion_comprobante;
 
-         
+
 /***********************************F-DEP-RAC-CONTA-0-21/05/2015*****************************************/
 
 
@@ -923,7 +923,7 @@ AS
 
 ALTER TABLE conta.vint_comprobante
   OWNER TO postgres;
-  
+
 /***********************************F-DEP-RAC-CONTA-0-05/08/2015*****************************************/
 
 
@@ -1301,7 +1301,7 @@ AS
          tp.id_int_comprobante
        JOIN segu.tusuario usu1 ON usu1.id_usuario = rde.id_usuario_reg
        LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = rde.id_usuario_mod;
- 
+
 
 /***********************************F-DEP-RAC-CONTA-0-09/10/2015*****************************************/
 
@@ -2046,7 +2046,7 @@ AS
        JOIN conta.ttipo_doc_compra_venta tdcv ON tdcv.id_tipo_doc_compra_venta =
          dcv.id_tipo_doc_compra_venta
   WHERE pla.tipo_informe::text = 'lcv'::text;
-  
+
 /***********************************F-DEP-RAC-CONTA-0-23/02/2016****************************************/
 
 
@@ -2113,7 +2113,7 @@ AS
        JOIN conta.ttipo_doc_compra_venta tdcv ON tdcv.id_tipo_doc_compra_venta =
          dcv.id_tipo_doc_compra_venta
   WHERE pla.tipo_informe::text = 'lcv'::text;
-  
+
 
 /***********************************F-DEP-RAC-CONTA-0-26/02/2016****************************************/
 
@@ -2513,7 +2513,7 @@ AS
 DROP VIEW conta.vint_rel_devengado;
 
 
-CREATE OR REPLACE VIEW conta.vint_rel_devengado( 
+CREATE OR REPLACE VIEW conta.vint_rel_devengado(
     id_int_rel_devengado,
     id_int_transaccion_pag,
     id_int_transaccion_dev,
@@ -2682,13 +2682,13 @@ AS
 
 
 
-  
- 
+
+
 /**********************************I-DEP-RAC-CONTA-0-31/08/2016****************************************/
 
 CREATE TRIGGER f_trig_int_transaccion_defore
-  BEFORE INSERT 
-  ON conta.tint_transaccion FOR EACH ROW 
+  BEFORE INSERT
+  ON conta.tint_transaccion FOR EACH ROW
   EXECUTE PROCEDURE conta.f_trig_int_transaccion_defore();
 
 
@@ -2810,14 +2810,14 @@ ALTER TABLE conta.tint_comprobante
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 
 --------------- SQL ---------------
 
 CREATE UNIQUE INDEX ttipo_relacion_comprobante_idx ON conta.ttipo_relacion_comprobante
   USING btree (codigo);
-  
-  
+
+
 --------------- SQL ---------------
 
 ALTER TABLE conta.tint_comprobante
@@ -2825,7 +2825,7 @@ ALTER TABLE conta.tint_comprobante
     REFERENCES conta.ttipo_relacion_comprobante(id_tipo_relacion_comprobante)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
-    NOT DEFERRABLE; 
+    NOT DEFERRABLE;
 
 
 
@@ -2835,15 +2835,15 @@ ALTER TABLE conta.tentrega
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 
 /**********************************F-DEP-RAC-CONTA-0-21/11/2016****************************************/
 
- 
+
 /**********************************I-DEP-RAC-CONTA-0-23/11/2016****************************************/
 
-       
-    
+
+
 CREATE OR REPLACE VIEW conta.ventrega(
     id_entrega,
     estado,
@@ -2968,10 +2968,10 @@ AS
 
  /**********************************F-DEP-RAC-CONTA-0-23/11/2016****************************************/
 
-    
+
 /**********************************I-DEP-RAC-CONTA-0-29/11/2016****************************************/
-  
-  
+
+
 DROP VIEW conta.vint_rel_devengado;
 
 CREATE VIEW conta.vint_rel_devengado
@@ -3018,7 +3018,7 @@ AS
          tp.tipo_partida AS tipo_partida_pag,
          td.desc_auxiliar AS desc_auxiliar_dev,
          tp.desc_auxiliar AS desc_auxiliar_pag,
-         
+
          tp.importe_gasto AS importe_gasto_pag,
          tp.importe_recurso AS importe_recurso_pag,
          td.importe_gasto AS importe_gasto_dev,
@@ -3032,13 +3032,13 @@ AS
          tp.id_int_comprobante
        JOIN segu.tusuario usu1 ON usu1.id_usuario = rde.id_usuario_reg
        LEFT JOIN segu.tusuario usu2 ON usu2.id_usuario = rde.id_usuario_mod;
-    
+
 /**********************************F-DEP-RAC-CONTA-0-29/11/2016****************************************/
-  
-  
-  
+
+
+
 /**********************************I-DEP-RAC-CONTA-0-01/12/2016****************************************/
-   
+
   --------------- SQL ---------------
 
  -- object recreation
@@ -3140,14 +3140,14 @@ AS
 ALTER TABLE conta.vint_comprobante
   OWNER TO postgres;
 
-  
+
 /**********************************F-DEP-RAC-CONTA-0-01/12/2016****************************************/
-  
-  
+
+
 
 /**********************************I-DEP-RAC-CONTA-0-22/12/2016****************************************/
-  
-   
+
+
 CREATE OR REPLACE VIEW conta.vlcv(
     id_doc_compra_venta,
     tipo,
@@ -3233,8 +3233,8 @@ AS
        JOIN conta.ttipo_doc_compra_venta tdcv ON tdcv.id_tipo_doc_compra_venta =
          dcv.id_tipo_doc_compra_venta
   WHERE pla.tipo_informe::text = 'lcv'::text;
-  
-    
+
+
 /**********************************F-DEP-RAC-CONTA-0-22/12/2016****************************************/
 
 
@@ -3257,8 +3257,8 @@ ALTER TABLE conta.tfactura_airbp_concepto
     NOT DEFERRABLE;
 
 /**********************************F-DEP-RAC-CONTA-0-12/01/2017****************************************/
-    
-    
+
+
 /***********************************I-DEP-MMV-CONTA-0-27/01/2017****************************************/
 
 CREATE VIEW conta.ventrega_depto as (
@@ -3283,7 +3283,7 @@ select
 
 /***********************************F-DEP-MMV-CONTA-0-27/01/2017****************************************/
 
- 
+
 /**********************************I-DEP-JRR-CONTA-0-02/05/2017****************************************/
 
 ALTER TABLE orga.tcargo_centro_costo
@@ -3299,12 +3299,12 @@ ALTER TABLE orga.tcargo_presupuesto
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
- 
+
 /**********************************F-DEP-JRR-CONTA-0-02/05/2017****************************************/
-   
+
 /**********************************I-DEP-GSS-CONTA-0-10/05/2017****************************************/
 
- 
+
 ALTER TABLE conta.tgasto_sigep
   ADD CONSTRAINT fk_tgasto_sigep__id_archivo_sigep FOREIGN KEY (id_archivo_sigep)
     REFERENCES conta.tarchivo_sigep(id_archivo_sigep)
@@ -3312,10 +3312,10 @@ ALTER TABLE conta.tgasto_sigep
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
 
-/**********************************F-DEP-GSS-CONTA-0-10/05/2017****************************************/ 
- 
-  
-    
+/**********************************F-DEP-GSS-CONTA-0-10/05/2017****************************************/
+
+
+
 /**********************************I-DEP-RAC-CONTA-0-12/05/2017****************************************/
 
 
@@ -3376,8 +3376,8 @@ AS
            odt.fecha_mod,
            usu1.cuenta,
            usu2.cuenta;
-           
-       
+
+
  --------------- SQL ---------------
 
 ALTER TABLE conta.torden_trabajo
@@ -3385,8 +3385,8 @@ ALTER TABLE conta.torden_trabajo
     REFERENCES conta.torden_trabajo(id_orden_trabajo)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
-    NOT DEFERRABLE; 
-   
+    NOT DEFERRABLE;
+
 /**********************************F-DEP-RAC-CONTA-0-12/05/2017****************************************/
 
 
@@ -3401,8 +3401,8 @@ ALTER TABLE conta.tint_transaccion
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-    
+
+
     --------------- SQL ---------------
 
 ALTER TABLE conta.torden_suborden
@@ -3411,8 +3411,8 @@ ALTER TABLE conta.torden_suborden
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-    
+
+
 --------------- SQL ---------------
 
 ALTER TABLE conta.torden_suborden
@@ -3421,9 +3421,9 @@ ALTER TABLE conta.torden_suborden
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-    
-        
+
+
+
 
 
 /**********************************F-DEP-RAC-CONTA-0-15/05/2017****************************************/
@@ -3515,8 +3515,8 @@ ALTER TABLE conta.ttipo_cc_ot
     REFERENCES conta.torden_trabajo(id_orden_trabajo)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
-    NOT DEFERRABLE;    
-    
+    NOT DEFERRABLE;
+
 /**********************************F-DEP-RAC-CONTA-0-31/05/2017****************************************/
 
 
@@ -3563,7 +3563,7 @@ WITH RECURSIVE ordenes_costos(
              c.codigo,
              c.movimiento
       FROM ordenes_costos c;
-      
+
 /**********************************F-DEP-RAC-CONTA-0-05/06/2017****************************************/
 
 
@@ -3688,7 +3688,7 @@ AS
        LEFT JOIN pre.tclase_gasto_partida cgp ON cgp.id_partida = par.id_partida
        LEFT JOIN pre.tclase_gasto cg ON cg.id_clase_gasto = cgp.id_clase_gasto
   WHERE par.sw_movimiento::text = 'presupuestaria'::text;
-  
+
 /**********************************F-DEP-RAC-CONTA-0-09/06/2017****************************************/
 
 /**********************************I-DEP-GSS-CONTA-0-04/07/2017****************************************/
@@ -3839,7 +3839,7 @@ UNION ALL
 /**********************************I-DEP-RAC-CONTA-0-11/07/2017****************************************/
 
 
-    CREATE OR REPLACE VIEW conta.vint_comprobante 
+    CREATE OR REPLACE VIEW conta.vint_comprobante
     AS
   SELECT incbte.id_int_comprobante,
          incbte.id_clase_comprobante,
@@ -3979,8 +3979,8 @@ AS
          ot.id_orden_trabajo
        LEFT JOIN pre.tpartida par ON par.id_partida = "int".id_partida
  WHERE cbt.estado_reg = 'validado';
- 
-   
+
+
 
 
 
@@ -4053,7 +4053,7 @@ AS
 
 /**********************************I-DEP-MANU-CONTA-0-25/09/2017****************************************/
 select pxp.f_insert_testructura_gui ('REPRET', 'REPCON');
- 
+
 CREATE OR REPLACE VIEW conta.vretencion(
     id_doc_compra_venta,
     obs,
@@ -4177,8 +4177,8 @@ AS
     pc.importe_presupuesto,
     pc.importe,
     dcv.importe_descuento_ley,
-    pla.desc_plantilla, 
-    dcv.nro_tramite 
+    pla.desc_plantilla,
+    dcv.nro_tramite
    FROM conta.tdoc_compra_venta dcv
      JOIN param.tplantilla pla ON pla.id_plantilla = dcv.id_plantilla
      JOIN conta.tplantilla_calculo pc ON dcv.id_plantilla = pc.id_plantilla
@@ -4403,8 +4403,8 @@ AS
 /**********************************F-DEP-MAY-CONTA-0-07/12/2018****************************************/
 
 /**********************************I-DEP-YMR-CONTA-0-08/10/2019****************************************/
-       
-    
+
+
 CREATE OR REPLACE VIEW conta.ventrega(
     id_entrega,
     estado,
@@ -4604,3 +4604,338 @@ FROM conta.vint_comprobante incbte
 ALTER VIEW conta.vint_cbte_depto
   OWNER TO postgres;
 /**********************************F-DEP-MAY-CONTA-0-18/11/2019****************************************/
+
+/**********************************I-DEP-MAY-CONTA-0-28/02/2020****************************************/
+CREATE VIEW conta.vdoc_compra_venta_ext (
+
+tipo_cambio,
+tipo,
+tabla_origen,
+sw_contabilizar,
+revisado,
+razon_social,
+obs,
+nro_tramite,
+nro_dui,
+nro_documento,
+nro_autorizacion,
+nit,
+movil,
+manual,
+importe_retgar,
+importe_pendiente,
+importe_pago_liquido,
+importe_neto,
+importe_iva,
+importe_it,
+importe_ice,
+importe_excento,
+importe_doc,
+importe_descuento_ley,
+importe_descuento,
+importe_anticipo,
+id_usuario_reg,
+id_usuario_mod,
+id_usuario_ai,
+id_tipo_doc_compra_venta,
+id_punto_venta,
+id_proveedor,
+id_plantilla,
+id_plan_pago,
+id_periodo,
+id_origen,
+id_moneda,
+id_int_comprobante,
+id_doc_compra_venta,
+id_depto_conta,
+id_cliente,
+id_auxiliar,
+id_agencia,
+fecha_vencimiento,
+fecha_reg,
+fecha_mod,
+fecha,
+estado_reg,
+estado,
+estacion,
+codigo_control,
+
+id_usuario_reg_ext,
+id_usuario_mod_ext,
+fecha_reg_ext,
+fecha_mod_ext,
+estado_reg_ext,
+id_usuario_ai_ext,
+usuario_ai_ext,
+id_doc_compra_venta_ext,
+costo_directo,
+c_emisor,
+no_gravado,
+base_21,
+base_27,
+base_10_5,
+base_2_5,
+percepcion_caba,
+percepcion_bue,
+percepcion_iva,
+percepcion_salta,
+imp_internos,
+percepcion_tucuman,
+percepcion_corrientes,
+otros_impuestos,
+percepcion_neuquen
+
+)
+AS
+SELECT
+dcv.tipo_cambio,
+dcv.tipo,
+dcv.tabla_origen,
+dcv.sw_contabilizar,
+dcv.revisado,
+dcv.razon_social,
+dcv.obs,
+dcv.nro_tramite,
+dcv.nro_dui,
+dcv.nro_documento,
+dcv.nro_autorizacion,
+dcv.nit,
+dcv.movil,
+dcv.manual,
+dcv.importe_retgar,
+dcv.importe_pendiente,
+dcv.importe_pago_liquido,
+dcv.importe_neto,
+dcv.importe_iva,
+dcv.importe_it,
+dcv.importe_ice,
+dcv.importe_excento,
+dcv.importe_doc,
+dcv.importe_descuento_ley,
+dcv.importe_descuento,
+dcv.importe_anticipo,
+dcv.id_usuario_reg,
+dcv.id_usuario_mod,
+dcv.id_usuario_ai,
+dcv.id_tipo_doc_compra_venta,
+dcv.id_punto_venta,
+dcv.id_proveedor,
+dcv.id_plantilla,
+dcv.id_plan_pago,
+dcv.id_periodo,
+dcv.id_origen,
+dcv.id_moneda,
+dcv.id_int_comprobante,
+dcv.id_depto_conta,
+dcv.id_cliente,
+dcv.id_auxiliar,
+dcv.id_agencia,
+dcv.fecha_vencimiento,
+dcv.fecha_reg,
+dcv.fecha_mod,
+dcv.fecha,
+dcv.estado_reg,
+dcv.estado,
+dcv.estacion,
+dcv.codigo_control,
+
+dcve.id_usuario_reg,
+dcve.id_usuario_mod,
+dcve.fecha_reg,
+dcve.fecha_mod,
+dcve.estado_reg,
+dcve.id_usuario_ai,
+dcve.usuario_ai,
+dcve.id_doc_compra_venta_ext,
+dcve.id_doc_compra_venta,
+dcve.costo_directo,
+dcve.c_emisor,
+dcve.no_gravado,
+dcve.base_21,
+dcve.base_27,
+dcve.base_10_5,
+dcve.base_2_5,
+dcve.percepcion_caba,
+dcve.percepcion_bue,
+dcve.percepcion_iva,
+dcve.percepcion_salta,
+dcve.imp_internos,
+dcve.percepcion_tucuman,
+dcve.percepcion_corrientes,
+dcve.otros_impuestos,
+dcve.percepcion_neuquen
+
+
+FROM conta.tdoc_compra_venta dcv
+LEFT JOIN conta.tdoc_compra_venta_ext dcve on dcve.id_doc_compra_venta = dcv.id_doc_compra_venta
+;
+/**********************************F-DEP-MAY-CONTA-0-28/02/2020****************************************/
+
+/**********************************I-DEP-MAY-CONTA-0-24/03/2020****************************************/
+DROP VIEW conta.vdoc_compra_venta_ext;
+
+CREATE VIEW conta.vdoc_compra_venta_ext (
+    tipo_cambio,
+    tipo,
+    tabla_origen,
+    sw_contabilizar,
+    revisado,
+    razon_social,
+    obs,
+    nro_tramite,
+    nro_dui,
+    nro_documento,
+    nro_autorizacion,
+    nit,
+    movil,
+    manual,
+    importe_retgar,
+    importe_pendiente,
+    importe_pago_liquido,
+    importe_neto,
+    importe_iva,
+    importe_it,
+    importe_ice,
+    importe_excento,
+    importe_doc,
+    importe_descuento_ley,
+    importe_descuento,
+    importe_anticipo,
+    id_usuario_reg,
+    id_usuario_mod,
+    id_usuario_ai,
+    id_tipo_doc_compra_venta,
+    id_punto_venta,
+    id_proveedor,
+    id_plantilla,
+    id_plan_pago,
+    id_periodo,
+    id_origen,
+    id_moneda,
+    id_int_comprobante,
+    id_doc_compra_venta,
+    id_depto_conta,
+    id_cliente,
+    id_auxiliar,
+    fecha_vencimiento,
+    fecha_reg,
+    fecha_mod,
+    fecha_doc,
+    estado_reg,
+    estado,
+    estacion,
+    codigo_control,
+    id_usuario_reg_ext,
+    id_usuario_mod_ext,
+    fecha_reg_ext,
+    fecha_mod_ext,
+    estado_reg_ext,
+    id_usuario_ai_ext,
+    usuario_ai_ext,
+    id_doc_compra_venta_ext,
+    costo_directo,
+    c_emisor,
+    no_gravado,
+    base_21,
+    base_27,
+    base_10_5,
+    base_2_5,
+    percepcion_caba,
+    percepcion_bue,
+    percepcion_iva,
+    percepcion_salta,
+    imp_internos,
+    percepcion_tucuman,
+    percepcion_corrientes,
+    otros_impuestos,
+    percepcion_neuquen)
+AS
+SELECT dcv.tipo_cambio,
+    dcv.tipo,
+    dcv.tabla_origen,
+    dcv.sw_contabilizar,
+    dcv.revisado,
+    dcv.razon_social,
+    dcv.obs,
+    dcv.nro_tramite,
+    dcv.nro_dui,
+    dcv.nro_documento,
+    dcv.nro_autorizacion,
+    dcv.nit,
+    dcv.movil,
+    dcv.manual,
+    dcv.importe_retgar,
+    dcv.importe_pendiente,
+    dcv.importe_pago_liquido,
+    dcv.importe_neto,
+    dcv.importe_iva,
+    dcv.importe_it,
+    dcv.importe_ice,
+    dcv.importe_excento,
+    dcv.importe_doc,
+    dcv.importe_descuento_ley,
+    dcv.importe_descuento,
+    dcv.importe_anticipo,
+    dcv.id_usuario_reg,
+    dcv.id_usuario_mod,
+    dcv.id_usuario_ai,
+    dcv.id_tipo_doc_compra_venta,
+    dcv.id_punto_venta,
+    dcv.id_proveedor,
+    dcv.id_plantilla,
+    dcv.id_plan_pago,
+    dcv.id_periodo,
+    dcv.id_origen,
+    dcv.id_moneda,
+    dcv.id_int_comprobante,
+    dcv.id_doc_compra_venta::integer AS id_doc_compra_venta,
+    dcv.id_depto_conta,
+    dcv.id_cliente,
+    dcv.id_auxiliar,
+    dcv.fecha_vencimiento,
+    dcv.fecha_reg,
+    dcv.fecha_mod,
+    dcv.fecha AS fecha_doc,
+    dcv.estado_reg,
+    dcv.estado,
+    dcv.estacion,
+    dcv.codigo_control,
+    dcve.id_usuario_reg AS id_usuario_reg_ext,
+    dcve.id_usuario_mod AS id_usuario_mod_ext,
+    dcve.fecha_reg AS fecha_reg_ext,
+    dcve.fecha_mod AS fecha_mod_ext,
+    dcve.estado_reg AS estado_reg_ext,
+    dcve.id_usuario_ai AS id_usuario_ai_ext,
+    dcve.usuario_ai AS usuario_ai_ext,
+    dcve.id_doc_compra_venta_ext,
+    dcve.costo_directo,
+    dcve.c_emisor,
+    dcve.no_gravado,
+    dcve.base_21,
+    dcve.base_27,
+    dcve.base_10_5,
+    dcve.base_2_5,
+    dcve.percepcion_caba,
+    dcve.percepcion_bue,
+    dcve.percepcion_iva,
+    dcve.percepcion_salta,
+    dcve.imp_internos,
+    dcve.percepcion_tucuman,
+    dcve.percepcion_corrientes,
+    dcve.otros_impuestos,
+    dcve.percepcion_neuquen
+FROM conta.tdoc_compra_venta dcv
+     LEFT JOIN conta.tdoc_compra_venta_ext dcve ON dcve.id_doc_compra_venta =
+         dcv.id_doc_compra_venta;
+
+ALTER VIEW conta.vdoc_compra_venta_ext
+  OWNER TO "postgres";
+/**********************************F-DEP-MAY-CONTA-0-24/03/2020****************************************/
+
+/***********************************I-DEP-IRVA-CONTA-0-08/11/2021*****************************************/
+CREATE TRIGGER trigger_replicar_estado_periodo_compra_venta
+  AFTER UPDATE
+  ON conta.tperiodo_compra_venta
+FOR EACH ROW
+  EXECUTE PROCEDURE conta.trigger_replicacion_estado();  		
+/***********************************F-DEP-IRVA-CONTA-0-08/11/2021*****************************************/

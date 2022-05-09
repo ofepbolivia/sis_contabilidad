@@ -40,12 +40,23 @@ class MODEntrega extends MODbase{
         $this->captura('nro_tramite','varchar');
         $this->captura('desc_moneda','varchar');
         $this->captura('monto','numeric');
+        $this->captura('tipo_cambio_2','numeric');
+        $this->captura('fecha','varchar');
+        $this->captura('id_clase_comprobante','integer');
+        $this->captura('id_service_request','integer');
+        $this->captura('localidad','varchar');
+        $this->captura('glosa','text');
+        $this->captura('tipo','varchar');
+        $this->captura('validado','varchar');
+        $this->captura('tipo_cbte','varchar');
+        $this->captura('reversion','varchar');
 
+        $this->captura('nro_deposito','varchar');
+        $this->captura('fecha_deposito','date');
+        $this->captura('monto_deposito','numeric');
+        $this->captura('monto_total','numeric');
 
-
-		
-		
-		//Ejecuta la instruccion
+        //Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 		
@@ -85,6 +96,7 @@ class MODEntrega extends MODbase{
 		$this->setParametro('c31','c31','varchar');
 		$this->setParametro('estado','estado','varchar');
 		$this->setParametro('estado_reg','estado_reg','varchar');
+		$this->setParametro('glosa','glosa','text');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -136,7 +148,28 @@ class MODEntrega extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-	
+
+    //{develop:franklin.espinoza date:28/09/2020}
+    function crearEntregaSigep(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_entrega_ime';
+        $this->transaccion='CONTA_CRENT_SIG_INS';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_int_comprobantes','id_int_comprobantes','varchar');
+        $this->setParametro('total_cbte','total_cbte','int4');
+        $this->setParametro('id_depto_conta','id_depto_conta','int4');
+        $this->setParametro('tipo','tipo','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta(); //echo $this->consulta;exit;
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
 	 function cambiarEstado(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='conta.ft_entrega_ime';
@@ -301,6 +334,99 @@ class MODEntrega extends MODbase{
 
         //Ejecuta la instruccion
         $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
+    //{develop:franklin.espinoza date:20/10/2020}
+    function validarComprobantesERP(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_entrega_ime';
+        $this->transaccion='CONTA_VALCBTENT_INS';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_entrega','id_entrega','integer');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta(); //echo $this->consulta;exit;
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
+    //{develop:franklin.espinoza date:20/10/2020}
+    function desvalidarGrupoComprobantes(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_entrega_ime';
+        $this->transaccion='CONTA_DESVALCBTS_INS';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_entrega','id_entrega','integer');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta(); //echo $this->consulta;exit;
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    //{develop:franklin.espinoza date:20/11/2020}
+    function volcarEntrega(){
+        //swEditable de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_entrega_ime';
+        $this->transaccion='CONTA_VOLCAR_ENT_IME';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_entrega','id_entrega','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+    //{develop:franklin.espinoza date:20/11/2020}
+    function clonarEntrega(){
+        //swEditable de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_entrega_ime';
+        $this->transaccion='CONTA_CLONAR_ENT_IME';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_entrega','id_entrega','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
+    //{develop:franklin.espinoza date:20/11/2020}
+    function registroBoletaDeposito(){
+        //swEditable de variables para ejecucion del procedimiento
+        $this->procedimiento='conta.ft_entrega_ime';
+        $this->transaccion='CONTA_REG_BOLDEP_IME';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_entrega','id_entrega','int4');
+        $this->setParametro('nro_deposito','nro_deposito','varchar');
+        $this->setParametro('fecha_deposito','fecha_deposito','date');
+        $this->setParametro('monto_deposito','monto_deposito','numeric');
+        $this->setParametro('monto','monto','numeric');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        //var_dump($this->consulta);exit;
         $this->ejecutarConsulta();
 
         //Devuelve la respuesta

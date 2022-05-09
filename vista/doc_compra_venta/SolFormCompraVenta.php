@@ -10,7 +10,8 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
     Phx.vista.SolFormCompraVenta = Ext.extend(Phx.frmInterfaz, {
-        ActSave: '../../sis_contabilidad/control/DocCompraVenta/insertarDocCompleto',
+        //ActSave: '../../sis_contabilidad/control/DocCompraVenta/insertarDocCompleto',
+        ActSave: '../../sis_contabilidad/control/DocCompraVenta/insertarDocCompletoEXT',
         tam_pag: 10,
         tabEnter: true,
         codigoSistema: 'ADQ',
@@ -718,67 +719,147 @@ header("content-type: text/javascript; charset=UTF-8");
                     padding: '0 0 0 10',
                     items: [
                         {
-                            bodyStyle: 'padding-right:5px;',
-                            width: '33%',
-                            autoHeight: true,
-                            border: true,
                             items: [
                                 {
-                                    xtype: 'fieldset',
-                                    frame: true,
-                                    border: false,
-                                    layout: 'form',
-                                    title: 'Tipo',
+                                    bodyStyle: 'padding-right:5px;',
                                     width: '100%',
+                                    autoHeight: true,
+                                    border: true,
+                                    items: [
+                                        {
+                                            xtype: 'fieldset',
+                                            frame: true,
+                                            border: false,
+                                            layout: 'form',
+                                            title: 'Tipo',
+                                            width: '50%',
 
-                                    //margins: '0 0 0 5',
-                                    padding: '0 0 0 10',
-                                    bodyStyle: 'padding-left:5px;',
-                                    id_grupo: 0,
-                                    items: [],
-                                }]
+                                            //margins: '0 0 0 5',
+                                            padding: '0 0 0 10',
+                                            bodyStyle: 'padding-left:5px;',
+                                            id_grupo: 0,
+                                            items: [],
+
+
+                                        }]
+                                },
+
+                                {
+                                    bodyStyle: 'padding-right:5px;',
+                                    width: '100%',
+                                    border: true,
+                                    autoHeight: true,
+                                    items: [{
+                                        xtype: 'fieldset',
+                                        frame: true,
+                                        layout: 'form',
+                                        title: ' Datos Básicos ',
+                                        width: '100%',
+                                        border: false,
+                                        //margins: '0 0 0 5',
+                                        padding: '0 0 0 10',
+                                        bodyStyle: 'padding-left:5px;',
+                                        id_grupo: 1,
+                                        items: [],
+                                    }]
+
+                                }
+                            ]
                         },
+
                         {
-                            bodyStyle: 'padding-right:5px;',
-                            width: '33%',
-                            border: true,
-                            autoHeight: true,
-                            items: [{
-                                xtype: 'fieldset',
-                                frame: true,
-                                layout: 'form',
-                                title: ' Datos básicos ',
-                                width: '100%',
-                                border: false,
-                                //margins: '0 0 0 5',
-                                padding: '0 0 0 10',
-                                bodyStyle: 'padding-left:5px;',
-                                id_grupo: 1,
-                                items: [],
-                            }]
+                            items: [
+                                {
+                                    bodyStyle: 'padding-right:5px;',
+                                    width: '115%',
+                                    border: true,
+                                    autoHeight: true,
+                                    items: [{
+                                        xtype: 'fieldset',
+                                        frame: true,
+                                        layout: 'form',
+                                        title: 'Importes Base',
+                                        width: '100%',
+                                        border: false,
+                                        //margins: '0 0 0 5',
+                                        padding: '0 0 0 10',
+                                        bodyStyle: 'padding-left:5px;',
+                                        id_grupo: 3,
+                                        items: [],
+                                    }]
+                                },
+
+                                {
+                                    bodyStyle: 'padding-right:2px;',
+                                    width: '115%',
+                                    border: true,
+                                    autoHeight: true,
+                                    items: [{
+                                        xtype: 'fieldset',
+                                        frame: true,
+                                        layout: 'form',
+                                        title: ' Importes IVA',
+                                        width: '100%',
+                                        border: false,
+                                        //margins: '0 0 0 5',
+                                        padding: '0 0 0 10',
+                                        bodyStyle: 'padding-left:2px;',
+                                        id_grupo: 5,
+                                        items: [],
+                                    }]
+                                }
+                            ]
+
                         },
+
                         {
-                            bodyStyle: 'padding-right:2px;',
-                            width: '33%',
-                            border: true,
-                            autoHeight: true,
-                            items: [{
-                                xtype: 'fieldset',
-                                frame: true,
-                                layout: 'form',
-                                title: 'Detalle de pago',
-                                width: '100%',
-                                border: false,
-                                //margins: '0 0 0 5',
-                                padding: '0 0 0 10',
-                                bodyStyle: 'padding-left:2px;',
-                                id_grupo: 2,
-                                items: [],
-                            }]
+                            items: [
+                                {
+                                    bodyStyle: 'padding-right:5px;',
+                                    width: '100%',
+                                    border: true,
+                                    autoHeight: true,
+                                    items: [{
+                                        xtype: 'fieldset',
+                                        frame: true,
+                                        layout: 'form',
+                                        title: ' Importes Percepción ',
+                                        width: '100%',
+                                        border: false,
+                                        //margins: '0 0 0 5',
+                                        padding: '0 0 0 10',
+                                        bodyStyle: 'padding-left:5px;',
+                                        id_grupo: 4,
+                                        items: [],
+                                    }]
+                                },
+
+                                {
+                                    bodyStyle: 'padding-right:2px;',
+                                    width: '100%',
+                                    border: true,
+                                    autoHeight: true,
+                                    items: [{
+                                        xtype: 'fieldset',
+                                        frame: true,
+                                        layout: 'form',
+                                        title: 'Detalle de Pago',
+                                        width: '100%',
+                                        border: false,
+                                        //margins: '0 0 0 5',
+                                        padding: '0 0 0 10',
+                                        bodyStyle: 'padding-left:2px;',
+                                        id_grupo: 2,
+                                        items: [],
+                                    }]
+                                }
+                            ]
+
                         }
+
+
                     ]
-                }];
-            }
+                }]}
 
 
         },

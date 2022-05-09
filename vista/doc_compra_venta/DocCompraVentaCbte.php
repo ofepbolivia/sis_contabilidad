@@ -11,7 +11,7 @@ header("content-type: text/javascript; charset=UTF-8");
 <script>
     Phx.vista.DocCompraVentaCbte=Ext.extend(Phx.gridInterfaz,{
         fheight: '20%',
-        fwidth: '20%',
+        fwidth: '40%',
         tabEnter: true,
         constructor:function(config){
             var me = this;
@@ -41,6 +41,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     tooltip: 'Permite relacionar un documento existente al Cbte'
                 }
             );
+
             this.addButton('btnDelRegAirbp',
                 {
                     text: 'Eliminar Registro y relacion. AIRBP.',
@@ -48,6 +49,24 @@ header("content-type: text/javascript; charset=UTF-8");
                     disabled: false,
                     handler: this.delRegAirbp,
                     tooltip: 'Elimina las facturas registradas y No revisados, y su relacion con el comprobante, si el periodo no esta cerrado'
+                }
+            );
+            this.addButton('btnNewDocGesAnt',
+                {
+                    text: 'Relacionar Doc. Gest. Anteriores',
+                    iconCls: 'btag_accept',
+                    disabled: false,
+                    handler: this.newDocGesAnt,
+                    tooltip: 'Permite relacionar un documento existente al Cbte desde Gestiones Anteriores'
+                }
+            );
+            this.addButton('btnNewDocGesPost',
+                {
+                    text: 'Relacionar Doc. Gest. Posteriores',
+                    iconCls: 'btag_accept',
+                    disabled: false,
+                    handler: this.newDocGesPos,
+                    tooltip: 'Permite relacionar un documento existente al Cbte desde Getiones Posteriores'
                 }
             );
             console.log('maestrom', this.maestro, this.disparador);
@@ -60,7 +79,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.store.baseParams = {id_int_comprobante: this.id_int_comprobante};
             }
             console.log('maestro22222', this.maestro, this.disparador);
-
             this.load({params:{start:0, limit:this.tam_pag}});
         },
 
@@ -86,7 +104,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                 'desc_plantilla', 'desc_moneda','importe_doc','nro_documento',
                                 'tipo','razon_social','fecha'],
                             remoteSort: true,
-                            baseParams:{par_filtro:'pla.desc_plantilla#dcv.razon_social#dcv.nro_documento#dcv.nit#dcv.importe_doc#dcv.codigo_control'},
+                            baseParams:{par_filtro:'pla.desc_plantilla#dcv.razon_social#dcv.nro_documento#dcv.nit#dcv.importe_doc#dcv.codigo_control', filgestion: 'si'},
                         }),
                     tpl:'<tpl for="."><div class="x-combo-list-item"><p><b>{razon_social}</b>,  NIT: {nit}</p><p>{desc_plantilla} </p><p ><span style="color: #F00000">Doc: {nro_documento}</span> de Fecha: {fecha}</p><p style="color: green;"> {importe_doc} {desc_moneda}  </p></div></tpl>',
                     valueField: 'id_doc_compra_venta',
@@ -104,7 +122,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     gwidth: 250,
                     minChars:2,
                     resizable: true,
-                    anchor: '56.5%'
+                    anchor: '100%'
                 },
                 type:'ComboBox',
                 id_grupo: 0,
@@ -133,6 +151,29 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 type:'Field',
                 form:true
+            },
+
+            //08-05-2020 (may)
+            {
+                //configuracion del componente
+                config: {
+                    labelSeparator: '',
+                    inputType: 'hidden',
+                    name: 'id_plan_pago'
+                },
+                type: 'Field',
+                form: true
+            },
+            //08-05-2020 (may)
+            {
+                //configuracion del componente
+                config: {
+                    labelSeparator: '',
+                    inputType: 'hidden',
+                    name: 'id_int_comprobante'
+                },
+                type: 'Field',
+                form: true
             },
 
 
@@ -711,7 +752,16 @@ header("content-type: text/javascript; charset=UTF-8");
             'desc_depto','desc_plantilla',
             'importe_descuento_ley',
             'importe_pago_liquido','nro_dui','id_moneda','desc_moneda','id_auxiliar','codigo_auxiliar','nombre_auxiliar',
-            'fecha_vencimiento'
+            'fecha_vencimiento',
+            'id_plan_pago',
+            'tipo_cambio',
+            {name:'importe_iehd', type: 'numeric'},
+            {name:'importe_ipj', type: 'numeric'},
+            {name:'importe_tasas', type: 'numeric'},
+            {name:'importe_no_sujeto_iva', type: 'numeric'},
+            {name:'importe_gift_card', type: 'numeric'},
+            {name:'otro_no_sujeto_credito_fiscal', type: 'numeric'},
+            {name:'importe_compras_gravadas_tasa_cero', type: 'numeric'},            
 
         ],
         sortInfo:{
@@ -729,7 +779,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     modal:true,
                     width:'80%',
-                    height:'50%'
+                    height:'80%'
                 }, { data: {
                         objPadre: me ,
                         tipoDoc: (record)?record.data.tipo:'compra',
@@ -762,7 +812,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         agregarArgsExtraSubmit: function() {
 
-            this.argumentExtraSubmit = { id_int_comprobante: this.id_int_comprobante };
+            this.argumentExtraSubmit = { id_int_comprobante: this.id_int_comprobante , id_plan_pago: this.id_plan_pago};
 
         },
 
@@ -786,6 +836,34 @@ header("content-type: text/javascript; charset=UTF-8");
                     fecha_cbte: this.fecha,
                     sin_cbte: 'si',
                     manual: 'si'});
+
+            this.Cmp.id_doc_compra_venta.modificado = true;
+
+        },
+
+        //25-10-2021 (may) facturas de gestiones anteriores sin restriccion gestion
+        newDocGesAnt: function() {
+
+            Phx.vista.DocCompraVentaCbte.superclass.onButtonNew.call(this);
+            this.Cmp.id_doc_compra_venta.store.baseParams = Ext.apply(this.Cmp.id_doc_compra_venta.store.baseParams,
+                {
+                    fecha_cbte: this.fecha,
+                    sin_cbte: 'no',
+                    ges_post: 'no',
+                    manual: 'si'});
+
+            this.Cmp.id_doc_compra_venta.modificado = true;
+
+        },
+
+        //01-02-2022 (may) facturas de gestiones posteriores
+        newDocGesPos: function() {
+
+            Phx.vista.DocCompraVentaCbte.superclass.onButtonNew.call(this);
+            this.Cmp.id_doc_compra_venta.store.baseParams = Ext.apply(this.Cmp.id_doc_compra_venta.store.baseParams,
+                {
+                    fecha_cbte: this.fecha,
+                    ges_post: 'si'});
 
             this.Cmp.id_doc_compra_venta.modificado = true;
 

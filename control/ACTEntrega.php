@@ -17,12 +17,39 @@ class ACTEntrega extends ACTbase
         $this->objParam->defecto('ordenacion', 'id_entrega');
         $this->objParam->defecto('dir_ordenacion', 'asc');
 
+        //var_dump('gestion',$this->objParam->getParametro('gestion'));exit;
 
         if ($this->objParam->getParametro('id_depto') != '') {
             $this->objParam->addFiltro("ent.id_depto_conta = " . $this->objParam->getParametro('id_depto'));
         }
         if ($this->objParam->getParametro('pes_estado') == 'EntregaConsulta') {
             $this->objParam->addFiltro("ent.estado  in (''vbconta'')");
+        }
+
+        $gestion = $this->objParam->getParametro('gestion');
+        if ( $gestion != '' ) {
+            $this->objParam->addFiltro("ent.fecha_reg::date between ''01/01/".$gestion."''::date and ''31/12/".$gestion."''::date");
+        }
+
+        //begin(franklin.espinoza) 20/08/2020
+        if($this->objParam->getParametro('estado_entrega') == 'borrador'){
+            $this->objParam->addFiltro("ent.estado in (''borrador'') and ent.tipo in (''normal_una_cg'',''normal_mas_cg'',''regularizacion_una_cg'',''regularizacion_mas_cg'') ");
+        }else if($this->objParam->getParametro('estado_entrega') == 'elaborado'){
+            $this->objParam->addFiltro("ent.estado in (''elaborado'') and ent.tipo in (''normal_una_cg'',''normal_mas_cg'',''regularizacion_una_cg'',''regularizacion_mas_cg'') ");
+        }else if($this->objParam->getParametro('estado_entrega') == 'verificado'){
+            $this->objParam->addFiltro("ent.estado in (''verificado'') and ent.tipo in (''normal_una_cg'',''normal_mas_cg'',''regularizacion_una_cg'',''regularizacion_mas_cg'') ");
+        }else if($this->objParam->getParametro('estado_entrega') == 'aprobado'){
+            $this->objParam->addFiltro("ent.estado in (''aprobado'') and ent.tipo in (''normal_una_cg'',''normal_mas_cg'',''regularizacion_una_cg'',''regularizacion_mas_cg'') ");
+        }else if($this->objParam->getParametro('estado_entrega') == 'finalizado'){
+            $this->objParam->addFiltro("ent.estado in (''finalizado'') and ent.tipo in (''normal_una_cg'',''normal_mas_cg'',''regularizacion_una_cg'',''regularizacion_mas_cg'') ");
+        }else if($this->objParam->getParametro('estado_entrega') == 'borrador_elaborado'){
+            $this->objParam->addFiltro("ent.estado in (''borrador'',''elaborado'') and ent.tipo in (''normal_una_cg'',''normal_mas_cg'',''regularizacion_una_cg'',''regularizacion_mas_cg'') and (ent.id_usuario_reg = ".$_SESSION["ss_id_usuario"]." or 612 = ".$_SESSION["ss_id_usuario"].")");
+        }
+
+        if($this->objParam->getParametro('tipo_entrega') == 'normal'){
+            $this->objParam->addFiltro("coalesce(tic.reversion,''no'') in (''no'')");
+        }else if($this->objParam->getParametro('tipo_entrega') == 'reversion'){
+            $this->objParam->addFiltro("coalesce(tic.reversion,''no'') in (''si'')");
         }
 
 
@@ -59,6 +86,13 @@ class ACTEntrega extends ACTbase
     {
         $this->objFunc = $this->create('MODEntrega');
         $this->res = $this->objFunc->crearEntrega($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //{develop:franklin.espinoza date:28/09/2020}
+    function crearEntregaSigep(){
+        $this->objFunc = $this->create('MODEntrega');
+        $this->res = $this->objFunc->crearEntregaSigep($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 
@@ -180,6 +214,47 @@ class ACTEntrega extends ACTbase
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 
+    //{develop:franklin.espinoza date:20/10/2020}
+    function validarComprobantesERP(){
+        $this->objFunc = $this->create('MODEntrega');
+        $this->res = $this->objFunc->validarComprobantesERP($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //{develop:franklin.espinoza date:30/10/2020}
+    function validarGrupoComprobantes(){
+        $this->objFunc = $this->create('MODEntrega');
+        $this->res = $this->objFunc->validarComprobantesERP($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //{develop:franklin.espinoza date:30/10/2020}
+    function desvalidarGrupoComprobantes(){
+        $this->objFunc = $this->create('MODEntrega');
+        $this->res = $this->objFunc->desvalidarGrupoComprobantes($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    
+    //{develop:franklin.espinoza date:20/11/2020}
+    function volcarEntrega(){
+        $this->objFunc=$this->create('MODEntrega');
+        $this->res=$this->objFunc->volcarEntrega($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //{develop:franklin.espinoza date:20/11/2020}
+    function clonarEntrega(){
+        $this->objFunc=$this->create('MODEntrega');
+        $this->res=$this->objFunc->clonarEntrega($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //{develop:franklin.espinoza date:16/06/2021}
+    function registroBoletaDeposito(){
+        $this->objFunc=$this->create('MODEntrega');
+        $this->res=$this->objFunc->registroBoletaDeposito($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 
 }
 

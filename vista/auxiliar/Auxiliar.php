@@ -19,6 +19,8 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 		this.init();
 		this.load({params:{start:0, limit:50}});
 
+        this.iniciarEventos();
+
         this.addButton('replicar_aux',{
             grupo: [0,1,2,3,4],
             text: 'Replicar',
@@ -40,7 +42,7 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_auxiliar'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		/*{
  			config:{
@@ -76,7 +78,7 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
  				queryDelay:1000,
  				width:250,
  				minChars:2,
- 			
+
  				renderer:function(value, p, record){return String.format('{0}', record.data['nombre']);}
 
  			},
@@ -111,7 +113,8 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 230,
-				maxLength:300
+				maxLength:300,
+				style:'text-transform:uppercase'
 			},
 			type:'TextField',
 			filters:{pfiltro:'auxcta.nombre_auxiliar',type:'string'},
@@ -125,20 +128,40 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 	       			name:'corriente',
 	       			fieldLabel:'Corriente',
 	       			qtip: '¿Es cuenta corriente?',
-	       			allowBlank:false,
+	       			allowBlank:true,
 	       			emptyText:'Tipo...',
 	       			typeAhead: true,
 	       		    triggerAction: 'all',
 	       		    lazyRender:true,
 	       		    mode: 'local',
+                    //readOnly: true,
 	       		    gwidth: 100,
 	       		    store:['si','no']
 	       		},
 	       		type:'ComboBox',
+                valorInicial: 'no',
 	       		id_grupo:0,
 	       		grid:true,
 	       		form:true
 	     },
+			 {
+					 config:{
+							 name:'tipo',
+							 fieldLabel:'Tipo',
+							 allowBlank:true,
+							 emptyText:'Tipo...',
+							 typeAhead: true,
+							 triggerAction: 'all',
+							 lazyRender:true,
+							 mode: 'local',
+							 gwidth: 100,
+							 store:['Agencia No IATA', 'Corporativo','Carga', 'Grupo', 'Intercambio de Servicios']
+					 },
+					 type:'ComboBox',
+					 id_grupo:0,
+					 grid:true,
+					 form:true
+			 },
 		{
 			config:{
 				name: 'estado_reg',
@@ -161,7 +184,7 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-						format: 'd/m/Y', 
+						format: 'd/m/Y',
 						renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 			type:'DateField',
@@ -207,7 +230,7 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-						format: 'd/m/Y', 
+						format: 'd/m/Y',
 						renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 			type:'DateField',
@@ -217,7 +240,7 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 			form:false
 		}
 	],
-	
+
 	title:'Auxiliares de Cuenta',
 	ActSave:'../../sis_contabilidad/control/Auxiliar/insertarAuxiliar',
 	ActDel:'../../sis_contabilidad/control/Auxiliar/eliminarAuxiliar',
@@ -235,8 +258,8 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_usuario_mod', type: 'numeric'},
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
-		{name:'usr_mod', type: 'string'},'corriente'
-		
+		{name:'usr_mod', type: 'string'},'corriente','tipo'
+
 	],
 	sortInfo:{
 		field: 'id_auxiliar',
@@ -295,9 +318,10 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
         }else{
             Phx.vista.Auxiliar.superclass.onSubmit.call(this, o);
         }
+    },
+    iniciarEventos: function () {
+        //this.ocultarComponente(this.Cmp.corriente);
     }
 
 })
 </script>
-		
-		

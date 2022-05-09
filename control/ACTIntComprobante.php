@@ -23,7 +23,24 @@ class ACTIntComprobante extends ACTbase{
     function listarIntComprobante(){
         $this->objParam->defecto('ordenacion','id_int_comprobante');
         $this->objParam->defecto('dir_ordenacion','asc');
-        $this->objParam->addFiltro("(incbte.temporal = ''no'' or (incbte.temporal = ''si'' and vbregional = ''si''))");
+        $this->objParam->addFiltro("(incbte.temporal = ''no'' or (incbte.temporal = ''si'' and incbte.vbregional = ''si''))");
+
+        //begin(franklin.espinoza) 20/08/2020
+        //var_dump($this->objParam->getParametro('estado_cbte'));exit;
+        if($this->objParam->getParametro('estado_cbte') == 'borrador'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''borrador'')");
+        }else if($this->objParam->getParametro('estado_cbte') == 'verificado'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''verificado'')");
+        }else if($this->objParam->getParametro('estado_cbte') == 'elaborado'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''elaborado'')");
+        }else if($this->objParam->getParametro('estado_cbte') == 'aprobado'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''aprobado'')");
+        }else if($this->objParam->getParametro('estado_cbte') == 'validado'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''validado'')");
+        }else if($this->objParam->getParametro('estado_cbte') == 'borrador_elaborado'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''borrador'',''elaborado'')");
+        }
+        //end(franklin.espinoza) 20/08/2020
 
         if($this->objParam->getParametro('tipo')=='diario'){
             $this->objParam->addFiltro("incbte.id_clase_comprobante in (''3'',''4'')");
@@ -48,16 +65,20 @@ class ACTIntComprobante extends ACTbase{
 
         if($this->objParam->getParametro('nombreVista') == 'IntComprobanteLd'  || $this->objParam->getParametro('nombreVista') == 'IntComprobanteLdEntrega'){
             $this->objParam->addFiltro("incbte.estado_reg = ''validado''");
-        }
-        else{
+        }else{
             //(may) vb de los comprobantes en estado vbfin y vbconta
             if($this->objParam->getParametro('nombreVista') == 'VbIntComprobante'){
-                $this->objParam->addFiltro(" (incbte.estado_reg in (''vbfin'',''vbconta''))" );
+                //$this->objParam->addFiltro(" (incbte.estado_reg in (''verificado'',''aprobado''))" );
 
             }else{
                 //(may)25-09-2019 para que enliste el nuevo estado vbfin y vbconta
                 // $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
-                $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'',''vbfin'',''vbconta'')");
+                if( $this->objParam->getParametro('nombreVista') == 'IntComprobanteConsulta'){
+                    $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''validado'')");
+                }else{
+                    $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
+                }
+
             }
 
         }
@@ -641,8 +662,7 @@ class ACTIntComprobante extends ACTbase{
 		}		
 		if($this->objParam->getParametro('nombreVista') == 'IntComprobanteLd'  || $this->objParam->getParametro('nombreVista') == 'IntComprobanteLdEntrega'){
 			$this->objParam->addFiltro("incbte.estado_reg = ''validado''");    
-		}
-		else{
+		}else{
 			$this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
 		}		
 		if($this->objParam->getParametro('nombreVista') == 'IntComprobanteLdEntrega'){
@@ -753,8 +773,7 @@ class ACTIntComprobante extends ACTbase{
 
         if($this->objParam->getParametro('nombreVista') == 'IntComprobanteLd'  || $this->objParam->getParametro('nombreVista') == 'IntComprobanteLdEntrega'){
             $this->objParam->addFiltro("incbte.estado_reg = ''validado''");
-        }
-        else{
+        }else{
             $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
         }
 
@@ -796,6 +815,97 @@ class ACTIntComprobante extends ACTbase{
     function volcarCbteContable(){
         $this->objFunc=$this->create('MODIntComprobante');
         $this->res=$this->objFunc->volcarCbteContable($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //may
+    function cbtePerdidaCbte(){
+        $this->objFunc=$this->create('MODIntComprobante');
+        $this->res=$this->objFunc->cbtePerdidaCbte($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //may
+    function cbteIncrementoCbte(){
+        $this->objFunc=$this->create('MODIntComprobante');
+        $this->res=$this->objFunc->cbteIncrementoCbte($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //{develop: franklin.espinoza date: 12/10/2020, description: Guarda Preventivo,Compromiso,Devengado para procesos con Preventivo}
+    function guardarDocumentoSigep(){
+        $this->objFunc=$this->create('MODIntComprobante');
+        $this->res=$this->objFunc->guardarDocumentoSigep($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    function desvalidarCBTE(){
+        $this->objFunc=$this->create('MODIntComprobante');
+        $this->res=$this->objFunc->desvalidarCBTE($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //{develop: franklin.espinoza date: 14/01/2022, description: Lista los comprobantes C21}
+    function listarIntComprobanteC21(){
+        $this->objParam->defecto('ordenacion','id_int_comprobante');
+        $this->objParam->defecto('dir_ordenacion','asc');
+
+        //begin(franklin.espinoza) 20/01/2022
+        if($this->objParam->getParametro('estado_cbte') == 'borrador'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''borrador'')");
+        }else if($this->objParam->getParametro('estado_cbte') == 'verificado'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''verificado'')");
+        }else if($this->objParam->getParametro('estado_cbte') == 'elaborado'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''elaborado'')");
+        }else if($this->objParam->getParametro('estado_cbte') == 'aprobado'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''aprobado'')");
+        }else if($this->objParam->getParametro('estado_cbte') == 'validado'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''validado'')");
+        }else if($this->objParam->getParametro('estado_cbte') == 'borrador_elaborado'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''borrador'',''elaborado'')");
+        }else if($this->objParam->getParametro('estado_cbte') == 'verificado_aprobado'){
+            $this->objParam->addFiltro("incbte.estado_reg in (''verificado'',''aprobado'')");
+        }
+        //end(franklin.espinoza)  20/01/2022
+
+        $this->objParam->addFiltro("incbte.id_clase_comprobante in (''6'',''7'')");
+        if($this->objParam->getParametro('id_deptos')!=''){
+            $this->objParam->addFiltro("incbte.id_depto in (".$this->objParam->getParametro('id_deptos').")");
+        }
+        if($this->objParam->getParametro('gestion')!=''){
+            $this->objParam->addFiltro("incbte.fecha between ''01/01/".$this->objParam->getParametro('gestion')."''::date and ''31/12/".$this->objParam->getParametro('gestion')."''::date");
+        }
+        if($this->objParam->getParametro('tipo_comprobante') == 'normal'){
+            $this->objParam->addFiltro("coalesce(tic.reversion,''no'') in (''no'')");
+        }else if($this->objParam->getParametro('tipo_comprobante') == 'reversion'){
+            $this->objParam->addFiltro("coalesce(tic.reversion,''no'') in (''si'')");
+        }
+        if($this->objParam->getParametro('estado_entrega') == 'borrador_elaborado'){
+            $this->objParam->addFiltro("ent.estado in (''borrador'',''elaborado'') and ent.tipo in (''normal_una_cg'',''normal_mas_cg'',''regularizacion_una_cg'',''regularizacion_mas_cg'') and (ent.id_usuario_reg = ".$_SESSION["ss_id_usuario"]." or 612 = ".$_SESSION["ss_id_usuario"].")");
+        }
+
+        if($this->objParam->getParametro('id_int_comprobante')!= ''){
+            $this->objParam->addFiltro("incbte.id_int_comprobante = ".$this->objParam->getParametro('id_int_comprobante'));
+        }
+
+        if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+            $this->objReporte = new Reporte($this->objParam,$this);
+            $this->res = $this->objReporte->generarReporteListado('MODIntComprobante','listarIntComprobanteC21');
+        } else{
+            $this->objFunc=$this->create('MODIntComprobante');
+            $this->res=$this->objFunc->listarIntComprobanteC21($this->objParam);
+        }
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    //{develop: franklin.espinoza date: 14/01/2022, description: Insertar, Modificar Documentos C21}
+    function insertarIntComprobanteC21(){
+        $this->objFunc=$this->create('MODIntComprobante');
+        if($this->objParam->insertar('id_int_comprobante')){
+            $this->res=$this->objFunc->insertarIntComprobanteC21($this->objParam);
+        } else{
+            $this->res=$this->objFunc->modificarIntComprobanteC21($this->objParam);
+        }
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 

@@ -236,7 +236,7 @@ BEGIN
 			        	inner join conta.tint_comprobante cbte
 			        	on cbte.id_int_comprobante = tra.id_int_comprobante
 			        	where tra.id_int_transaccion = v_parametros.id_int_transaccion
-        				and cbte.estado_reg = 'borrador'  and cbte.sw_editable = 'si') then
+        				and cbte.estado_reg in ('borrador','elaborado')  and cbte.sw_editable = 'si') then
         		raise exception 'Modificación no realizada: el comprobante no está en estado Borrador o no es editable';
         	end if;
 
@@ -396,6 +396,32 @@ BEGIN
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Transacción eliminado(a)');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_int_transaccion',v_parametros.id_int_transaccion::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
+     /*********************************
+ 	#TRANSACCION:  'CONTA_SAVTRABAN_MOD'
+ 	#DESCRIPCION:	actuliza datos bancarios para la transaccion
+ 	#AUTOR:		rensi (kplian)
+ 	#FECHA:		04-08-2015 18:10:12
+	***********************************/
+
+	elsif(p_transaccion='CONTA_CBTE_INFO_MOD')then
+
+		begin
+
+			--------------------------------
+			--MODIFICACION DE LA TRANSACCION
+			--------------------------------
+			update conta.tint_transaccion set
+            	id_orden_trabajo = v_parametros.id_orden_trabajo
+			where id_int_transaccion=v_parametros.id_int_transaccion;
+
+			--Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','datos de la trasaccion fueron modificado correctamente)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_int_transaccion',v_parametros.id_int_transaccion::varchar);
 
             --Devuelve la respuesta

@@ -4962,7 +4962,7 @@ ALTER TABLE conta.tlog_periodo_compra
   ALTER COLUMN id_log_periodo_compra SET STATISTICS 0;
 
 COMMENT ON TABLE conta.tlog_periodo_compra
-IS 'Log de estado registrado de los cambios ejecutados (abierto, cerrado, cerrado parcial) en el control 
+IS 'Log de estado registrado de los cambios ejecutados (abierto, cerrado, cerrado parcial) en el control
 de periodos del sistema de contabilidad. ';
 
 COMMENT ON COLUMN conta.tlog_periodo_compra.estado
@@ -5072,3 +5072,338 @@ ALTER TABLE conta.tdoc_compra_venta
   ALTER COLUMN importe_pago_liquido SET NOT NULL;
 /***********************************F-SCP-MAY-CONTA-0-21/01/2020****************************************/
 
+/***********************************I-SCP-MAY-CONTA-0-28/02/2020****************************************/
+CREATE TABLE conta.tdoc_compra_venta_ext (
+  id_doc_compra_venta_ext SERIAL NOT NULL,
+  id_doc_compra_venta INTEGER,
+  costo_directo VARCHAR(30),
+  c_emisor VARCHAR(50),
+  no_gravado NUMERIC(19,2),
+  base_21 NUMERIC(19,2),
+  base_27 NUMERIC(19,2),
+  base_10_5 NUMERIC(19,2),
+  base_2_5 NUMERIC(19,2),
+  percepcion_caba NUMERIC(19,2),
+  percepcion_bue NUMERIC(19,2),
+  percepcion_iva NUMERIC(19,2),
+  percepcion_salta NUMERIC(19,2),
+  imp_internos NUMERIC(19,2),
+  percepcion_tucuman NUMERIC(19,2),
+  percepcion_corrientes NUMERIC(19,2),
+  otros_impuestos NUMERIC(19,2),
+  percepcion_neuquen NUMERIC(19,2),
+  PRIMARY KEY(id_doc_compra_venta_ext)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE conta.tdoc_compra_venta_ext
+  OWNER TO postgres;
+
+COMMENT ON TABLE conta.tdoc_compra_venta_ext
+IS 'complemento para los datos de doc_compra_venta para las internacionales';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.id_doc_compra_venta_ext
+IS 'complemento para los datos de doc_compra_venta para las internacionales';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.id_doc_compra_venta
+IS 'para que se enlace con la cabecera tdoc_compra_venta';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.costo_directo
+IS 'si / no';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.base_21
+IS 'base 21%';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.base_27
+IS 'base 27%';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.base_10_5
+IS 'base 10,5%';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.base_2_5
+IS 'base 2,5%';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_caba
+IS 'percepcion IIBB CABA';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_bue
+IS 'percepcion IIBB BUE';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_iva
+IS 'percepcion IVA';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_salta
+IS 'percepcion IIBB SALTA';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_tucuman
+IS 'percepcion IIBB TUCUMAN';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_corrientes
+IS 'percepcion IIBB CORRIENTES';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.otros_impuestos
+IS 'otros impuestos';
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.percepcion_neuquen
+IS 'percepcion IIBB NEUQUEN';
+/***********************************F-SCP-MAY-CONTA-0-28/02/2020****************************************/
+
+/***********************************I-SCP-BVP-CONTA-0-04/05/2020****************************************/
+
+ALTER TABLE conta.tfactura_airbp_concepto
+  ALTER COLUMN ne TYPE VARCHAR(20) COLLATE pg_catalog."default";
+
+/***********************************F-SCP-BVP-CONTA-0-04/05/2020****************************************/
+
+/***********************************I-SCP-BVP-CONTA-0-22/07/2020****************************************/
+
+ALTER TABLE conta.tlog_periodo_compra
+  ADD COLUMN observacion TEXT;
+/***********************************F-SCP-BVP-CONTA-0-22/07/2020****************************************/
+
+/***********************************I-SCP-MAY-CONTA-0-17/08/2020****************************************/
+ALTER TABLE conta.tdoc_compra_venta_ext
+  ADD COLUMN importe_postergacion_covid NUMERIC(19,2) DEFAULT 0 ;
+
+COMMENT ON COLUMN conta.tdoc_compra_venta_ext.importe_postergacion_covid
+IS 'por tiempos de covid se aumenta el campo ya sea por los descuentos de la factura o realicen el pago cuando lo soliciten pago en la estacion';
+/***********************************F-SCP-MAY-CONTA-0-17/08/2020****************************************/
+
+
+/***********************************I-SCP-FEA-CONTA-0-07/09/2020****************************************/
+ALTER TABLE conta.tint_comprobante
+  ADD COLUMN id_service_request INTEGER;
+
+COMMENT ON COLUMN conta.tint_comprobante.id_service_request
+IS 'Identificador del bus de servicios SIGEP.';
+/***********************************F-SCP-FEA-CONTA-0-07/09/2020****************************************/
+
+/***********************************I-SCP-FEA-CONTA-0-27/09/2020****************************************/
+
+ALTER TABLE conta.tentrega
+  ADD COLUMN id_service_request INTEGER;
+
+COMMENT ON COLUMN conta.tentrega.id_service_request
+IS 'Identificador del bus de servicios SIGEP.';
+
+/***********************************F-SCP-FEA-CONTA-0-27/09/2020****************************************/
+
+
+/***********************************I-SCP-FEA-CONTA-0-09/10/2020****************************************/
+
+ALTER TABLE conta.tentrega
+  ADD COLUMN glosa TEXT;
+
+COMMENT ON COLUMN conta.tentrega.glosa
+IS 'Glosa que describe la agrupación de comprobantes.';
+
+ALTER TABLE conta.tentrega
+  ADD COLUMN tipo VARCHAR(32);
+
+COMMENT ON COLUMN conta.tentrega.tipo
+IS 'Tipo de Entrega que indica si una entrega tiene clase de gasto mixta.';
+
+/***********************************F-SCP-FEA-CONTA-0-09/10/2020****************************************/
+
+
+/***********************************I-SCP-FEA-CONTA-0-12/10/2020****************************************/
+CREATE TABLE conta.tdocumento_sigep (
+  id_documento_sigep SERIAL,
+  nro_preventivo INTEGER,
+  nro_compromiso INTEGER,
+  nro_devengado INTEGER,
+  nro_pago INTEGER,
+  nro_secuencia INTEGER,
+  CONSTRAINT tdocumento_sigep_pkey PRIMARY KEY(id_documento_sigep)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+COMMENT ON COLUMN conta.tdocumento_sigep.nro_preventivo
+IS 'dato sigep para procesos con preventivo, mandatorio para CIP.';
+
+COMMENT ON COLUMN conta.tdocumento_sigep.nro_compromiso
+IS 'dato sigep para procesos con preventivo.';
+
+COMMENT ON COLUMN conta.tdocumento_sigep.nro_devengado
+IS 'dato sigep para procesos con preventivo, mandatorio para SIP.';
+
+COMMENT ON COLUMN conta.tdocumento_sigep.nro_pago
+IS 'dato sigep para procesos con preventivo default 0.';
+
+COMMENT ON COLUMN conta.tdocumento_sigep.nro_secuencia
+IS 'dato sigep para procesos con preventivo default 0.';
+
+/***********************************F-SCP-FEA-CONTA-0-12/10/2020****************************************/
+
+
+/***********************************I-SCP-FEA-CONTA-0-29/10/2020****************************************/
+ALTER TABLE conta.tint_comprobante
+  ADD COLUMN tipo_cbte VARCHAR(32);
+
+COMMENT ON COLUMN conta.tint_comprobante.tipo_cbte
+IS 'Campo que sirve para identificar el tipo de CBTE para integracion sigep.';
+
+/***********************************F-SCP-FEA-CONTA-0-29/10/2020****************************************/
+
+
+/***********************************I-SCP-FEA-CONTA-0-06/11/2020****************************************/
+ALTER TABLE conta.tint_comprobante
+  ADD COLUMN reversion VARCHAR(4);
+
+ALTER TABLE conta.tint_comprobante
+  ALTER COLUMN reversion SET DEFAULT 'no';
+
+COMMENT ON COLUMN conta.tint_comprobante.reversion
+IS 'Bandera que indica si un comprobante sera de reversión para integración sigep.';
+/***********************************F-SCP-FEA-CONTA-0-06/11/2020****************************************/
+
+/***********************************I-SCP-MAY-CONTA-0-24/03/2021****************************************/
+ALTER TABLE conta.tauxiliar
+  ADD COLUMN tipo VARCHAR(200);
+
+/***********************************F-SCP-MAY-CONTA-0-24/03/2021****************************************/
+
+/***********************************I-SCP-MAY-CONTA-0-25/03/2021****************************************/
+ALTER TABLE conta.tauxiliar
+  ADD COLUMN cod_antiguo VARCHAR(50);
+
+/***********************************F-SCP-MAY-CONTA-0-25/03/2021****************************************/
+
+/***********************************I-SCP-MAY-CONTA-0-05/04/2021****************************************/
+ALTER TABLE conta.tdoc_compra_venta_ext
+  ADD COLUMN nro_tramite_relacion VARCHAR;
+
+/***********************************F-SCP-MAY-CONTA-0-05/04/2021****************************************/
+
+/***********************************I-SCP-IRVA-CONTA-0-07/05/2021****************************************/
+ALTER TABLE conta.tmoneda_pais
+  ADD COLUMN filtrar_combo VARCHAR(10);
+
+COMMENT ON COLUMN conta.tmoneda_pais.filtrar_combo
+IS 'Campo que indicara que monedas se mostraran en el combo';
+/***********************************F-SCP-IRVA-CONTA-0-07/05/2021****************************************/
+
+/***********************************I-SCP-FEA-CONTA-0-16/06/2021****************************************/
+ALTER TABLE conta.tentrega
+ADD COLUMN nro_deposito VARCHAR(64);
+
+COMMENT ON COLUMN conta.tentrega.nro_deposito
+IS 'Numero de Deposito para reversion de C31.';
+
+ALTER TABLE conta.tentrega
+ADD COLUMN fecha_deposito DATE;
+
+COMMENT ON COLUMN conta.tentrega.fecha_deposito
+IS 'Fecha de Deposito para reversion de C31.';
+
+ALTER TABLE conta.tentrega
+ADD COLUMN monto_deposito NUMERIC(18,2);
+
+COMMENT ON COLUMN conta.tentrega.monto_deposito
+IS 'Monto de Deposito para reversion de C31.';
+
+ALTER TABLE conta.tentrega
+ADD COLUMN monto NUMERIC(18,2);
+
+COMMENT ON COLUMN conta.tentrega.monto
+IS 'Monto total de Deposito para reversion de C31.';
+/***********************************F-SCP-FEA-CONTA-0-16/06/2021****************************************/
+
+/***********************************I-SCP-IRVA-CONTA-0-10/12/2021****************************************/
+ALTER TABLE conta.torden_trabajo
+  ADD COLUMN id_avion_alkym INTEGER;
+
+COMMENT ON COLUMN conta.torden_trabajo.id_avion_alkym
+IS 'Campo donde se almacenara el id_alkym de las aeronaves';
+/***********************************F-SCP-IRVA-CONTA-0-10/12/2021****************************************/
+
+/***********************************I-SCP-FEA-CONTA-0-31/12/2021****************************************/
+ALTER TABLE conta.tdoc_compra_venta
+  ADD COLUMN complemento VARCHAR(5);
+
+COMMENT ON COLUMN conta.tdoc_compra_venta.complemento
+IS 'Registrar el complemento del documento de identidad, caso contrario dejar la casilla en blanco.';
+
+ALTER TABLE conta.tdoc_compra_venta
+  ADD COLUMN importe_iehd numeric(14,2);
+
+COMMENT ON COLUMN conta.tdoc_compra_venta.importe_iehd
+IS 'Importe correspondiente al IEHD. Caso contrario registrar cero (0).';
+
+ALTER TABLE conta.tdoc_compra_venta
+  ADD COLUMN importe_ipj numeric(14,2);
+
+COMMENT ON COLUMN conta.tdoc_compra_venta.importe_ipj
+IS 'Importe correspondiente al IPJ. Caso contrario registrar cero (0).';
+
+ALTER TABLE conta.tdoc_compra_venta
+  ADD COLUMN importe_tasas numeric(14,2);
+
+COMMENT ON COLUMN conta.tdoc_compra_venta.importe_tasas
+IS 'Importe correspondiente a Tasas. Caso contrario registrar cero (0).';
+
+ALTER TABLE conta.tdoc_compra_venta
+  ADD COLUMN importe_gift_card numeric(14,2);
+
+COMMENT ON COLUMN conta.tdoc_compra_venta.importe_gift_card
+IS 'Importe de la GIFT CARD, caso contrario registrar cero(0).';
+/***********************************F-SCP-FEA-CONTA-0-31/12/2021****************************************/
+
+/***********************************I-SCP-FEA-CONTA-0-05/01/2022****************************************/
+alter table conta.tdoc_compra_venta
+    rename column complemento to otro_no_sujeto_credito_fiscal;
+
+alter table conta.tdoc_compra_venta
+    alter column otro_no_sujeto_credito_fiscal type numeric(14,2) using otro_no_sujeto_credito_fiscal::numeric(14,2);
+
+comment on column conta.tdoc_compra_venta.otro_no_sujeto_credito_fiscal
+is 'Otro importe que no está sujeto al IVA . Ejemplo: En el caso de compras de Gasolina o Diesel Oil de cualquier origen a estaciones de servicio o distribuidores autorizados se deberá registrar el 30% del importe total en esta columna. Caso contrario registrar cero (0)';
+
+alter table conta.tdoc_compra_venta
+	add importe_compras_gravadas_tasa_cero numeric(14,2);
+
+comment on column conta.tdoc_compra_venta.importe_compras_gravadas_tasa_cero is 'Importe de las compras gravadas a Tasa Cero. Para este caso se deberá registrar el 100% del Importe Total de la compra. Caso contrario registrar cero (0).';
+/***********************************F-SCP-FEA-CONTA-0-05/01/2022****************************************/
+
+/***********************************I-SCP-FFP-CONTA-0-25/01/2022****************************************/
+
+DROP VIEW v_banca_erp1;
+DROP VIEW v_banca_erp2;
+DROP VIEW v_banca_pxp;
+
+
+alter table conta.tbanca_compra_venta alter column autorizacion type varchar(255) using autorizacion::varchar(255);
+
+
+/***********************************F-SCP-FFP-CONTA-0-25/01/2022****************************************/
+
+/***********************************I-SCP-IRVA-CONTA-0-07/03/2022****************************************/
+ALTER TABLE conta.tperiodo_compra_venta
+  ADD COLUMN estado_comisionistas VARCHAR(20) DEFAULT 'abierto' NOT NULL;
+
+COMMENT ON COLUMN conta.tperiodo_compra_venta.estado_comisionistas
+IS 'Estado de los periodos de comisionistas';
+
+
+CREATE TABLE conta.tlog_periodo_compra_comisionistas (
+  id_log_periodo_compra SERIAL,
+  id_periodo_compra_venta INTEGER NOT NULL,
+  estado VARCHAR(20),
+  observacion TEXT,
+  CONSTRAINT tlog_periodo_compra_comisionistas_pkey PRIMARY KEY(id_log_periodo_compra)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+ALTER TABLE conta.tlog_periodo_compra_comisionistas
+  ALTER COLUMN id_log_periodo_compra SET STATISTICS 0;
+
+COMMENT ON TABLE conta.tlog_periodo_compra_comisionistas
+IS 'Log de estado registrado de los cambios ejecutados (abierto, cerrado, cerrado parcial) en el control
+de periodos del sistema de contabilidad. ';
+
+COMMENT ON COLUMN conta.tlog_periodo_compra_comisionistas.estado
+IS 'Estado de periodo de libro de bancos, cerrado, cerrado_parcial, abierto.';
+
+ALTER TABLE conta.tlog_periodo_compra_comisionistas
+  OWNER TO postgres;
+/***********************************F-SCP-IRVA-CONTA-0-07/03/2022****************************************/

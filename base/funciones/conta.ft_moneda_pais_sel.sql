@@ -59,7 +59,12 @@ BEGIN
 						monpa.fecha_mod,
 						usu1.cuenta as usr_reg,
 						usu2.cuenta as usr_mod,
-                        (mon.codigo || '' ('' || mon.moneda || '')'')::varchar as desc_moneda
+                        (mon.codigo || '' ('' || mon.moneda || '')'')::varchar as desc_moneda,
+
+                        /*Aumentando para el codigo*/
+                        mon.codigo_internacional,
+                        mon.moneda
+
 						from conta.tmoneda_pais monpa
 						inner join segu.tusuario usu1 on usu1.id_usuario = monpa.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = monpa.id_usuario_mod

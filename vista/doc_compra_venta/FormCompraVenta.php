@@ -14,18 +14,18 @@ header("content-type: text/javascript; charset=UTF-8");
         tam_pag: 10,
         tabEnter: true,
         codigoSistema: 'ADQ',
-        mostrarFormaPago: true,
+        mostrarFormaPago: false,
         mostrarPartidas: false,
         regitrarDetalle: 'si',
         id_moneda_defecto: 0,  // 0 quiere decir todas las monedas
         //layoutType: 'wizard',
         layout: 'fit',
-        autoScroll: false,
+        autoScroll: true,
         breset: false,
         heightHeader: 290,
         conceptos_eliminados: [],
         listadoConcepto: '../../sis_parametros/control/ConceptoIngas/listarConceptoIngasMasPartida',
-        parFilConcepto: 'desc_ingas#par.codigo',
+        parFilConcepto: 'desc_ingas#par.codigo#par.nombre_partida',
         tipo_pres_gasto: 'gasto',
         tipo_pres_recurso: 'recurso',
         aux: '',
@@ -34,8 +34,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.addEvents('successsave');
             if (config.data.mostrarFormaPago === false) {
                 this.mostrarFormaPago = config.data.mostrarFormaPago;
-            }                        
-            
+            }
+
             Ext.apply(this, config);
             this.obtenerVariableGlobal(config);
             this.generarAtributos();
@@ -972,7 +972,7 @@ header("content-type: text/javascript; charset=UTF-8");
                                 fields: ['id_plantilla', 'nro_linea', 'desc_plantilla', 'tipo',
                                     'sw_tesoro', 'sw_compro', 'sw_monto_excento', 'sw_descuento',
                                     'sw_autorizacion', 'sw_codigo_control', 'tipo_plantilla', 'sw_nro_dui', 'sw_ic', 'tipo_excento', 'valor_excento', 'sw_qr', 'sw_nit', 'plantilla_qr',
-                                    'sw_estacion', 'sw_punto_venta', 'sw_codigo_no_iata'],
+                                    'sw_estacion', 'sw_punto_venta', 'sw_codigo_no_iata', 'importe_iehd', 'importe_ipj', 'importe_tasas', 'importe_gift_card', 'otro_no_sujeto_credito_fiscal', 'importe_compras_gravadas_tasa_cero'],
                                 remoteSort: true,
                                 baseParams: {par_filtro: 'plt.desc_plantilla', sw_compro: 'si', sw_tesoro: 'si'}
                             }),
@@ -1067,9 +1067,9 @@ header("content-type: text/javascript; charset=UTF-8");
                         width: 180,
                         boxMinWidth: 200,
                         queryDelay: 500,
-                        minChars: 1,
+                        minChars: 1/*,
                         maskRe: /[0-9/-]+/i,
-                        regex: /[0-9/-]+/i
+                        regex: /[0-9/-]+/i*/
                     },
                     type: 'ComboBox',
                     id_grupo: 0,
@@ -1278,6 +1278,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         triggerAction: 'all',
                         lazyRender: true,
                         mode: 'local',
+                        forceSelection: true,
                         store: ['CBB', 'LPB', 'SRZ', 'CIJ', 'TJA', 'POI', 'ORU', 'TDD', 'SRE', 'UYU', 'CCA', 'RIB', 'RBQ', 'GYA', 'BYC']
                     },
                     type: 'ComboBox',
@@ -1430,22 +1431,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 2,
                     form: true
                 },
-                {
-                    config: {
-                        name: 'importe_neto',
-                        qtip: 'Importe del documento menos descuentos, sobre este monto se calcula el iva',
-                        fieldLabel: 'Monto Neto',
-                        allowBlank: false,
-                        allowNegative: false,
-                        readOnly: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 1179650
-                    },
-                    type: 'NumberField',
-                    id_grupo: 2,
-                    form: true
-                },
+
                 {
                     config: {
                         name: 'importe_excento',
@@ -1547,20 +1533,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 2,
                     form: true
                 },
-                {
-                    config: {
-                        name: 'importe_iva',
-                        fieldLabel: 'IVA',
-                        allowBlank: true,
-                        readOnly: true,
-                        allowNegative: false,
-                        anchor: '80%',
-                        gwidth: 100
-                    },
-                    type: 'NumberField',
-                    id_grupo: 2,
-                    form: true
-                },
+
                 {
                     config: {
                         name: 'importe_it',
@@ -1569,6 +1542,125 @@ header("content-type: text/javascript; charset=UTF-8");
                         allowNegative: false,
                         anchor: '80%',
                         readOnly: true,
+                        gwidth: 100
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+
+                {
+                    config: {
+                        name: 'importe_iehd',
+                        fieldLabel: 'Importe IEHD',
+                        allowBlank: true,
+                        allowNegative: false,
+                        qtip: 'Importe del IEHD, no esta sujeto al IVA.',
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'importe_ipj',
+                        fieldLabel: 'Importe IPJ',
+                        allowBlank: true,
+                        allowNegative: false,
+                        qtip: 'Importe del IPJ, no esta sujeto al IVA.',
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'importe_tasas',
+                        fieldLabel: 'Tasas',
+                        allowBlank: true,
+                        allowNegative: false,
+                        qtip: 'Importe de la tasa, consignada en la factura de compra no está sujeto al IVA.',
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'otro_no_sujeto_credito_fiscal',
+                        fieldLabel: 'Otro No Sujeto a Crédito Fiscal',
+                        allowBlank: true,
+                        allowNegative: false,
+                        readOnly: false,
+                        anchor: '80%',
+                        gwidth: 100
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+				},                
+                {
+                    config: {
+                        name: 'importe_gift_card',
+                        fieldLabel: 'Importe Gift Card',
+                        allowBlank: true,
+                        allowNegative: false,
+                        qtip: 'Importe de la Gift Card.',
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'importe_compras_gravadas_tasa_cero',
+                        fieldLabel: 'Importe Compras Gravadas a Tasa Cero',
+                        allowBlank: true,
+                        allowNegative: false,
+                        readOnly: false,
+                        anchor: '80%',
+                        gwidth: 100
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+				},
+                {
+                    config: {
+                        name: 'importe_neto',
+                        qtip: 'Importe del documento menos descuentos, sobre este monto se calcula el iva',
+                        fieldLabel: 'Monto Neto',
+                        allowBlank: false,
+                        allowNegative: false,
+                        readOnly: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1179650
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'importe_iva',
+                        fieldLabel: 'IVA',
+                        allowBlank: true,
+                        readOnly: true,
+                        allowNegative: false,
+                        anchor: '80%',
                         gwidth: 100
                     },
                     type: 'NumberField',
@@ -1629,7 +1721,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 var dia = newValue > 9 ? newValue : '0' + newValue,
                     mes = this.data.tmpPeriodo > 9 ? this.data.tmpPeriodo : '0' + this.data.tmpPeriodo,
                     tmpFecha = dia + '/' + mes + '/' + this.data.tmpGestion;
-                resp = this.Cmp.fecha.setValue(tmpFecha);
+                    var vf = this.existeFecha(tmpFecha)
+                    if (!vf) {
+                      this.Cmp.fecha.reset()
+                      alert('La fecha calculada con el dia registrado es: '+tmpFecha+' la cual no es valida. Favor corregir el dia')
+                    }else{
+                        resp = this.Cmp.fecha.setValue(tmpFecha);
+                    }
             }, this);
 
             this.Cmp.nro_autorizacion.on('select', function (cmb, rec, i) {
@@ -1654,6 +1752,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 }
 				this.disableComponentes();
             }, this);
+
+
 
 
             this.Cmp.nit.on('select', function (cmb, rec, i) {
@@ -1686,11 +1786,11 @@ header("content-type: text/javascript; charset=UTF-8");
                 //si es el formulario para nuevo reseteamos los valores ...
                 if (this.accionFormulario == 'NEW') {
 
-                    this.iniciarImportes();
                     this.Cmp.importe_excento.reset();
                     this.Cmp.nro_autorizacion.reset();
                     this.Cmp.codigo_control.reset();
                     this.Cmp.importe_descuento.reset();
+                    this.iniciarImportes();
 
                 }
                 else {
@@ -1703,19 +1803,26 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.mostrarComponente(this.Cmp.importe_excento);
                     this.Cmp.tipo_excento.setValue(rec.data.tipo_excento);
                     this.Cmp.valor_excento.setValue(rec.data.valor_excento);
-                    if (rec.data.tipo_excento == 'variable') {
-                        this.Cmp.importe_excento.setReadOnly(false);
+                    //10-01-2022 (may) ya no el importe excento, es el importe IEHD
+                    //10-01-2022 (may) se comenta por que sera editable
+                    /*if (rec.data.tipo_excento == 'variable') {
+                        //this.Cmp.importe_excento.setReadOnly(false);
+                        this.Cmp.importe_iehd.setReadOnly(false);
                     } else {
-                        this.Cmp.importe_excento.setReadOnly(true);
-                    }
+                        //this.Cmp.importe_excento.setReadOnly(true);
+                        this.Cmp.importe_iehd.setReadOnly(true);
+                    }*/
 
                 }
                 else {
                     this.ocultarComponente(this.Cmp.importe_excento);
-                    this.Cmp.importe_excento.setReadOnly(false);
-                    this.Cmp.tipo_excento.setValue('variable');
+                    //this.Cmp.importe_excento.setReadOnly(false);
+                    //this.Cmp.tipo_excento.setValue('variable');
                     this.Cmp.importe_excento.setValue(0);
-                    this.Cmp.valor_excento.setValue(0);
+                    //this.Cmp.valor_excento.setValue(0);
+
+                    this.Cmp.tipo_excento.setValue(rec.data.tipo_excento);
+                    this.Cmp.valor_excento.setValue(rec.data.valor_excento);
 
                 }
 
@@ -1730,6 +1837,44 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.porc_descuento.setValue(0);
                     this.Cmp.importe_descuento.setValue(0);
                 }
+
+
+                if (rec.data.importe_iehd == 'si') {
+                    this.mostrarComponente(this.Cmp.importe_iehd);
+                } else {
+                    this.ocultarComponente(this.Cmp.importe_iehd);
+                    this.Cmp.importe_iehd.setValue(0);
+                }
+                if (rec.data.importe_ipj == 'si') {
+                    this.mostrarComponente(this.Cmp.importe_ipj);
+                } else {
+                    this.ocultarComponente(this.Cmp.importe_ipj);
+                    this.Cmp.importe_ipj.setValue(0);
+                }
+                if (rec.data.importe_tasas == 'si') {
+                    this.mostrarComponente(this.Cmp.importe_tasas);
+                } else {
+                    this.ocultarComponente(this.Cmp.importe_tasas);
+                    this.Cmp.importe_tasas.setValue(0);
+                }
+                if (rec.data.importe_gift_card == 'si') {
+                    this.mostrarComponente(this.Cmp.importe_gift_card);
+                } else {
+                    this.ocultarComponente(this.Cmp.importe_gift_card);
+                    this.Cmp.importe_gift_card.setValue(0);
+                }
+                if (rec.data.otro_no_sujeto_credito_fiscal == 'si') {
+                    this.mostrarComponente(this.Cmp.otro_no_sujeto_credito_fiscal);
+                } else {
+                    this.ocultarComponente(this.Cmp.otro_no_sujeto_credito_fiscal);
+                    this.Cmp.otro_no_sujeto_credito_fiscal.setValue(0);
+                }
+                if (rec.data.importe_compras_gravadas_tasa_cero == 'si') {
+                    this.mostrarComponente(this.Cmp.importe_compras_gravadas_tasa_cero);
+                } else {
+                    this.ocultarComponente(this.Cmp.importe_compras_gravadas_tasa_cero);
+                    this.Cmp.importe_compras_gravadas_tasa_cero.setValue(0);
+                } 
 
                 if (rec.data.sw_autorizacion == 'si') {
                     this.mostrarComponente(this.Cmp.nro_autorizacion);
@@ -1769,7 +1914,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.Cmp.nro_dui.allowBlank = false;
                     this.mostrarComponente(this.Cmp.nro_dui);
                     this.Cmp.nro_documento.setValue(0);
-                    this.Cmp.nro_documento.setReadOnly(true);
+                    // this.Cmp.nro_documento.setReadOnly(true);
 
                 }
                 else {
@@ -1813,7 +1958,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.tipo_cambio.reset();
                         //this.Cmp.tipo_cambio.reset();
                     }
-                }, this);						  
+                }, this);
 
             }, this);
 
@@ -1828,6 +1973,14 @@ header("content-type: text/javascript; charset=UTF-8");
 
             this.Cmp.tipo_cambio.on('change', this.calculaMontoPago, this);
 
+            this.Cmp.importe_iehd.on('change', this.calculaMontoPago, this);
+            this.Cmp.importe_ipj.on('change', this.calculaMontoPago, this);
+            this.Cmp.importe_tasas.on('change', this.calculaMontoPago, this);
+            this.Cmp.importe_gift_card.on('change', this.calculaMontoPago, this);
+            this.Cmp.otro_no_sujeto_credito_fiscal.on('change', this.calculaMontoPago, this);
+            this.Cmp.importe_compras_gravadas_tasa_cero.on('change', this.calculaMontoPago, this);
+
+            this.Cmp.importe_ice.on('change', this.calculaMontoPago, this);
 
             this.Cmp.nro_autorizacion.on('change', function (fild, newValue, oldValue) {
                 if (newValue[3] == '4' || newValue[3] == '8' || newValue[3] == '6') {
@@ -1905,14 +2058,16 @@ header("content-type: text/javascript; charset=UTF-8");
                                 var mesFactura = res[3].split("/");
                                 var fechaFac = mesFactura[2] + '-' + mesFactura[1] + '-' + mesFactura[0];
                                 var mesFac = new Date(fechaFac).getMonth();
-                                var monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Mayo",
+                                var monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
                                     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
                                 ];
                                 var literalFactura = monthNames[mesFac];
                                 var literalPeriodo = monthNames[mesPer];
-                                if (mesFactura[1] != mesPeriodo) {
-                                    this.mensaje_('ALERTA', 'Actualmente se encuentra en el periodo: ' + literalPeriodo + ', la factura corresponde al periodo de: ' + literalFactura, 'ERROR');
-                                }
+                                if(this.data.tmpPeriodo!=undefined) {
+                                  if (mesFactura[1] != mesPeriodo) {
+                                      this.mensaje_('ALERTA', 'El periodo seleccionado en la interfaz anterior es: ' + literalPeriodo + ' y la fecha de la factura que intenta registrar corresponde al periodo de: ' + literalFactura+' revise los datos de la factura.', 'ERROR');
+                                  }
+                              }
 
                             }
 
@@ -1924,7 +2079,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 // else{
                 // 	alert('la plantilla de array no se corresponde con el QR');
                 //  }
-
+                this.Cmp.importe_ice.setValue(0);
+                this.Cmp.importe_excento.setValue(0);
                 this.calculaMontoPago();
 
 
@@ -1933,7 +2089,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
             }, this);
 
-            this.Cmp.fecha_vencimiento.setReadOnly(false);				  
+            this.Cmp.fecha_vencimiento.setReadOnly(false);
         },
 
         resetearMontos: function () {
@@ -1945,8 +2101,30 @@ header("content-type: text/javascript; charset=UTF-8");
 
         calculaMontoPago: function () {
 
+            if (this.Cmp.tipo_excento.getValue() == 'constante') {
+                this.Cmp.importe_excento.setValue(this.Cmp.valor_excento.getValue())
+            }
+
+            if (this.Cmp.tipo_excento.getValue() == 'porcentual' && this.Cmp.otro_no_sujeto_credito_fiscal.getValue() < 0) {
+                //10-01-2022 (may) ya no el importe excento, es el importe otro_no_sujeto_credito_fiscal
+                //this.Cmp.importe_excento.setValue(this.Cmp.importe_neto.getValue() * this.Cmp.valor_excento.getValue())
+                this.Cmp.otro_no_sujeto_credito_fiscal.setReadOnly(true);
+                this.Cmp.importe_excento.setValue(0);
+                this.Cmp.otro_no_sujeto_credito_fiscal.setValue(this.Cmp.importe_doc.getValue() * this.Cmp.valor_excento.getValue())
+            }
+
+
             var me = this,
-                descuento_ley = 0.00;
+                descuento_ley = 0.00,
+                v_importe_ice = typeof(this.Cmp.importe_ice.getValue())=='string'?0:this.Cmp.importe_ice.getValue(),
+                v_importe_descuento = typeof(this.Cmp.importe_descuento.getValue())=='string'?0:this.Cmp.importe_descuento.getValue(),
+                v_importe_excento = typeof(this.Cmp.importe_excento.getValue())=='string'?0:this.Cmp.importe_excento.getValue(),
+                v_importe_iehd= typeof(this.Cmp.importe_iehd.getValue())=='string'?0:this.Cmp.importe_iehd.getValue(),
+                v_importe_ipj = typeof(this.Cmp.importe_ipj.getValue())=='string'?0:this.Cmp.importe_ipj.getValue(),
+                v_importe_tasas = typeof(this.Cmp.importe_tasas.getValue())=='string'?0:this.Cmp.importe_tasas.getValue(),
+                v_importe_gift_card = typeof(this.Cmp.importe_gift_card.getValue())=='string'?0:this.Cmp.importe_gift_card.getValue(),
+                v_otro_no_sujeto_credito_fiscal = typeof(this.Cmp.otro_no_sujeto_credito_fiscal.getValue())=='string'?0:this.Cmp.otro_no_sujeto_credito_fiscal.getValue(),
+                v_importe_compras_gravadas_tasa_cero = typeof(this.Cmp.importe_compras_gravadas_tasa_cero.getValue())=='string'?0:this.Cmp.importe_compras_gravadas_tasa_cero.getValue();
 
             if (this.Cmp.importe_descuento.getValue() > 0) {
                 if (this.Cmp.importe_descuento.getValue() > this.Cmp.importe_doc.getValue()) {
@@ -1954,15 +2132,21 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.resetearMontos();
                     return;
                 }
-                this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - this.Cmp.importe_descuento.getValue());
+                //(07-01-2022)
+                //this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - this.Cmp.importe_descuento.getValue());
+                this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - ( v_importe_descuento + v_importe_excento
+                    + v_importe_iehd + v_importe_ipj + v_importe_tasas
+                    + v_importe_gift_card + v_otro_no_sujeto_credito_fiscal + v_importe_compras_gravadas_tasa_cero + v_importe_ice));
                 this.Cmp.porc_descuento.setValue(this.Cmp.importe_descuento.getValue() / this.Cmp.importe_doc.getValue());
 
-
             } else {
-                this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue());
+                //(07-01-2022)
+                //this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue());
+                this.Cmp.importe_neto.setValue(this.Cmp.importe_doc.getValue() - (v_importe_iehd + v_importe_excento
+                    + v_importe_ipj + v_importe_tasas + v_importe_gift_card + v_otro_no_sujeto_credito_fiscal
+                    + v_importe_compras_gravadas_tasa_cero + v_importe_ice));
                 this.Cmp.porc_descuento.setValue(0);
             }
-
             var porc_descuento = this.Cmp.porc_descuento.getValue();
 
 
@@ -1979,13 +2163,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.Cmp.importe_excento.setValue(this.Cmp.importe_neto.getValue() * this.tmp_porc_monto_excento_var)
             }
 
-            if (this.Cmp.tipo_excento.getValue() == 'constante') {
-                this.Cmp.importe_excento.setValue(this.Cmp.valor_excento.getValue())
-            }
 
-            if (this.Cmp.tipo_excento.getValue() == 'porcentual') {
-                this.Cmp.importe_excento.setValue(this.Cmp.importe_neto.getValue() * this.Cmp.valor_excento.getValue())
-            }
 
 
             if (this.Cmp.importe_excento.getValue() == 0) {
@@ -1993,7 +2171,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.Cmp.importe_descuento_ley.setValue(descuento_ley);
             }
             else {
-                descuento_ley = (this.Cmp.importe_neto.getValue() * 1.00 - this.Cmp.importe_excento.getValue() * 1.00) * this.Cmp.porc_descuento_ley.getValue();
+                // { dev: bvasquez, date: 14/01/2021, desc: comentado por tipo documento RC-IVA, importe_excento ya descontamos en calculo de importe_neto }
+                // descuento_ley = (this.Cmp.importe_neto.getValue() * 1.00 - this.Cmp.importe_excento.getValue() * 1.00) * this.Cmp.porc_descuento_ley.getValue();
+                descuento_ley = (this.Cmp.importe_neto.getValue() * 1.00 ) * this.Cmp.porc_descuento_ley.getValue();
                 this.Cmp.importe_descuento_ley.setValue(descuento_ley);
             }
 
@@ -2012,19 +2192,19 @@ header("content-type: text/javascript; charset=UTF-8");
                 }
                 if (this.Cmp.porc_iva_cf.getValue() > 0) {
                     //validacion excento mayot monto mmv
-                    if (excento > this.Cmp.importe_neto.getValue()) {
+                    if (excento > (this.Cmp.importe_neto.getValue()+this.Cmp.importe_excento.getValue() )) {
                         alert('El Importe Exento: ' + excento + ', no puede ser mayor al Monto Total: ' + this.Cmp.importe_neto.getValue() + '. Revise los importes.');
                     } else {
-                        this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_cf.getValue() * (this.Cmp.importe_neto.getValue() - excento));
+                        this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_cf.getValue() * ((this.Cmp.importe_neto.getValue()+this.Cmp.importe_excento.getValue()) - excento));
                     }
 
                 }
                 else {
                     //validacion excento mayot monto mmv
-                    if (excento > this.Cmp.importe_neto.getValue()) {
+                    if (excento > (this.Cmp.importe_neto.getValue() + this.Cmp.importe_excento.getValue()) ) {
                         alert('El Importe Exento: ' + excento + ', no puede ser mayor al Monto Total: ' + this.Cmp.importe_neto.getValue() + '. Revise los importes.');
                     } else {
-                        this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_df.getValue() * (this.Cmp.importe_neto.getValue() - excento));
+                        this.Cmp.importe_iva.setValue(this.Cmp.porc_iva_df.getValue() * ((this.Cmp.importe_neto.getValue()+this.Cmp.importe_excento.getValue()) - excento));
                     }
                 }
             }
@@ -2045,7 +2225,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.Cmp.id_auxiliar.validate();
             }
             if (this.aux != 'Póliza de Importación - DUI') {
-                var liquido = this.Cmp.importe_neto.getValue() - this.Cmp.importe_retgar.getValue() - this.Cmp.importe_anticipo.getValue() - this.Cmp.importe_pendiente.getValue() - this.Cmp.importe_descuento_ley.getValue();
+                //(07-01-2022)
+                //var liquido = this.Cmp.importe_neto.getValue() - this.Cmp.importe_retgar.getValue() - this.Cmp.importe_anticipo.getValue() - this.Cmp.importe_pendiente.getValue() - this.Cmp.importe_descuento_ley.getValue();
+                var liquido = this.Cmp.importe_doc.getValue() - this.Cmp.importe_descuento.getValue()- this.Cmp.importe_retgar.getValue() - this.Cmp.importe_anticipo.getValue() - this.Cmp.importe_pendiente.getValue() - this.Cmp.importe_descuento_ley.getValue();
                 this.Cmp.importe_pago_liquido.setValue(liquido > 0 ? liquido : 0);
             }
 
@@ -2122,18 +2304,33 @@ header("content-type: text/javascript; charset=UTF-8");
             this.ocultarComponente(this.Cmp.estacion);
             this.ocultarComponente(this.Cmp.id_punto_venta);
             this.ocultarComponente(this.Cmp.id_agencia);
+
+            this.ocultarComponente(this.Cmp.importe_iehd);
+            this.ocultarComponente(this.Cmp.importe_ipj);
+            this.ocultarComponente(this.Cmp.importe_tasas);            
+            this.ocultarComponente(this.Cmp.importe_gift_card);
+            this.ocultarComponente(this.Cmp.otro_no_sujeto_credito_fiscal);
+            this.ocultarComponente(this.Cmp.importe_compras_gravadas_tasa_cero);
         },
 		disableComponentes: function () {
             //03-01-2020 (may) modificacion porque mostraba a todos su codigo de control
-            //if(this.data.datosOriginales.data.isNewRelationEditable){            
-            
+            //if(this.data.datosOriginales.data.isNewRelationEditable){
+
             if(this.data.tipo_form != 'new' ){
                 //08-01-2020 (may) modificacion para que solo tenga bloqueado los campos de la factura en fondos en avance
                 //console.log('llegam',this.data );
                 //console.log('llegam22',this.data.objPadre.mycls );
                 //console.log('llegam233',this.mycls);
-                if (this.data.objPadre.mycls == 'RendicionDetReg' && this.mycls == 'FormRendicionCD'){
-                    
+
+                if (this.data.datosOriginales.data.id_moneda == 2) {
+                    this.mostrarComponente(this.Cmp.tipo_cambio);
+                }
+                else {
+                    this.ocultarComponente(this.Cmp.tipo_cambio);
+                }
+
+                if (((this.data.objPadre.mycls == 'RendicionDetReg' || this.data.objPadre.mycls== 'RendicionDetTes')  && this.mycls == 'FormRendicionCD') || ((this.data.objPadre.mycls == 'SolicitudRendicionDet')  && this.mycls == 'FormRendicion') ){
+
                     if (this.data.datosOriginales.data.revisado == 'si' || this.data.boton_rendicion=='readOnly') {
                         this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
                         this.Cmp.mod_rev.setValue(this.data.datosOriginales.data.revisado);
@@ -2159,7 +2356,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         this.Cmp.importe_doc.setDisabled(true);
 
                         if (this.data.datosOriginales.data.id_moneda == 2) {
-                            this.mostrarComponente(this.Cmp.tipo_cambio);                            
+                            this.mostrarComponente(this.Cmp.tipo_cambio);
                         }
                         else {
                             this.ocultarComponente(this.Cmp.tipo_cambio);
@@ -2180,12 +2377,13 @@ header("content-type: text/javascript; charset=UTF-8");
                     }
                     this.Cmp.mod_rev.setValue(this.data.datosOriginales.data.revisado);
                     this.Cmp.boton_rendicion.setValue(this.data.boton_rendicion);
+                    console.log('llegam',this.data.datosOriginales.data.id_moneda );
                     if (this.data.datosOriginales.data.id_moneda == 2) {
-                        this.mostrarComponente(this.Cmp.tipo_cambio);                            
+                        this.mostrarComponente(this.Cmp.tipo_cambio);
                     }
                     else {
                         this.ocultarComponente(this.Cmp.tipo_cambio);
-                    }                                        
+                    }
                 }
             }
         },
@@ -2200,6 +2398,13 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.importe_pendiente.setValue(0);
             this.Cmp.importe_anticipo.setValue(0);
             this.Cmp.importe_retgar.setValue(0);
+
+            this.Cmp.importe_iehd.setValue(0);
+            this.Cmp.importe_ipj.setValue(0);
+            this.Cmp.importe_tasas.setValue(0);
+            this.Cmp.importe_gift_card.setValue(0);
+            this.Cmp.otro_no_sujeto_credito_fiscal.setValue(0);
+            this.Cmp.importe_compras_gravadas_tasa_cero.setValue(0);
         },
 
         mostrarImportes: function (datos) {
@@ -2253,6 +2458,8 @@ header("content-type: text/javascript; charset=UTF-8");
             //load detalle de conceptos
             if (this.regitrarDetalle == 'si') {
                 this.detCmp.id_centro_costo.store.baseParams.id_depto = this.data.id_depto;
+                console.log('llelgagestion',this.Cmp.id_doc_compra_venta.getValue())
+                console.log('llelgagestion222',this.Cmp.id_doc_compra_venta.getValue())
                 this.mestore.baseParams.id_doc_compra_venta = this.Cmp.id_doc_compra_venta.getValue();
                 this.mestore.load()
             }
@@ -2267,6 +2474,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.accionFormulario = 'NEW';
             this.Cmp.nit.modificado = true;
             this.Cmp.nro_autorizacion.modificado = true;
+            this.Cmp.otro_no_sujeto_credito_fiscal.modificado = true;
             this.esconderImportes();
 
 
@@ -2279,6 +2487,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         onSubmit: function (o) {
             var me = this;
+
             if (me.regitrarDetalle == 'si') {
                 //  validar formularios
                 var arra = [], total_det = 0.0, i;

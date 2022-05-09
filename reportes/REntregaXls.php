@@ -436,18 +436,41 @@ class REntregaXls
             'size'=>10,
             'name'=>Arial));
 
-        $sheet->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-        $sheet->setCellValueByColumnAndRow(0,2,strtoupper("ID ".$this->objParam->getParametro('id_entrega')));
+        $sheet->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+        $sheet->setCellValueByColumnAndRow(0,2,strtoupper("ID :      ".$this->objParam->getParametro('id_entrega')));
         $sheet->mergeCells('A2:D2');
+
         //FECHAS
         $sheet->getStyle('A3')->getFont()->applyFromArray(array(
             'bold'=>true,
             'size'=>10,
             'name'=>Arial));
 
-        $sheet->getStyle('A3')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-        $sheet->setCellValueByColumnAndRow(0,3,$this->objParam->getParametro('nro_tramite'));
+        $sheet->getStyle('A3')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+        $sheet->setCellValueByColumnAndRow(0,3,strtoupper("NÚMERO TRÁMITE :    ".$this->objParam->getParametro('nro_tramite')));
+        //$sheet->setCellValueByColumnAndRow(0,3,$this->objParam->getParametro('nro_tramite'));
         $sheet->mergeCells('A3:D3');
+
+        $sheet->getStyle('A4')->getFont()->applyFromArray(array(
+            'bold'=>true,
+            'size'=>10,
+            'name'=>Arial));
+
+        $sheet->getStyle('A4')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+        $sheet->setCellValueByColumnAndRow(0,4,"FECHA :    ".$this->objParam->getParametro('fecha'));
+        $sheet->mergeCells('A4:D4');
+
+
+        $sheet->getStyle('A5')->getFont()->applyFromArray(array(
+            'bold'=>true,
+            'size'=>10,
+            'name'=>Arial));
+
+        $sheet->getStyle('A5')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+        $sheet->setCellValueByColumnAndRow(0,5,"TIPO DE CAMBIO :    ".$this->objParam->getParametro('tipo_cambio_2'));
+        $sheet->mergeCells('A5:D5');
+
+
 
     }
 

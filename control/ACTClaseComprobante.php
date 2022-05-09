@@ -10,6 +10,10 @@
 class ACTClaseComprobante extends ACTbase{    
 			
 	function listarClaseComprobante(){
+
+        $this->objParam->defecto('ordenacion','id_clase_comprobante');
+        $this->objParam->defecto('dir_ordenacion','asc');
+        
         if($this->objParam->getParametro('tipo')=='diario'){
             $this->objParam->addFiltro("ccom.id_clase_comprobante in (''3'',''4'')");
         }
@@ -17,9 +21,11 @@ class ACTClaseComprobante extends ACTbase{
         if($this->objParam->getParametro('tipo')=='pago'){
             $this->objParam->addFiltro("ccom.id_clase_comprobante in (''1'',''5'')");
         }
-		$this->objParam->defecto('ordenacion','id_clase_comprobante');
 
-		$this->objParam->defecto('dir_ordenacion','asc');
+        if( $this->objParam->getParametro('clase') != '' ){
+            $this->objParam->addFiltro("ccom.clase in (''".$this->objParam->getParametro('clase')."'')");
+        }
+
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODClaseComprobante','listarClaseComprobante');

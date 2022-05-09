@@ -11,6 +11,8 @@ require_once dirname(__FILE__) . '/../../pxp/lib/lib_reporte/ReportePDFFormulari
 require_once(dirname(__FILE__) . '/../reportes/RLcv.php');
 require_once(dirname(__FILE__) . '/../reportes/RLcvVentas.php');
 
+require_once(dirname(__FILE__) . '/../reportes/RepDocCompraVentaExt.php');
+
 class ACTDocCompraVenta extends ACTbase
 {
 
@@ -22,6 +24,14 @@ class ACTDocCompraVenta extends ACTbase
 
         if ($this->objParam->getParametro('id_periodo') != '') {
             $this->objParam->addFiltro("dcv.id_periodo = " . $this->objParam->getParametro('id_periodo'));
+        }
+        //31-01-2022 (may) para facturas de fondos anteriores
+        if ($this->objParam->getParametro('fecha') != '') {
+            $fecha = new DateTime($this->objParam->getParametro('fecha'));
+            $fecha_gestion =  date_format($fecha,'Y');
+            $fecha_gestion_anterior = $fecha_gestion-1 ;
+
+            $this->objParam->addFiltro("dcv.fecha  between '' 1/1/".$fecha_gestion_anterior. "'' and '' 31/12/".($fecha_gestion_anterior). "'' ");
         }
 
         //filtro para facturas para cada plan de pagos
@@ -46,16 +56,45 @@ class ACTDocCompraVenta extends ACTbase
 
         if ($this->objParam->getParametro('sin_cbte') == 'si') {
             $this->objParam->addFiltro("dcv.id_int_comprobante is NULL");
+
+            //09-07-2020 (may) modificacion control de fecha en filtro de documentos
+            $fecha = new DateTime($this->objParam->getParametro('fecha_cbte'));
+            $fecha_gestion =  date_format($fecha,'Y');
+            //20/07/2020 (may) modificacion para que se puedan ver facturas hasta de una gestion anterior
+            $fecha_gestion_anterior = $fecha_gestion-1 ;
+
+            $this->objParam->addFiltro("dcv.fecha  between '' 1/1/".$fecha_gestion_anterior. "'' and '' 31/12/".($fecha_gestion). "'' ");
+            //(21-01-2022) (may) caso ecepcional si es proceso del 2021 y necesiten listar facturas 2022
+            //$this->objParam->addFiltro("dcv.fecha  between '' 1/1/".$fecha_gestion_anterior. "'' and '' 31/12/".($fecha_gestion+1). "'' ");
+            //
+
         } else {
             /* en algunos casos es necesario relacionar con documentos con fechas mayores
             if($this->objParam->getParametro('manual')!=''){
                 $this->objParam->addFiltro("dcv.manual = ''".$this->objParam->getParametro('manual')."''");
             }*/
 
-            if ($this->objParam->getParametro('fecha_cbte') != '') {
-                $this->objParam->addFiltro("dcv.fecha <= ''" . $this->objParam->getParametro('fecha_cbte') . "''::date");
+            //01-02-2022 (may) facturas de gestiones posteriores
+            if ($this->objParam->getParametro('ges_post') == 'si') {
+
+                $fecha = new DateTime($this->objParam->getParametro('fecha_cbte'));
+                $fecha_gestion =  date_format($fecha,'Y');
+                $fecha_gestion_posterior = $fecha_gestion + 1 ;
+                $this->objParam->addFiltro("dcv.fecha  between ''01/01/".$fecha_gestion_posterior."'' and ''31/12/".$fecha_gestion_posterior."'' ");
+
+            }else {
+
+                if ($this->objParam->getParametro('fecha_cbte') != '') {
+                    $this->objParam->addFiltro("dcv.fecha <= ''" . $this->objParam->getParametro('fecha_cbte') . "''::date");
+                }
+
             }
+
+
         }
+
+
+
 
         if ($this->objParam->getParametro('filtro_usuario') == 'si') {
             $this->objParam->addFiltro("dcv.id_usuario_reg = " . $_SESSION["ss_id_usuario"]);
@@ -77,6 +116,11 @@ class ACTDocCompraVenta extends ACTbase
 
 		if ($this->objParam->getParametro('isRendicionDet') != '') {
             $this->objParam->addFiltro("NOT EXISTS(select * from cd.trendicion_det rd where dcv.id_doc_compra_venta = rd.id_doc_compra_venta and rd.estado_reg = ''activo'') ");
+        }
+
+		//18-03-2021 (may) para caja chica
+		if ($this->objParam->getParametro('isRendicionDetCC') == 'si') {
+            $this->objParam->addFiltro("NOT EXISTS(select * from tes.tsolicitud_rendicion_det srd where dcv.id_doc_compra_venta = srd.id_documento_respaldo and srd.estado_reg = ''activo'') ");
         }
 
         if ($this->objParam->getParametro('tipoReporte') == 'excel_grid' || $this->objParam->getParametro('tipoReporte') == 'pdf_grid') {
@@ -728,6 +772,322 @@ class ACTDocCompraVenta extends ACTbase
     }
 
 
+    function reporteCompraExt()
+    {
+
+        $this->objFunc = $this->create('MODDocCompraVenta');
+        $this->res = $this->objFunc->reporteCompraExt($this->objParam);
+        //var_dump( $this->res);exit;
+        //obtener titulo del reporte
+        $titulo = 'RepDocCompraVentaExt';
+
+        //Genera el nombre del archivo (aleatorio + titulo)
+        $nombreArchivo = uniqid(md5(session_id()) . $titulo);
+        $nombreArchivo .= '.xls';
+        $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
+
+        $this->objParam->addParametro('datos', $this->res->datos);
+        //Instancia la clase de excel
+        $this->objReporteFormato = new RepDocCompraVentaExt($this->objParam);
+//        var_dump('llegaaa',$this->res);exit;
+        $this->objReporteFormato->generarDatos();
+        $this->objReporteFormato->generarReporte();
+        $this->mensajeExito = new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado',
+            'Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
+
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+    }
+
+    // 11-03-2020 (may) doc compra de las internacionales
+    function insertarDocCompletoEXT()
+    {
+        $this->objFunc = $this->create('MODDocCompraVenta');
+        if ($this->objParam->insertar('id_doc_compra_venta')) {
+            $this->res = $this->objFunc->insertarDocCompletoEXT($this->objParam);
+        } else {
+            //TODO
+            //$this->res=$this->objFunc->modificarSolicitud($this->objParam);
+            //trabajar en la modificacion compelta de solicitud ....
+            $this->res = $this->objFunc->modificarDocCompletoEXT($this->objParam);
+        }
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    // 11-03-2020 (may) doc compra de las internacionales
+    function listarDocCompraVentaEXT()
+    {
+        $this->objParam->defecto('ordenacion', 'id_doc_compra_venta');
+
+        $this->objParam->defecto('dir_ordenacion', 'asc');
+
+        if ($this->objParam->getParametro('id_periodo') != '') {
+            $this->objParam->addFiltro("dcv.id_periodo = " . $this->objParam->getParametro('id_periodo'));
+        }
+
+        //filtro para facturas para cada plan de pagos
+//        if ($this->objParam->getParametro('id_int_comprobante') == '') {
+        if ($this->objParam->getParametro('id_plan_pago') != '') {
+            $this->objParam->addFiltro("dcv.id_plan_pago = " . $this->objParam->getParametro('id_plan_pago'));
+        }
+        //else
+//            {
+////            $this->objParam->addFiltro("dcv.id_plan_pago is NULL and dcv.id_int_comprobante is NULL");
+//            $this->objParam->addFiltro("dcv.id_plan_pago = " . $this->objParam->getParametro('id_plan_pago'));
+//        }
+//        }
+
+        if ($this->objParam->getParametro('id_int_comprobante') != '') {
+            $this->objParam->addFiltro("dcv.id_int_comprobante = " . $this->objParam->getParametro('id_int_comprobante'));
+        }
+
+        if ($this->objParam->getParametro('tipo') != '') {
+            $this->objParam->addFiltro("dcv.tipo = ''" . $this->objParam->getParametro('tipo') . "''");
+        }
+
+        if ($this->objParam->getParametro('sin_cbte') == 'si') {
+            $this->objParam->addFiltro("dcv.id_int_comprobante is NULL");
+        } else {
+            /* en algunos casos es necesario relacionar con documentos con fechas mayores
+            if($this->objParam->getParametro('manual')!=''){
+                $this->objParam->addFiltro("dcv.manual = ''".$this->objParam->getParametro('manual')."''");
+            }*/
+
+            if ($this->objParam->getParametro('fecha_cbte') != '') {
+                $this->objParam->addFiltro("dcv.fecha <= ''" . $this->objParam->getParametro('fecha_cbte') . "''::date");
+            }
+        }
+
+        if ($this->objParam->getParametro('filtro_usuario') == 'si') {
+            $this->objParam->addFiltro("dcv.id_usuario_reg = " . $_SESSION["ss_id_usuario"]);
+        }
+
+        if ($this->objParam->getParametro('id_depto') != '') {
+            if ($this->objParam->getParametro('id_depto') != 0)
+                $this->objParam->addFiltro("dcv.id_depto_conta = " . $this->objParam->getParametro('id_depto'));
+        }
+
+        if ($this->objParam->getParametro('relacionado') != '') {
+            if ($this->objParam->getParametro('relacionado')=='no')
+                $this->objParam->addFiltro("dcv.id_plan_pago is null");
+        }
+
+        if ($this->objParam->getParametro('id_agrupador') != '') {
+            $this->objParam->addFiltro("dcv.id_doc_compra_venta not in (select ad.id_doc_compra_venta from conta.tagrupador_doc ad where ad.id_agrupador = " . $this->objParam->getParametro('id_agrupador') . ") ");
+        }
+
+        if ($this->objParam->getParametro('isRendicionDet') != '') {
+            $this->objParam->addFiltro("NOT EXISTS(select * from cd.trendicion_det rd where dcv.id_doc_compra_venta = rd.id_doc_compra_venta and rd.estado_reg = ''activo'') ");
+        }
+
+        if ($this->objParam->getParametro('tipoReporte') == 'excel_grid' || $this->objParam->getParametro('tipoReporte') == 'pdf_grid') {
+            $this->objReporte = new Reporte($this->objParam, $this);
+            $this->res = $this->objReporte->generarReporteListado('MODDocCompraVenta', 'listarDocCompraVentaEXT');
+        } else {
+            $this->objFunc = $this->create('MODDocCompraVenta');
+            $this->res = $this->objFunc->listarDocCompraVentaEXT($this->objParam);
+        }
+
+        $temp = Array();
+        $temp['desc_plantilla'] ='TOTAL';
+        $temp['importe_ice'] = $this->res->extraData['total_importe_ice'];
+        $temp['importe_excento'] = $this->res->extraData['total_importe_excento'];
+        $temp['importe_it'] = $this->res->extraData['total_importe_it'];
+        $temp['importe_iva'] = $this->res->extraData['total_importe_iva'];
+        $temp['importe_descuento'] = $this->res->extraData['total_importe_descuento'];
+        $temp['importe_doc'] = $this->res->extraData['total_importe_doc'];
+        $temp['importe_retgar'] = $this->res->extraData['total_importe_retgar'];
+        $temp['importe_anticipo'] = $this->res->extraData['total_importe_anticipo'];
+        $temp['importe_pendiente'] = $this->res->extraData['tota_importe_pendiente'];
+        $temp['importe_neto'] = $this->res->extraData['total_importe_neto'];
+        $temp['importe_descuento_ley'] = $this->res->extraData['total_importe_descuento_ley'];
+        $temp['importe_pago_liquido'] = $this->res->extraData['total_importe_pago_liquido'];
+        $temp['importe_aux_neto'] = $this->res->extraData['total_importe_aux_neto'];
+
+
+        $temp['tipo_reg'] = 'summary';
+        $temp['id_doc_compra_venta'] = 0;
+
+
+        $this->res->total++;
+
+        $this->res->addLastRecDatos($temp);
+
+
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    // breydi vasquez 
+    function listarFacturasXFuncionario()
+    {
+        $this->objParam->defecto('ordenacion', 'id_doc_compra_venta');
+        $this->objParam->defecto('dir_ordenacion', 'asc');
+
+        // inicio filtros 
+        if ($this->objParam->getParametro('id_depto') != '') {
+            $this->objParam->getParametro('id_depto') != 0 && $this->objParam->addFiltro("dcv.id_depto_conta = " . $this->objParam->getParametro('id_depto'));
+        }
+
+        $this->objParam->getParametro('id_periodo') != '' && $this->objParam->addFiltro("dcv.id_periodo = " . $this->objParam->getParametro('id_periodo'));
+        $this->objParam->getParametro('tipo') != '' && $this->objParam->addFiltro("dcv.tipo = ''" . $this->objParam->getParametro('tipo') . "''");
+
+        // fin 
+
+        if ($this->objParam->getParametro('tipoReporte') == 'excel_grid' || $this->objParam->getParametro('tipoReporte') == 'pdf_grid') {
+            $this->objReporte = new Reporte($this->objParam, $this);
+            $this->res = $this->objReporte->generarReporteListado('MODDocCompraVenta', 'listarFacturasXFuncionario');
+        } else {
+            $this->objFunc = $this->create('MODDocCompraVenta');
+            $this->res = $this->objFunc->listarFacturasXFuncionario($this->objParam);
+        }
+
+        $datos = Array();
+        $datos['importe_ice'] = $this->res->extraData['total_importe_ice'];
+        $datos['importe_excento'] = $this->res->extraData['total_importe_excento'];
+        $datos['importe_it'] = $this->res->extraData['total_importe_it'];
+        $datos['importe_iva'] = $this->res->extraData['total_importe_iva'];
+        $datos['importe_descuento'] = $this->res->extraData['total_importe_descuento'];
+        $datos['importe_doc'] = $this->res->extraData['total_importe_doc'];
+        $datos['importe_retgar'] = $this->res->extraData['total_importe_retgar'];
+        $datos['importe_anticipo'] = $this->res->extraData['total_importe_anticipo'];
+        $datos['importe_pendiente'] = $this->res->extraData['tota_importe_pendiente'];
+        $datos['importe_neto'] = $this->res->extraData['total_importe_neto'];
+        $datos['importe_descuento_ley'] = $this->res->extraData['total_importe_descuento_ley'];
+        $datos['importe_pago_liquido'] = $this->res->extraData['total_importe_pago_liquido'];
+        $datos['importe_aux_neto'] = $this->res->extraData['total_importe_aux_neto'];
+        $datos['tipo_reg'] = 'summary';
+        $datos['id_doc_compra_venta'] = 0;
+        $this->res->total++;
+        $this->res->addLastRecDatos($datos);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }    
+
+    function listarDeptoFiltradoDeptoUsuarioConta() {
+        // parametros de ordenacion por defecto
+        $this->objParam->defecto('ordenacion', 'depto');
+        $this->objParam->defecto('dir_ordenacion', 'asc');         
+        $this->objFunc = $this->create('MODDocCompraVenta');        
+        $this->res = $this->objFunc->listarDeptoFiltradoDeptoUsuarioConta($this->objParam);        
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    /**{developer:franklin.espinoza, date:20/01/2021, description: Obtener Datos de Factura DBLink}**/
+    function getDataDocVenta(){
+
+        $this->objParam->defecto('ordenacion', 'fecha_factura');
+        $this->objParam->defecto('dir_ordenacion', 'asc');
+
+
+        if ($this->objParam->getParametro('tipoReporte') == 'excel_grid' || $this->objParam->getParametro('tipoReporte') == 'pdf_grid') {
+            $this->objReporte = new Reporte($this->objParam, $this);
+            $this->res = $this->objReporte->generarReporteListado('MODDocCompraVenta', 'getDataDocVenta');
+        } else {
+            $this->objFunc = $this->create('MODDocCompraVenta');
+            $this->res = $this->objFunc->getDataDocVenta($this->objParam);
+        }
+        
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    /**{developer:franklin.espinoza, date:20/01/2021, description: Obtener Datos de Factura DBLink}**/
+
+    /**{developer:franklin.espinoza, date:25/01/2021, description: Modificacar Nit, Razon Social mediante procedimiento SQL}**/
+    function modificarNitRazonSocial(){
+        $this->objFunc = $this->create('MODDocCompraVenta');
+        $this->res = $this->objFunc->modificarNitRazonSocial($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    /**{developer:franklin.espinoza, date:25/01/2021, description: Modificacar Nit, Razon Social mediante procedimiento SQL}**/
+
+    /**{developer:franklin.espinoza, date:01/02/2021, description: Lista las facturas corregidas}**/
+    function listaCorreccionVenta(){
+
+
+        $this->objParam->defecto('ordenacion','fecha_reg');
+        $this->objParam->defecto('dir_ordenacion','desc');
+
+        $this->objFunc = $this->create('MODDocCompraVenta');
+        $this->res = $this->objFunc->listaCorreccionVenta($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    /**{developer:franklin.espinoza, date:01/02/2021, description: Lista las facturas corregidas}**/
+
+
+    /**{developer:franklin.espinoza, date:05/02/2021, description: Listado de los archivos generados PDF}**/
+    function listaDocumentoGenerado(){
+
+
+        $this->objParam->defecto('ordenacion','fecha_reg');
+        $this->objParam->defecto('dir_ordenacion','desc');
+
+        if ($this->objParam->getParametro('formato') != '') {
+                $this->objParam->addFiltro("tcd.format = ''" . $this->objParam->getParametro('formato')."''");
+        }
+
+        $this->objFunc = $this->create('MODDocCompraVenta');
+        $this->res = $this->objFunc->listaDocumentoGenerado($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    /**{developer:franklin.espinoza, date:05/02/2021, description: Listado de los archivos generados PDF}**/
+
+
+    /**{developer:franklin.espinoza, date:20/01/2021, description: Obtener Datos por Tipo Factura DBLink}**/
+    function getDataTipoDocumento(){
+
+        $this->objParam->defecto('ordenacion', 'fecha_factura');
+        $this->objParam->defecto('dir_ordenacion', 'asc');
+
+        $show = $this->objParam->getParametro('tipo_show');
+
+        if ( $show == 'COMPUTARIZADA' ) {
+            $this->objParam->addFiltro("tfa.tipo_factura in (''computarizada'',''Computarizada'') and tfa.sistema_origen in (''CARGA'', ''ERP'') ");
+        }
+
+        if ( $show == 'CARGA' ) {
+            $this->objParam->addFiltro("tfa.tipo_factura in (''computarizada'',''Computarizada'') and tfa.sistema_origen = ''CARGA'' ");
+        }
+
+        if ( $show == 'ERP' ) {
+            $this->objParam->addFiltro("tfa.tipo_factura in (''computarizada'',''Computarizada'') and tfa.sistema_origen = ''ERP''");
+        }
+
+        if ( $show == 'manual' ) {
+            $this->objParam->addFiltro("tfa.tipo_factura in (''" . $show ."'') and tfa.sistema_origen = ''ERP''");
+        }
+
+        if ( $show == 'BOLETOS' ) {
+            $this->objParam->addFiltro("tfa.tipo_factura in (''CANX'',''TKTT'',''CANN'',''EMDS'')");
+        }
+
+        if ( $show != 'COMPUTARIZADA' && $show != 'CARGA' && $show != 'ERP'  && $show != 'manual' && $show != 'BOLETOS') {
+            $this->objParam->addFiltro("tfa.tipo_factura in (''" . $this->objParam->getParametro('tipo_show')."'')");
+        }
+
+        if ($this->objParam->getParametro('tipoReporte') == 'excel_grid' || $this->objParam->getParametro('tipoReporte') == 'pdf_grid') {
+            $this->objReporte = new Reporte($this->objParam, $this);
+            $this->res = $this->objReporte->generarReporteListado('MODDocCompraVenta', 'getDataTipoDocumento');
+        } else {
+            $this->objFunc = $this->create('MODDocCompraVenta');
+            $this->res = $this->objFunc->getDataTipoDocumento($this->objParam);
+
+            $temp = Array();
+            $temp['razon_social_cli'] = 'TOTAL: ';
+            $temp['importe_total_venta'] = $this->res->extraData['importe_total_venta'];
+            $temp['importe_otros_no_suj_iva'] = $this->res->extraData['importe_otros_no_suj_iva'];
+            $temp['exportacion_excentas'] = $this->res->extraData['exportacion_excentas'];
+            $temp['ventas_tasa_cero'] = $this->res->extraData['ventas_tasa_cero'];
+            $temp['descuento_rebaja_suj_iva'] = $this->res->extraData['descuento_rebaja_suj_iva'];
+            $temp['importe_debito_fiscal'] = $this->res->extraData['importe_debito_fiscal'];
+
+            $temp['tipo_reg'] = 'summary';
+
+            //$this->res->total++;
+            $this->res->addLastRecDatos($temp);
+        }
+
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    /**{developer:franklin.espinoza, date:20/01/2021, description: Obtener Datos por Tipo Factura DBLink}**/
 }
 
 ?>

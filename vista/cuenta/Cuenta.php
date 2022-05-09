@@ -357,6 +357,7 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
    				allowBlank:false,
    				gdisplayField:'desc_moneda',//mapea al store del grid
    			    gwidth:200,
+                baseParams: { filtrar: ''},
    			     renderer:function (value, p, record){return String.format('{0}', record.data['desc_moneda']);}
        	     },
    			type:'ComboRec',

@@ -36,6 +36,8 @@ class MODMonedaPais extends MODbase{
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
 		$this->captura('desc_moneda','varchar');
+		$this->captura('codigo_internacional','varchar');
+		$this->captura('moneda','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -85,7 +87,8 @@ class MODMonedaPais extends MODbase{
 
 		$respuesta = $resp_procedimiento['datos'];
 
-		$this->insertarMonedaPaisSQLServer($respuesta);
+        // 18-04-2022 ANPM Se comenta por no ser necesario la insercion a otras bases
+		//$this->insertarMonedaPaisSQLServer($respuesta);
 
 		//si todo va bien confirmamos y regresamos el resultado
 		$link->commit();
@@ -185,7 +188,9 @@ class MODMonedaPais extends MODbase{
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
-		$this->modificarMonedaPaisSQLServer();
+
+        // 18-04-2022 ANPM Se comenta por no ser necesario la insercion a otras bases
+		//$this->modificarMonedaPaisSQLServer();
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
@@ -222,7 +227,8 @@ class MODMonedaPais extends MODbase{
 
 		$respuesta = $resp_procedimiento['datos'];
 
-		$this->eliminarMonedaPaisSQLServer($respuesta);
+        // 18-04-2022 ANPM Se comenta por no ser necesario la insercion a otras bases
+		//$this->eliminarMonedaPaisSQLServer($respuesta);
 
 		//si todo va bien confirmamos y regresamos el resultado
 		$link->commit();

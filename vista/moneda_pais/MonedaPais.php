@@ -348,7 +348,7 @@ Phx.vista.MonedaPais=Ext.extend(Phx.gridInterfaz,{
 	},
 	bdel:true,
 	bsave:false,
-  bexcel:false,
+  bexcel:true,
 	btest:false,
   fwidth : 420,
   fheight : 250,

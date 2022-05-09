@@ -20,6 +20,13 @@ class ACTMonedaPais extends ACTbase{
         }
 		/*********************************************************/
 
+		/*Aumentando para listar el combo de la moneda especificos
+		Ismael Valdivia (28/04/2021)*/
+		if($this->objParam->getParametro('combo') != ''){
+            $this->objParam->addFiltro(" monpa.filtrar_combo = ''".$this->objParam->getParametro('combo')."''");
+        }
+		/**********************************************************/
+
 
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);

@@ -638,12 +638,42 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 					
 					this.Cmp.tipo_documento_pago.setValue(4);
 				 	}, scope : this
-				}); 
-				
+				});
+
+
+
 			}
 			else if(this.Cmp.id_cuenta_bancaria.getValue() == 79){
                 this.Cmp.tipo_documento_pago.reset();
                 this.Cmp.tipo_documento_pago.store.baseParams.descripcion = "Transferencia de fondos";
+                this.Cmp.tipo_documento_pago.modificado = true;
+
+
+                this.Cmp.tipo_documento_pago.store.load({params:{start:0,limit:10},
+                    callback:function(){
+
+                        this.Cmp.tipo_documento_pago.setValue(4);
+                    }, scope : this
+                });
+            }
+			else if(this.Cmp.id_cuenta_bancaria.getValue() == 81){
+                //81 Nro Cuenta: 30000132553 CITY NATIONAL BANK OF FLORIDA
+                this.Cmp.tipo_documento_pago.reset();
+                this.Cmp.tipo_documento_pago.store.baseParams.descripcion = "Transferencia de fondos";
+                this.Cmp.tipo_documento_pago.modificado = true;
+
+
+                this.Cmp.tipo_documento_pago.store.load({params:{start:0,limit:10},
+                    callback:function(){
+
+                        this.Cmp.tipo_documento_pago.setValue(4);
+                    }, scope : this
+                });
+            }
+			else if(this.Cmp.id_cuenta_bancaria.getValue() == 10){
+                //81 Nro Cuenta: 30000132553 CITY NATIONAL BANK OF FLORIDA
+                this.Cmp.tipo_documento_pago.reset();
+                this.Cmp.tipo_documento_pago.store.baseParams.descripcion = "Depósito en cuenta";
                 this.Cmp.tipo_documento_pago.modificado = true;
 
 
@@ -1619,7 +1649,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 			config: {
 				name: 'tipo_documento_pago',
 				fieldLabel: 'Tipo de Documento de Pago',
-                disabled: true,
+                disabled: false,
 				allowBlank: false,
 				emptyText: 'Elija una opción...',
 				store: new Ext.data.JsonStore({

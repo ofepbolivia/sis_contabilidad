@@ -28,9 +28,8 @@ header("content-type: text/javascript; charset=UTF-8");
 
         constructor: function (config) {
             var me = this;
-            me.bMedios = [];
-
-            me.addButtonCustom(config.idContenedor, 'ant_estado', {
+            //me.bMedios = [];
+            /*me.addButtonCustom(config.idContenedor, 'ant_estado', {
                 text: 'Anterior',
                 iconCls: 'batras',
                 disabled: true,
@@ -44,9 +43,39 @@ header("content-type: text/javascript; charset=UTF-8");
                 disabled: true,
                 handler: this.sigEstado,
                 tooltip: '<b>Pasar al Siguiente Estado</b>'
-            });
+            });*/
+
+            /*this.addButtonCustom(config.idContenedor, 'sigep_vb', {
+                text : 'ENVIAR SIGEP',
+                iconCls : 'bball_green',
+                disabled : true,
+                handler : this.onSigepWizard,
+                tooltip: '<b>Procesar en el Sigep</b>'
+            });*/
 
             Phx.vista.VbIntComprobante.superclass.constructor.call(this, config);
+
+            //Siguiente
+            this.addButtonIndex(5,'sig_estado', {
+                text: 'Aprobar',
+                grupo: [0, 1, 2, 3],
+                iconCls: 'badelante',
+                disabled: true,
+                handler: this.sigEstado,
+                tooltip: '<b>Pasar al Siguiente Estado</b>'
+            });
+            //Anterior
+            this.addButtonIndex(5,'ant_estado',{
+                grupo: [0,1,2,3,4,5],
+                argument: {estado: 'anterior'},
+                text: 'Anterior',
+                iconCls: 'batras',
+                hidden: false,
+                handler: this.antEstado,
+                tooltip: '<b>Volver al Anterior Estado</b>'
+            });
+
+
 
             this.addButton('btnAIRBP',
                 {
@@ -86,10 +115,374 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: '<b>Hacer editable</b><br/>Si la edición esta deshabilitada toma un backup y la habilita'
             });
 
+            this.store.baseParams.estado_cbte = this.pes_estado;
             this.init();
+
+            //this.sm.on('rowselect', this.getPlazoSelect,this);
+            //this.sm.on('rowdeselect', this.getPlazoDeselect,this);
+        },
+
+        cmbDepto: new Ext.form.AwesomeCombo({
+            name: 'id_depto',
+            fieldLabel: 'Depto',
+            typeAhead: false,
+            forceSelection: true,
+            allowBlank: false,
+            disableSearchButton: true,
+            emptyText: 'Depto Contable',
+            store: new Ext.data.JsonStore({
+                url: '../../sis_parametros/control/Depto/listarDeptoFiltradoPrioridadEXT',
+                id: 'id_depto',
+                root: 'datos',
+                sortInfo: {
+                    field: 'deppto.nombre',
+                    direction: 'ASC'
+                },
+                totalProperty: 'total',
+                fields: ['id_depto', 'nombre', 'codigo'],
+                // turn on remote sorting
+                remoteSort: true,
+                baseParams: {
+                    par_filtro: 'deppto.nombre#deppto.codigo',
+                    estado: 'activo',
+                    codigo_subsistema: 'CONTA'
+                }
+            }),
+            valueField: 'id_depto',
+            displayField: 'nombre',
+            hiddenName: 'id_depto',
+            enableMultiSelect: true,
+            triggerAction: 'all',
+            lazyRender: true,
+            mode: 'remote',
+            pageSize: 20,
+            queryDelay: 200,
+            anchor: '80%',
+            listWidth: '280',
+            resizable: true,
+            minChars: 2
+        }),
+
+        /*===================================================BEGIN ESTADO ANTERIOR======================================================*/
+        antEstado:function(res){
+            var rec=this.sm.getSelected();
+            Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/AntFormEstadoWf.php',
+                'Estado de Wf',
+                {
+                    modal:true,
+                    width:450,
+                    height:250
+                }, {
+                    data:rec.data,
+                    estado_destino: res.argument.estado
+                },
+                this.idContenedor,'AntFormEstadoWf',
+                {
+                    config:[{
+                        event:'beforesave',
+                        delegate: this.onAntEstado,
+                    }
+                    ],
+                    scope:this
+                })
+        },
+
+        desverificaProcesoSigep : function (wizard,response){
+            var record = this.getSelectedData();
+            console.log('record Desverifica', record);
+            Ext.Ajax.request({
+                url:'../../sis_sigep/control/SigepAdq/readyProcesoSigep',
+                params:{
+                    id_service_request : record.id_service_request,
+                    estado_reg : record.estado_reg,
+                    momento : 'pass',
+                    direction : 'previous'
+                },
+                success: function (resp) {
+                    var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
+                    var datos = reg.ROOT.datos;
+                    console.log('desverificaProcesoSigep',datos);
+                    if(datos.process){
+
+                        Phx.CP.loadingHide();
+                        Ext.Ajax.request({
+                            url:'../../sis_contabilidad/control/IntComprobante/anteriorEstado',
+                            params:{
+                                id_proceso_wf: response.id_proceso_wf,
+                                id_estado_wf:  response.id_estado_wf,
+                                obs: response.obs,
+                                estado_destino: response.estado_destino
+                            },
+                            argument:{ wizard : wizard },
+                            success:this.successEstadoSinc,
+                            failure: this.conexionFailure,
+                            timeout:this.timeout,
+                            scope:this
+                        });
+                    }else{
+                        Phx.CP.loadingHide();
+                    }
+                },
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope:this
+            });
+        },
+
+        onAntEstado: function(wizard,resp){
+            var record = this.getSelectedData();
+            console.log('onAntEstado', record.estado_reg);
+            Phx.CP.loadingShow();
+            if(record.estado_reg == 'verificado'){
+                this.desverificaProcesoSigep(wizard,resp);
+            }else {
+                Ext.Ajax.request({
+                    url: '../../sis_contabilidad/control/IntComprobante/anteriorEstado',
+                    params: {
+                        id_proceso_wf: resp.id_proceso_wf,
+                        id_estado_wf: resp.id_estado_wf,
+                        obs: resp.obs,
+                        estado_destino: resp.estado_destino
+                    },
+                    argument: {wizard: wizard},
+                    success: this.successEstadoSinc,
+                    failure: this.conexionFailure,
+                    timeout: this.timeout,
+                    scope: this
+                });
+
+            }
+        },
+
+        successEstadoSinc:function(resp){
+            Phx.CP.loadingHide();
+            resp.argument.wizard.panel.destroy();
+            this.reload();
+        },
+
+        /*===================================================END ESTADO ANTERIOR======================================================*/
+
+        selectButton : function(grid, rowIndex, rec) {
+            let record = this.getSelectedData();
+
+            if(record.estado_reg == 'vbconta'){
+                this.getBoton('sigep_vb').setText('APROBAR SIGEP');
+            }else if(record.estado_reg == 'vbfin'){
+                this.getBoton('sigep_vb').setText('FIRMAR SIGEP');
+            }
+        },
+
+        deselectButton : function(grid, rowIndex, rec) {
+            this.getBoton('sigep_vb').setText('ENVIAR SIGEP');
+        },
+
+        /*==========================================================*/
+        /*=================================BEGIN WORKFLOW APROBAR=======================================*/
+        sigEstado: function () {
+            var rec = this.sm.getSelected();
+            this.mostrarWizard(rec, true);
+
 
         },
 
+        mostrarWizard: function (rec, validar_doc) {
+            var configExtra = [],
+                obsValorInicial;
+
+            this.objWizard = Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/FormEstadoWf.php',
+                'Estado de Wf',
+                {
+                    modal: true,
+                    width: 700,
+                    height: 450
+                },
+                {
+                    configExtra: configExtra,
+                    eventosExtra: this.eventosExtra,
+                    data: {
+                        id_estado_wf: rec.data.id_estado_wf,
+                        id_proceso_wf: rec.data.id_proceso_wf,
+                        id_int_comprobante: rec.data.id_int_comprobante,
+                        fecha_ini: rec.data.fecha
+                    },
+                    obsValorInicial: obsValorInicial,
+                }, this.idContenedor, 'FormEstadoWf',
+                {
+                    config: [{
+                        event: 'beforesave',
+                        delegate: this.onSaveWizard,
+
+                    },
+                        {
+                            event: 'requirefields',
+                            delegate: function () {
+                                this.onButtonEdit();
+                                this.window.setTitle('Registre los campos antes de pasar al siguiente estado');
+                                this.formulario_wizard = 'si';
+                            }
+
+                        }],
+
+                    scope: this
+                });
+        },
+        onSaveWizard: function (wizard, resp) {
+            this.mandarDatosWizard(wizard, resp, true);
+        },
+
+        mandarDatosWizard:function(wizard,resp, validar_doc){
+            var rec = this.getSelectedData();
+
+            console.log('wizardSIGP:',wizard,'respSIGP:',resp, rec);
+            Phx.CP.loadingShow();
+            if(rec.estado_reg == 'verificado'){
+                //if (rec.id_clase_comprobante == 3){
+                    this.onEgaAprobarCIP(wizard,resp);
+                //}
+
+            }else if(rec.estado_reg == 'aprobado'){
+                //if (rec.id_clase_comprobante == 3){
+                    this.onEgaFirmarCIP(wizard,resp);
+                //}
+            }
+
+        },
+
+        onEgaAprobarCIP: function(wizard, response){
+            /*let record = this.getSelectedData();
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url: '../../sis_sigep/control/SigepAdq/aprobarC31',
+                params: {
+                    id_service_request: record.id_service_request,
+                    service_code: 'C31_APROBAR'
+                },
+                success: function(resp){
+
+                },
+                failure: this.failureC, //chequea si esta en verificacion presupeusto para enviar correo de transferencia
+                //argument: {wizard: wizard},
+                timeout: this.timeout,
+                scope: this
+            });*/
+
+            let record = this.getSelectedData();
+            console.log('record', record, 'wizard', wizard, 'response', response);
+            Ext.Ajax.request({
+                url:'../../sis_sigep/control/SigepAdq/readyProcesoSigep',
+                params:{
+                    id_service_request : record.id_service_request,
+                    estado_reg : record.estado_reg,
+                    direction : 'next',
+                    momento : 'pass'
+                },
+                success: function (resp) {
+                    var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
+                    var datos = reg.ROOT.datos;
+                    console.log('aprobarProcesoSigep',datos);
+                    if(datos.process){
+
+                        Phx.CP.loadingHide();
+                        Ext.Ajax.request({
+                            url: '../../sis_contabilidad/control/IntComprobante/siguienteEstado',
+                            params: {
+                                id_int_comprobante: record.id_int_comprobante,
+                                id_proceso_wf_act: response.id_proceso_wf_act,
+                                id_estado_wf_act: response.id_estado_wf_act,
+                                id_tipo_estado: response.id_tipo_estado,
+                                id_funcionario_wf: response.id_funcionario_wf,
+                                id_depto_wf: response.id_depto_wf,
+                                obs: response.obs,
+                                instruc_rpc: response.instruc_rpc,
+                                json_procesos: Ext.util.JSON.encode(response.procesos),
+                                validar_doc: true
+
+                            },
+                            success: this.successWizard,
+                            failure: this.conexionFailure,
+                            argument: {wizard: wizard, id_proceso_wf: response.id_proceso_wf_act, resp: response},
+                            timeout: this.timeout,
+                            scope: this
+                        });
+                    }else{
+                        Phx.CP.loadingHide();
+                    }
+                },
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope:this
+            });
+        },
+
+        successWizard: function (resp) {
+            var rec = this.sm.getSelected();
+            Phx.CP.loadingHide();
+
+            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+
+            if (reg.ROOT.datos.operacion == 'falla') {
+
+
+                reg.ROOT.datos.desc_falla
+                if (confirm(reg.ROOT.datos.desc_falla + "\n¿Desea continuar de todas formas?")) {
+                    this.mandarDatosWizard(resp.argument.wizard, resp.argument.resp, false);
+                }
+                else {
+                    resp.argument.wizard.panel.destroy();
+                    this.reload();
+                }
+
+            }else {
+                resp.argument.wizard.panel.destroy();
+                this.reload();
+                if(rec.data.estado_reg == 'aprobado'){
+                    if (resp.argument.id_proceso_wf) {
+                        Phx.CP.loadingShow();
+                        Ext.Ajax.request({
+                            url: '../../sis_contabilidad/control/IntComprobante/reporteCbte',
+                            params: {
+                                'id_proceso_wf': resp.argument.id_proceso_wf
+                            },
+                            success: this.successExport,
+                            failure: this.conexionFailure,
+                            timeout: this.timeout,
+                            scope: this
+                        });
+                    }
+                }
+            }
+        },
+
+        /*=================================END WORKFLOW APROBAR=======================================*/
+
+        onEgaFirmarCIP: function(wizard,resp){
+            let record = this.getSelectedData();
+
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url: '../../sis_contabilidad/control/IntComprobante/siguienteEstado',
+                params: {
+                    id_int_comprobante: record.id_int_comprobante,
+                    id_proceso_wf_act: resp.id_proceso_wf_act,
+                    id_estado_wf_act: resp.id_estado_wf_act,
+                    id_tipo_estado: resp.id_tipo_estado,
+                    id_funcionario_wf: resp.id_funcionario_wf,
+                    id_depto_wf: resp.id_depto_wf,
+                    obs: resp.obs,
+                    instruc_rpc: resp.instruc_rpc,
+                    json_procesos: Ext.util.JSON.encode(resp.procesos),
+                    validar_doc: true
+
+                },
+                success: this.successWizard,
+                failure: this.conexionFailure,
+                argument: {wizard: wizard, id_proceso_wf: resp.id_proceso_wf_act, resp: resp},
+                timeout: this.timeout,
+                scope: this
+            });
+        },
+
+        /*==========================================================*/
 
         onButtonEdit: function () {
             this.swButton = 'EDIT';
@@ -190,7 +583,9 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         preparaMenu: function (n) {
             var tb = Phx.vista.VbIntComprobante.superclass.preparaMenu.call(this);
+
             var rec = this.sm.getSelected();
+
             if (rec.data.tipo_reg == 'summary') {
                 this.getBoton('btnSwEditble').disable();
                 this.getBoton('sig_estado').disable();
@@ -221,7 +616,9 @@ header("content-type: text/javascript; charset=UTF-8");
             } else {
                 this.getBoton('btnDocCmpVnt').disable();
             }
-
+            /*if('vbfin' == rec.data.estado_reg){
+                this.getBoton('sigep').enable();
+            }*/
 
             return tb;
         },
@@ -238,7 +635,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('diagrama_gantt').disable();
             this.getBoton('btnObs').disable()
             this.getBoton('ant_estado').disable()
-
+            //this.getBoton('sigep').disable();
 
         },
         /*
@@ -386,57 +783,7 @@ header("content-type: text/javascript; charset=UTF-8");
             title: 'Transacciones',
             height: '50%', //altura de la ventana hijo
             cls: 'IntTransaccionAux'
-        },
-
-        antEstado: function (res) {
-            var rec = this.sm.getSelected();
-            Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/AntFormEstadoWf.php',
-                'Estado de Wf',
-                {
-                    modal: true,
-                    width: 450,
-                    height: 250
-                },
-                {
-                data:  {//rec.data, estado_destino: res.argument.estado
-                    id_estado_wf: rec.data.id_estado_wf,
-                    id_proceso_wf: rec.data.id_proceso_wf,
-                    id_int_comprobante: rec.data.id_int_comprobante}
-                }, this.idContenedor, 'AntFormEstadoWf',
-                {
-                    config: [{
-                        event: 'beforesave',
-                        delegate: this.onAntEstado,
-                    }
-                    ],
-                    scope: this
-                })
-        },
-        onAntEstado: function (wizard, resp) {
-            Phx.CP.loadingShow();
-            Ext.Ajax.request({
-                // form:this.form.getForm().getEl(),
-                //url: '../../sis_tesoreria/control/PlanPago/anteriorEstadoPlanPago',
-                url: '../../sis_contabilidad/control/IntComprobante/anteriorEstado',
-                params: {
-                    id_proceso_wf: resp.id_proceso_wf,
-                    id_estado_wf: resp.id_estado_wf,
-                    obs: resp.obs,
-                    estado_destino: resp.estado_destino
-                },
-                argument: {wizard: wizard},
-                success: this.successEstadoSinc,
-                failure: this.conexionFailure,
-                timeout: this.timeout,
-                scope: this
-            });
-
-        },
-        successEstadoSinc: function (resp) {
-            Phx.CP.loadingHide();
-            resp.argument.wizard.panel.destroy()
-            this.reload();
-        },
+        }
 
     };
 </script>

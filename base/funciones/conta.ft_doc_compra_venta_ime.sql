@@ -74,6 +74,33 @@ DECLARE
   v_codigo_control			varchar;
   v_autorizacion			varchar;
   v_factura					record;
+
+  v_plan_pago				INTEGER;
+  v_id_doc_compra_venta_ext	integer;
+
+  --franklin.espinoza 25/01/2021 Modificacion tabla factura dblink
+    v_host 				varchar;
+    v_puerto 			varchar;
+    v_dbname 			varchar;
+    p_user 				varchar;
+    v_password 			varchar;
+    v_cadena_factura	varchar;
+    v_fecha_factura		date;
+	v_conexion 			varchar;
+    v_gestion			integer;
+    v_consulta			varchar;
+    v_id_plan_pago_pp	integer;
+    v_id_int_comprobante_pp	integer;
+
+  -- nuevos impuestos
+    v_importe_iehd 			numeric(14,2)=0;
+    v_importe_ipj 			numeric(14,2)=0;
+    v_importe_tasas 		numeric(14,2)=0;
+    v_importe_gift_card 	numeric(14,2)=0;
+    v_otro_no_sujeto_credito_fiscal 	numeric(14,2)=0;
+    v_compras_gravadas_tasa_cero 	numeric(14,2)=0;
+
+
 BEGIN
 
   v_nombre_funcion = 'conta.ft_doc_compra_venta_ime';
@@ -96,11 +123,14 @@ BEGIN
 	        v_tipo_cambio = null;
         end if;
 
+--03-04-2020(may) control solo para estacion central Bolivia
+IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
     if (pxp.f_existe_parametro(p_tabla,'desc_clase_comprobante')) then
         if(v_parametros.desc_clase_comprobante = 'Comprobante de Pago Contable') then
-			RAISE  EXCEPTION 'Solo puede registar factoras en Comprobante de Pago Presupuestario';
+			RAISE  EXCEPTION 'Solo puede registrar facturas en Comprobante de Pago Presupuestario';
         end if;
       end if;
+END IF;
 
       --  calcula valores pode defecto para el tipo de doc compra venta
 		IF v_parametros.id_moneda is null THEN
@@ -157,19 +187,27 @@ BEGIN
         WHERE pp.id_plan_pago = v_parametros.id_plan_pago;
 
 
+
         IF v_tipo_informe = 'lcv' THEN
             IF (v_tipo_obligacion= 'sp' or v_tipo_obligacion= 'spd' or v_tipo_obligacion= 'spi' or v_tipo_obligacion= 'pago_especial_spi')THEN
               v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_id_depto_destino, v_rec.po_id_periodo);
-            ELSE IF (v_tipo_obligacion= 'sp'or v_tipo_obligacion= 'spd'  or v_tipo_obligacion= 'spi' or v_tipo_obligacion= 'pago_especial_spi')THEN
+              /*
+             *modificado por breydi vasquez  en fecha 21/07/2020
+             *descripcion: se comento el else if, porque el id_plan_pago llega como nullo, eso permitido que se
+             * registre facturas en periodos ya cerrados.
+             */
+            ELSE --IF (v_tipo_obligacion= 'sp'or v_tipo_obligacion= 'spd'  or v_tipo_obligacion= 'spi' or v_tipo_obligacion= 'pago_especial_spi')THEN
               -- valida que periodO de libro de compras y ventas este abierto
-              v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
-                 END IF;
+              v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, coalesce(v_parametros.id_depto_conta, v_id_depto_destino), v_rec.po_id_periodo);
+                 --END IF;
             END IF;
         END IF;
 
      ELSE
+
      	IF v_tipo_informe = 'lcv' THEN
                -- valida que periodO de libro de compras y ventas este abierto
+               --0---161
                v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
         END IF;
      END IF;
@@ -179,6 +217,17 @@ BEGIN
     ELSE
         v_id_depto_contatipo = v_parametros.id_depto_conta;
     END IF;
+
+    IF (v_id_depto_contatipo is null) THEN
+    	v_id_depto_contatipo = v_id_depto_destino;
+
+        IF (v_id_depto_contatipo is null) THEN
+        	RAISE EXCEPTION 'El Departamento Contable del Documento de Compra/Venta no puede ser nulo.';
+		END IF;
+    END IF;
+
+
+
 --raise exception 'llega  f %=%',v_parametros.id_depto_conta, v_id_depto_contatipo;
      --
 
@@ -218,15 +267,9 @@ BEGIN
       where pla.id_plantilla = v_parametros.id_plantilla;
 
       --PARA COMPRAS
+
       IF v_parametros.tipo = 'compra' THEN
 
-        	select per.nombre_completo1
-            into v_cuenta
-            from conta.tdoc_compra_venta dcv
-            inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
-            inner join segu.vpersona per on per.id_persona = usu1.id_persona
-            where dcv.nro_documento = v_parametros.nro_documento
-            limit 1;
 
       /*  IF EXISTS(select
                     1
@@ -247,13 +290,48 @@ BEGIN
              	  IF EXISTS(select 1
                             from conta.tdoc_compra_venta dcv
                             inner join param.tplantilla pla on pla.id_plantilla=dcv.id_plantilla
-                            where    dcv.estado_reg = 'activo' and  dcv.nro_documento = v_parametros.nro_documento
+                            where    dcv.estado_reg = 'activo' and  dcv.nro_documento = trim(v_parametros.nro_documento)
                             and dcv.fecha =v_parametros.fecha
-                            and dcv.razon_social =v_parametros.razon_social
+                            and dcv.razon_social = trim(v_parametros.razon_social)
                             and dcv.importe_doc = v_parametros.importe_doc)THEN
 
-                       raise exception 'Ya existe un Documento/Factura registrado con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
+                            select per.nombre_completo1
+                            into v_cuenta
+                            from conta.tdoc_compra_venta dcv
+                            inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
+                            inner join segu.vpersona per on per.id_persona = usu1.id_persona
+                            where dcv.nro_documento = trim(v_parametros.nro_documento)
+                            and dcv.importe_doc = v_parametros.importe_doc
+                            and dcv.razon_social = trim(v_parametros.razon_social)
+                            and dcv.fecha =v_parametros.fecha
+                            limit 1;
 
+                       raise exception 'Ya existe un Documento/Factura registrado con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
+				  ELSE
+                  		--08-07-2020 (may)validacion para controlar duplicidad de las facturas
+                  		IF (v_parametros.id_plantilla in (1,31,25,34,27,15,33,4,36,37) ) THEN
+
+                  			IF EXISTS(select 1
+                                      from conta.tdoc_compra_venta dcv
+                                      inner join param.tplantilla pla on pla.id_plantilla=dcv.id_plantilla
+                                      where    dcv.estado_reg = 'activo'
+                                      and  dcv.nro_documento = trim(v_parametros.nro_documento)
+                                      and dcv.nro_autorizacion = v_parametros.nro_autorizacion
+                                      )THEN
+
+                                  select per.nombre_completo1
+                                  into v_cuenta
+                                  from conta.tdoc_compra_venta dcv
+                                  inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
+                                  inner join segu.vpersona per on per.id_persona = usu1.id_persona
+                                  where dcv.estado_reg = 'activo'
+                                  and dcv.nro_documento = trim(v_parametros.nro_documento)
+                                  and dcv.nro_autorizacion = v_parametros.nro_autorizacion
+                                  limit 1;
+
+                            raise exception 'Ya existe una Factura registrada con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
+				 			END IF;
+                        END IF;
                   END IF;
 
 
@@ -271,15 +349,29 @@ BEGIN
       --si tiene habilitado el ic copiamos el monto excento
       -- OJO considerar que todos los calculos con el monto excento ya estaran
       -- considerando el ice, par ano hacer mayores cambios
+      --12-01-2022 (may) segun observaciones por Veronica Mamani el ICE tendra un valor propio que registraran desde la fecha se realiza el combio
 
-      v_importe_ice = NULL;
+      /*v_importe_ice = NULL;
       IF v_registros.sw_ic = 'si' then
         v_importe_ice = v_parametros.importe_excento;
-      END IF;
+      END IF;*/
+      if (pxp.f_existe_parametro(p_tabla,'importe_ice')) then
+        v_importe_ice = v_parametros.importe_ice;
+      end if;
+
+      v_importe_ice = v_importe_ice;
+      --
+
       ----validacion exento mayot monto mmv
-      IF v_parametros.importe_excento > v_parametros.importe_neto THEN
-      raise exception 'El Importe Exento: %, no puede ser mayor al Monto Total: %. Revise los importes.',v_parametros.importe_excento,v_parametros.importe_neto;
-	  END IF;
+
+      --may 27-03-2020 modificacion solo para estacion central Bolivia
+      --17-01-2022 se quita el control del importe porque en el neto ya swe descuenta el excento.
+      /*IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
+          IF v_parametros.importe_excento > v_parametros.importe_neto THEN
+          raise exception 'El Importe Exento: %, no puede ser mayor al Monto Total: %. Revise los importes.',v_parametros.importe_excento,v_parametros.importe_neto;
+          END IF;
+       END IF;*/
+
 
       select p.sw_nit, p.sw_autorizacion
       into
@@ -316,24 +408,25 @@ BEGIN
         end if;*/
 --raise exception 'verificando';
 
-	--para actualizar el plan de pago
-	  if (pxp.f_existe_parametro(p_tabla,'id_plan_pago')) then
-          v_id_plan_pago = v_parametros.id_plan_pago;
-          --#15,  se recupera el nro_tramite del comprobante si es que existe
-          select
-             c.nro_tramite
-          into
-             v_nro_tramite
-          from conta.tint_comprobante c
-          where c.id_int_comprobante = v_id_int_comprobante;
 
-      end if;
+		--para actualizar el plan de pago
+        if (pxp.f_existe_parametro(p_tabla,'id_plan_pago')) then
+            v_id_plan_pago = v_parametros.id_plan_pago;
+            --#15,  se recupera el nro_tramite del comprobante si es que existe
+            select
+               c.nro_tramite
+            into
+               v_nro_tramite
+            from conta.tint_comprobante c
+            where c.id_int_comprobante = v_id_int_comprobante;
 
-            select pp.id_plan_pago
-            into v_id_plan_pago_dcv
-            from tes.tplan_pago pp
-            inner join conta.tdoc_compra_venta dcv on dcv.id_plan_pago = pp.id_plan_pago
-            where dcv.id_int_comprobante = v_id_int_comprobante;
+        end if;
+
+        select pp.id_plan_pago
+        into v_id_plan_pago_dcv
+        from tes.tplan_pago pp
+        inner join conta.tdoc_compra_venta dcv on dcv.id_plan_pago = pp.id_plan_pago
+        where dcv.id_int_comprobante = v_id_int_comprobante;
 
 		if pxp.f_existe_parametro(p_tabla,'fecha_vencimiento') then
 			v_fecha_venci = v_parametros.fecha_vencimiento;
@@ -368,8 +461,79 @@ BEGIN
         	v_codigo_control = v_parametros.codigo_control;
         end if;
 
---IF (v_parametros.id_int_comprobante is Null) THEN
-IF (v_id_int_comprobante is Null) THEN
+        --17-03-2021 (may) para buscar su plan de pago
+        SELECT pp.id_plan_pago
+        into v_id_plan_pago_pp
+        FROM tes.tplan_pago pp
+        WHERE pp.id_int_comprobante = v_id_int_comprobante;
+
+
+        --(MAY) para ver si corresponte a un plan de pago,cbte un documento
+        --IF (v_parametros.id_int_comprobante is Null) THEN
+        IF (v_id_int_comprobante is Null and v_id_plan_pago is Null) THEN
+
+        	v_plan_pago = v_id_plan_pago;
+
+
+        ELSE
+        	IF (v_id_int_comprobante is Null and v_id_plan_pago is not null) THEN
+
+                  v_plan_pago = v_id_plan_pago;
+
+                  --17-03-2021 (may) para que se encuente el cbte si se registra desde el plan de pago
+                  SELECT pp.id_int_comprobante
+                  INTO v_id_int_comprobante
+                  FROM tes.tplan_pago pp
+                  WHERE pp.id_plan_pago =  v_parametros.id_plan_pago;
+
+
+            ELSE
+
+                  v_plan_pago = v_id_plan_pago_dcv;
+                  --(may)solo estacion internacionales se relaciona una cuota con sus documentos compra y venta
+                  --10-05-2020 (may) modificacion para q la central Bolivia se relaciona doc compra y venta con una cuota
+                  --IF pxp.f_get_variable_global('ESTACION_inicio') !='BOL' THEN
+
+                    IF (v_plan_pago is null) THEN
+                      if (pxp.f_existe_parametro(p_tabla, 'id_plan_pago'))then
+                            v_plan_pago = v_parametros.id_plan_pago;
+                      end if;
+
+                      IF (v_plan_pago is null) THEN
+                          v_plan_pago = v_id_plan_pago_pp;
+                      END IF;
+                    END IF;
+                  --END IF;
+
+              END IF;
+         END IF;
+
+	--
+    if (pxp.f_existe_parametro(p_tabla, 'importe_iehd'))then
+    	v_importe_iehd = v_parametros.importe_iehd;
+    end if;
+
+    if (pxp.f_existe_parametro(p_tabla, 'importe_ipj'))then
+    	v_importe_ipj = v_parametros.importe_ipj;
+    end if;
+
+    if (pxp.f_existe_parametro(p_tabla, 'importe_tasas'))then
+    	v_importe_tasas = v_parametros.importe_tasas;
+    end if;
+
+    if (pxp.f_existe_parametro(p_tabla, 'importe_gift_card'))then
+    	v_importe_gift_card = v_parametros.importe_gift_card;
+    end if;
+
+    if (pxp.f_existe_parametro(p_tabla, 'otro_no_sujeto_credito_fiscal'))then
+    	v_otro_no_sujeto_credito_fiscal = v_parametros.otro_no_sujeto_credito_fiscal;
+    end if;
+
+    if (pxp.f_existe_parametro(p_tabla, 'importe_compras_gravadas_tasa_cero'))then
+    	v_compras_gravadas_tasa_cero = v_parametros.importe_compras_gravadas_tasa_cero;
+    end if;
+
+IF pxp.f_get_variable_global('ESTACION_inicio') ='BOL' THEN
 
 		--Sentencia de la insercion
       insert into conta.tdoc_compra_venta(
@@ -414,7 +578,15 @@ IF (v_id_int_comprobante is Null) THEN
         nro_tramite,
         id_plan_pago,
         fecha_vencimiento,
-        tipo_cambio
+        tipo_cambio,
+
+        --30-12-2021(may)
+        importe_iehd,
+        importe_ipj,
+        importe_tasas,
+        importe_gift_card,
+        otro_no_sujeto_credito_fiscal,
+        importe_compras_gravadas_tasa_cero
 
       ) values(
         v_parametros.tipo,
@@ -423,7 +595,7 @@ IF (v_id_int_comprobante is Null) THEN
         v_parametros.fecha,
         v_parametros.nro_documento,
         v_parametros.nit,
-        v_importe_ice,
+        COALESCE(v_importe_ice,0),
         v_parametros.nro_autorizacion,
         COALESCE(v_parametros.importe_iva,0),
         COALESCE(v_parametros.importe_descuento,0),
@@ -457,15 +629,24 @@ IF (v_id_int_comprobante is Null) THEN
         v_id_tipo_doc_compra_venta,
         v_id_int_comprobante,
         v_nro_tramite,
-        v_id_plan_pago,
+        v_plan_pago,
         v_fecha_venci,
-        COALESCE(v_tipo_cambio,1)
+        COALESCE(v_tipo_cambio,1),
+
+        --30-12-2021(may)
+        COALESCE(v_importe_iehd,0),
+        COALESCE(v_importe_ipj,0),
+        COALESCE(v_importe_tasas,0),
+        COALESCE(v_importe_gift_card,0),
+        COALESCE(v_otro_no_sujeto_credito_fiscal,0),
+        COALESCE(v_compras_gravadas_tasa_cero,0)
 
       )RETURNING id_doc_compra_venta into v_id_doc_compra_venta;
 
 
-ELSE  --raise exception 'llega2 %',v_i;
+ELSE  --(MAY) para las estaciones Internacionales, tienen mas parametros
 
+--raise exception 'lllega %',v_parametros.base_21;
       --Sentencia de la insercion
       insert into conta.tdoc_compra_venta(
         tipo,
@@ -518,7 +699,7 @@ ELSE  --raise exception 'llega2 %',v_i;
         v_parametros.fecha,
         v_parametros.nro_documento,
         v_parametros.nit,
-        v_importe_ice,
+        COALESCE(v_importe_ice,0),
         v_parametros.nro_autorizacion,
         COALESCE(v_parametros.importe_iva,0),
         COALESCE(v_parametros.importe_descuento,0),
@@ -546,16 +727,18 @@ ELSE  --raise exception 'llega2 %',v_i;
         COALESCE(v_parametros.importe_anticipo,0),
         COALESCE(v_parametros.importe_retgar,0),
         v_parametros.importe_neto,
-        v_id_proveedor,
+        v_parametros.id_proveedor, --v_id_proveedor,
         v_id_cliente,
         v_parametros.id_auxiliar,
         v_id_tipo_doc_compra_venta,
         v_id_int_comprobante,
         v_nro_tramite,
-        v_id_plan_pago_dcv,
+        v_plan_pago,
         v_fecha_venci,
         COALESCE(v_tipo_cambio,1)
+
       )RETURNING id_doc_compra_venta into v_id_doc_compra_venta;
+
 END IF;
 
 
@@ -936,10 +1119,47 @@ END IF;
         END IF;
 	END IF;*/
      --
+
+
+    if (pxp.f_existe_parametro(p_tabla,'id_plan_pago')) then
+
+          SELECT dd.id_depto_destino
+          INTO v_id_depto_destino
+          FROM  param.tdepto_depto dd
+          inner join tes.tobligacion_pago op on op.id_depto = dd.id_depto_origen
+          inner join tes.tplan_pago pp on pp.id_obligacion_pago = op.id_obligacion_pago
+          WHERE pp.id_plan_pago = v_parametros.id_plan_pago;
+
+          IF (v_id_depto_destino is null) THEN
+          		RAISE EXCEPTION 'El Departamento Contable del Documento de Compra/Venta no puede ser nulo.';
+          END IF;
+
+          IF v_tipo_informe = 'lcv' THEN
+               -- valida que periodO de libro de compras y ventas este abierto
+               --0---161
+               v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_id_depto_destino, v_rec.po_id_periodo);
+          END IF;
+
+          v_id_depto_contatipo = v_id_depto_destino;
+
+    ELSE
+
+     	IF v_tipo_informe = 'lcv' THEN
+               -- valida que periodO de libro de compras y ventas este abierto
+               --0---161
+               v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+        END IF;
+
+        v_id_depto_contatipo = v_parametros.id_depto_conta;
+
+     END IF;
+
+
+
 --raise exception 'llega %',v_tipo_informe;
-    IF v_tipo_informe = 'lcv' THEN
+     /*IF v_tipo_informe = 'lcv' THEN
 	      v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
-	  END IF;
+	  END IF;*/
 
     /* --raise exception 'llega %',v_id_depto_destino;
       IF v_tipo_informe = 'lcv' THEN
@@ -973,7 +1193,8 @@ END IF;
 	  v_rec = param.f_get_periodo_gestion(v_registros.fecha);
 	  -- valida que period de libro de compras y ventas este abierto para la antigua fecha
       IF v_tipo_informe = 'lcv' THEN
-	      v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+	      --v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+          v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_id_depto_contatipo, v_rec.po_id_periodo);
 	  END IF;
 
       IF  v_registros.revisado = 'si' THEN
@@ -1019,10 +1240,18 @@ END IF;
       where pla.id_plantilla = v_parametros.id_plantilla;
 
       --si tiene habilitado el ic copiamos el monto excento
-      v_importe_ice = NULL;
+      --12-01-2022 (may) segun observaciones por Veronica Mamani el ICE tendra un valor propio que registraran desde la fecha se realiza el combio
+
+      /*v_importe_ice = NULL;
       IF v_registros.sw_ic = 'si' then
         v_importe_ice = v_parametros.importe_excento;
-      END IF;
+      END IF;*/
+      if (pxp.f_existe_parametro(p_tabla,'importe_ice')) then
+        v_importe_ice = v_parametros.importe_ice;
+      end if;
+
+      v_importe_ice = v_importe_ice;
+      --
 
       IF v_parametros.importe_pendiente > 0 or v_parametros.importe_anticipo > 0 or v_parametros.importe_retgar > 0 THEN
 
@@ -1066,6 +1295,93 @@ END IF;
           	raise exception 'Falta registrar el Razon Social';
           END IF;
 
+	-- breydi vasquez 11/05/2020 control de documento compra venta duplicado por usuario
+    -- sujeto a futuras modificaciones question por la razon social
+
+      IF v_parametros.tipo = 'compra' THEN
+
+        --controles para que no se repita el documento
+        		  --control numero de documento
+             	  IF EXISTS(select 1
+                            from conta.tdoc_compra_venta dcv
+                            inner join param.tplantilla pla on pla.id_plantilla=dcv.id_plantilla
+                            where    dcv.estado_reg = 'activo' and  dcv.nro_documento = trim(v_parametros.nro_documento)
+                            and dcv.fecha =v_parametros.fecha
+                             and dcv.razon_social = trim(v_parametros.razon_social)
+                            and dcv.importe_doc = v_parametros.importe_doc
+                            and dcv.id_doc_compra_venta != v_parametros.id_doc_compra_venta
+                            )THEN
+
+                      select per.nombre_completo1
+                      into v_cuenta
+                      from conta.tdoc_compra_venta dcv
+                      inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
+                      inner join segu.vpersona per on per.id_persona = usu1.id_persona
+                      where dcv.nro_documento = trim(v_parametros.nro_documento)
+					  and dcv.importe_doc = v_parametros.importe_doc
+					  and dcv.razon_social = trim(v_parametros.razon_social)
+                      and dcv.fecha =v_parametros.fecha
+                      and dcv.id_doc_compra_venta != v_parametros.id_doc_compra_venta
+                      limit 1;
+
+                       raise exception 'Ya existe un Documento/Factura registrado con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
+
+                  ELSE
+                  		--08-07-2020 (may)validacion para controlar duplicidad de las facturas
+                  		IF (v_parametros.id_plantilla in (1,31,25,34,27,15,33,4,36,37) ) THEN
+
+                  			IF EXISTS(select 1
+                                      from conta.tdoc_compra_venta dcv
+                                      inner join param.tplantilla pla on pla.id_plantilla=dcv.id_plantilla
+                                      where    dcv.estado_reg = 'activo'
+                                      and  dcv.nro_documento = trim(v_parametros.nro_documento)
+                                      and dcv.nro_autorizacion = v_parametros.nro_autorizacion
+                                      and dcv.id_doc_compra_venta != v_parametros.id_doc_compra_venta
+                                      )THEN
+
+                                  select per.nombre_completo1
+                                  into v_cuenta
+                                  from conta.tdoc_compra_venta dcv
+                                  inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
+                                  inner join segu.vpersona per on per.id_persona = usu1.id_persona
+                                  where dcv.estado_reg = 'activo'
+                                  and dcv.nro_documento = trim(v_parametros.nro_documento)
+                                  and dcv.nro_autorizacion = v_parametros.nro_autorizacion
+                                  and dcv.id_doc_compra_venta != v_parametros.id_doc_compra_venta
+                                  limit 1;
+
+                            raise exception 'Ya existe una Factura registrada con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
+				 			END IF;
+                        END IF;
+
+                  END IF;
+        end if;
+        -- fin control
+
+      if (pxp.f_existe_parametro(p_tabla, 'importe_iehd'))then
+      	v_importe_iehd = v_parametros.importe_iehd;
+      end if;
+
+      if (pxp.f_existe_parametro(p_tabla, 'importe_ipj'))then
+      	v_importe_ipj = v_parametros.importe_ipj;
+      end if;
+
+      if (pxp.f_existe_parametro(p_tabla, 'importe_tasas'))then
+      	v_importe_tasas = v_parametros.importe_tasas;
+      end if;
+
+      if (pxp.f_existe_parametro(p_tabla, 'importe_gift_card'))then
+      	v_importe_gift_card = v_parametros.importe_gift_card;
+      end if;
+
+      if (pxp.f_existe_parametro(p_tabla, 'otro_no_sujeto_credito_fiscal'))then
+      	v_otro_no_sujeto_credito_fiscal = v_parametros.otro_no_sujeto_credito_fiscal;
+      end if;
+
+      if (pxp.f_existe_parametro(p_tabla, 'importe_compras_gravadas_tasa_cero'))then
+      	v_compras_gravadas_tasa_cero = v_parametros.importe_compras_gravadas_tasa_cero;
+      end if;
+
       --Sentencia de la modificacion
       update conta.tdoc_compra_venta set
         tipo = v_parametros.tipo,
@@ -1074,14 +1390,14 @@ END IF;
         fecha = v_parametros.fecha,
         nro_documento = v_parametros.nro_documento,
         nit = v_parametros.nit,
-        importe_ice = v_importe_ice,
+        importe_ice = COALESCE(v_importe_ice,0),
         nro_autorizacion =  upper(COALESCE(v_parametros.nro_autorizacion,'0')),
         importe_iva = COALESCE(v_parametros.importe_iva,0),
         importe_descuento = COALESCE(v_parametros.importe_descuento,0),
         importe_descuento_ley = COALESCE(v_parametros.importe_descuento_ley,0),
         importe_pago_liquido = COALESCE(v_parametros.importe_pago_liquido,0),
         importe_doc = COALESCE(v_parametros.importe_doc,0),
-        id_depto_conta = v_parametros.id_depto_conta,
+        id_depto_conta = v_id_depto_contatipo, -- v_parametros.id_depto_conta,
         obs = v_parametros.obs,
         codigo_control =  upper(v_codigo_control),
         importe_it = v_parametros.importe_it,
@@ -1098,8 +1414,18 @@ END IF;
         id_auxiliar = v_parametros.id_auxiliar,
         id_int_comprobante = v_id_int_comprobante,
         fecha_vencimiento = v_fecha_venci,
-        tipo_cambio = COALESCE(v_tipo_cambio,1)
+        tipo_cambio = COALESCE(v_tipo_cambio,1),
+        fecha_mod = now(),
+        id_usuario_mod = p_id_usuario,
+        importe_iehd = COALESCE(v_importe_iehd,0),
+        importe_ipj = COALESCE(v_importe_ipj,0),
+        importe_tasas = COALESCE(v_importe_tasas,0),
+        importe_gift_card  = COALESCE(v_importe_gift_card,0),
+        otro_no_sujeto_credito_fiscal = COALESCE(v_otro_no_sujeto_credito_fiscal,0),
+        importe_compras_gravadas_tasa_cero =  COALESCE(v_compras_gravadas_tasa_cero,0)
       where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
+
+
 
       if (pxp.f_existe_parametro(p_tabla,'id_tipo_compra_venta')) then
         if(v_parametros.id_tipo_compra_venta is not null) then
@@ -1227,10 +1553,20 @@ END IF;
       where pla.id_plantilla = v_parametros.id_plantilla;
 
       --si tiene habilitado el ic copiamos el monto excento
-      v_importe_ice = NULL;
+      --12-01-2022 (may) segun observaciones por Veronica Mamani el ICE tendra un valor propio que registraran desde la fecha se realiza el combio
+
+      /*v_importe_ice = NULL;
       IF v_registros.sw_ic = 'si' then
         v_importe_ice = v_parametros.importe_excento;
-      END IF;
+      END IF;*/
+      if (pxp.f_existe_parametro(p_tabla,'importe_ice')) then
+        v_importe_ice = v_parametros.importe_ice;
+      end if;
+
+      v_importe_ice = v_importe_ice;
+      --
+
+
 
       IF v_parametros.importe_pendiente > 0 or v_parametros.importe_anticipo > 0 or v_parametros.importe_retgar > 0 THEN
 
@@ -1247,6 +1583,29 @@ END IF;
         	v_codigo_control = v_parametros.codigo_control;
         end if;
 
+        if (pxp.f_existe_parametro(p_tabla, 'importe_iehd'))then
+        	v_importe_iehd = v_parametros.importe_iehd;
+        end if;
+
+        if (pxp.f_existe_parametro(p_tabla, 'importe_ipj'))then
+        	v_importe_ipj = v_parametros.importe_ipj;
+        end if;
+
+        if (pxp.f_existe_parametro(p_tabla, 'importe_tasas'))then
+        	v_importe_tasas = v_parametros.importe_tasas;
+        end if;
+
+        if (pxp.f_existe_parametro(p_tabla, 'importe_gift_card'))then
+        	v_importe_gift_card = v_parametros.importe_gift_card;
+        end if;
+
+        if (pxp.f_existe_parametro(p_tabla, 'otro_no_sujeto_credito_fiscal'))then
+          v_otro_no_sujeto_credito_fiscal = v_parametros.otro_no_sujeto_credito_fiscal;
+        end if;
+
+        if (pxp.f_existe_parametro(p_tabla, 'importe_compras_gravadas_tasa_cero'))then
+          v_compras_gravadas_tasa_cero = v_parametros.importe_compras_gravadas_tasa_cero;
+        end if;
 
       --Sentencia de la modificacion
       update conta.tdoc_compra_venta set
@@ -1256,7 +1615,7 @@ END IF;
         fecha = v_parametros.fecha,
         nro_documento = v_parametros.nro_documento,
         nit = v_parametros.nit,
-        importe_ice = v_importe_ice,
+        importe_ice = COALESCE(v_importe_ice,0),
         nro_autorizacion =  upper(COALESCE(v_parametros.nro_autorizacion,'0')),
         importe_iva = COALESCE(v_parametros.importe_iva,0),
         importe_descuento = COALESCE(v_parametros.importe_descuento,0),
@@ -1279,7 +1638,13 @@ END IF;
         id_cliente = v_id_cliente,
         id_auxiliar = v_parametros.id_auxiliar,
         id_int_comprobante = v_id_int_comprobante,
-        estacion = v_parametros.estacion
+        estacion = v_parametros.estacion,
+        importe_iehd = COALESCE(v_importe_iehd,0),
+        importe_ipj = COALESCE(v_importe_ipj,0),
+        importe_tasas = COALESCE(v_importe_tasas,0),
+        importe_gift_card  = COALESCE(v_importe_gift_card,0),
+        otro_no_sujeto_credito_fiscal = COALESCE(v_otro_no_sujeto_credito_fiscal,0),
+        importe_compras_gravadas_tasa_cero = COALESCE(v_compras_gravadas_tasa_cero,0)
       where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
 
       if (pxp.f_existe_parametro(p_tabla,'id_tipo_compra_venta')) then
@@ -1618,7 +1983,7 @@ END IF;
 
   	 v_estacion = pxp.f_get_variable_global('ESTACION_inicio');
 
-        IF(v_estacion = 'BUE')THEN
+        IF(v_estacion != 'BOL')THEN
 
         	IF v_parametros.id_int_comprobante is not null then
                     IF not EXISTS(select
@@ -1635,9 +2000,17 @@ END IF;
                     from conta.tint_comprobante cbte
                     where cbte.id_int_comprobante = v_parametros.id_int_comprobante;
 
+                    --17-03-2021 (may) para actualizar el plaan de pago
+                    select pp.id_plan_pago
+                    into v_id_plan_pago_dcv
+                    from tes.tplan_pago pp
+                    inner join conta.tdoc_compra_venta dcv on dcv.id_plan_pago = pp.id_plan_pago
+                    where dcv.id_int_comprobante = v_parametros.id_int_comprobante;
+
                     update conta.tdoc_compra_venta d  set
                       id_int_comprobante =  v_parametros.id_int_comprobante,
-                      nro_tramite =   v_nro_tramite
+                      nro_tramite =   v_nro_tramite,
+                      id_plan_pago = v_id_plan_pago_dcv
                     where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
 
             ELSE
@@ -1650,7 +2023,7 @@ END IF;
                   WHERE pp.id_plan_pago = v_parametros.id_plan_pago;
 
 
-                IF(v_tipo_obligacion in ('sp','spd','pago_especial_spi', 'spi'))THEN
+                IF(v_tipo_obligacion in ('sp','spd','pago_especial_spi', 'spi', 'pgaext'))THEN
 
                    -- validamos que el documento no tenga otro comprobante
 
@@ -1663,15 +2036,16 @@ END IF;
                     END IF;
 
                     --recupera nro de tramite del cbte
-                    select op.num_tramite
-                    into v_num_tramite
+                    select op.num_tramite, pp.id_int_comprobante
+                    into v_num_tramite, v_id_int_comprobante_pp
                     from tes.tplan_pago pp
                     inner join tes.tobligacion_pago op on op.id_obligacion_pago = pp.id_obligacion_pago
                     where pp.id_plan_pago = v_parametros.id_plan_pago ;
 
                     update conta.tdoc_compra_venta d  set
                       id_plan_pago =  v_parametros.id_plan_pago,
-                      nro_tramite =   v_nro_tramite
+                      nro_tramite =   v_nro_tramite,
+                      id_int_comprobante = v_id_int_comprobante_pp
                     where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
 
                   ELSE
@@ -1697,16 +2071,44 @@ END IF;
               raise exception 'El documento no existe o ya tiene un cbte relacionado';
             END IF;
 
-            --#14, recupera nro de tramite del cbte
-            select cbte.nro_tramite
-            into v_nro_tramite
-            from conta.tint_comprobante cbte
-            where cbte.id_int_comprobante = v_parametros.id_int_comprobante;
 
-            update conta.tdoc_compra_venta d  set
-              id_int_comprobante =  v_parametros.id_int_comprobante,
-              nro_tramite =   v_nro_tramite
-            where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+              IF (v_parametros.id_plan_pago IS NULL ) THEN
+              		 --IF v_parametros.id_int_comprobante is not null then
+
+                      --#14, recupera nro de tramite del cbte
+                      select cbte.nro_tramite
+                      into v_nro_tramite
+                      from conta.tint_comprobante cbte
+                      where cbte.id_int_comprobante = v_parametros.id_int_comprobante;
+
+                      --17-03-2021 (may) para actualizar el plaan de pago
+                      select pp.id_plan_pago
+                      into v_id_plan_pago_dcv
+                      from tes.tplan_pago pp
+                      inner join conta.tdoc_compra_venta dcv on dcv.id_plan_pago = pp.id_plan_pago
+                      where dcv.id_int_comprobante = v_parametros.id_int_comprobante;
+
+                      update conta.tdoc_compra_venta d  set
+                        id_int_comprobante =  v_parametros.id_int_comprobante,
+                        nro_tramite =   v_nro_tramite,
+                        id_plan_pago = v_id_plan_pago_dcv
+                      where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+
+              ELSE
+
+                        SELECT op.num_tramite
+                        INTO v_nro_tramite
+                        FROM tes.tplan_pago pp
+                        inner join tes.tobligacion_pago op on op.id_obligacion_pago = pp.id_obligacion_pago
+                        WHERE pp.id_plan_pago = v_parametros.id_plan_pago;
+
+                        update conta.tdoc_compra_venta d  set
+                          id_int_comprobante =  v_parametros.id_int_comprobante,
+                          nro_tramite =   v_nro_tramite,
+                          id_plan_pago = v_parametros.id_plan_pago
+                        where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+
+              END IF;
       END IF;
        --
       --Definicion de la respuesta
@@ -1793,6 +2195,977 @@ END IF;
     end;
 
 
+     /*********************************
+   #TRANSACCION:  'CONTA_DCVEXT_MOD'
+   #DESCRIPCION:	Modificacion de registros para documentos internacionales
+   #AUTOR:		Maylee Perez Pastor
+   #FECHA:		13-03-2020 15:57:09
+  ***********************************/
+
+  elsif(p_transaccion='CONTA_DCVEXT_MOD')then
+
+    begin
+
+    /*  03/11/2016 se comenta ---TODO ojo pensar en alguna alternativa no intrusiva
+
+      select COALESCE(cd.estado,efe.estado) into v_estado_rendicion
+      from conta.tdoc_compra_venta d
+        left join cd.trendicion_det ren on ren.id_doc_compra_venta = d.id_doc_compra_venta
+        left join cd.tcuenta_doc cd on cd.id_cuenta_doc =  ren.id_cuenta_doc_rendicion
+        left join tes.tsolicitud_rendicion_det det on det.id_documento_respaldo=d.id_doc_compra_venta
+        left join tes.tsolicitud_efectivo efe on efe.id_solicitud_efectivo=det.id_solicitud_efectivo
+      where d.id_doc_compra_venta =v_parametros.id_doc_compra_venta;
+
+       -- recuepra el periodo de la fecha ...
+      --Obtiene el periodo a partir de la fecha
+      v_rec = param.f_get_periodo_gestion(v_parametros.fecha);
+
+      IF v_estado_rendicion NOT IN ('vbrendicion', 'revision') or v_estado_rendicion IS NULL THEN
+        -- valida que period de libro de compras y ventas este abierto
+        v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+      END IF;
+
+      */
+
+        if pxp.f_existe_parametro(p_tabla,'tipo_cambio') then
+          	v_tipo_cambio = v_parametros.tipo_cambio;
+      	else
+          	v_tipo_cambio = null;
+      	end if;
+
+      select tipo_informe into v_tipo_informe
+      from param.tplantilla
+      where id_plantilla = v_parametros.id_plantilla;
+
+       v_rec = param.f_get_periodo_gestion(v_parametros.fecha);
+
+       v_id_periodo = v_rec.po_id_periodo;
+
+      -- 13/01/2017
+      --TODO RAC, me parece buena idea  que al cerrar el periodo revise que no existan documentos pendientes  antes de cerrar
+      -- valida que period de libro de compras y ventas este abierto para la nueva fecha
+
+       /* --para facturas del SP
+
+     SELECT op.tipo_obligacion
+      INTO v_tipo_obligacion
+      FROM tes.tobligacion_pago op
+      inner join tes.tplan_pago pp on pp.id_obligacion_pago = op.id_obligacion_pago
+      WHERE pp.id_plan_pago = v_parametros.id_plan_pago ;
+
+      SELECT dd.id_depto_destino
+      INTO v_id_depto_destino
+      FROM  param.tdepto_depto dd
+      inner join tes.tobligacion_pago op on op.id_depto = dd.id_depto_origen
+      inner join tes.tplan_pago pp on pp.id_obligacion_pago = op.id_obligacion_pago
+      left join conta.tdoc_compra_venta dc on dc.id_plan_pago = pp.id_plan_pago
+      WHERE dc.id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+      --pp.id_plan_pago = v_parametros.id_plan_pago;
+
+	IF v_tipo_informe = 'lcv' THEN
+    	IF (v_tipo_obligacion= 'sp')THEN
+          v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_id_depto_destino, v_rec.po_id_periodo);
+        ELSE IF (v_tipo_obligacion= 'sp')THEN
+          -- valida que periodO de libro de compras y ventas este abierto
+          v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+        	 END IF;
+        END IF;
+	END IF;*/
+     --
+--raise exception 'llega %',v_tipo_informe;
+    IF v_tipo_informe = 'lcv' THEN
+	      v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+	  END IF;
+
+    /* --raise exception 'llega %',v_id_depto_destino;
+      IF v_tipo_informe = 'lcv' THEN
+
+          v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_id_depto_destino, v_rec.po_id_periodo);
+      ELSE
+          -- valida que periodO de libro de compras y ventas este abierto
+          v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+
+	  END IF;*/
+
+      -- recuepra el periodo de la fecha ...
+      --Obtiene el periodo a partir de la fecha
+      /*
+      v_rec = param.f_get_periodo_gestion(v_parametros.fecha);
+
+      v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+	  */
+
+      --revisa si el documento no esta marcado como revisado
+      select
+        dcv.revisado,
+        dcv.id_int_comprobante,
+        dcv.id_origen,
+        dcv.tabla_origen,
+        dcv.fecha
+      into
+        v_registros
+      from conta.tdoc_compra_venta dcv where dcv.id_doc_compra_venta =v_parametros.id_doc_compra_venta;
+
+	  v_rec = param.f_get_periodo_gestion(v_registros.fecha);
+	  -- valida que period de libro de compras y ventas este abierto para la antigua fecha
+      IF v_tipo_informe = 'lcv' THEN
+	      v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+	  END IF;
+
+      IF  v_registros.revisado = 'si' THEN
+        IF v_estado_rendicion NOT IN ('vbrendicion','revision') or v_estado_rendicion IS NULL THEN
+          raise exception 'los documentos revisados no pueden modificarse';
+        END IF;
+      END IF;
+
+
+      IF v_parametros.tipo = 'compra' THEN
+        -- chequear si el proveedor esta registrado
+        v_id_proveedor = param.f_check_proveedor(p_id_usuario, v_parametros.nit, upper(trim(v_parametros.razon_social)));
+
+      ELSE
+        --TODO  chequear que la factura de venta no este duplicada
+        -- chequear el el cliente esta registrado
+        v_id_cliente = vef.f_check_cliente(p_id_usuario, v_parametros.nit, upper(trim(v_parametros.razon_social)));
+      END IF;
+
+
+
+      -- validar que no tenga un comprobante asociado
+      --RAC 13/01/2017 , se levanta esta restriccion por que es encesario
+      -- por posibles errores al registrar
+      /* IF  v_registros.id_int_comprobante is not NULL THEN
+        raise exception 'No puede editar por que el documento esta acociado al cbte id(%), primero quite esta relacion', v_registros.id_int_comprobante;
+      END IF;*/
+
+      if (pxp.f_existe_parametro(p_tabla,'id_int_comprobante')) then
+          v_id_int_comprobante = v_parametros.id_int_comprobante;
+      end if;
+
+      IF v_id_int_comprobante is null THEN
+        v_id_int_comprobante = v_registros.id_int_comprobante;
+      END IF;
+
+      -- recupera parametrizacion de la plantilla
+      select
+        *
+      into
+        v_registros
+      from param.tplantilla pla
+      where pla.id_plantilla = v_parametros.id_plantilla;
+
+      --si tiene habilitado el ic copiamos el monto excento
+      v_importe_ice = NULL;
+      IF v_registros.sw_ic = 'si' then
+        v_importe_ice = v_parametros.importe_excento;
+      END IF;
+
+      IF v_parametros.importe_pendiente > 0 or v_parametros.importe_anticipo > 0 or v_parametros.importe_retgar > 0 THEN
+
+        IF v_parametros.id_auxiliar is null THEN
+          raise EXCEPTION 'es necesario indicar una cuenta corriente';
+        END IF;
+
+      END IF;
+
+		if pxp.f_existe_parametro(p_tabla,'fecha_vencimiento') then
+			v_fecha_venci = v_parametros.fecha_vencimiento;
+		else
+	        v_fecha_venci = null;
+        end if;
+
+        -- para que el codigo_control no is null
+        if (v_parametros.codigo_control is NUll or v_parametros.codigo_control = '' or v_parametros.codigo_control = ' ') then
+        	v_codigo_control =  '0' ;
+        else
+        	v_codigo_control = v_parametros.codigo_control;
+        end if;
+
+        --controles
+        --raise exception 'llegaa %',v_parametros.id_plantilla;
+          select p.sw_nit, p.sw_autorizacion
+          into
+          v_sw_nit
+          v_autorizacion
+          from param.tplantilla p
+          where p.id_plantilla = v_parametros.id_plantilla;
+
+          IF v_autorizacion  ='si' and v_parametros.nro_autorizacion = '' THEN
+            raise exception 'Falta registrar el Número de Autorización';
+          END IF;
+
+          IF  v_sw_nit = 'si' and  v_parametros.nit = '' THEN
+          	raise exception 'Falta registrar el Nit';
+          END IF;
+
+          IF v_parametros.razon_social is null or v_parametros.razon_social = '' THEN
+          	raise exception 'Falta registrar el Razon Social';
+          END IF;
+
+      --Sentencia de la modificacion
+      update conta.tdoc_compra_venta set
+        tipo = v_parametros.tipo,
+        importe_excento = COALESCE(v_parametros.importe_excento,0),
+        id_plantilla = v_parametros.id_plantilla,
+        fecha = v_parametros.fecha,
+        nro_documento = v_parametros.nro_documento,
+        nit = v_parametros.nit,
+        importe_ice = v_importe_ice,
+        nro_autorizacion =  upper(COALESCE(v_parametros.nro_autorizacion,'0')),
+        importe_iva = COALESCE(v_parametros.importe_iva,0),
+        importe_descuento = COALESCE(v_parametros.importe_descuento,0),
+        importe_descuento_ley = COALESCE(v_parametros.importe_descuento_ley,0),
+        importe_pago_liquido = COALESCE(v_parametros.importe_pago_liquido,0),
+        importe_doc = COALESCE(v_parametros.importe_doc,0),
+        id_depto_conta = v_parametros.id_depto_conta,
+        obs = v_parametros.obs,
+        codigo_control =  upper(v_codigo_control),
+        importe_it = v_parametros.importe_it,
+        razon_social = upper(trim(v_parametros.razon_social)),
+        id_periodo = v_id_periodo,
+        nro_dui = v_parametros.nro_dui,
+        id_moneda = v_parametros.id_moneda,
+        importe_pendiente = COALESCE(v_parametros.importe_pendiente,0),
+        importe_anticipo = COALESCE(v_parametros.importe_anticipo,0),
+        importe_retgar = COALESCE(v_parametros.importe_retgar,0),
+        importe_neto = v_parametros.importe_neto,
+        --id_proveedor = v_id_proveedor,
+        id_proveedor = v_parametros.id_proveedor,
+        id_cliente = v_id_cliente,
+        id_auxiliar = v_parametros.id_auxiliar,
+        id_int_comprobante = v_id_int_comprobante,
+        fecha_vencimiento = v_fecha_venci,
+        tipo_cambio = COALESCE(v_tipo_cambio,1)
+      where id_doc_compra_venta=v_parametros.id_doc_compra_venta;
+
+
+
+
+      SELECT dcve.id_doc_compra_venta_ext
+      INTO v_id_doc_compra_venta_ext
+      FROM conta.tdoc_compra_venta_ext dcve
+      WHERE dcve.id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+
+      IF (v_id_doc_compra_venta_ext is null) THEN
+      		--tabla complemento para las internacionales
+             insert into conta.tdoc_compra_venta_ext (
+
+                  costo_directo,
+                  c_emisor,
+                  no_gravado,
+                  base_21,
+                  base_27,
+                  base_10_5,
+                  base_2_5,
+                  percepcion_caba,
+                  percepcion_bue,
+                  percepcion_iva,
+                  percepcion_salta,
+                  imp_internos,
+                  percepcion_tucuman,
+                  percepcion_corrientes,
+                  otros_impuestos,
+                  percepcion_neuquen,
+                  id_doc_compra_venta,
+                  importe_postergacion_covid
+
+                ) values(
+                  v_parametros.costo_directo,
+                  v_parametros.c_emisor,
+                  v_parametros.no_gravado,
+                  v_parametros.base_21,
+                  v_parametros.base_27,
+                  v_parametros.base_10_5,
+                  v_parametros.base_2_5,
+                  v_parametros.percepcion_caba,
+                  v_parametros.percepcion_bue,
+                  v_parametros.percepcion_iva,
+                  v_parametros.percepcion_salta,
+                  v_parametros.imp_internos,
+                  v_parametros.percepcion_tucuman,
+                  v_parametros.percepcion_corrientes,
+                  v_parametros.otros_impuestos,
+                  v_parametros.percepcion_neuquen,
+                  v_parametros.id_doc_compra_venta,
+                  v_parametros.importe_postergacion_covid
+
+            )RETURNING id_doc_compra_venta_ext into v_id_doc_compra_venta_ext;
+
+      ELSE
+      		update conta.tdoc_compra_venta_ext set
+              costo_directo = v_parametros.costo_directo,
+              c_emisor = v_parametros.c_emisor,
+              no_gravado = COALESCE(v_parametros.no_gravado,0),
+              base_21 = COALESCE(v_parametros.base_21,0),
+              base_27 = COALESCE(v_parametros.base_27,0),
+              base_10_5  = COALESCE(v_parametros.base_10_5,0),
+              base_2_5 = COALESCE(v_parametros.base_2_5,0),
+              percepcion_caba  = COALESCE(v_parametros.percepcion_caba,0),
+              percepcion_bue  = COALESCE(v_parametros.percepcion_bue,0),
+              percepcion_iva = COALESCE(v_parametros.percepcion_iva,0),
+              percepcion_salta = COALESCE(v_parametros.percepcion_salta,0),
+              imp_internos  = COALESCE(v_parametros.imp_internos,0),
+              percepcion_tucuman  = COALESCE(v_parametros.percepcion_tucuman,0),
+              percepcion_corrientes  = COALESCE(v_parametros.percepcion_corrientes,0),
+              otros_impuestos  = COALESCE(v_parametros.otros_impuestos,0),
+              percepcion_neuquen  = COALESCE(v_parametros.percepcion_neuquen,0),
+        	  importe_postergacion_covid = COALESCE(v_parametros.importe_postergacion_covid,0)
+
+      		where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+      END IF;
+
+
+
+      if (pxp.f_existe_parametro(p_tabla,'id_tipo_compra_venta')) then
+        if(v_parametros.id_tipo_compra_venta is not null) then
+
+          update conta.tdoc_compra_venta
+          set id_tipo_doc_compra_venta = v_parametros.id_tipo_compra_venta
+          where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+        end if;
+      end if;
+
+	  if (pxp.f_existe_parametro(p_tabla,'estacion')) then
+        if(v_parametros.estacion is not null) then
+
+          update conta.tdoc_compra_venta
+          set estacion = v_parametros.estacion
+          where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+        end if;
+      end if;
+
+      if (pxp.f_existe_parametro(p_tabla,'id_agencia')) then
+        if(v_parametros.id_agencia is not null) then
+
+          update conta.tdoc_compra_venta
+          set id_agencia = v_parametros.id_agencia
+          where id_doc_compra_venta = v_parametros.id_doc_compra_venta;
+        end if;
+      end if;
+
+       --21-01-2020 (may) modificacion para que el liquido pagable no se reistre como null ni 0
+	  IF (v_parametros.importe_pago_liquido is null or v_parametros.importe_pago_liquido = 0) THEN
+      	RAISE EXCEPTION 'Líquido Pagado debe ser mayor a 0';
+      END IF;
+
+      --Definicion de la respuesta
+      v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Documentos Compra/Venta modificado(a)');
+      v_resp = pxp.f_agrega_clave(v_resp,'id_doc_compra_venta',v_parametros.id_doc_compra_venta::varchar);
+
+      --Devuelve la respuesta
+      return v_resp;
+
+    end;
+
+    /*********************************
+     #TRANSACCION:  'CONTA_DCVEXT_INS'
+     #DESCRIPCION:	Insercion de registros
+     #AUTOR:		Maylee Perez Pastor
+     #FECHA:		24-08-2020 15:57:09
+    ***********************************/
+
+    elsif(p_transaccion='CONTA_DCVEXT_INS')then
+
+      begin
+
+          if pxp.f_existe_parametro(p_tabla,'tipo_cambio') then
+              v_tipo_cambio = v_parametros.tipo_cambio;
+          else
+              v_tipo_cambio = null;
+          end if;
+
+
+
+        --  calcula valores pode defecto para el tipo de doc compra venta
+          IF v_parametros.id_moneda is null THEN
+            raise EXCEPTION 'Es necesario indicar la Moneda del documento, revise los datos.';
+        END IF;
+
+        IF v_parametros.tipo = 'compra' THEN
+          -- paracompras por defecto es
+          -- Compras para mercado interno con destino a actividades gravadas
+          select
+            td.id_tipo_doc_compra_venta
+          into
+            v_id_tipo_doc_compra_venta
+          from conta.ttipo_doc_compra_venta td
+          where td.codigo = '1';
+
+        ELSE
+          -- para ventas por defecto es
+          -- facturas valida
+          select
+            td.id_tipo_doc_compra_venta
+          into
+            v_id_tipo_doc_compra_venta
+          from conta.ttipo_doc_compra_venta td
+          where td.codigo = 'V';
+
+        END IF;
+
+          IF v_parametros.id_moneda is null THEN
+            raise EXCEPTION 'Es necesario indicar la Moneda del documento, revise los datos.';
+        END IF;
+
+        -- recuepra el periodo de la fecha ...
+        --Obtiene el periodo a partir de la fecha
+        v_rec = param.f_get_periodo_gestion(v_parametros.fecha);
+
+
+        select tipo_informe into v_tipo_informe
+        from param.tplantilla
+        where id_plantilla = v_parametros.id_plantilla;
+
+        --para facturas del SP , tipo de obligaciones internacionales
+       if (pxp.f_existe_parametro(p_tabla,'id_plan_pago')) then
+
+          SELECT op.tipo_obligacion
+          INTO v_tipo_obligacion
+          FROM tes.tobligacion_pago op
+          inner join tes.tplan_pago pp on pp.id_obligacion_pago = op.id_obligacion_pago
+          WHERE pp.id_plan_pago = v_parametros.id_plan_pago ;
+
+          SELECT dd.id_depto_destino
+          INTO v_id_depto_destino
+          FROM  param.tdepto_depto dd
+          inner join tes.tobligacion_pago op on op.id_depto = dd.id_depto_origen
+          inner join tes.tplan_pago pp on pp.id_obligacion_pago = op.id_obligacion_pago
+          WHERE pp.id_plan_pago = v_parametros.id_plan_pago;
+
+
+
+          IF v_tipo_informe = 'lcv' THEN
+
+              IF (v_tipo_obligacion= 'sp' or v_tipo_obligacion= 'spd' or v_tipo_obligacion= 'spi' or v_tipo_obligacion= 'pago_especial_spi')THEN
+                  --raise 'primero tipo_informe %, v_tipo_obligacion % , v_id_depto_destino %',v_tipo_informe, v_tipo_obligacion, v_id_depto_destino;
+
+                v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_id_depto_destino, v_rec.po_id_periodo);
+
+                /*
+                *modificado por breydi vasquez  en fecha 21/07/2020
+                *descripcion: se comento el else if, porque el id_plan_pago llega como nullo, eso permitido que se
+                * registre facturas en periodos ya cerrados.
+                */
+              ELSE --IF (v_tipo_obligacion= 'sp'or v_tipo_obligacion= 'spd'  or v_tipo_obligacion= 'spi' or v_tipo_obligacion= 'pago_especial_spi')THEN
+
+                  --raise ' segundo tipo_informe %, v_tipo_obligacion % , v_id_depto_destino %',v_tipo_informe, v_tipo_obligacion, v_id_depto_destino;
+
+                -- valida que periodO de libro de compras y ventas este abierto
+                  v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+               --END IF;
+              END IF;
+          END IF;
+
+       ELSE
+
+          IF v_tipo_informe = 'lcv' THEN
+                 -- valida que periodO de libro de compras y ventas este abierto
+                 --0---161
+                 v_tmp_resp = conta.f_revisa_periodo_compra_venta(p_id_usuario, v_parametros.id_depto_conta, v_rec.po_id_periodo);
+          END IF;
+       END IF;
+
+
+      IF (v_tipo_obligacion in ('sp','spd','spi','pago_especial_spi'))THEN
+          v_id_depto_contatipo = v_id_depto_destino;
+      ELSE
+          v_id_depto_contatipo = v_parametros.id_depto_conta;
+      END IF;
+  --raise exception 'llega  f %=%',v_parametros.id_depto_conta, v_id_depto_contatipo;
+       --
+
+        --TODO
+        --validar que no exsita un documento con el mismo nro y misma razon social  ...?
+        --validar que no exista un documento con el mismo nro_autorizacion, nro_factura , y nit y razon social
+
+
+        IF v_parametros.importe_pendiente > 0 or v_parametros.importe_anticipo > 0 or v_parametros.importe_retgar > 0 THEN
+
+          IF v_parametros.id_auxiliar is null THEN
+            raise EXCEPTION 'Es necesario indicar una cuenta corriente, revise los datos.';
+          END IF;
+
+        END IF;
+
+
+        if (pxp.f_existe_parametro(p_tabla,'id_int_comprobante')) then
+            v_id_int_comprobante = v_parametros.id_int_comprobante;
+            --#14,  se recupera el nro_tramite del comprobante si es que existe
+            select
+               c.nro_tramite
+            into
+               v_nro_tramite
+            from conta.tint_comprobante c
+            where c.id_int_comprobante = v_id_int_comprobante;
+
+        end if;
+
+
+        --recupera parametrizacion de la plantilla
+        select
+          *
+        into
+          v_registros
+        from param.tplantilla pla
+        where pla.id_plantilla = v_parametros.id_plantilla;
+
+        --PARA COMPRAS
+
+        IF v_parametros.tipo = 'compra' THEN
+
+
+        /*  IF EXISTS(select
+                      1
+                    from conta.tdoc_compra_venta dcv
+                    inner join param.tplantilla pla on pla.id_plantilla=dcv.id_plantilla
+                    where    dcv.estado_reg = 'activo' and  dcv.nit = v_parametros.nit
+                             and dcv.nro_autorizacion = v_parametros.nro_autorizacion
+                             and dcv.nro_documento = v_parametros.nro_documento
+                             and dcv.nro_dui = v_parametros.nro_dui
+                             and pla.tipo_informe='lcv') then
+
+            raise exception 'Ya existe un documento registrado con el mismo Número de Nit % y Número de Autorización % , por el usuario %',v_parametros.nit,  v_parametros.nro_autorizacion, v_cuenta;
+
+          END IF;*/
+
+          --controles para que no se repita el documento
+                    --control numero de documento
+                    IF EXISTS(select 1
+                              from conta.tdoc_compra_venta dcv
+                              inner join param.tplantilla pla on pla.id_plantilla=dcv.id_plantilla
+                              where    dcv.estado_reg = 'activo' and  dcv.nro_documento = trim(v_parametros.nro_documento)
+                              and dcv.fecha =v_parametros.fecha
+                              and dcv.razon_social = trim(v_parametros.razon_social)
+                              and dcv.importe_doc = v_parametros.importe_doc)THEN
+
+                              select per.nombre_completo1
+                              into v_cuenta
+                              from conta.tdoc_compra_venta dcv
+                              inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
+                              inner join segu.vpersona per on per.id_persona = usu1.id_persona
+                              where dcv.nro_documento = trim(v_parametros.nro_documento)
+                              and dcv.importe_doc = v_parametros.importe_doc
+                              and dcv.razon_social = trim(v_parametros.razon_social)
+                              and dcv.fecha =v_parametros.fecha
+                              limit 1;
+
+                         raise exception 'Ya existe un Documento/Factura registrado con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
+                    ELSE
+                          --08-07-2020 (may)validacion para controlar duplicidad de las facturas
+                          IF (v_parametros.id_plantilla in (1,31,25,34,27,15,33,4,36,37) ) THEN
+
+                              IF EXISTS(select 1
+                                        from conta.tdoc_compra_venta dcv
+                                        inner join param.tplantilla pla on pla.id_plantilla=dcv.id_plantilla
+                                        where    dcv.estado_reg = 'activo'
+                                        and  dcv.nro_documento = trim(v_parametros.nro_documento)
+                                        and dcv.nro_autorizacion = v_parametros.nro_autorizacion
+                                        )THEN
+
+                                    select per.nombre_completo1
+                                    into v_cuenta
+                                    from conta.tdoc_compra_venta dcv
+                                    inner join segu.tusuario usu1 on usu1.id_usuario = dcv.id_usuario_reg
+                                    inner join segu.vpersona per on per.id_persona = usu1.id_persona
+                                    where dcv.estado_reg = 'activo'
+                                    and dcv.nro_documento = trim(v_parametros.nro_documento)
+                                    and dcv.nro_autorizacion = v_parametros.nro_autorizacion
+                                    limit 1;
+
+                              raise exception 'Ya existe una Factura registrada con el mismo Número: %,Fecha: %, Razón Social: % y Monto: %  por el usuario %.',v_parametros.nro_documento,v_parametros.fecha,v_parametros.razon_social,v_parametros.importe_doc, v_cuenta;
+                              END IF;
+                          END IF;
+                    END IF;
+
+
+          -- chequear si el proveedor esta registrado
+          v_id_proveedor = param.f_check_proveedor(p_id_usuario, v_parametros.nit, upper(trim(v_parametros.razon_social)));
+
+        ELSE
+          --TODO  chequear que la factura de venta no este duplicada
+
+          -- chequear el el cliente esta registrado
+          v_id_cliente = vef.f_check_cliente(p_id_usuario, v_parametros.nit, upper(trim(v_parametros.razon_social)));
+        END IF;
+
+
+        --si tiene habilitado el ic copiamos el monto excento
+        -- OJO considerar que todos los calculos con el monto excento ya estaran
+        -- considerando el ice, par ano hacer mayores cambios
+
+        v_importe_ice = NULL;
+        IF v_registros.sw_ic = 'si' then
+          v_importe_ice = v_parametros.importe_excento;
+        END IF;
+        ----validacion exento mayot monto mmv
+
+
+
+
+        select p.sw_nit, p.sw_autorizacion
+        into
+        v_sw_nit
+        v_autorizacion
+        from param.tplantilla p
+        where p.id_plantilla = v_parametros.id_plantilla;
+
+        IF v_autorizacion  ='si' and v_parametros.nro_autorizacion = '' THEN
+          raise exception 'Falta registrar el Número de Autorización';
+        END IF;
+
+        IF  v_sw_nit = 'si' and  v_parametros.nit = '' THEN
+          raise exception 'Falta registrar el Nit';
+        END IF;
+
+        IF v_parametros.razon_social is null or v_parametros.razon_social = '' THEN
+          raise exception 'Falta registrar el Razon Social';
+        END IF;
+
+        select plt.desc_plantilla
+          into
+          v_plantilla
+          from param.tplantilla plt
+          where plt.id_plantilla = v_parametros.id_plantilla;
+
+
+        /*   if v_plantilla = 'Póliza de Importación - DUI'then
+
+           v_dui_importe = v_parametros.importe_pago_liquido;
+           else
+
+           v_dui_importe = v_parametros.importe_doc;
+          end if;*/
+  --raise exception 'verificando';
+
+
+          --para actualizar el plan de pago
+          if (pxp.f_existe_parametro(p_tabla,'id_plan_pago')) then
+              v_id_plan_pago = v_parametros.id_plan_pago;
+              --#15,  se recupera el nro_tramite del comprobante si es que existe
+              select
+                 c.nro_tramite
+              into
+                 v_nro_tramite
+              from conta.tint_comprobante c
+              where c.id_int_comprobante = v_id_int_comprobante;
+
+          end if;
+
+          select pp.id_plan_pago
+          into v_id_plan_pago_dcv
+          from tes.tplan_pago pp
+          inner join conta.tdoc_compra_venta dcv on dcv.id_plan_pago = pp.id_plan_pago
+          where dcv.id_int_comprobante = v_id_int_comprobante;
+
+          if pxp.f_existe_parametro(p_tabla,'fecha_vencimiento') then
+              v_fecha_venci = v_parametros.fecha_vencimiento;
+          else
+              v_fecha_venci = null;
+          end if;
+
+          --controles
+          IF (v_parametros.importe_doc is NULL) THEN
+              RAISE EXCEPTION 'Falta completar el campo MONTO';
+          END IF;
+
+          IF (v_parametros.id_plantilla is NULL) THEN
+              RAISE EXCEPTION 'Falta completar el campo TIPO DE DOCUMENTO';
+          END IF;
+
+          IF (v_parametros.id_moneda = 2) THEN
+            SELECT mo.codigo
+            INTO v_moneda
+            FROM param.tmoneda mo
+            WHERE mo.id_moneda = v_parametros.id_moneda;
+
+            IF (v_tipo_cambio is NULL or v_tipo_cambio < 1) THEN
+                RAISE EXCEPTION 'Falta completar el campo TIPO DE CAMBIO para la Moneda %', v_moneda;
+            END IF;
+          END IF;
+
+          -- para que el codigo_control no is null
+          if (v_parametros.codigo_control is NUll or v_parametros.codigo_control = '' or v_parametros.codigo_control = ' ') then
+              v_codigo_control =  '0' ;
+          else
+              v_codigo_control = v_parametros.codigo_control;
+          end if;
+
+          --(MAY) para ver si corresponte a un plan de pago,cbte un documento
+          --IF (v_parametros.id_int_comprobante is Null) THEN
+          IF (v_id_int_comprobante is Null) THEN
+              v_plan_pago = v_id_plan_pago;
+
+          ELSE
+              v_plan_pago = v_id_plan_pago_dcv;
+              --(may)solo estacion internacionales se relaciona una cuota con sus documentos compra y venta
+              --10-05-2020 (may) modificacion para q la central Bolivia se relaciona doc compra y venta con una cuota
+              --IF pxp.f_get_variable_global('ESTACION_inicio') !='BOL' THEN
+                IF (v_plan_pago is null) THEN
+                  if (pxp.f_existe_parametro(p_tabla, 'id_plan_pago'))then
+                        v_plan_pago = v_parametros.id_plan_pago;
+                  end if;
+                END IF;
+              --END IF;
+
+          END IF;
+
+    --(MAY) para las estaciones Internacionales, tienen mas parametros
+
+  --raise exception 'lllega %',v_parametros.base_21;
+        --Sentencia de la insercion
+        insert into conta.tdoc_compra_venta(
+          tipo,
+          importe_excento,
+          id_plantilla,
+          fecha,
+          nro_documento,
+          nit,
+          importe_ice,
+          nro_autorizacion,
+          importe_iva,
+          importe_descuento,
+          importe_descuento_ley,
+          importe_pago_liquido,
+          importe_doc,
+          sw_contabilizar,
+          estado,
+          id_depto_conta,
+          obs,
+          estado_reg,
+          codigo_control,
+          importe_it,
+          razon_social,
+          id_usuario_ai,
+          id_usuario_reg,
+          fecha_reg,
+          usuario_ai,
+          manual,
+          id_periodo,
+          nro_dui,
+          id_moneda,
+          importe_pendiente,
+          importe_anticipo,
+          importe_retgar,
+          importe_neto,
+          id_proveedor,
+          id_cliente,
+          id_auxiliar,
+          id_tipo_doc_compra_venta,
+          id_int_comprobante,
+          nro_tramite,
+          id_plan_pago,
+          fecha_vencimiento,
+          tipo_cambio
+
+        ) values(
+          v_parametros.tipo,
+          COALESCE(v_parametros.importe_excento,0),
+          v_parametros.id_plantilla,
+          v_parametros.fecha,
+          v_parametros.nro_documento,
+          v_parametros.nit,
+          v_importe_ice,
+          v_parametros.nro_autorizacion,
+          COALESCE(v_parametros.importe_iva,0),
+          COALESCE(v_parametros.importe_descuento,0),
+          COALESCE(v_parametros.importe_descuento_ley,0),
+          COALESCE(v_parametros.importe_pago_liquido,0),
+          COALESCE(v_parametros.importe_doc,0), --Dui
+          'si', --sw_contabilizar,
+          'registrado', --estado
+          --v_parametros.id_depto_conta,
+          v_id_depto_contatipo,
+          v_parametros.obs,
+          'activo',
+          upper(v_codigo_control),
+          v_parametros.importe_it,
+          upper(trim(v_parametros.razon_social)),
+          v_parametros._id_usuario_ai,
+          p_id_usuario,
+          now(),
+          v_parametros._nombre_usuario_ai,
+          'si',
+          v_rec.po_id_periodo,
+          v_parametros.nro_dui,
+          v_parametros.id_moneda,
+          COALESCE(v_parametros.importe_pendiente,0),
+          COALESCE(v_parametros.importe_anticipo,0),
+          COALESCE(v_parametros.importe_retgar,0),
+          v_parametros.importe_neto,
+          v_parametros.id_proveedor, --v_id_proveedor,
+          v_id_cliente,
+          v_parametros.id_auxiliar,
+          v_id_tipo_doc_compra_venta,
+          v_id_int_comprobante,
+          v_nro_tramite,
+          v_plan_pago,
+          v_fecha_venci,
+          COALESCE(v_tipo_cambio,1)
+
+        )RETURNING id_doc_compra_venta into v_id_doc_compra_venta;
+
+        --tabla complemento para las internacionales
+         insert into conta.tdoc_compra_venta_ext (
+
+              costo_directo,
+              c_emisor,
+              no_gravado,
+              base_21,
+              base_27,
+              base_10_5,
+              base_2_5,
+              percepcion_caba,
+              percepcion_bue,
+              percepcion_iva,
+              percepcion_salta,
+              imp_internos,
+              percepcion_tucuman,
+              percepcion_corrientes,
+              otros_impuestos,
+              percepcion_neuquen,
+              id_doc_compra_venta,
+              importe_postergacion_covid
+
+            ) values(
+              v_parametros.costo_directo,
+              v_parametros.c_emisor,
+              v_parametros.no_gravado,
+              v_parametros.base_21,
+              v_parametros.base_27,
+              v_parametros.base_10_5,
+              v_parametros.base_2_5,
+              v_parametros.percepcion_caba,
+              v_parametros.percepcion_bue,
+              v_parametros.percepcion_iva,
+              v_parametros.percepcion_salta,
+              v_parametros.imp_internos,
+              v_parametros.percepcion_tucuman,
+              v_parametros.percepcion_corrientes,
+              v_parametros.otros_impuestos,
+              v_parametros.percepcion_neuquen,
+              v_id_doc_compra_venta,
+              v_parametros.importe_postergacion_covid
+
+        )RETURNING id_doc_compra_venta_ext into v_id_doc_compra_venta_ext;
+
+
+
+
+
+        if (pxp.f_existe_parametro(p_tabla,'id_origen')) then
+          update conta.tdoc_compra_venta
+          set id_origen = v_parametros.id_origen,
+            tabla_origen = v_parametros.tabla_origen
+          where id_doc_compra_venta = v_id_doc_compra_venta;
+        end if;
+
+        if (pxp.f_existe_parametro(p_tabla,'id_tipo_compra_venta')) then
+          if(v_parametros.id_tipo_compra_venta is not null) then
+
+            update conta.tdoc_compra_venta
+            set id_tipo_doc_compra_venta = v_parametros.id_tipo_compra_venta
+            where id_doc_compra_venta = v_id_doc_compra_venta;
+          end if;
+        end if;
+
+        if (pxp.f_existe_parametro(p_tabla,'estacion')) then
+          if(v_parametros.estacion is not null) then
+
+            update conta.tdoc_compra_venta
+            set estacion = v_parametros.estacion
+            where id_doc_compra_venta = v_id_doc_compra_venta;
+          end if;
+        end if;
+
+        if (pxp.f_existe_parametro(p_tabla,'id_agencia')) then
+          if(v_parametros.id_agencia is not null) then
+
+            update conta.tdoc_compra_venta
+            set id_agencia = v_parametros.id_agencia
+            where id_doc_compra_venta = v_id_doc_compra_venta;
+          end if;
+        end if;
+
+        --21-01-2020 (may) modificacion para que el liquido pagable no se reistre como null ni 0
+        IF (v_parametros.importe_pago_liquido is null or v_parametros.importe_pago_liquido = 0) THEN
+          RAISE EXCEPTION 'Líquido Pagado debe ser mayor a 0';
+        END IF;
+
+        --Definicion de la respuesta
+        v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Documentos Compra/Venta almacenado(a) con exito (id_doc_compra_venta'||v_id_doc_compra_venta||')');
+        v_resp = pxp.f_agrega_clave(v_resp,'id_doc_compra_venta',v_id_doc_compra_venta::varchar);
+
+        --Devuelve la respuesta
+        return v_resp;
+
+      end;
+
+  /*********************************
+   #TRANSACCION:  'CONTA_UPD_FACTU_IME'
+   #DESCRIPCION:	Actualiza el Nit, Razon Social BD facturas
+   #AUTOR:		franklin.espinoza
+   #FECHA:		25-01-2021 09:14:14
+  ***********************************/
+
+  elsif(p_transaccion='CONTA_UPD_FACTU_IME')then
+
+    begin
+    	--raise 'param: %, %, %',v_parametros.nit_ci_cli,v_parametros.razon_social_cli,v_parametros.id_factura;
+    	v_fecha_factura = v_parametros.fecha_factura;
+        v_gestion =  date_part('year',v_fecha_factura);
+
+        v_host     = pxp.f_get_variable_global('sincroniza_ip_facturacion');
+        v_puerto   = pxp.f_get_variable_global('sincroniza_puerto_facturacion');
+        v_dbname   = 'db_facturas_'||v_gestion;
+        p_user     = pxp.f_get_variable_global('sincronizar_user_facturacion');
+        v_password = pxp.f_get_variable_global('sincronizar_password_facturacion');
+
+        v_cadena_factura = 'hostaddr='||v_host||' port='||v_puerto||' dbname='||v_dbname||' user='||p_user||' password='||v_password;
+
+        v_conexion = (select dblink_connect('db_facturas',v_cadena_factura));
+
+        insert into conta.tcorrecion_doc(
+			nit_ci_cli,
+			razon_social_cli,
+			id_factura,
+			estado_reg,
+			id_usuario_reg,
+			fecha_reg
+        ) values(
+			v_parametros.nit_ci_cli,
+			v_parametros.razon_social_cli,
+			v_parametros.id_factura,
+			'activo',
+			p_id_usuario,
+			now()
+		);
+
+		--Sentencia de la consulta
+        v_consulta = 'update sfe.tfactura set
+        			  nit_ci_cli = '''||trim(v_parametros.nit_ci_cli)||''',
+                      razon_social_cli = '''||trim(v_parametros.razon_social_cli)||''',
+                      revision_nit = ''CORREGIDO''
+                      where  id_factura = '''||v_parametros.id_factura||''';';
+
+
+        if v_conexion != 'OK' then
+              raise exception 'ERROR DE CONEXION A LA BASE DE DATOS CON DBLINK';
+        else
+
+          perform dblink_exec(v_cadena_factura,v_consulta,TRUE);
+
+          v_conexion = (select dblink_disconnect('db_facturas'));
+
+        end if;
+
+      --Definicion de la respuesta
+      v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se modifico con exito la factura '||v_parametros.id_factura);
+      v_resp = pxp.f_agrega_clave(v_resp,'id_factura',v_parametros.id_factura::varchar);
+
+      --Devuelve la respuesta
+      return v_resp;
+
+    end;
   else
 
     raise exception 'Transaccion inexistente: %',p_transaccion;

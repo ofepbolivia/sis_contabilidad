@@ -8,18 +8,18 @@
 */
 
 class MODOrdenTrabajo extends MODbase{
-	
+
 	function __construct(CTParametro $pParam){
 		parent::__construct($pParam);
 	}
-			
+
 	function listarOrdenTrabajo(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='conta.f_orden_trabajo_sel';
 		$this->transaccion='CONTA_ODT_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-		
-		$this->setParametro('id_centro_costo','id_centro_costo','int4'); 
+
+		$this->setParametro('id_centro_costo','id_centro_costo','int4');
 		//Definicion de la lista del resultado del query
 		$this->captura('id_orden_trabajo','int4');
 		$this->captura('estado_reg','varchar');
@@ -39,13 +39,15 @@ class MODOrdenTrabajo extends MODbase{
 		$this->captura('descripcion','varchar');
 		$this->captura('id_orden_trabajo_fk','int4');
 		$this->captura('desc_otp','varchar');
-		
-		
+
+		$this->captura('id_grupo_ots','varchar');
+
+
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
-		
+
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
@@ -55,7 +57,7 @@ function listarOrdenTrabajoAll(){
 		$this->procedimiento='conta.f_orden_trabajo_sel';
 		$this->transaccion='CONTA_ODTALL_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-				
+
 		//Definicion de la lista del resultado del query
 		$this->captura('id_orden_trabajo','int4');
 		$this->captura('estado_reg','varchar');
@@ -74,13 +76,13 @@ function listarOrdenTrabajoAll(){
 		$this->captura('codigo','varchar');
 		$this->captura('descripcion','varchar');
 		$this->captura('id_orden_trabajo_fk','int4');
-		
-		
-		
+
+
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
-		
+
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
@@ -90,7 +92,7 @@ function listarOrdenTrabajoAll(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='conta.f_orden_trabajo_sel';
 		$this->transaccion='CONTA_ODTRAM_SEL';
-		$this->tipo_procedimiento='SEL';//tipo de transaccion				
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		//Definicion de la lista del resultado del query
 		$this->captura('id_orden_trabajo','int4');
 		$this->captura('estado_reg','varchar');
@@ -111,7 +113,7 @@ function listarOrdenTrabajoAll(){
 		$this->captura('id_orden_trabajo_fk','int4');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
-		$this->ejecutarConsulta();		
+		$this->ejecutarConsulta();
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
@@ -124,12 +126,12 @@ function listarOrdenTrabajoAll(){
 		    $this-> setCount(false);
 		    $this->transaccion='CONTA_ODTARB_SEL';
 		    $this->tipo_procedimiento='SEL';//tipo de transaccion
-		    
+
 		    $id_padre = $this->objParam->getParametro('id_padre');
-		    
-		    $this->setParametro('node','node','varchar'); 
-			  
-		            
+
+		    $this->setParametro('node','node','varchar');
+
+
 		    //Definicion de la lista del resultado del query
 		    $this->captura('id_orden_trabajo','int4');
 			$this->captura('estado_reg','varchar');
@@ -148,21 +150,21 @@ function listarOrdenTrabajoAll(){
 			$this->captura('codigo','varchar');
 			$this->captura('tipo_nodo','varchar');
 			$this->captura('id_orden_trabajo_fk','int4');
-			
-			 
+
+
 		     //Ejecuta la instruccion
 		     $this->armarConsulta();
 			 $this->ejecutarConsulta();
-		    
-		    return $this->respuesta;       
+
+		    return $this->respuesta;
     }
-			
+
 	function insertarOrdenTrabajo(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='conta.f_orden_trabajo_ime';
 		$this->transaccion='CONTA_ODT_INS';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('fecha_final','fecha_final','date');
@@ -171,7 +173,7 @@ function listarOrdenTrabajoAll(){
 		$this->setParametro('motivo_orden','motivo_orden','varchar');
 		$this->setParametro('tipo','tipo','varchar');
 		$this->setParametro('movimiento','movimiento','varchar');
-		$this->setParametro('codigo','codigo','varchar');		
+		$this->setParametro('codigo','codigo','varchar');
 		$this->setParametro('id_orden_trabajo_fk','id_orden_trabajo_fk','int4');
 
 		//Ejecuta la instruccion
@@ -181,13 +183,13 @@ function listarOrdenTrabajoAll(){
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function modificarOrdenTrabajo(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='conta.f_orden_trabajo_ime';
 		$this->transaccion='CONTA_ODT_MOD';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_orden_trabajo','id_orden_trabajo','int4');
 		$this->setParametro('estado_reg','estado_reg','varchar');
@@ -207,13 +209,13 @@ function listarOrdenTrabajoAll(){
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function eliminarOrdenTrabajo(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='conta.f_orden_trabajo_ime';
 		$this->transaccion='CONTA_ODT_ELI';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_orden_trabajo','id_orden_trabajo','int4');
 
@@ -224,14 +226,14 @@ function listarOrdenTrabajoAll(){
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-	
-	
+
+
 	function insertarOrdenTrabajoArb(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='conta.f_orden_trabajo_ime';
 		$this->transaccion='CONTA_ODTARB_INS';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_orden_trabajo_fk','id_orden_trabajo_fk','varchar');
 		$this->setParametro('estado_reg','estado_reg','varchar');
@@ -239,7 +241,7 @@ function listarOrdenTrabajoAll(){
 		$this->setParametro('fecha_inicio','fecha_inicio','date');
 		$this->setParametro('desc_orden','desc_orden','varchar');
 		$this->setParametro('motivo_orden','motivo_orden','varchar');
-		
+
 		$this->setParametro('tipo','tipo','varchar');
 		$this->setParametro('movimiento','movimiento','varchar');
 		$this->setParametro('codigo','codigo','varchar');
@@ -251,13 +253,13 @@ function listarOrdenTrabajoAll(){
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
+
 	function modificarOrdenTrabajoArb(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='conta.f_orden_trabajo_ime';
 		$this->transaccion='CONTA_ODTARB_MOD';
 		$this->tipo_procedimiento='IME';
-				
+
 		//Define los parametros para la funcion
 		$this->setParametro('id_orden_trabajo','id_orden_trabajo','int4');
 		$this->setParametro('estado_reg','estado_reg','varchar');
@@ -265,7 +267,7 @@ function listarOrdenTrabajoAll(){
 		$this->setParametro('fecha_inicio','fecha_inicio','date');
 		$this->setParametro('desc_orden','desc_orden','varchar');
 		$this->setParametro('motivo_orden','motivo_orden','varchar');
-		
+
 		$this->setParametro('tipo','tipo','varchar');
 		$this->setParametro('movimiento','movimiento','varchar');
 		$this->setParametro('codigo','codigo','varchar');
@@ -278,8 +280,8 @@ function listarOrdenTrabajoAll(){
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
-	
-			
+
+
+
 }
 ?>
