@@ -204,8 +204,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     sysorigen:'sis_contabilidad',
                     name:'id_auxiliar',
                     origen:'AUXILIAR',
-                    //08-04-2021 (may) tiene que ser dato obligatorio
-                    allowBlank:false,
+                    allowBlank:true,
                     fieldLabel:'Auxiliar',
                     gdisplayField:'desc_auxiliar',//mapea al store del grid
                     gwidth:200,
@@ -232,7 +231,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     fieldLabel: 'Linea OT',
                     sysorigen:'sis_contabilidad',
                     origen:'OT',
-                    allowBlank:false,
+                    allowBlank:true,
                     gwidth:200,
                     width: 380,
                     listWidth: 380
