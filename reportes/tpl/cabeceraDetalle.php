@@ -6,7 +6,8 @@
 		 ?>
 		<tr>
 			<td width="55%" rowspan="2" align="center" ><b>DETALLE</b></td>
-			<td width="45%" colspan="3"  align="center" class="td_currency"><span><b><?php  echo $this->cabecera[0]['desc_moneda']; ?></b></span></td>
+			<!-- <td width="45%" colspan="3"  align="center" class="td_currency"><span><b><?php  echo $this->cabecera[0]['desc_moneda']; ?></b></span></td> -->
+            <td width="45%" colspan="3"  align="center" class="td_currency"><span><b><?php  echo 'IMPORTE'; ?></b></span></td>
 		</tr>
 		<tr>
 			<td width="15%" align="center" class="td_currency"><span><b>Ejecución</b></span></td>
@@ -17,7 +18,8 @@
 		else{  ?>
 		<tr>
 			<td width="45%" rowspan="2" align="center" ><b>DETALLE</b></td>
-			<td width="33%" colspan="2"  align="center" class="td_currency"><span><b><?php  echo $this->cabecera[0]['desc_moneda']; ?></b></span></td>
+			<!-- <td width="33%" colspan="2"  align="center" class="td_currency"><span><b><?php  echo $this->cabecera[0]['desc_moneda']; ?></b></span></td> -->
+            <td width="45%" colspan="3"  align="center" class="td_currency"><span><b><?php  echo 'IMPORTE'; ?></b></span></td>
 			<td width="22%" colspan="2"  align="center" class="td_currency"><span><b><?php  echo $this->cabecera[0]['codigo_moneda_base']; ?></b></span></td>
 		
 		</tr>

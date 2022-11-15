@@ -845,12 +845,12 @@ header("content-type: text/javascript; charset=UTF-8");
             this.maestro=m;
 
             //(f.e.a) para verificar si el proceso le correponde a planillas
-            var bandera_planilla = '';
+             var bandera_planilla = '';
             if(this.maestro.desc_subsistema == 'Sistema de Planillas')
                 bandera_planilla = 'true';
             else
                 bandera_planilla = 'false';
-
+                console.log(this.maestro.id_depto);
             this.store.baseParams={id_int_comprobante:this.maestro.id_int_comprobante, id_moneda:this.maestro.id_moneda, planilla : bandera_planilla};
             this.Cmp.id_centro_costo.store.baseParams.id_depto = this.maestro.id_depto;
             this.load({params:{start:0, limit:this.tam_pag}});

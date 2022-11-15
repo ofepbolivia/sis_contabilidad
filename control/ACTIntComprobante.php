@@ -417,7 +417,6 @@ class ACTIntComprobante extends ACTbase{
 			$arrTotalesCbte['tot_haber1']+=$val['importe_haber1'];
 		}
 		
-		
 	}
 
     function recuperarDatosCbte(){
@@ -432,6 +431,16 @@ class ACTIntComprobante extends ACTbase{
 				$cbteTrans = $this->objFunc->listarCbteDetalle($this->objParam);
 				if($cbteTrans->getTipo()=='EXITO'){
 					$dataSource->putParameter('detalleCbte', $cbteTrans->getDatos());
+
+                    $this->objFunc=$this->create('MODIntComprobante');
+                    $beneTrans = $this->objFunc->listarBeneficiarios($this->objParam);
+
+                    if($beneTrans->getTipo()=='EXITO'){
+                        $dataSource->putParameter('listadoBeneficiarios', $beneTrans->getDatos());
+                    }
+                    else{
+                        $beneTrans->imprimirRespuesta($beneTrans->generarJson());
+                    }
 				}
 		        else{
 		            $cbteTrans->imprimirRespuesta($cbteTrans->generarJson());

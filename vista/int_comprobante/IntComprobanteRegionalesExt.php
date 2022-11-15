@@ -947,8 +947,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 id_grupo: 0,
                 bottom_filtro: true,
-                grid: true,
-                form: true
+                grid: false,
+                form: false
             }, {
                 config: {
                     name: 'id_funcionario_firma1',
@@ -1612,12 +1612,28 @@ header("content-type: text/javascript; charset=UTF-8");
             minChars: 2,
         }),
 
-        south: {
-            url: '../../../sis_contabilidad/vista/int_transaccion/IntTransaccion.php',
-            title: 'Transacciones',
-            height: '50%', //altura de la ventana hijo
-            cls: 'IntTransaccion'
-        },
+        // south: {
+        //     url: '../../../sis_contabilidad/vista/int_transaccion/IntTransaccion.php',
+        //     title: 'Transacciones',
+        //     height: '50%', //altura de la ventana hijo
+        //     cls: 'IntTransaccion'
+        // },
+
+        // 27-10-2022 ANPM Adicion de tab Beneficiario
+		tabsouth : [
+            {
+                url : '../../../sis_contabilidad/vista/int_transaccion/IntTransaccionAux.php',
+                title : 'Transacciones',
+                height : '50%', //altura de la ventana hijo
+                cls : 'IntTransaccionAux'
+		    },
+            {
+                url : '../../../sis_contabilidad/vista/int_beneficiario/IntBeneficiarioAux.php',
+                title : 'Beneficiario',
+                height : '50%', //altura de la ventana hijo
+                cls : 'IntBeneficiarioAux'
+		    }
+        ],
 
 
         habilitaMomentos: function (combo, record, index) {

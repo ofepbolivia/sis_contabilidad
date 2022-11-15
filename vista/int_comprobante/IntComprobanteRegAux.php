@@ -358,12 +358,22 @@ Phx.vista.IntComprobanteRegAux = {
 				height : 300
 			}, rec, this.idContenedor, 'WizardCbte')
 		},
-		south : {
-			url : '../../../sis_contabilidad/vista/int_transaccion/IntTransaccionAux.php',
-			title : 'Transacciones',
-			height : '50%', //altura de la ventana hijo
-			cls : 'IntTransaccionAux'
-		},
+
+        // 27-10-2022 ANPM Adicion de tab Beneficiario
+		tabsouth : [
+            {
+                url : '../../../sis_contabilidad/vista/int_transaccion/IntTransaccionAux.php',
+                title : 'Transacciones',
+                height : '50%', //altura de la ventana hijo
+                cls : 'IntTransaccionAux'
+		    },
+            {
+                url : '../../../sis_contabilidad/vista/int_beneficiario/IntBeneficiarioAux.php',
+                title : 'Beneficiario',
+                height : '50%', //altura de la ventana hijo
+                cls : 'IntBeneficiarioAux'
+		    }
+        ]
 		
 	
 };

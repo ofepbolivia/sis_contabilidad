@@ -272,7 +272,7 @@ class MODIntComprobante extends MODbase{
 
         //Ejecuta la instruccion
         $this->armarConsulta();
-
+        
         $this->ejecutarConsulta();
 
         //Devuelve la respuesta
@@ -454,8 +454,8 @@ class MODIntComprobante extends MODbase{
         $this->captura('nro_cuenta_bancaria','varchar');
         $this->captura('fecha_costo_ini','varchar');
         $this->captura('fecha_costo_fin','varchar');
-
-
+        $this->captura('moneda','varchar');
+        $this->captura('usuario','varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -495,12 +495,35 @@ class MODIntComprobante extends MODbase{
         $this->captura('tipo_cambio','numeric');
         //$this->captura('id_orden_trabajo','integer');
 
-
-
-
         //Ejecuta la instruccion
         $this->armarConsulta();
         //echo $this->consulta;exit;
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
+    function listarBeneficiarios(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='conta.ft_int_beneficiario_sel';
+        $this->transaccion='CONTA_PROVEEV_REP';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(false);
+        $this->setParametro('id_proceso_wf','id_proceso_wf','int4');
+
+        //Definicion de la lista del resultado del query
+        $this->captura('tipo_doc','varchar');
+        $this->captura('expedicion','varchar');
+        $this->captura('ci','varchar');
+        $this->captura('nombre_razon_social','varchar');
+        $this->captura('banco','varchar');
+        $this->captura('nro_cuenta_bancaria_sigma','varchar');
+        $this->captura('importe','numeric');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+
         $this->ejecutarConsulta();
 
         //Devuelve la respuesta

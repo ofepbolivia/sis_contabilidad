@@ -35,8 +35,8 @@ Phx.vista.ProveedorCuenta = {
 	  url:'../../../sis_parametros/vista/proveedor_cta_bancaria/ProveedorCtaBancaria.php',
 	  title:'Cta Bancaria',
 	  width:'50%',
-	  cls:'ProveedorCtaBancaria'//,
-	  // params:{nombre_tabla:'param.tproveedor',tabla_id : 'id_proveedor'}
+	  cls:'ProveedorCtaBancaria',
+	  params:{nombre_tabla:'param.tproveedor',tabla_id : 'id_proveedor'}
 	}],
 	
    bedit:true,
