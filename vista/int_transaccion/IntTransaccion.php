@@ -11,7 +11,7 @@ header("content-type: text/javascript; charset=UTF-8");
 <script>
     Phx.vista.IntTransaccion=Ext.extend(Phx.gridInterfaz,{
         fheight : '60%',
-        fwidth : '580',
+        fwidth : '680',
 
         constructor:function(config){
 
@@ -110,8 +110,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     origen:'CENTROCOSTO',
                     url: '../../sis_parametros/control/CentroCosto/listarCentroCostoFiltradoXDepto',
                     gdisplayField: 'desc_centro_costo',
-                    width: 380,
-                    listWidth: 380,
+                    width: 495,
+                    listWidth: 495,
                     gwidth:600,
                     tipo_pres:"gasto,administrativo,recurso,ingreso_egreso",
                     renderer:function (value, p, record){
@@ -164,8 +164,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     fieldLabel:'Partida',
                     gdisplayField:'desc_partida',//mapea al store del grid
                     gwidth:200,
-                    width: 380,
-                    listWidth: 380
+                    width: 495,
+                    listWidth: 495
                 },
                 type:'ComboRec',
                 id_grupo:0,
@@ -187,8 +187,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     fieldLabel:'Cuenta',
                     gdisplayField:'desc_cuenta',//mapea al store del grid
                     gwidth:600,
-                    width: 380,
-                    listWidth: 380
+                    width: 495,
+                    listWidth: 495
                 },
                 type:'ComboRec',
                 id_grupo:0,
@@ -208,8 +208,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     fieldLabel:'Auxiliar',
                     gdisplayField:'desc_auxiliar',//mapea al store del grid
                     gwidth:200,
-                    width: 380,
-                    listWidth: 380,
+                    width: 495,
+                    listWidth: 495,
                     //anchor: '80%',
                     renderer:function (value, p, record){return String.format('{0}', record.data['desc_auxiliar']);}
                 },
@@ -233,8 +233,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     origen:'OT',
                     allowBlank:true,
                     gwidth:200,
-                    width: 380,
-                    listWidth: 380
+                    width: 495,
+                    listWidth: 495
 
                 },
                 type:'ComboRec',
@@ -251,8 +251,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     origen:'SUBORDEN',
                     allowBlank:true,
                     gwidth:200,
-                    width: 380,
-                    listWidth: 380
+                    width: 495,
+                    listWidth: 495
 
                 },
                 type:'ComboRec',
@@ -261,7 +261,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid:false,
                 form:true
             },
-
+            //fRnk: vista Nuevo/editar de Comprobante de Diario, en contabilidad
             {
                 config:{
                     name:'id_concepto_ingas',
@@ -294,10 +294,10 @@ header("content-type: text/javascript; charset=UTF-8");
                     mode:'remote',
                     pageSize:30,
                     queryDelay:1000,
-                    listWidth:380,
+                    listWidth:495,
                     resizable:true,
                     gwidth: 150,
-                    width: 380,
+                    width: 495,
                     renderer:function(value, p, record){return String.format('{0}', record.data['desc_ingas']);}
                 },
                 type:'ComboBox',
@@ -626,7 +626,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     name: 'glosa',
                     fieldLabel: 'Glosa',
                     allowBlank: true,
-                    width: 380,
+                    width: 495,
                     gwidth: 300,
                     maxLength:1000,
                     renderer: function(val){if (val != ''){return '<div class="gridmultiline">'+val+'</div>';}}
