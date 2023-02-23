@@ -279,7 +279,34 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'string'
             },
             form: false,
-            grid: true
+            //fRnk: se modificó por false y se movió a la primera columna el Nro. de trámite
+            grid: false
+        },{
+            config: {
+                name: 'nro_tramite',
+                gwidth: 150,
+                fieldLabel: 'Nro. Trámite',
+                renderer: function (value, p, record) {
+                    if (record.data.cbte_reversion == 'si') {
+                        return String.format('<div title="Cbte de Reversión"><b><font color="#0000FF">{0}</font></b></div>', value);
+                    }
+                    if (record.data.volcado == 'si') {
+                        return String.format('<div title="Cbte Revertido/Volcado"><b><font color="red">{0}</font></b></div>', value);
+                    }
+                    return String.format('{0}', value);
+
+                }
+            },
+            type: 'Field',
+            id_grupo: 0,
+            filters: {
+                pfiltro: 'incbte.nro_tramite',
+                type: 'string'
+            },
+            grid: true,
+            bottom_filtro: true,
+            form: false,
+            grid: true,
         },
 
             {
@@ -504,7 +531,8 @@ header("content-type: text/javascript; charset=UTF-8");
             }, {
                 config: {
                     name: 'momento_ejecutado',
-                    fieldLabel: 'Ejecutado',
+                    //fRnk: se modificó el texto Ejecutado por Devengado
+                    fieldLabel: 'Devengado',
                     renderer: function (value, p, record) {
                         return record.data['momento_ejecutado'] == 'true' ? 'si' : 'no';
                     },
@@ -741,33 +769,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 form: true
             },
 
-            {
-                config: {
-                    name: 'nro_tramite',
-                    gwidth: 150,
-                    fieldLabel: 'Nro. Trámite',
-                    renderer: function (value, p, record) {
-                        if (record.data.cbte_reversion == 'si') {
-                            return String.format('<div title="Cbte de Reversión"><b><font color="#0000FF">{0}</font></b></div>', value);
-                        }
-                        if (record.data.volcado == 'si') {
-                            return String.format('<div title="Cbte Revertido/Volcado"><b><font color="red">{0}</font></b></div>', value);
-                        }
-                        return String.format('{0}', value);
-
-                    }
-                },
-                type: 'Field',
-                id_grupo: 0,
-                filters: {
-                    pfiltro: 'incbte.nro_tramite',
-                    type: 'string'
-                },
-                grid: true,
-                bottom_filtro: true,
-                form: false,
-                grid: true,
-            }, {
+             {
                 config: {
                     name: 'glosa1',
                     fieldLabel: 'Glosa',
@@ -1146,7 +1148,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 items: [{
                     xtype: 'fieldset',
                     columns: 2,
-                    title: 'Tipo  Comprobante',
+                    title: 'Tipo Comprobante',
                     autoHeight: true,
                     items: [],
                     id_grupo: 1
@@ -1284,7 +1286,8 @@ header("content-type: text/javascript; charset=UTF-8");
             'desc_moneda_tri', 'localidad', 'sw_editable', 'cbte_reversion', 'volcado', 'c31', 'fecha_c31', 'forma_cambio', 'id_service_request', 'nro_preventivo'],
 
         rowExpander: new Ext.ux.grid.RowExpander({
-            tpl: new Ext.Template('<br>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Departamento:&nbsp;&nbsp;</b> {desc_depto} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Clase cbte:&nbsp;&nbsp;</b> {desc_clase_comprobante}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Origen:&nbsp;&nbsp;</b> {desc_subsistema}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Beneficiario:&nbsp;&nbsp;</b> {beneficiario}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Glosa:&nbsp;&nbsp;</b> {glosa1} {glosa2}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Frima 1:&nbsp;&nbsp;</b> {desc_firma1} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Firma 2:&nbsp;&nbsp;</b> {desc_firma2} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Firma 3:&nbsp;&nbsp;</b> {desc_firma3} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:&nbsp;&nbsp;</b> {usr_reg}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Estado Registro:&nbsp;&nbsp;</b> {estado_reg}</p><br>')
+            //fRnk: modificado label firma 1, existía un error (frima)
+            tpl: new Ext.Template('<br>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Departamento:&nbsp;&nbsp;</b> {desc_depto} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Clase cbte:&nbsp;&nbsp;</b> {desc_clase_comprobante}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Origen:&nbsp;&nbsp;</b> {desc_subsistema}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Beneficiario:&nbsp;&nbsp;</b> {beneficiario}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Glosa:&nbsp;&nbsp;</b> {glosa1} {glosa2}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Firma 1:&nbsp;&nbsp;</b> {desc_firma1} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Firma 2:&nbsp;&nbsp;</b> {desc_firma2} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Firma 3:&nbsp;&nbsp;</b> {desc_firma3} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:&nbsp;&nbsp;</b> {usr_reg}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Estado Registro:&nbsp;&nbsp;</b> {estado_reg}</p><br>')
         }),
 
         arrayDefaultColumHidden: ['id_funcionario_firma1', 'id_funcionario_firma2', 'id_funcionario_firma3', 'id_subsistema', 'id_tipo_relacion_comprobante', 'fecha_mod', 'usr_reg', 'usr_mod', 'id_depto', 'estado', 'glosa1', 'momento', 'glosa2', 'desc_subsistema', 'desc_clase_comprobante', 'estado_reg', 'fecha_reg', 'id_service_request'],

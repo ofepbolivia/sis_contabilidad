@@ -163,8 +163,9 @@ class RIntCbte extends ReportePDF
         $this->Ln(2);
         $this->Firmas();
 
-        $this->Cell(185, 3.5, 'Reg: ' . $this->cabecera[0]['usr_reg'], '', 0, 'R');
-        $this->Cell(10, 3.5, 'ID: ' . $this->cabecera[0]['id_int_comprobante'], '', 0, 'R');
+        $this->Cell(196, 3.5, 'Reg: ' . $this->cabecera[0]['usr_reg'], '', 0, 'R');
+        //fRnk: se quitó el ID, para evitar confusión
+        //$this->Cell(10, 3.5, 'ID: ' . $this->cabecera[0]['id_int_comprobante'], '', 0, 'R');
 
     }
 
