@@ -1,6 +1,6 @@
 --------------- SQL ---------------
 
-CREATE OR REPLACE FUNCTION conta.f_balance_recursivo (
+CREATE OR REPLACE FUNCTION conta.f_balance_recursivo_re (
 	p_desde date,
 	p_hasta date,
 	p_id_deptos character varying,
@@ -32,13 +32,10 @@ va_tipo_cuenta		varchar[];
 v_gestion 			integer;
 v_sw_force			boolean;
 
---fRnk: para cálculo del "Resultado del Ejercicio"
-v_egresof 			numeric;
-v_ingresof 			numeric;
 
 BEGIN
 
-    v_nombre_funcion = 'conta.f_balance_recursivo';
+    v_nombre_funcion = 'conta.f_balance_recursivo_re';
     -- 0) inicia suma
     v_suma = 0;
     v_sw_force = FALSE;
@@ -104,7 +101,7 @@ FOR  v_registros in (
                        v_mayor = va_mayor[1];
 ELSE
                        -- llamada recursiva del balance general
-                        v_mayor = conta.f_balance_recursivo(
+                        v_mayor = conta.f_balance_recursivo_re(
                                                p_desde,
                                                p_hasta,
                                                p_id_deptos,
@@ -116,15 +113,10 @@ ELSE
                                                p_tipo_balance);
 END IF;
 
-                 --fRnk: realiza los cálculos obtenidos en el Estado de Resultados e insertarlo en la cuenta "Resultado del Ejercicio"
-				 IF p_tipo_balance = 'general' and (v_registros.nombre_cuenta ='Resultado del Ejercicio') THEN
-select SUM(monto) into v_egresof from temp_balancefre where movimiento='egreso' and nivel=1;
-select SUM(monto) into v_ingresof from temp_balancefre where movimiento='ingreso' and nivel=1;
-v_mayor = v_ingresof - v_egresof;
-END IF;
+
 
                  -- insetamos en tabla temporal
-insert  into temp_balancef (
+insert  into temp_balancefre (
     id_cuenta,
     nro_cuenta,
     nombre_cuenta,

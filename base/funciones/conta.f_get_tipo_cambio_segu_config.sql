@@ -1,28 +1,31 @@
 --------------- SQL ---------------
 
 CREATE OR REPLACE FUNCTION conta.f_get_tipo_cambio_segu_config (
-  p_id_moneda integer,
-  p_fecha date,
-  p_localidad varchar,
-  p_sw_valores varchar,
-  p_forma_cambio varchar = 'O'::character varying,
-  out po_id_config_cambiaria integer,
-  out po_valor_tc1 numeric,
-  out po_valor_tc2 numeric,
-  out po_valor_tc3 numeric,
-  out po_tc1 varchar,
-  out po_tc2 varchar,
-  out po_tc3 varchar
-)
-RETURNS record AS
-$body$
+	p_id_moneda integer,
+	p_fecha date,
+	p_localidad character varying,
+	p_sw_valores character varying,
+	p_forma_cambio character varying DEFAULT 'O'::character varying,
+	OUT po_id_config_cambiaria integer,
+	OUT po_valor_tc1 numeric,
+	OUT po_valor_tc2 numeric,
+	OUT po_valor_tc3 numeric,
+	OUT po_tc1 character varying,
+	OUT po_tc2 character varying,
+	OUT po_tc3 character varying)
+    RETURNS record
+    LANGUAGE 'plpgsql'
+    COST 100
+    STABLE PARALLEL UNSAFE
+AS $BODY$
+
 /**************************************************************************
  SISTEMA:		Sistema de Contabilidad
  FUNCION: 		conta.f_get_tipo_cambio_segu_config
  DESCRIPCION:   recuepra los tipos de cambio segun configuracion activa y etiquetas
  AUTOR: 		(rac)  kplian
  FECHA:	        10-11-2015 12:39:12
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
@@ -49,135 +52,130 @@ v_ma  					record;
 va_tc1 					varchar[];
 va_tc2 					varchar[];
 va_tc3 					varchar[];
-    
+
 
 
 v_registros				record;
 
- 
+
 
 BEGIN
 
   	 v_nombre_funcion = 'conta.f_get_tipo_cambio_segu_config';
-   
-   
+
+
         ----------------------------------------
         --recuperar la configuracion, cambiaria
         ----------------------------------------
-            
-            select 
-             cc.*
-            into
-             v_registros_cc
-            from conta.tconfig_cambiaria cc
-            where cc.origen = p_localidad 
-            and cc.habilitado = 'si' and cc.estado_reg = 'activo';
-            
-            po_id_config_cambiaria = v_registros_cc.id_config_cambiaria;
-            
+
+select
+    cc.*
+into
+    v_registros_cc
+from conta.tconfig_cambiaria cc
+where cc.origen = p_localidad
+  and cc.habilitado = 'si' and cc.estado_reg = 'activo';
+
+po_id_config_cambiaria = v_registros_cc.id_config_cambiaria;
+
             IF v_registros_cc is NULL THEN
               raise exception 'No se encontro una configuracion cambiaria activa';
-            END IF;
-            
+END IF;
+
         ----------------------
         -- remplazar labels
         ---------------------
-              
-            -- obtener los codigos de la monedas 
-            
-            
+
+            -- obtener los codigos de la monedas
+
+
             v_id_moneda_base = param.f_get_moneda_base();
             v_id_moneda_tri  = param.f_get_moneda_triangulacion();
             v_id_moneda_act  = param.f_get_moneda_actualizacion();
-            
-            select 
-             *
-            into
-             v_m
-            from param.tmoneda m 
-            where m.id_moneda = p_id_moneda; 
-            
-            select 
-             *
-            into
-             v_mb
-            from param.tmoneda m 
-            where m.id_moneda = v_id_moneda_base; 
-            
-            select 
-             *
-            into
-             v_mt
-            from param.tmoneda m 
-            where m.id_moneda = v_id_moneda_tri; 
-            
-            select 
-             *
-            into
-             v_ma
-            from param.tmoneda m 
-            where m.id_moneda = v_id_moneda_act;
-            
-            
-            po_tc1 = replace(v_registros_cc.ope_1, '{M}',v_m.codigo);
-            po_tc1 = replace(po_tc1, '{MB}',v_mb.codigo);
-            po_tc1 = replace(po_tc1, '{MT}',v_mt.codigo);
-            po_tc1 = replace(po_tc1, '{MA}',v_ma.codigo);
-            
-            
-            po_tc2 = replace(v_registros_cc.ope_2, '{M}',v_m.codigo);
-            po_tc2 = replace(po_tc2, '{MB}',v_mb.codigo);
-            po_tc2 = replace(po_tc2, '{MT}',v_mt.codigo);
-            po_tc2 = replace(po_tc2, '{MA}',v_ma.codigo);
-            
-            
-            po_tc3 = replace(v_registros_cc.ope_3, '{M}',v_m.codigo);
-            po_tc3 = replace(po_tc3, '{MB}',v_mb.codigo);
-            po_tc3 = replace(po_tc3, '{MT}',v_mt.codigo);
-            po_tc3 = replace(po_tc3, '{MA}',v_ma.codigo);
-            
+
+select
+    *
+into
+    v_m
+from param.tmoneda m
+where m.id_moneda = p_id_moneda;
+
+select
+    *
+into
+    v_mb
+from param.tmoneda m
+where m.id_moneda = v_id_moneda_base;
+
+select
+    *
+into
+    v_mt
+from param.tmoneda m
+where m.id_moneda = v_id_moneda_tri;
+
+select
+    *
+into
+    v_ma
+from param.tmoneda m
+where m.id_moneda = v_id_moneda_act;
+
+--fRnk: se modificó el codigo por codigo_internacional
+po_tc1 = replace(v_registros_cc.ope_1, '{M}',v_m.codigo_internacional);
+            po_tc1 = replace(po_tc1, '{MB}',v_mb.codigo_internacional);
+            po_tc1 = replace(po_tc1, '{MT}',v_mt.codigo_internacional);
+            po_tc1 = replace(po_tc1, '{MA}',v_ma.codigo_internacional);
+
+
+            po_tc2 = replace(v_registros_cc.ope_2, '{M}',v_m.codigo_internacional);
+            po_tc2 = replace(po_tc2, '{MB}',v_mb.codigo_internacional);
+            po_tc2 = replace(po_tc2, '{MT}',v_mt.codigo_internacional);
+            po_tc2 = replace(po_tc2, '{MA}',v_ma.codigo_internacional);
+
+
+            po_tc3 = replace(v_registros_cc.ope_3, '{M}',v_m.codigo_internacional);
+            po_tc3 = replace(po_tc3, '{MB}',v_mb.codigo_internacional);
+            po_tc3 = replace(po_tc3, '{MT}',v_mt.codigo_internacional);
+            po_tc3 = replace(po_tc3, '{MA}',v_ma.codigo_internacional);
+
         ----------------------------------------------
         -- obtener tipos de cambio del dia si existen
         ----------------------------------------------
-        
+
             IF p_sw_valores = 'si' THEN
-            
+
                 -- desarmar cadenas de conversion
                  va_tc1 = regexp_split_to_array(po_tc1, '->');
-                 va_tc2 = regexp_split_to_array(po_tc2, '->');                 
+                 va_tc2 = regexp_split_to_array(po_tc2, '->');
                  va_tc3 = regexp_split_to_array(po_tc3, '->');
-              
+
                 -- calcula tipo de cambio 1 para la fecha
                  if p_localidad != 'internacional' then
                     po_valor_tc1 = conta.f_determinar_tipo_cambio(va_tc1[1], va_tc1[2], p_fecha, p_forma_cambio);
-                 else
+else
                     po_valor_tc1 = NULL; --el tipo de cambio 1 ya viene con el cbte
-                 end if;
+end if;
                 -- calcula tipo de cambio 2 para la fecha
-                
-                 po_valor_tc2 = conta.f_determinar_tipo_cambio(va_tc2[1], va_tc2[2], p_fecha, p_forma_cambio);  
+
+                 po_valor_tc2 = conta.f_determinar_tipo_cambio(va_tc2[1], va_tc2[2], p_fecha, p_forma_cambio);
                  --calcula el tipo de cambio 3 para la fecha
-                                
+
                  po_valor_tc3 = conta.f_determinar_tipo_cambio(va_tc3[1], va_tc3[2], p_fecha, p_forma_cambio);
-                
-            END IF;
-            
-           
-  
+
+END IF;
+
+
+
 
 EXCEPTION
-				
+
 	WHEN OTHERS THEN
 		v_resp='';
 		v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
 		v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
 		v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 		raise exception '%',v_resp;
-				        
+
 END;
-$body$
-LANGUAGE 'plpgsql'
-STABLE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
+$BODY$;
