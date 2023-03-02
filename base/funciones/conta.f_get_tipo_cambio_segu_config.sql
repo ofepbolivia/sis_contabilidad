@@ -121,23 +121,23 @@ into
 from param.tmoneda m
 where m.id_moneda = v_id_moneda_act;
 
---fRnk: se modificó el codigo por codigo_internacional
-po_tc1 = replace(v_registros_cc.ope_1, '{M}',v_m.codigo_internacional);
-            po_tc1 = replace(po_tc1, '{MB}',v_mb.codigo_internacional);
-            po_tc1 = replace(po_tc1, '{MT}',v_mt.codigo_internacional);
-            po_tc1 = replace(po_tc1, '{MA}',v_ma.codigo_internacional);
+
+po_tc1 = replace(v_registros_cc.ope_1, '{M}',v_m.codigo);
+            po_tc1 = replace(po_tc1, '{MB}',v_mb.codigo);
+            po_tc1 = replace(po_tc1, '{MT}',v_mt.codigo);
+            po_tc1 = replace(po_tc1, '{MA}',v_ma.codigo);
 
 
-            po_tc2 = replace(v_registros_cc.ope_2, '{M}',v_m.codigo_internacional);
-            po_tc2 = replace(po_tc2, '{MB}',v_mb.codigo_internacional);
-            po_tc2 = replace(po_tc2, '{MT}',v_mt.codigo_internacional);
-            po_tc2 = replace(po_tc2, '{MA}',v_ma.codigo_internacional);
+            po_tc2 = replace(v_registros_cc.ope_2, '{M}',v_m.codigo);
+            po_tc2 = replace(po_tc2, '{MB}',v_mb.codigo);
+            po_tc2 = replace(po_tc2, '{MT}',v_mt.codigo);
+            po_tc2 = replace(po_tc2, '{MA}',v_ma.codigo);
 
 
-            po_tc3 = replace(v_registros_cc.ope_3, '{M}',v_m.codigo_internacional);
-            po_tc3 = replace(po_tc3, '{MB}',v_mb.codigo_internacional);
-            po_tc3 = replace(po_tc3, '{MT}',v_mt.codigo_internacional);
-            po_tc3 = replace(po_tc3, '{MA}',v_ma.codigo_internacional);
+            po_tc3 = replace(v_registros_cc.ope_3, '{M}',v_m.codigo);
+            po_tc3 = replace(po_tc3, '{MB}',v_mb.codigo);
+            po_tc3 = replace(po_tc3, '{MT}',v_mt.codigo);
+            po_tc3 = replace(po_tc3, '{MA}',v_ma.codigo);
 
         ----------------------------------------------
         -- obtener tipos de cambio del dia si existen

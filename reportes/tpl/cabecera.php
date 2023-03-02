@@ -1,14 +1,14 @@
 <?php 
     date_default_timezone_set('America/La_Paz');
-    //fRnk: se modificó el label N°, por N° Cbte.
+    //fRnk: se modificó el label N°, por N° Cbte., se añadió el estado
 ?>
-<font size="8"><table width="100%" style="width: 100%; text-align: center;" cellspacing="0" cellpadding="1" border="1">	
+<font size="8"><table width="100%" style="width: 100%; text-align: center;" cellspacing="0" cellpadding="0.8" border="1">
 <tbody>
 	<tr>
-		<td style="width: 23%; color: #444444;" rowspan="5">
+		<td style="width: 23%; color: #444444;" rowspan="6">
 			&nbsp;<br><img  style="width: 150px;" src="./../../../lib/<?php echo $_SESSION['_DIR_LOGO'];?>" alt="Logo">
 		</td>		
-		<td style="width: 54%; color: #444444;" rowspan="5">
+		<td style="width: 54%; color: #444444;" rowspan="6">
             <h1><?php  echo $this->cabecera[0]['desc_clase_comprobante']; ?> </h1>
             <h4>(EXPRESADO EN <?php  echo $this->cabecera[0]['moneda']; ?>)</h4>
         </td>
@@ -26,5 +26,8 @@
 	<tr>
 		<td style="width: 23%; color: #444444; text-align: left;">&nbsp;&nbsp;<b>Usuario:</b> <?php  echo $this->cabecera[0]['usuario']; ?> </td>
 	</tr>
+    <tr>
+        <td style="width: 23%; color: #444444; text-align: left;">&nbsp;&nbsp;<b>Estado:</b> <?php  echo $this->cabecera[0]['estado_reg']; ?> </td>
+    </tr>
 </tbody>
 </table></font>
