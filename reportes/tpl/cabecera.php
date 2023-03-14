@@ -8,26 +8,26 @@
 		<td style="width: 23%; color: #444444;" rowspan="6">
 			&nbsp;<br><img  style="width: 150px;" src="./../../../lib/<?php echo $_SESSION['_DIR_LOGO'];?>" alt="Logo">
 		</td>		
-		<td style="width: 54%; color: #444444;" rowspan="6">
+		<td style="width: 52%; color: #444444;" rowspan="6">
             <h1><?php  echo $this->cabecera[0]['desc_clase_comprobante']; ?> </h1>
             <h4>(EXPRESADO EN <?php  echo $this->cabecera[0]['moneda']; ?>)</h4>
         </td>
-		<td style="width: 23%; color: #444444; text-align: left;">&nbsp;&nbsp;<b>Gestión:</b> <?php  echo date('Y'); ?> </td>
+		<td style="width: 25%; color: #444444; text-align: left;">&nbsp;&nbsp;<b>Gestión:</b> <?php  echo date('Y'); ?> </td>
 	</tr>
     <tr>
-        <td style="width: 23%; color: #444444; text-align: left;">&nbsp;&nbsp;<b>Fecha:</b> <?php  echo date('d/m/y h:i:s A'); ?></td>
+        <td style="width: 25%; color: #444444; text-align: left;">&nbsp;&nbsp;<b>Fecha:</b> <?php  echo date('d/m/y h:i:s A'); ?></td>
 	</tr>
     <tr>
-        <td style="width: 23%; color: #444444; text-align: left;">&nbsp;&nbsp;<b>Depto.:</b> <?php  echo $this->cabecera[0]['codigo_depto']; ?></td>
+        <td style="width: 25%; color: #444444; text-align: left;">&nbsp;&nbsp;<b>Depto.:</b> <?php  echo $this->cabecera[0]['codigo_depto']; ?></td>
 	</tr>
 	<tr>
-		<td style="width: 23%; color: #444444; text-align: left;">&nbsp;&nbsp;<b>N° Cbte.:</b> <?php  echo $this->cabecera[0]['nro_cbte']; ?> </td>
+		<td style="width: 25%; color: #444444; text-align: left;">&nbsp;&nbsp;<b>N° Cbte.:</b> <?php  echo $this->cabecera[0]['nro_cbte']; ?> </td>
 	</tr>
 	<tr>
-		<td style="width: 23%; color: #444444; text-align: left;">&nbsp;&nbsp;<b>Usuario:</b> <?php  echo $this->cabecera[0]['usuario']; ?> </td>
+		<td style="width: 25%; color: #444444; text-align: left;">&nbsp;&nbsp;<b>Usuario:</b> <?php  echo $this->cabecera[0]['usuario']; ?> </td>
 	</tr>
     <tr>
-        <td style="width: 23%; color: #444444; text-align: left;">&nbsp;&nbsp;<b>Estado:</b> <?php  echo $this->cabecera[0]['estado_reg']; ?> </td>
+        <td style="width: 25%; color: #444444; text-align: left;">&nbsp;&nbsp;<b>Estado:</b> <?php  echo $this->cabecera[0]['estado_reg']; ?> </td>
     </tr>
 </tbody>
 </table></font>

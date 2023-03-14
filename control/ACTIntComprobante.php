@@ -456,24 +456,32 @@ class ACTIntComprobante extends ACTbase{
    function reporteCbte(){
 			
 		$nombreArchivo = uniqid(md5(session_id()).'-Cbte') . '.pdf'; 
-		$dataSource = $this->recuperarDatosCbte();	
-		
+		$dataSource = $this->recuperarDatosCbte();
+
 		//parametros basicos
 		$tamano = 'LETTER';
 		$orientacion = 'p';
+        $titulo='Reporte';
 		$this->objParam->addParametro('orientacion',$orientacion);
 		$this->objParam->addParametro('tamano',$tamano);		
 		$this->objParam->addParametro('titulo_archivo',$titulo);        
 		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
-		//Instancia la clase de pdf
-		
-		$reporte = new RIntCbte($this->objParam); 
-		
+
+        //fRnk: fragmento para limpiar archivos antigüos
+        $fileList = glob(dirname(__FILE__).'/../../reportes_generados/*.pdf');
+        foreach($fileList as $file) {
+           if(is_file($file) && date("m-d-Y", filemtime($file)) != date("m-d-Y")) {
+               unlink($file);
+           }
+        }
+
+        //Instancia la clase de pdf
+        $reporte = new RIntCbte($this->objParam);
 		$reporte->datosHeader($dataSource);
 		$reporte->generarReporte();
-		$reporte->output($reporte->url_archivo,'F');
-		
-		$this->mensajeExito=new Mensaje();
+        $reporte->output($reporte->url_archivo,'F');
+
+        $this->mensajeExito=new Mensaje();
 		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
 		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
 		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
