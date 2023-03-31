@@ -13,9 +13,19 @@
 		
 	</tr>
 	<tr>
-		<td width="34%" class="td_label"><span>&nbsp;&nbsp;<font size="7"><?php  echo $this->cabecera[0]['desc_firma1']; ?></font></span></td>
-		<td width="33%" class="td_label"><span>&nbsp;&nbsp;<font size="7"><?php  echo $this->cabecera[0]['desc_firma2']; ?></font></span></td>
-		<td width="33%" class="td_label"><span>&nbsp;&nbsp;<font size="7"><?php  echo $this->cabecera[0]['desc_firma3']; ?></font></span></td>
+        <?php
+        //fRnk: fechas en las firmas
+        $fecha=empty($this->cabecera[0]['fecha_reg'])?'':date("d/m/Y H:i:s", strtotime($this->cabecera[0]['fecha_reg']));
+        ?>
+		<td width="34%" class="td_label"><span>&nbsp;&nbsp;<font size="7"><?php  echo $this->cabecera[0]['desc_firma1'].'<br>&nbsp;&nbsp;&nbsp;'.$fecha; ?></font></span></td>
+        <?php
+        $fecha=empty($this->cabecera[0]['fec_validado'])?'':date("d/m/Y H:i:s", strtotime($this->cabecera[0]['fec_validado']));
+        ?>
+        <td width="33%" class="td_label"><span>&nbsp;&nbsp;<font size="7"><?php  echo $this->cabecera[0]['desc_firma2'].'<br>&nbsp;&nbsp;&nbsp;'.$fecha; ?></font></span></td>
+        <?php
+        $fecha=empty($this->cabecera[0]['fec_aprobado'])?'':date("d/m/Y H:i:s", strtotime($this->cabecera[0]['fec_aprobado']));
+        ?>
+        <td width="33%" class="td_label"><span>&nbsp;&nbsp;<font size="7"><?php  echo $this->cabecera[0]['desc_firma3'].'<br>&nbsp;&nbsp;&nbsp;'.$fecha; ?></font></span></td>
 		
 	</tr>
 </tbody></table>

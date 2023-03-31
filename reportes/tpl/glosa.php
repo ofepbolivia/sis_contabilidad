@@ -4,7 +4,9 @@
 		<tr>
             <td width="60%"><b>Glosa:</b>&nbsp;&nbsp;&nbsp;&nbsp; <?php  echo trim($this->cabecera[0]['glosa1']).'<BR/>'.trim($this->cabecera[0]['glosa2']); ?></td>
             <td width="40%" style="text-align: left;">
-                <b>Nro Trámite:</b>&nbsp;&nbsp;&nbsp;&nbsp;  <?php  echo $this->cabecera[0]['nro_tramite']; ?>
+                <b>Nro Trámite:</b>&nbsp;&nbsp;&nbsp;&nbsp;  <?php  echo $this->cabecera[0]['nro_tramite']; ?><br>
+                <!--fRnk: añadido la fecha en comprobante de diario-->
+                <b>Fecha:</b>&nbsp;&nbsp;&nbsp;&nbsp;  <?php  echo date("d/m/Y", strtotime($this->cabecera[0]['fecha'])); ?>
                 <?php  
                 if($this->cabecera[0]['c31'] !=''){ 
                 ?>

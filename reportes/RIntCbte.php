@@ -92,10 +92,10 @@ class RIntCbte extends ReportePDF
                                     <td colspan="7" style="font-size: 13px;font-weight: bold;">Beneficiarios</td>
                                 </tr>
                                 <tr style="font-size: 10px;font-weight: bold;text-align: center;">
-                                    <th width="7%">tipo Doc.</th>
+                                    <th width="7%">Tipo Doc.</th>
                                     <th width="15%">Nro. Documento</th>
                                     <th width="8%">Expedido</th>
-                                    <th width="30%">Nombre o Razon Social</th>
+                                    <th width="30%">Nombre o Razón Social</th>
                                     <th width="13%">Banco</th>
                                     <th width="15%">Cuenta</th>
                                     <th width="12%">Importe</th>
@@ -114,8 +114,8 @@ class RIntCbte extends ReportePDF
                                 </tr>';
         }
         $content3 = $content3 . '<tr style="font-size: 10px;font-weight: bold;">
-                                    <td style="text-align: rigth;" width="88%" colspan="6">TOTALES</td>
-                                    <td style="text-align: rigth;" width="12%">' . number_format($importe, 2) . '</td>
+                                    <td style="text-align: right;" width="88%" colspan="6">TOTALES</td>
+                                    <td style="text-align: right;" width="12%">' . number_format($importe, 2) . '</td>
                                 </tr>
                             </tbody>
                         </table>';

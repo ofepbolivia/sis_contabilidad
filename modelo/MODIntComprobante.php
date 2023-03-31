@@ -456,6 +456,8 @@ class MODIntComprobante extends MODbase{
         $this->captura('fecha_costo_fin','varchar');
         $this->captura('moneda','varchar');
         $this->captura('usuario','varchar');
+        $this->captura('fec_validado','varchar');
+        $this->captura('fec_aprobado','varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();

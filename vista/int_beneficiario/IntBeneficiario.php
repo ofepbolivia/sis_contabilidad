@@ -47,7 +47,7 @@ Phx.vista.IntBeneficiario=Ext.extend(Phx.gridInterfaz,{
 				emptyText: 'Beneficiario...',
 				store: new Ext.data.JsonStore({
 					url: '../../sis_contabilidad/control/IntBeneficiario/listarIntBeneficiarioProvCombo',
-					id: 'id_funcionario_beneficiario',
+					id: 'nro_cuenta', //fRnk: modificado para que muestre todas las cuentas bancarias de los beneficiarios, id_funcionario_beneficiario
 					root: 'datos',
 					sortInfo: {
 						field: 'nombre_razon_social',
