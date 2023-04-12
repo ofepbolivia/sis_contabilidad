@@ -68,17 +68,18 @@ Phx.vista.TipoCcCuenta=Ext.extend(Phx.gridInterfaz,{
                     sysorigen: 'sis_contabilidad',
                     name: 'nro_cuenta',
                     qtip: 'Define la cuenta sobre las que se realizan las operaciones',
-                    fieldLabel: 'Código cuenta',
                     displayField: 'nro_cuenta',
                     valueField: 'nro_cuenta',
                     origen: 'CUENTAS',
                     allowBlank: false,
                     fieldLabel: 'Cuenta',
-                    gwidth: 200,
+                    gwidth: 150,
                     width: 180,
-                    listWidth: 350,
+                    listWidth: 250,
                     renderer: function (value, p, record) {
-                        return String.format('{0} - {1}', record.data['nro_cuenta'],record.data['desc_cuenta'] );
+                        //return String.format('{0} - {1}', record.data['nro_cuenta'],record.data['desc_cuenta'] );
+                        //fRnk: modificado para mostrar la descripción de la cuenta en un campo separado y se visualice también en el reporte
+                       return String.format('{0}', record.data['nro_cuenta'] );
                     }//,
                     //baseParams: {'filtro_ges': 'actual', sw_transaccional: undefined}
                    // baseParams: {sw_transaccional: undefined}
@@ -93,7 +94,23 @@ Phx.vista.TipoCcCuenta=Ext.extend(Phx.gridInterfaz,{
                 egrid: true,
                 form: true
          },
-		
+        {
+            config:{
+                name: 'desc_cuenta',
+                fieldLabel: 'Descripción Cuenta',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 180
+            },
+            type:'TextField',
+            filters: {
+                pfiltro: 'desc_cuenta',
+                type: 'string'
+            },
+            id_grupo:1,
+            grid:true,
+            form:false
+        },
 		
 		{
    			config:{
