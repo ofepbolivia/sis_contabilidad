@@ -456,6 +456,7 @@ class MODIntComprobante extends MODbase{
         $this->captura('fecha_costo_fin','varchar');
         $this->captura('moneda','varchar');
         $this->captura('usuario','varchar');
+        //fRnk: adicionado para las fechas de las firmas
         $this->captura('fec_validado','varchar');
         $this->captura('fec_aprobado','varchar');
 
