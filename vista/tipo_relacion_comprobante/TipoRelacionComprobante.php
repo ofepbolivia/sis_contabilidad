@@ -34,7 +34,7 @@ Phx.vista.TipoRelacionComprobante=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'codigo',
-				fieldLabel: 'Cóodigo',
+				fieldLabel: 'Código',
 				allowBlank: false,
 				anchor: '80%',
 				gwidth: 100,

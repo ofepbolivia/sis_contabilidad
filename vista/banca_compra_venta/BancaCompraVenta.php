@@ -10,6 +10,8 @@
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
+    var gp={gestion:'',periodo:''};
+    var meses=['ENERO', 'FEBRERO', 'MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
 Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 
     tabEnter: true,
@@ -914,7 +916,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'tramite_cuota',
-				fieldLabel: 'tramite_cuota',
+				fieldLabel: 'Trámite cuota',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -962,7 +964,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'rotulo_comercial',
-				fieldLabel: 'rotulo_comercial',
+				fieldLabel: 'Rótulo comercial',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -1015,7 +1017,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'periodo',
-				fieldLabel: 'periodo',
+				fieldLabel: 'Periodo',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 30,
@@ -1206,7 +1208,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 	{
 			config: {
 				name: 'id_documento',
-				fieldLabel: 'documento',
+				fieldLabel: 'Documento',
 				allowBlank: true,
 				emptyText: 'Elija una opción...',
 				store: new Ext.data.JsonStore({
@@ -1255,14 +1257,28 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'fecha_documento',
-				fieldLabel: 'Fecha Factura / Fecha Documento ',
-				allowBlank: true,
+				fieldLabel: 'Fecha Factura / Fecha Documento',
+				allowBlank: false,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
-							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''},
-							
-						    
+                format: 'd/m/Y',
+                renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''},
+                //fRnk: validador adicionado para que la fecha sea de la misma gestión y periodo
+                validator: function(value){
+                    if(value!='') {
+                        var regex=/^\s*(3[01]|[12][0-9]|0?[1-9])\/(1[012]|0?[1-9])\/((?:19|20)\d{2})\s*$/g;
+                        if(regex.test(value)) {
+                            var f=value.split('/');
+                            if(f[2]!=gp.gestion) return 'La fecha (año) debe ser igual a la gestión seleccionada';
+                            if(meses[parseInt(f[1])-1]!=gp.periodo.toUpperCase()) return 'La fecha (mes) debe ser igual al periodo seleccionado';
+                            return true;
+                        } else {
+                            return value+' no es una fecha válida, debe tener el formato dd/mm/yyyy';
+                        }
+                    } else {
+                        return true;
+                    }
+                }
 			},
 				type:'DateField',
 				filters:{pfiltro:'banca.fecha_documento',type:'date'},
@@ -1285,8 +1301,8 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 				anchor: '80%',
 				gwidth: 100
 			},
-				type:'NumberField',
-				filters:{pfiltro:'banca.autorizacion',type:'numeric'},
+				type:'TextField',
+				filters:{pfiltro:'banca.autorizacion',type:'string'},
 				id_grupo:0,
 				grid:true,
 				form:true
@@ -1331,8 +1347,8 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'num_documento',
-				fieldLabel: 'Nro de Factura / Nro Documento ',
-				allowBlank: true,
+				fieldLabel: 'Nro de Factura / Nro Documento',
+				allowBlank: false,
 				anchor: '80%',
 				gwidth: 100,
 				maxLength:255
@@ -1405,7 +1421,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'num_contrato',
-				fieldLabel: 'N de contrato ',
+				fieldLabel: 'N° de contrato',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -1421,7 +1437,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'monto_contrato',
-				fieldLabel: 'monto_contrato',
+				fieldLabel: 'Monto contrato',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -1437,7 +1453,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'acumulado',
-				fieldLabel: 'acumulado',
+				fieldLabel: 'Acumulado',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -1565,7 +1581,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 			config:{
 				name: 'monto_acumulado',
 				fieldLabel: 'Monto Acumulado',
-				allowBlank: true,
+				allowBlank: false,
 				anchor: '90%',
 				gwidth: 100,
 				maxLength:655362
@@ -1580,7 +1596,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'saldo',
-				fieldLabel: 'saldo',
+				fieldLabel: 'Saldo',
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
@@ -1622,7 +1638,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'num_documento_pago',
-				fieldLabel: 'Nro Documento de Pago (Nro Transacción u Operación) ',
+				fieldLabel: 'Nro Documento de Pago (Nro Transacción u Operación)',
 				allowBlank: true,
 				anchor: '90%',
 				gwidth: 100,
@@ -1823,14 +1839,14 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		{
                 config: {
                     name: 'periodo_servicio',
-                    fieldLabel: 'Periodo de servicio ',
+                    fieldLabel: 'Periodo de servicio',
                     allowBlank: true,
                     emptyText: 'Tipo...',
                     typeAhead: true,
                     triggerAction: 'all',
                     lazyRender: true,
                     mode: 'local',
-                    store: ['ENERO', 'FEBRERO', 'MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'],
+                    store: meses,
                     width: 200
                 },
                 type: 'ComboBox',
@@ -1841,7 +1857,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'numero_cuota',
-				fieldLabel: 'Numero de Cuota',
+				fieldLabel: 'Número de Cuota',
 				allowBlank: true,
 				anchor: '90%',
 				gwidth: 100,
@@ -1873,7 +1889,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
         {
             config:{
                 name: 'comentario',
-                fieldLabel: 'comentario',
+                fieldLabel: 'Comentario',
                 qtip:'',
                 allowBlank: true,
                 anchor: '100%',
@@ -1920,7 +1936,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_documento', type: 'date',dateFormat:'Y-m-d'},
 		{name:'modalidad_transaccion', type: 'numeric'},
 		{name:'tipo_transaccion', type: 'numeric'},
-		{name:'autorizacion', type: 'numeric'},
+		{name:'autorizacion', type: 'string'},
 		{name:'monto_pagado', type: 'numeric'},
 		{name:'fecha_de_pago', type: 'date',dateFormat:'Y-m-d'},
 		{name:'razon', type: 'string'},
@@ -1973,10 +1989,11 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 	
 	
 	oncellclick : function(grid, rowIndex, columnIndex, e) {
-		
+        gp.gestion=this.cmbGestion.getRawValue();
+        gp.periodo=this.cmbPeriodo.getRawValue();
      	var record = this.store.getAt(rowIndex),
 	        fieldName = grid.getColumnModel().getDataIndex(columnIndex); // Get field name
-     	
+
      	if(fieldName == 'revisado') {
 	       	//if(record.data['revisado'] == 'si'){
 	       	   this.cambiarRevision(record);
@@ -2044,8 +2061,8 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
     },
     
     onButtonNew:function(){
-     	
-     	
+        gp.gestion=this.cmbGestion.getRawValue();
+     	gp.periodo=this.cmbPeriodo.getRawValue();
      	if(!this.validarFiltros()){
             alert('Especifique el año y el mes antes')
         }
@@ -2073,7 +2090,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
             
         }
     },
-    
+
     successLiteralPeriodo:function(resp){
     	 var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
     	 
@@ -2138,24 +2155,31 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
     generar_txt:function(){
 			var rec = this.cmbPeriodo.getValue();
 			var tipo = this.tipoBan;
+            //fRnk: validador adicionado para la exportación de datos al SIN, y otras mejoras al formulario
+            var existe_finalizado=false;
+            var d=this.grid.view.ds.data.items;
+            var cr=0;
+            if(d.length>0){
+                d.forEach(item => {
+                    if(item.data.revisado=='si')cr++;
+                });
+                if(cr>0)existe_finalizado=true;
+            }
+			if(existe_finalizado){
+                Ext.Ajax.request({
+                    url:'../../sis_contabilidad/control/BancaCompraVenta/exporta_txt',
+                    params:{'id_periodo':rec,'tipo':tipo,'start':0,'limit':100000,'acumulado':'no','resolucion':this.cmbResolucion.getValue()},
+                    success: this.successGeneracion_txt,
 
-
-
-
-			
-
-			
-			Ext.Ajax.request({
-				url:'../../sis_contabilidad/control/BancaCompraVenta/exporta_txt',
-				params:{'id_periodo':rec,'tipo':tipo,'start':0,'limit':100000,'acumulado':'no','resolucion':this.cmbResolucion.getValue()},
-				success: this.successGeneracion_txt,
-			
-				failure: this.conexionFailure,
-				timeout:this.timeout,
-				scope:this
-			});
+                    failure: this.conexionFailure,
+                    timeout:this.timeout,
+                    scope:this
+                });
+            } else {
+                alert('Debe haber al menos un registro con estado "Finalizado" para generar un resultado.');
+            }
 		},
-		
+
 		successGeneracion_txt:function(resp){
 			Phx.CP.loadingHide();
 	        var objRes = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
@@ -2505,8 +2529,8 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 
         }
 
-    
-		
+
+
 		/*,
 		onSubmit : function(o, x, force) {
 			alert(this.Cmp.id_contrato.getValue());

@@ -234,12 +234,40 @@ class MODCuenta extends MODbase{
 		 
 		//Ejecuta la instruccion
 	    $this->armarConsulta();
+		//echo var_dump($this); exit();
 		//echo $this->getConsulta();
 		//exit;
 	    $this->ejecutarConsulta();
 	    
 	    return $this->respuesta;       
  }
+
+	function listarBalanceGeneralAPS(){
+		$this->procedimiento='conta.f_balance';
+		$this-> setCount(false);
+		$this->setTipoRetorno('record');
+		$this->transaccion='CONTA_BALANCE_APS';
+		$this->tipo_procedimiento='SEL';
+		$this->setParametro('desde','desde','date');
+		$this->setParametro('hasta','hasta','date');
+		$this->setParametro('nivel','nivel','integer');
+		$this->setParametro('id_deptos','id_deptos','varchar');
+		$this->setParametro('tipo_cuenta','tipo_cuenta','varchar');
+		$this->setParametro('incluir_cierre','incluir_cierre','varchar');
+		$this->setParametro('tipo_balance','tipo_balance','varchar');
+		$this->setParametro('incluir_sinmov','incluir_sinmov','varchar');
+		$this->captura('id_cuenta','int4');
+		$this->captura('nro_cuenta','varchar');
+		$this->captura('nombre_cuenta','varchar');
+		$this->captura('id_cuenta_padre','int4');
+		$this->captura('monto','numeric');
+		$this->captura('nivel','int4');
+		$this->captura('tipo_cuenta','varchar');
+		$this->captura('movimiento','varchar');
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		return $this->respuesta;
+	}
 
    function listarDetResultados(){
 	    //Definicion de variables para ejecucion del procedimientp

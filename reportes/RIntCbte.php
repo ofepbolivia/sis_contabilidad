@@ -157,7 +157,7 @@ class RIntCbte extends ReportePDF
         $this->writeHTML($htmlc, false, false, true, false, '');
 
         //$this->Ln();
-        $this->revisarfinPagina($content);
+        //$this->revisarfinPagina($content); //fRnk: se quitó esta opción porque generaba error de impresión en algunos reportes
         $this->subtotales('TOTALES');
 
         $this->Ln(2);

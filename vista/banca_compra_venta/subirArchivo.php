@@ -56,7 +56,7 @@ Phx.vista.SubirArchivo=Ext.extend(Phx.frmInterfaz,{
         },
         {
             config:{
-                fieldLabel: "Documento (archivo Pdf,Word)",
+                fieldLabel: "Documento (archivo TXT)", //fRnk: label modificado pdf,word
                 gwidth: 130,
                 inputType: 'file',
                 name: 'archivo',

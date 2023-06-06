@@ -29,9 +29,16 @@ Phx.vista.FormFiltroBalance=Ext.extend(Phx.frmInterfaz,{
 				    
         Phx.vista.FormFiltroBalance.superclass.constructor.call(this,config);
         this.init(); 
-        this.iniciarEventos();   
-       
-        
+        this.iniciarEventos();
+
+        //Botón para Imprimir en formato APS
+        this.addButton('btnSincronizar', {
+            text : 'Reporte APS',
+            iconCls : 'bdocuments',
+            disabled : false,
+            handler : this.reporteAPS,
+            tooltip : '<b>Genera Reporte en formato APS</b>'
+        });
         
     },
     
@@ -160,9 +167,37 @@ Phx.vista.FormFiltroBalance=Ext.extend(Phx.frmInterfaz,{
 	       		valorInicial: 'no',
 	       		grid:true,
 	       		form:true
-	       	}
+	       	},
+        {
+            config:{
+                name:'formato_reporte',
+                fieldLabel:'Formato del Reporte',
+                typeAhead: true,
+                allowBlank:false,
+                triggerAction: 'all',
+                emptyText:'Formato...',
+                selectOnFocus:true,
+                mode:'local',
+                store:new Ext.data.ArrayStore({
+                    fields: ['ID', 'valor'],
+                    data :	[['pdf','PDF'],
+                        ['csv','CSV']]
+                }),
+                valueField:'ID',
+                displayField:'valor',
+                gwidth: 100
+            },
+            type:'ComboBox',
+            id_grupo:0,
+            grid:true,
+            form:true
+        }
     ],
-    labelSubmit: '<i class="fa fa-check"></i> Aplicar Filtro',
+    topBar : true,
+    botones : false,
+    labelSubmit: 'Generar',
+    clsSubmit: 'bprint',
+    tooltipSubmit : '<b>Generar Balance General</b>',
     title: 'Filtro de mayores',
     // Funcion guardar del formulario
     onSubmit: function(o) {
@@ -195,8 +230,34 @@ Phx.vista.FormFiltroBalance=Ext.extend(Phx.frmInterfaz,{
                     
         }
 
-    }
-    
-    
+    },
+    reporteAPS: function(){//fRnk: reporte APS, modificación de la cabecera de los reportes
+        var me = this;
+        if (me.form.getForm().isValid()) {
+            var parametros = me.getValForm()
+            Phx.CP.loadingShow();
+
+            var deptos = this.Cmp.id_deptos.getValue('object');
+            var sw = 0, codigos = '';
+            deptos.forEach(function(entry) {
+                if(sw == 0){
+                    codigos = entry.codigo;
+                }
+                else{
+                    codigos = codigos + ', '+ entry.codigo;
+                }
+                sw = 1;
+            });
+
+            Ext.Ajax.request({
+                url : '../../sis_contabilidad/control/Cuenta/reporteBalanceGeneralAPS',
+                params : Ext.apply(parametros,{'codigos': codigos, 'tipo_balance':'general'}),
+                success : this.successExport,
+                failure : this.conexionFailure,
+                timeout : this.timeout,
+                scope : this
+            })
+        }
+    },
 })    
 </script>

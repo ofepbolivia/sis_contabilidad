@@ -78,7 +78,15 @@ header("content-type: text/javascript; charset=UTF-8");
                     tooltip: '<b>Detalle del Pago</b><br/>Si la transaccion afecta bancos esta opción permite regitrar datos relacionados (Forma de Pago, etc.) '
                 }
             );
-
+            this.addButton('btnAuxiliares',
+                {
+                    text: 'Auxiliar',
+                    iconCls: 'bsee',
+                    disabled: false,
+                    handler: this.loadAuxiliares,
+                    tooltip: '<b>Detalle de Auxiliares</b>'
+                }
+            );
         },
 
         Atributos:[
@@ -823,6 +831,32 @@ header("content-type: text/javascript; charset=UTF-8");
                 '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Glosa:&nbsp;&nbsp;</b> {glosa} </p><br>'
             )
         }),
+        loadAuxiliares:function() {
+            //fRnk: adicionado para mostrar la lista de auxiliares en comprobante diario
+            var rec=this.sm.getSelected();
+            Phx.CP.loadWindows('../../../sis_contabilidad/vista/int_transaccion/GridAuxiliares.php',
+                'Auxiliares de Cuenta',
+                {
+                    width:'50%',
+                    height:400
+                },
+                { detalle: rec.data,
+                    cbte: this.maestro },
+                this.idContenedor,
+                'GridAuxiliares');
+            /*var data={};
+            data.fecha_ini='2022-05-01T00:00:00';
+            data.item='5.1.2 - impresora epson XYZ [Repuestos X364]';
+            data.fecha_fin='2023-05-24T00:00:00';
+            data.id_item='8';
+            data.all_alm='si';
+            data.id_almacen='';
+
+            Phx.CP.loadWindows('../../../sis_contabilidad/vista/int_transaccion/GridAuxiliares.php', 'Kardex por Item: ', {
+                width : '90%',
+                height : '80%'
+            }, data	, this.idContenedor, 'GridAuxiliares');*/
+        },
 
         arrayDefaultColumHidden:['id_cuenta','id_partida','fecha_mod','usr_reg','usr_mod','glosa','estado_reg','fecha_reg'],
 
@@ -896,9 +930,10 @@ header("content-type: text/javascript; charset=UTF-8");
 
         },
 
-        preparaMenu:function(){
+        preparaMenu:function(){//fRnk: listado de auxiliares btnAuxiliares enabled
             var rec = this.sm.getSelected();
             var tb = this.tbar;
+            this.getBoton('btnAuxiliares').setDisabled(false);
             if(rec.data.tipo_reg != 'summary'){
                 if(rec.data.banco == 'si'){
                     this.getBoton('btnBanco').setDisabled(false);
@@ -943,7 +978,7 @@ header("content-type: text/javascript; charset=UTF-8");
         liberaMenu: function() {
             var tb = Phx.vista.IntTransaccion.superclass.liberaMenu.call(this);
             this.getBoton('btnBanco').setDisabled(true);
-
+            this.getBoton('btnAuxiliares').setDisabled(true);
             if(this.maestro.sw_editable == 'no'){
                 if (tb && this.bnew) {
                     this.getBoton('new').disable();

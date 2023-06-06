@@ -191,7 +191,6 @@ class RBalanceGeneral extends  ReportePDF {
 		
 		//configuracion de la tabla
 		$this->SetFont('','',9);
-		
         foreach ($this->datos_detalle as $val) {
 	       		
 			$this->definirTotales($val);	

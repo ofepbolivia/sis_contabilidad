@@ -45,7 +45,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: '<b>Documentos de compra/venta</b><br/>Muestras los docuemntos relacionados con el comprobante'
             });
 
-            this.addButton('btnAIRBP',
+            /*this.addButton('btnAIRBP', //fRnk: ocultado, no aplica
                 {
                     text: 'Subir AIRBP',
                     iconCls: 'blist',
@@ -53,7 +53,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     handler: this.onButtonAIRBP,
                     tooltip: 'Subir archivo facturas AIRBP'
                 }
-            );
+            );*/
 
             this.addButton('chkdep', {
                 text: 'Dependencias',

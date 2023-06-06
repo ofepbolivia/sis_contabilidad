@@ -16,7 +16,7 @@ class MODAuxiliar extends MODbase{
 	function listarAuxiliar(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='conta.f_auxiliar_sel';
-		$this->transaccion='CONTA_AUXCTA_SEL';
+		$this->transaccion='CONTA_AUXCTACTA_SEL'; //fRnk: modificación de transacción a pedido de HR 732, original: 'CONTA_AUXCTA_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 
 

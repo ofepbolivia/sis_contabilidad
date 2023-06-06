@@ -131,7 +131,7 @@ header("content-type: text/javascript; charset=UTF-8");
             disableSearchButton: true,
             emptyText: 'Depto Contable',
             store: new Ext.data.JsonStore({
-                url: '../../sis_parametros/control/Depto/listarDeptoFiltradoPrioridadEXT', //fRnk: corregido, anterior valor listarDeptoFiltradoDeptoUsuario listarDeptoFiltradoPrioridadEXT
+                url: '../../sis_parametros/control/Depto/listarDeptoFiltradoDeptoUsuario', //fRnk: corregido, valor original listarDeptoFiltradoDeptoUsuario listarDeptoFiltradoPrioridadEXT
                 id: 'id_depto',
                 root: 'datos',
                 sortInfo: {
