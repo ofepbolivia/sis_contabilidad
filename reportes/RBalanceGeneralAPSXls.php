@@ -105,6 +105,11 @@ class RBalanceGeneralAPSXls
             $resultado = $this->total_ingreso - $this->total_egreso;
             $ar[] = array('', 'RESULTADO DEL EJERCICIO ', '', '', number_format($resultado, 2, '.', ','));
         }
+        if ($this->tipo_balance != 'resultado' && $datos[0]['cuenta_orden']=='no'){ //fRnk: añadido para mostrar total cuando 6 y 7 no tiene movimiento
+            $total_pasivo_activo += $subtotal;
+            $ar[] = array('', 'TOTAL PASIVO Y PATRIMONIO', '', '', number_format($total_pasivo_activo, 2, '.', ','));
+            $row_bold[] = $i+1;
+        }
         $rows = count($ar) + 6;
         $sheet->getStyle('A1:E' . $rows)
             ->getNumberFormat()

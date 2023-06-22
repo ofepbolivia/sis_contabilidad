@@ -1,5 +1,5 @@
 <?php
-
+date_default_timezone_set('America/La_Paz'); //fRnk: add timezone
 // Extend the TCPDF class to create custom MultiRow
 class RBalanceGeneral extends  ReportePDF {
 	var $datos_titulo;
@@ -36,23 +36,33 @@ class RBalanceGeneral extends  ReportePDF {
 	
 	function Header() {
 		//cabecera del reporte
-		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], $this->ancho_hoja, 5, 30, 10);
+		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 8, 5, 30, 10);
+		$html='<table cellpadding="0" border="0" style="font-size: 9px">
+			<tr><td><b>Depto:</b> '.$this->codigos.'</td></tr>
+			<tr><td><b>Incluye Cierres:</b> '.$this->incluir_cierre.'</td></tr>
+			</table>';
+		$this->writeHTMLCell(0, 0, $this->ancho_hoja-10, 5, $html, 0, 0, 0, true, 'L', false);
 		$this->ln(5);
 		$this->SetFont('','BU',12);
 		if($this->tipo_balance == 'resultado'){
-			$this->Cell(0,5,'ESTADO DE RESULTADOS (BS)',0,1,'C');
+			$this->Cell(0,5,'ESTADO DE RESULTADOS',0,1,'C');
 		}
-		else{
-			$this->Cell(0,5,'BALANCE GENERAL (BS)',0,1,'C');
+		else if($this->tipo_balance == 'todos'){//fRnk: añadido el título del reporte balance de Cuentas
+			$this->Cell(0,5,'BALANCE DE CUENTAS',0,1,'C');
 		}
-		
-		$this->SetFont('','BU',11);
-		$this->Cell(0,5,'Depto: ('.$this->codigos.')',0,1,'C');
+		else {
+			$this->Cell(0,5,'BALANCE GENERAL',0,1,'C');
+		}
+		//$this->SetFont('','BU',11);
+		//$this->Cell(0,5,'Depto: ('.$this->codigos.')',0,1,'C');
 		$this->SetFont('','BU',10);		
 		$this->Cell(0,5,'Del '.$this->desde.' al '.$this->hasta,0,1,'C');
-		$this->SetFont('','BU',8);		
-		$this->Cell(0,5,'Incluye Cierres: '.$this->incluir_cierre,0,1,'C');
-		
+		//$this->SetFont('','BU',8);
+		//$this->Cell(0,5,'Incluye Cierres: '.$this->incluir_cierre,0,1,'C');
+		$this->SetFont('','B',10);
+		$this->Cell(0,5,'(Expresado en Bolivianos)',0,1,'C');
+
+
 		
 		$this->Ln(3);
 		$this->SetFont('','B',10);
@@ -107,7 +117,7 @@ class RBalanceGeneral extends  ReportePDF {
 		}
 		
 		//escribe formula contabla
-		$this->SetFont('times', 'BI', 17);
+		$this->SetFont('times', 'BI', 12);
 		$tactivo = number_format( $this->total_activo , 2 , '.' , ',' );
 		$tpasivo = number_format( $this->total_pasivo , 2 , '.' , ',' );
 		$tpatrimonio = number_format( $this->total_patrimonio , 2 , '.' , ',' );
@@ -124,7 +134,9 @@ class RBalanceGeneral extends  ReportePDF {
 				$this->SetTextColor(0,100,100,0,false,'');
 			    $sw_dif = 1;
 			}
-			$this->Write(0, $formula, '', 0, 'C', true, 0, false, false, 0);	
+			$this->Write(0, $formula, '', 0, 'C', true, 0, false, false, 0);
+			$tformula=$this->total_pasivo + $this->total_patrimonio; //fRnk: añadido el resultado de la ecuación HR866
+			$this->Write(0, $tactivo.' = '.number_format($tformula, 2 , '.' , ',' ), '', 0, 'C', true, 0, false, false, 0);
 		}
 		elseif($this->tipo_balance == 'resultado'){
 			$formula = "RESULTADO =  INGRESOS - EGRESOS";
@@ -136,7 +148,9 @@ class RBalanceGeneral extends  ReportePDF {
 				$this->SetTextColor(0,100,100,0,false,'');
 			  
 			}
-			$this->Write(0, $formula, '', 0, 'C', true, 0, false, false, 0);	
+			$this->Write(0, $formula, '', 0, 'C', true, 0, false, false, 0);
+			$tformula=$this->total_ingreso - $this->total_egreso; //fRnk: añadido el resultado de la ecuación HR866
+			$this->Write(0, $resultado.' = '.number_format($tformula, 2 , '.' , ',' ), '', 0, 'C', true, 0, false, false, 0);
 		}
 		else{
 			
@@ -149,6 +163,9 @@ class RBalanceGeneral extends  ReportePDF {
 				  $sw_dif = 1;
 			}
 			$this->Write(0, $formula, '', 0, 'C', true, 0, false, false, 0);
+			$tformula=$this->total_activo + $this->total_egreso;
+			$tformula1=$this->total_pasivo + $this->total_patrimonio + $this->total_ingreso;
+			$this->Write(0, number_format($tformula, 2 , '.' , ',' ).' = '.number_format($tformula1, 2 , '.' , ',' ), '', 0, 'C', true, 0, false, false, 0);
 		}
 		if( $sw_dif == 1){
 			$diferencia = ($this->total_activo +  $this->total_egreso) - ($this->total_pasivo + $this->total_patrimonio + $this->total_ingreso);

@@ -264,6 +264,7 @@ class MODCuenta extends MODbase{
 		$this->captura('nivel','int4');
 		$this->captura('tipo_cuenta','varchar');
 		$this->captura('movimiento','varchar');
+		$this->captura('cuenta_orden','varchar'); //fRnk: añadido para mostrar total cuando 6 y 7 no tiene movimiento
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 		return $this->respuesta;

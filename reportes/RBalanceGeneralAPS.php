@@ -132,6 +132,12 @@ class RBalanceGeneralAPS extends ReportePDF
                             <td style="border-bottom: 1px solid #000"></td>
                             <td style="text-align: right;font-weight: bold;border-bottom:  1px solid #000">' . number_format($resultado, 2, ',', '.') . '</td></tr>';
         }
+        if ($this->tipo_balance != 'resultado' && $this->datos_detalle[0]['cuenta_orden']=='no'){ //fRnk: añadido para mostrar total cuando 6 y 7 no tiene movimiento
+            $total_pasivo_activo += $subtotal;
+            $html .= '<tr><td></td><td style="text-align: center;font-weight: bold">TOTAL PASIVO Y PATRIMONIO</td>
+                            <td style="border-bottom: 1px solid #000"></td>
+                            <td style="text-align: right;font-weight: bold;border-bottom:  1px solid #000">' . number_format($total_pasivo_activo, 2, ',', '.') . '</td></tr>';
+        }
         $html .= '</table>';
         $this->writeHTML($html, false, false, false, false, '');
     }
