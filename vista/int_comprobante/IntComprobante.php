@@ -737,7 +737,9 @@ header("content-type: text/javascript; charset=UTF-8");
                     anchor: '80%',
                     gwidth: 70,
                     maxLength: 20,
-                    decimalPrecision: 6
+                    decimalPrecision: 6,
+                    regex: /^(\d*[1-9]+\d*\.?\d*|\d*\.\d*[1-9]+\d*)$/, //fRnk: validador para evitar error división por cero.
+                    regexText: 'El tipo de cambio debe ser mayor a cero. Configure los valores para la fecha seleccionada en "Monedas/Tipo de Cambio".'
                 },
                 type: 'NumberField',
                 filters: {
@@ -757,7 +759,9 @@ header("content-type: text/javascript; charset=UTF-8");
                     anchor: '80%',
                     gwidth: 70,
                     maxLength: 20,
-                    decimalPrecision: 6
+                    decimalPrecision: 6,
+                    regex: /^(\d*[1-9]+\d*\.?\d*|\d*\.\d*[1-9]+\d*)$/,
+                    regexText: 'El tipo de cambio debe ser mayor a cero. Configure los valores para la fecha seleccionada en "Monedas/Tipo de Cambio".'
                 },
                 type: 'NumberField',
                 filters: {

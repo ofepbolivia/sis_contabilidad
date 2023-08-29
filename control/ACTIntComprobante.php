@@ -468,12 +468,12 @@ class ACTIntComprobante extends ACTbase{
 		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
 
         //fRnk: fragmento para limpiar archivos antigüos
-        $fileList = glob(dirname(__FILE__).'/../../reportes_generados/*.pdf');
+        /*$fileList = glob(dirname(__FILE__).'/../../reportes_generados/*.pdf');
         foreach($fileList as $file) {
            if(is_file($file) && date("m-d-Y", filemtime($file)) != date("m-d-Y")) {
                unlink($file);
            }
-        }
+        }*/
 
         //Instancia la clase de pdf
         $reporte = new RIntCbte($this->objParam);
