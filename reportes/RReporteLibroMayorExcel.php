@@ -184,7 +184,7 @@ class RReporteLibroMayorExcel
 
         );
 
-        $gdImage = imagecreatefromjpeg('../../../lib/imagenes/Logo_libro_mayor.jpg');
+        $gdImage = imagecreatefromjpeg('../../../lib/imagenes/logos/logo.jpg');
         // Add a drawing to the worksheetecho date('H:i:s') . " Add a drawing to the worksheet\n";
         $objDrawing = new PHPExcel_Worksheet_MemoryDrawing();
         $objDrawing->setName('Sample image');
