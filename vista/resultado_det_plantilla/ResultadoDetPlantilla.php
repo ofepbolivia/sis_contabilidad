@@ -406,7 +406,7 @@ Phx.vista.ResultadoDetPlantilla=Ext.extend(Phx.gridInterfaz,{
                 triggerAction: 'all',
                 lazyRender:true,
                 mode: 'local',
-                store:['09','10','11','12','13','14','15','16','17']
+                store:['05','06','07','08','09','10','11','12','13','14','15','16','17']
             },
             type:'ComboBox',
             id_grupo:1,
@@ -516,7 +516,7 @@ Phx.vista.ResultadoDetPlantilla=Ext.extend(Phx.gridInterfaz,{
                 triggerAction: 'all',
                 lazyRender:true,
                 mode: 'local',
-                store:['1','2','3']
+                store:['1','2','3','4'] //fRnk: adicionado y modificado en reporte PDF
             },
             type:'ComboBox',
             id_grupo:1,

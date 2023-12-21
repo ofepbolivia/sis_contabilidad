@@ -26,24 +26,24 @@ class RResultados extends  ReportePDF {
 		$this->codigos = $codigos;
 		
 		//$this->SetMargins(5, 22.5, 5);
-		$this->SetMargins(5,34);
+		$this->SetMargins(10,34);
 	}
 	
 	function Header() {
-		//cabecera del reporte
-		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], $this->ancho_hoja, 5, 30, 10);
+		//cabecera del reporte, fRnk: modificado HR00888
+		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 8, 5, 28, 12);
+		$html='<table cellpadding="0" border="0" style="font-size: 10px">
+			<tr><td><b>Depto:</b> '.$this->codigos.'</td></tr>
+			</table>';
+		$this->writeHTMLCell(0, 0, $this->ancho_hoja-5, 5, $html, 0, 0, 0, true, 'L', false);
 		$this->ln(5);
-		$this->SetFont('','BU',12);
-		$this->Cell(0,5, strtoupper($this->titulo), 0 , 1,'C');
-		$this->SetFont('','BU',11);
-		$this->Cell(0,5,'Depto: ('.$this->codigos.')',0,1,'C');
-		$this->SetFont('','BU',10);		
-		$this->Cell(0,5,'Del '.$this->desde.' al '.$this->hasta,0,1,'C');
-		
-		
-		
-			
-		
+		$fs=strlen($this->titulo)>50?9:10;
+		$this->SetFont('','BU',$fs);
+		$this->Cell(0,5, mb_strtoupper($this->titulo, 'UTF-8'), 0 , 1,'C');
+		$this->SetFont('','BU',9);
+		$this->Cell(0,5,'PERIODO: Del '.$this->desde.' al '.$this->hasta,0,1,'C');
+		$this->SetFont('','',9);
+		$this->Cell(0,5,'(Expresado en Bolivianos)',0,1,'C');
    }
 	
 	function formatearTextoDetalle($texto){
@@ -166,28 +166,35 @@ class RResultados extends  ReportePDF {
 						}
 						$monto_str = number_format( $val['monto'] ,2 , ',' , '.' );
 					}
-					
-					
-					if($val['montopos'] == 1){
-					   $this->Cell(25,3.5,$monto_str ,'',0,'R');
-					   $this->Cell(25,3.5,"",'',0,'R');
-					   $this->Cell(25,3.5,"",'',0,'R');
-					}
-					elseif($val['montopos'] == 2){
-					   $this->SetFont('','B',10);
-					   $this->Cell(25,3.5,"",'',0,'R');
-					   $this->Cell(25,3.5, $monto_str ,'',0,'R');
-					   $this->Cell(25,3.5,"",'',0,'R');
-					   $this->SetFont('','',9);
-					  
-					}
-					else{
-						$this->SetFont('','BU',11);
-				        $this->Cell(25,3.5, "" ,'',0,'R');
-						$this->Cell(25,3.5,"",'',0,'R');
-						$this->Cell(25,3.5, $monto_str ,'',0,'R');	
-						$this->SetFont('','',9);
-					}
+
+				if($val['montopos'] == 1){
+					$this->Cell(22,3.5,$monto_str ,'',0,'R');
+					$this->Cell(22,3.5,"",'',0,'R');
+					$this->Cell(22,3.5,"",'',0,'R');
+				}
+				if($val['montopos'] == 2){
+					$this->Cell(22,3.5,"",'',0,'R');
+					$this->Cell(22,3.5,$monto_str ,'',0,'R');
+					$this->Cell(22,3.5,"",'',0,'R');
+					$this->Cell(22,3.5,"",'',0,'R');
+				}
+				elseif($val['montopos'] == 3){
+					$this->SetFont('','B',9);
+					$this->Cell(22,3.5,"",'',0,'R');
+					$this->Cell(22,3.5,"",'',0,'R');
+					$this->Cell(22,3.5, $monto_str ,'',0,'R');
+					$this->Cell(22,3.5,"",'',0,'R');
+					$this->SetFont('','',9);
+
+				}
+				else{
+					$this->SetFont('','BU',10);
+					$this->Cell(22,3.5, "" ,'',0,'R');
+					$this->Cell(22,3.5, "" ,'',0,'R');
+					$this->Cell(22,3.5,"",'',0,'R');
+					$this->Cell(22,3.5, $monto_str ,'',0,'R');
+					$this->SetFont('','',9);
+				}
 					//Setea colo dfecto
 					$this->SetTextColor(0,-1,-1,-1,false,'');
 					

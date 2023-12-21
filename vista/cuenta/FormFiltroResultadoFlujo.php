@@ -10,7 +10,7 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 
 <script>
-Phx.vista.FormFiltroResultado=Ext.extend(Phx.frmInterfaz,{
+Phx.vista.FormFiltroResultadoFlujo=Ext.extend(Phx.frmInterfaz,{
     constructor:function(config)
     {   
     	this.panelResumen = new Ext.Panel({html:''});
@@ -27,12 +27,12 @@ Phx.vista.FormFiltroResultado=Ext.extend(Phx.frmInterfaz,{
 				     this.panelResumen
 				    ];
 				    
-        Phx.vista.FormFiltroResultado.superclass.constructor.call(this,config);
+        Phx.vista.FormFiltroResultadoFlujo.superclass.constructor.call(this,config);
         this.init(); 
         this.iniciarEventos();   
        
        //button OFEP
-        /*this.form.getFooterToolbar().addButton //fRnk: aculto a solicitud HR00888
+        this.form.getFooterToolbar().addButton
         (
             {
                 text: 'Enviar a OFEP',
@@ -40,7 +40,7 @@ Phx.vista.FormFiltroResultado=Ext.extend(Phx.frmInterfaz,{
                 scope: this,
                 handler: this.webServices,
             }
-        );*/
+        );
     },
     //webservice a OFEP
     webServices: function () {
@@ -77,46 +77,71 @@ Phx.vista.FormFiltroResultado=Ext.extend(Phx.frmInterfaz,{
 			form:true 
 		    },
     
-            {
-	   			config:{
-	                name: 'id_resultado_plantilla',
-	                fieldLabel: 'Tipo Reporte',
-	                typeAhead: false,
-	                forceSelection: true,
-	                allowBlank: false,
-	                disableSearchButton: true,
-	                emptyText: 'Reporte de ...',
-	                store: new Ext.data.JsonStore({
-	                    url: '../../sis_contabilidad/control/ResultadoPlantilla/listarResultadoPlantilla',
-	                    id: 'id_resultado_plantilla',
-						root: 'datos',
-						sortInfo:{
-							field: 'resplan.nombre',
-							direction: 'ASC'
-						},
-						totalProperty: 'total',
-						fields: ['id_resultado_plantilla','nombre','codigo', 'periodo_calculo'],
+        //    {
+	   	//		config:{
+	    //            name: 'id_resultado_plantilla',
+	    //            fieldLabel: 'Tipo Reporte',
+	    //            typeAhead: false,
+	    //            forceSelection: true,
+	    //            allowBlank: false,
+	    //            disableSearchButton: true,
+	    //            emptyText: 'Reporte de ...',
+	    //            store: new Ext.data.JsonStore({
+	    //                url: '../../sis_contabilidad/control/ResultadoPlantilla/listarResultadoPlantilla',
+	    //                id: 'id_resultado_plantilla',
+		//				root: 'datos',
+		//				sortInfo:{
+		//					field: 'resplan.nombre',
+		//					direction: 'ASC'
+		//				},
+		//				totalProperty: 'total',
+		//				fields: ['id_resultado_plantilla','nombre','codigo', 'periodo_calculo'],
 						// turn on remote sorting
-						remoteSort: true,
-						baseParams: { par_filtro:'resplan.nombre#resplan.codigo',tipo: 'reporte', solos_visible:'si'}
-	                }),
-	                valueField: 'id_resultado_plantilla',
-	   				displayField: 'nombre',
-	   				hiddenName: 'id_resultado_plantilla',
-	                triggerAction: 'all',
-	                lazyRender: true,
-	                mode: 'remote',
-	                pageSize: 20,
-	                queryDelay: 200,
-	                anchor: '80%',
-	                listWidth:'280',
-	                resizable:true,
-	                minChars: 2
-	            },
-	   			type:'ComboBox',
-	   			id_grupo:0,
-	   			form:true
-           },
+		//				remoteSort: true,
+		//				baseParams: { par_filtro:'resplan.nombre#resplan.codigo',tipo: 'reporte', solos_visible:'si'}
+	    //            }),
+	    //            valueField: 'id_resultado_plantilla',
+	   	//			displayField: 'nombre',
+	   	//			hiddenName: 'id_resultado_plantilla',
+	    //            triggerAction: 'all',
+	    //            lazyRender: true,
+	    //            mode: 'remote',
+	    //            pageSize: 20,
+	    //            queryDelay: 200,
+	    //            anchor: '80%',
+	    //            listWidth:'280',
+	    //            resizable:true,
+	    //            minChars: 2
+	    //        },
+	   	//		type:'ComboBox',
+	   	//		id_grupo:0,
+	   	//		form:true
+        //   },
+		{
+		config:{
+				name:'id_resultado_plantilla',
+				fieldLabel:'Tipo Reporte',
+				allowBlank:false,
+				emptyText:'Tipo...',
+				typeAhead: true,
+				triggerAction: 'all',
+				lazyRender:true,
+				mode: 'local',
+				valueField: 'id_resultado_plantilla',
+				gwidth: 250,
+				listWidth:'280',
+				store:new Ext.data.ArrayStore({
+					fields: ['variable', 'valor'],
+					data : [ 
+						['','ESTADO DE FLUJOS DE EFECTIVO (Método Indirecto)'],
+							]
+				}),
+				valueField: 'variable',
+				displayField: 'valor'
+			},
+			type:'ComboBox',
+			form:true
+		},
 	   	   {
 				config:{
 					name: 'desde',
