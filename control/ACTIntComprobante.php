@@ -14,7 +14,8 @@ require_once(dirname(__FILE__).'/../../lib/lib_reporte/smarty/ksmarty.php');
 require_once(dirname(__FILE__).'/../reportes/RIntCbte.php');
 
 require_once(dirname(__FILE__).'/../reportes/RComprobanteDiario.php');
-//require_once(dirname(__FILE__).'/../reportes/RDiarioXls.php');
+require_once(dirname(__FILE__).'/../reportes/RComprobanteDiarioDet.php');
+require_once(dirname(__FILE__).'/../reportes/RComprobanteDiarioXls.php');
 //
 class ACTIntComprobante extends ACTbase{
 	
@@ -693,30 +694,41 @@ class ACTIntComprobante extends ACTbase{
 		}
 
 		$this->objFunc=$this->create('MODIntComprobante');		
-		$cbteHeader = $this->objFunc->listarRepIntComprobanteDiario($this->objParam);			
-		if($cbteHeader->getTipo() == 'EXITO'){										
-			return $cbteHeader;			
+		$cbteHeader = $this->objFunc->listarRepIntComprobanteDiario($this->objParam);		
+		if($cbteHeader->getTipo() == 'EXITO'){
+			return $cbteHeader;										
+			
 		}
 		else{
 			$cbteHeader->imprimirRespuesta($cbteHeader->generarJson());
 			exit;
-		}			
+		}
+
 	}
 	//mp
 	function impReporteDiario() {
-		if($this->objParam->getParametro('tipo_formato')=='pdf') {
+		if($this->objParam->getParametro('tipo_formato')=='pdf' and $this->objParam->getParametro('tipo_diario')=='dia'){
 			$nombreArchivo = uniqid(md5(session_id()).'LibroDiario').'.pdf';			
-			$dataSource = $this->listarRepIntComprobante();	
+			$dataSource = $this->listarRepIntComprobante();
 			$dataEntidad = "";
-			$dataPeriodo = "";	
-			$orientacion = 'P';		
+			$dataPeriodo = "";
+			$orientacion = 'P';
 			$tamano = 'LETTER';
 			$titulo = 'Consolidado';
 			$this->objParam->addParametro('orientacion',$orientacion);
-			$this->objParam->addParametro('tamano',$tamano);		
-			$this->objParam->addParametro('titulo_archivo',$titulo);	
+			$this->objParam->addParametro('tamano',$tamano);
+			$this->objParam->addParametro('titulo_archivo',$titulo);
 			$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
-			$reporte = new RComprobanteDiario($this->objParam);  
+			$reporte = new RComprobanteDiario($this->objParam);
+            $reporte->datosHeader(
+                $dataSource, $this->objParam->getParametro('detalle'),
+                $this->objParam->getParametro('desde'),
+                $this->objParam->getParametro('hasta'),
+                $this->objParam->getParametro('tipo_moneda'));
+               // $this->objParam->getParametro('codigos'),
+               // $this->objParam->getParametro('tipo_balance'));
+               // $this->objParam->getParametro('incluir_cierre'),
+               // $this->objParam->getParametro('formato_reporte'));
 			$reporte->datosHeader($dataSource->getDatos(),$dataSource->extraData, '' , '');		
 			$reporte->generarReporte();
 			$reporte->output($reporte->url_archivo,'F');
@@ -725,29 +737,55 @@ class ACTIntComprobante extends ACTbase{
 			$this->mensajeExito->setArchivoGenerado($nombreArchivo);
 			$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());		
 		}
-		/*if($this->objParam->getParametro('tipo_formato')=='xls') {			
-			$this->objFun=$this->create('MODIntTransaccion');	
-			$this->res = $this->objFun->listarRepIntComprobante();
-			if($this->res->getTipo()=='ERROR'){
-				$this->res->imprimirRespuesta($this->res->generarJson());
-				exit;
-			}
-			$titulo ='Ret';
-			$nombreArchivo=uniqid(md5(session_id()).$titulo);
-			$nombreArchivo.='.xls';
+
+		elseif($this->objParam->getParametro('tipo_formato')=='pdf' and $this->objParam->getParametro('tipo_diario')=='det'){
+			$nombreArchivo = uniqid(md5(session_id()).'LibroDiarioDet').'.pdf';
+			$dataSource = $this->listarRepIntComprobante();
+			//$dataSourceBeneficiarios = $this->listarBeneficiarios();
+			$dataEntidad = "";
+			$dataPeriodo = "";
+			$orientacion = 'P';
+			$tamano = 'LETTER';
+			$titulo = 'Detallado';
+			$this->objParam->addParametro('orientacion',$orientacion);
+			$this->objParam->addParametro('tamano',$tamano);
+			$this->objParam->addParametro('titulo_archivo',$titulo);
 			$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
-			$this->objParam->addParametro('datos',$this->res->datos);			
-			$this->objReporteFormato=new RDiarioXls($this->objParam);
-			$this->objReporteFormato->generarDatos();
-			$this->objReporteFormato->generarReporte();
+			//$reporte = new RIntCbte($this->objParam);
+			$reporte = new RComprobanteDiarioDet($this->objParam);
+			$reporte->datosHeader($dataSource->getDatos(),$dataSource->extraData, '' , '');
+			$reporte->generarReporte();
+			$reporte->output($reporte->url_archivo,'F');
 			$this->mensajeExito=new Mensaje();
-			$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se genero con éxito el reporte: '.$nombreArchivo,'control');
+			$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se genera con exito el reporte: '.$nombreArchivo,'control');
 			$this->mensajeExito->setArchivoGenerado($nombreArchivo);
 			$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
-		}	*/				
+		}
+      
+		elseif($this->objParam->getParametro('tipo_formato')=='xls' and $this->objParam->getParametro('tipo_diario')=='dia'){
+
+				$dataSource = $this->contenidoLibroDiario();
+				//$saldo_anterior = $this->calcularSaldoAnteriorLibroDiario();
+				//$recuperar_cabecera =$this->recuperarCabecera();
+
+				$titulo ='Libro Diario Consolidado';
+		        //$nombreArchivo=uniqid(md5(session_id()).$titulo);
+				$nombreArchivo = uniqid(md5(session_id()).'$titulo').'.xls';
+				$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+				$reporte = new RComprobanteDiarioXls($this->objParam);
+				//$reporte->datosHeader($dataSource->getDatos(),$recuperar_cabecera->getDatos());
+				$reporte->datosHeader($dataSource->getDatos(), '', '');
+				//$reporte->datosHeader($dataSource->getDatos(),$saldo_anterior->getDatos(),$recuperar_cabecera->getDatos());
+				$reporte->generarReporte();
+				$this->mensajeExito=new Mensaje();
+				$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se generó con éxito el reporte: '.$nombreArchivo,'control');
+				$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+				$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+		}				
 	}
 
-	function listarIntComprobanteTCCCuenta(){
+		function listarIntComprobanteTCCCuenta(){
 		$this->objParam->defecto('ordenacion','id_int_comprobante');
 		$this->objParam->defecto('dir_ordenacion','asc');
 		
@@ -926,6 +964,26 @@ class ACTIntComprobante extends ACTbase{
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 
+//ngll
+	function contenidoLibroDiario(){
+
+		//var_dump("esta llegando el filtro para poner",$this->objParam->getParametro('filtro_reporte'));
+  
+		//if ($this->objParam->getParametro('filtro_reporte') != '') {
+		//	$this->objParam->addFiltro("((icbte.nro_tramite::varchar ILIKE ''%".$this->objParam->getParametro('filtro_reporte')."%'') OR (icbte.c31::varchar ILIKE ''%".$this->objParam->getParametro('filtro_reporte')."%'') OR (transa.glosa::varchar ILIKE ''%".$this->objParam->getParametro('filtro_reporte')."%''))");
+		//}
+  
+		  $this->objFunc=$this->create('MODIntComprobante');
+		  $cbteHeader = $this->objFunc->listarRepIntComprobanteDiario($this->objParam);
+  
+		  if($cbteHeader->getTipo() == 'EXITO'){
+			  return $cbteHeader;
+		  }
+		  else{
+			  $cbteHeader->imprimirRespuesta($cbteHeader->generarJson());
+			  exit;
+		  }
+	  }
 }
 
 ?>

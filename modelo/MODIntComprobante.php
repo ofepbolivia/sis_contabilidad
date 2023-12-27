@@ -96,6 +96,8 @@ class MODIntComprobante extends MODbase{
         $this->captura('desc_depto_lb','varchar');
         $this->captura('tipo_cbte','varchar');
         $this->captura('reversion','varchar');
+        $this->captura('importe_debe','numeric');
+        $this->captura('importe_haber','numeric');
 
 
 
@@ -751,8 +753,21 @@ class MODIntComprobante extends MODbase{
         $this->transaccion='CONTA_REPINCBTE_SEL';
         $this->tipo_procedimiento='SEL';//tipo de transaccion
         $this->setCount(false);
-        //
+        
+        //filtro
+        $this->setParametro('filtro_ges','filtro_ges','varchar');
+		$this->setParametro('id_centro_costo','id_centro_costo','int4');
+		$this->setParametro('id_gestion','id_gestion','int4');
+        $this->setParametro('id_cuenta','id_cuenta','int4');
         $this->setParametro('nombreVista','nombreVista','varchar');
+        $this->setParametro('fecIni', 'fecIni', 'date');
+        $this->setParametro('fecFin', 'fecFin', 'date');
+        $this->setParametro('nro_cuenta', 'nro_cuenta','varchar');
+        $this->setParametro('tipo_moneda', 'tipo_moneda','varchar');
+        $this->setParametro('id_moneda', 'id_moneda','int4');
+        $this->setParametro('tipo_diario', 'tipo_diario','varchar');
+        $this->setParametro('nro_cbte', 'nro_cbte','varchar');
+
         //Definicion de la lista del resultado del query
         $this->captura('id_int_comprobante','int4');
         $this->captura('id_clase_comprobante','int4');
@@ -825,6 +840,20 @@ class MODIntComprobante extends MODbase{
         $this->captura('id_partida','int4');
         $this->captura('nombre_partida','varchar');
         $this->captura('codigo','varchar');
+        $this->captura('importe_debe', 'numeric');
+        $this->captura('importe_haber', 'numeric');
+        $this->captura('nro_cuenta', 'varchar');
+
+        $this->captura('banco','varchar');
+        $this->captura('nro_cuenta_bancaria_sigma', 'varchar');
+        $this->captura('importe', 'numeric');
+        
+        $this->captura('doc_id', 'varchar');
+        $this->captura('nombre', 'varchar');
+        
+        
+        //$this->captura('desde','date');
+		//$this->captura('hasta','date');
 
         $this->armarConsulta();
         //echo $this->getConsulta();exit;
@@ -1027,6 +1056,7 @@ class MODIntComprobante extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+    
     //{develop: franklin.espinoza date: 12/10/2020, description: Guarda Preventivo,Compromiso,Devengado para procesos con Preventivo}
     function guardarDocumentoSigep(){
         //swEditable de variables para ejecucion del procedimiento
@@ -1229,6 +1259,7 @@ class MODIntComprobante extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+    //
 
 }
 ?>

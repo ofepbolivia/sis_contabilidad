@@ -330,7 +330,7 @@ Phx.vista.ResultadoDetPlantilla=Ext.extend(Phx.gridInterfaz,{
 			config: {
 				name: 'incluir_apertura',
 				qtip: 'Incluye en las operaciones de tipo balance los cbte de  apertura',
-				fieldLabel: 'Icluir apertura',
+				fieldLabel: 'Incluir apertura',
 				allowBlank: false,
                 anchor: '40%',
                 gwidth: 80,
@@ -406,7 +406,7 @@ Phx.vista.ResultadoDetPlantilla=Ext.extend(Phx.gridInterfaz,{
                 triggerAction: 'all',
                 lazyRender:true,
                 mode: 'local',
-                store:['05','06','07','08','09','10','11','12','13','14','15','16','17']
+                store:['05','06','07','08','09','10','11','12','13','14','15','16','17'] //fRnk: adicionado más tamaños de fuente
             },
             type:'ComboBox',
             id_grupo:1,

@@ -12,7 +12,7 @@ header("content-type: text/javascript; charset=UTF-8");
     var id_depto = null;
     var id_gestion = null;
 
-    Phx.vista.IntComprobante = Ext.extend(Phx.gridInterfaz, {
+    Phx.vista.IntComprobanteDiario = Ext.extend(Phx.gridInterfaz, {
 
         bgantt: true,
         fheight: '90%',
@@ -294,6 +294,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         return String.format('<div title="Cbte Revertido/Volcado"><b><font color="red">{0}</font></b></div>', value);
                     }
                     return String.format('{0}', value);
+
                 }
             },
             type: 'Field',
@@ -319,6 +320,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 id_grupo: 0,
                 form: true
             },
+
+
             {
                 config: {
                     name: 'manual',
@@ -340,8 +343,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 grid: true,
                 form: false
-            }, 
-            {
+            }, {
                 config: {
                     name: 'nro_cbte',
                     fieldLabel: 'Nro. Cbte.',
@@ -656,9 +658,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 id_grupo: 1,
                 grid: true,
                 form: true
-            },
-            
-            {
+            }, {
                 config: {
                     name: 'id_moneda',
                     origen: 'MONEDA',
@@ -680,6 +680,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid: true,
                 form: true
             },
+
+
             {
                 config: {
                     name: 'forma_cambio',
@@ -726,7 +728,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid: true,
                 form: true
             },
-
             {
                 config: {
                     name: 'tipo_cambio_2',
@@ -772,46 +773,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 form: true
             },
 
-            {
-                config: {
-                    name: 'importe_debe',
-                    readOnly: true,
-                    fieldLabel: 'Importe Debe',
-                    allowBlank: false,
-                    anchor: '80%',
-                    gwidth: 70,
-                    maxLength: 20,
-                    decimalPrecision: 10
-                },
-                type: 'NumberField',
-                filters: {
-                    pfiltro: 'tra.importe_debe',
-                    type: 'numeric'
-                },
-                id_grupo: 2,
-                grid: true,
-                form: true
-            },
-            {
-                config: {
-                    name: 'importe_haber',
-                    readOnly: true,
-                    fieldLabel: 'Importe Haber',
-                    allowBlank: false,
-                    anchor: '80%',
-                    gwidth: 70,
-                    maxLength: 20,
-                    decimalPrecision: 10
-                },
-                type: 'NumberField',
-                filters: {
-                    pfiltro: 'tra.importe_haber',
-                    type: 'numeric'
-                },
-                id_grupo: 2,
-                grid: true,
-                form: true
-            },
              {
                 config: {
                     name: 'glosa1',
@@ -985,8 +946,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid: true,
                 //egrid: true,
                 form: true
-            }, 
-            {
+            }, {
                 config: {
                     name: 'cbte_aitb',
                     qtip: 'Es un comprobante para AITB',
@@ -1249,12 +1209,6 @@ header("content-type: text/javascript; charset=UTF-8");
             name: 'tipo_cambio',
             type: 'numeric'
         }, {
-            name: 'importe_haber',
-            type: 'numeric'
-        }, {
-            name: 'importe_debe',
-            type: 'numeric'
-        }, {
             name: 'beneficiario',
             type: 'string'
         }, {
@@ -1329,8 +1283,8 @@ header("content-type: text/javascript; charset=UTF-8");
             type: 'date',
             dateFormat: 'Y-m-d'
         }, 'momento_comprometido', 'momento_ejecutado', 'id_moneda_base', 'id_proceso_wf', 'id_estado_wf',
-            'cbte_cierre', 'cbte_apertura', 'cbte_aitb', 'momento_pagado', 'manual', 'importe_debe', 'importe_haber',
-            'desc_tipo_relacion_comprobante', 'id_int_comprobante_fks', 'manual', 
+            'cbte_cierre', 'cbte_apertura', 'cbte_aitb', 'momento_pagado', 'manual',
+            'desc_tipo_relacion_comprobante', 'id_int_comprobante_fks', 'manual',
             'id_tipo_relacion_comprobante', 'tipo_cambio_2', 'id_moneda_tri', 'tipo_cambio_3', 'id_moneda_act',
             'sw_tipo_cambio', 'id_config_cambiaria', 'ope_1', 'ope_2', 'ope_3',
             'desc_moneda_tri', 'localidad', 'sw_editable', 'cbte_reversion', 'volcado', 'c31', 'fecha_c31', 'forma_cambio', 'id_service_request', 'nro_preventivo'],
@@ -1531,9 +1485,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 }
 
             }
-
             //si es presupeustario acomoda los valores por defecto a los momentos
-
         },
         imprimirCbte: function () {
             var rec = this.sm.getSelected();
@@ -1946,7 +1898,7 @@ header("content-type: text/javascript; charset=UTF-8");
             var nombreVista = this.nombreVista;
             Phx.CP.loadingShow();
             Ext.Ajax.request({
-                url: '../../sis_contabilidad/control/IntComprobante/impReporteDiario',
+                url: '../../sis_contabilidad/Reporte/RComprobanteDiarioXls',
                 params:
                     {
                         'gestion': gest,
@@ -1955,6 +1907,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         'id_dpto': id_dpto,
                         'nombreVista': nombreVista,
                         'tipo_moneda': resp.tipo_moneda,
+                        'desde': resp.desde,
+                        'hasta': resp.hasta,
                         'cc': resp.cc,
                         'partida': resp.partida,
                         'auxiliar': resp.auxiliar,
@@ -1966,7 +1920,12 @@ header("content-type: text/javascript; charset=UTF-8");
                         'relacional': resp.relacional,
                         'fecIni': resp.fecIni,
                         'fecFin': resp.fecFin,
-                        'nro_cuenta': resp.id_cuenta
+                        'glosa1': resp.glosa1,
+                        'fecha': resp.fecha,
+                        'importe_debe': resp.importe_debe,
+                        'importe_haber': resp.importe_haber,
+                        'nro_cuenta': resp.nro_cuenta
+                        
                     },
                 success: this.successExport,
                 failure: this.conexionFailure,
