@@ -261,7 +261,7 @@ Phx.vista.CuentaPartida=Ext.extend(Phx.gridInterfaz,{
 	
 	
 	tam_pag:50,	
-	title:'Cuenta Partida',
+	title:'Relación Cuenta - Partida', //fRnk: HR01582 g.
 	ActSave:'../../sis_contabilidad/control/CuentaPartida/insertarCuentaPartida',
 	ActDel:'../../sis_contabilidad/control/CuentaPartida/eliminarCuentaPartida',
 	ActList:'../../sis_contabilidad/control/CuentaPartida/listarCuentaPartida',

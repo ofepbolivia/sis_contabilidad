@@ -74,9 +74,9 @@ class ACTIntComprobante extends ACTbase{
             }else{
                 //(may)25-09-2019 para que enliste el nuevo estado vbfin y vbconta
                 // $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
-                if( $this->objParam->getParametro('nombreVista') == 'IntComprobanteConsulta'){
+                if( $this->objParam->getParametro('nombreVista') == 'IntComprobantezConsulta'){
                     $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''validado'')");
-                }else{
+                }else if( $this->objParam->getParametro('nombreVista') != 'IntComprobanteConsultas'){ //fRnk: adicionado b. HR00903
                     $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
                 }
 
@@ -102,8 +102,10 @@ class ACTIntComprobante extends ACTbase{
 
         if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
             $this->objReporte = new Reporte($this->objParam,$this);
+            $this->objParam->addParametro('es_reporte', 'si'); //fRnk: adicionado para HR00903
             $this->res = $this->objReporte->generarReporteListado('MODIntComprobante','listarIntComprobante');
         } else{
+            $this->objParam->addParametro('es_reporte', 'no');
             $this->objFunc=$this->create('MODIntComprobante');
 
             $this->res=$this->objFunc->listarIntComprobante($this->objParam);

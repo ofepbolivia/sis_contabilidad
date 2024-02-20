@@ -1,5 +1,5 @@
 <?php
-class RReporteLibMayExcel
+class RReporteLibDiaExcel
 {
     private $docexcel;
     private $objWriter;
@@ -61,7 +61,7 @@ class RReporteLibMayExcel
     }
     function imprimeCabecera() {
         $this->docexcel->createSheet();
-        $this->docexcel->getActiveSheet()->setTitle('Libro Mayor');
+        $this->docexcel->getActiveSheet()->setTitle('Libro Diario');
         $this->docexcel->setActiveSheetIndex(0);
 
         $styleTitulos1 = array(
@@ -183,8 +183,7 @@ class RReporteLibMayExcel
 
         );
 
-        $gdImage = imagecreatefromjpeg('../../../lib/imagenes/logos/logo.jpg');
-        //$gdImage = imagecreatefromjpeg('../../../lib/imagenes/Logo_libro_mayor.jpg');
+        $gdImage = imagecreatefromjpeg('../../../lib/imagenes/logo.jpg');
         // Add a drawing to the worksheetecho date('H:i:s') . " Add a drawing to the worksheet\n";
         $objDrawing = new PHPExcel_Worksheet_MemoryDrawing();
         $objDrawing->setName('Sample image');
@@ -202,7 +201,7 @@ class RReporteLibMayExcel
         $this->docexcel->getActiveSheet()->getStyle('A2:H2')->applyFromArray($styleTitulos);
         $this->docexcel->getActiveSheet()->getStyle('A1:A3')->applyFromArray($bordes);
 
-        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1,2,'LIBRO MAYOR' );
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1,2,'LIBRO DIARIO' );
         $this->docexcel->getActiveSheet()->getStyle('A2:H2')->applyFromArray($styleTitulos);
         $this->docexcel->getActiveSheet()->getStyle('B1:M1')->applyFromArray($bordes_titulo_supe);
         $this->docexcel->getActiveSheet()->getStyle('B3:M3')->applyFromArray($bordes_titulo_infe);

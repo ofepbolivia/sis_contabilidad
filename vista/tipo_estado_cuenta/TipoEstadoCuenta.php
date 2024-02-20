@@ -249,7 +249,7 @@ Phx.vista.TipoEstadoCuenta=Ext.extend(Phx.gridInterfaz,{
 	},
 	south : {
 			url : '../../../sis_contabilidad/vista/tipo_estado_columna/TipoEstadoColumna.php',
-			title : 'Desatalle del estado',
+			title : 'Detalle del estado', //fRnk
 			height : '50%',
 			cls : 'TipoEstadoColumna'
 	},

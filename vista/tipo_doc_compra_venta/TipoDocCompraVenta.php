@@ -209,7 +209,7 @@ Phx.vista.TipoDocCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		}
 	],
 	tam_pag:50,	
-	title:'Tipo Doc',
+	title:'Tipos de documentos para el RCV',   //fRnk: HR01582 e.
 	ActSave:'../../sis_contabilidad/control/TipoDocCompraVenta/insertarTipoDocCompraVenta',
 	ActDel:'../../sis_contabilidad/control/TipoDocCompraVenta/eliminarTipoDocCompraVenta',
 	ActList:'../../sis_contabilidad/control/TipoDocCompraVenta/listarTipoDocCompraVenta',

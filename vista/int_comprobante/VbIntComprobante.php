@@ -610,6 +610,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('diagrama_gantt').enable();
                 this.getBoton('btnObs').enable();
                 this.getBoton('ant_estado').enable();
+                if (rec.data.estado_fin == 'si') { //fRnk: HR00903
+                    this.getBoton('sig_estado').disable();
+                }
             }
             if (rec.data.momento == 'presupuestario') {
                 this.getBoton('btnDocCmpVnt').enable();

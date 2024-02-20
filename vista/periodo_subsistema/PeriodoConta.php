@@ -12,7 +12,7 @@ header("content-type: text/javascript; charset=UTF-8");
 Phx.vista.PeriodoConta = {
 	require:'../../../sis_parametros/vista/periodo_subsistema/PeriodoSubsistema.php',
 	requireclase:'Phx.vista.PeriodoSubsistema',
-	title:'Períodos',
+	title:'Gestión de Periodos', //fRnk: modificado HR01582 a.
 	codSist: 'CONTA',
 	bdel: false,
 	bedit: false,
@@ -26,6 +26,6 @@ Phx.vista.PeriodoConta = {
 	},
 	
     codReporte:'S/C',
-	pdfOrientacion:'L'
+	pdfOrientacion:'P'
 };
 </script>

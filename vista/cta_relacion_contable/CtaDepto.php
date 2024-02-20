@@ -12,7 +12,7 @@ header("content-type: text/javascript; charset=UTF-8");
 Phx.vista.CtaDepto = {
     require:'../../../sis_parametros/vista/depto/Depto.php',
     requireclase:'Phx.vista.Depto',
-    title:'Cuenta Bancaria',
+    title:'Detalle de Departamentos',  //fRnk: HR01582 j.
     constructor: function(config) {
         Phx.vista.CtaDepto.superclass.constructor.call(this,config);     
     },    

@@ -18,6 +18,7 @@ class MODIntComprobante extends MODbase{
         $this->transaccion='CONTA_INCBTE_SEL';
         $this->tipo_procedimiento='SEL';//tipo de transaccion
         $this->setParametro('nombreVista','nombreVista','varchar');
+        $this->setParametro('es_reporte','es_reporte','varchar'); //fRnk: adicionado para HR00903
 
         //Definicion de la lista del resultado del query
         $this->captura('id_int_comprobante','int4');
@@ -98,8 +99,7 @@ class MODIntComprobante extends MODbase{
         $this->captura('reversion','varchar');
         $this->captura('importe_debe','numeric');
         $this->captura('importe_haber','numeric');
-
-
+        $this->captura('estado_fin','varchar'); //fRnk: adicionado para HR00903
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -767,6 +767,8 @@ class MODIntComprobante extends MODbase{
         $this->setParametro('id_moneda', 'id_moneda','int4');
         $this->setParametro('tipo_diario', 'tipo_diario','varchar');
         $this->setParametro('nro_cbte', 'nro_cbte','varchar');
+        $this->setParametro('desc_depto','desc_depto','text');
+        $this->setParametro('id_depto','id_depto','int4');
 
         //Definicion de la lista del resultado del query
         $this->captura('id_int_comprobante','int4');

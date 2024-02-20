@@ -62,8 +62,35 @@ Phx.vista.FormFiltroDiario=Ext.extend(Phx.frmInterfaz,{
  			type: 'ComboRec',
  			id_grupo: 1,
  			form: true
-   	},
-
+   	},{
+                config: {
+                    name: 'desc_depto',
+                    hiddenName: 'desc_depto',
+                    url: '../../sis_parametros/control/Depto/listarDeptoFiltradoXUsuario',
+                    origen: 'DEPTO',
+                    allowBlank: false,
+                    fieldLabel: 'Depto',
+                    gdisplayField: 'desc_depto', //dibuja el campo extra de la consulta al hacer un inner join con orra tabla
+                    width: 200,
+                    gwidth: 180,
+                    baseParams: {
+                        estado: 'activo',
+                        codigo_subsistema: 'CONTA'
+                    }, //parametros adicionales que se le pasan al store
+                    renderer: function (value, p, record) {
+                        return String.format('{0}', record.data['desc_depto']);
+                    }
+                },
+                //type:'TrigguerCombo',
+                type: 'ComboRec',
+                id_grupo: 1,
+                filters: {
+                    pfiltro: 'incbte.desc_depto',
+                    type: 'string'
+                },
+                grid: false,
+                form: true
+        },
 	//{
 	//   config:{
  	//			sysorigen: 'sis_contabilidad',
@@ -156,7 +183,19 @@ Phx.vista.FormFiltroDiario=Ext.extend(Phx.frmInterfaz,{
                 type: 'DateField',
                 form: true
         },{
-			
+			config:{
+				name: 'nro_cbte',
+				fieldLabel: 'Nro de Comprobante',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 50,
+				checked:false
+			},
+			type:'TextField',
+			form:true
+		},
+		{
+
 			config:{
 				name:'tipo_diario',
 				fieldLabel:'Tipo Diario',
@@ -207,7 +246,9 @@ Phx.vista.FormFiltroDiario=Ext.extend(Phx.frmInterfaz,{
 			type:'ComboBox',
 			form:true
 
-		},{
+		},
+
+		{
 
 			config:{
 				name: 'cc',
@@ -309,16 +350,19 @@ Phx.vista.FormFiltroDiario=Ext.extend(Phx.frmInterfaz,{
 		var resp = {			
 			tipo_moneda:this.Cmp.tipo_moneda.getValue(),
 			id_cuenta:this.Cmp.id_cuenta.getValue(),
-			tipo_formato:this.Cmp.tipo_formato.getValue(),	
-			tipo_diario:this.Cmp.tipo_diario.getValue(),	
+			tipo_formato:this.Cmp.tipo_formato.getValue(),
+			tipo_diario:this.Cmp.tipo_diario.getValue(),
 			//desde:this.Cmp.desde.getValue(),
 			nro_cuenta:this.Cmp.id_cuenta.getValue(),
+			nro_cbte:this.Cmp.nro_cbte.getValue(),
 			//hasta:this.Cmp.hasta.getValue()
+			desc_depto:this.Cmp.desc_depto.getValue(),
 			fecIni:this.Cmp.desde.getValue(),
 			fecFin:this.Cmp.hasta.getValue(),
+
+
 			//id_int_comprobante:this.Cmp.id_int_comprobante.getValue(),
-			
-			
+
 			//id_proceso_wf:this.Cmp.id_proceso_wf.getValue(),
 			//cc:this.Cmp.cc.getValue(),
 			//partida:this.Cmp.partida.getValue(),
@@ -326,7 +370,7 @@ Phx.vista.FormFiltroDiario=Ext.extend(Phx.frmInterfaz,{
 			//ordenes:this.Cmp.ordenes.getValue(),
 			//relacional:this.Cmp.relacional.getValue(),
 			//nro_tramite:this.Cmp.nro_tramite.getValue(),
-			//nro_cuenta:this.Cmp.desc_cuenta.getValue(),
+			//nro_cuenta:this.Cmp.id_nro_cuenta.getValue(),
 			//libro_diario:this.Cmp.libro_diario.getValue(),
 			//libro_diario_det:this.Cmp.libro_diario_det.getValue(),
 		}

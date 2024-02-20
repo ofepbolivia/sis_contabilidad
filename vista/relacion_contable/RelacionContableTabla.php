@@ -13,7 +13,7 @@ header("content-type: text/javascript; charset=UTF-8");
     Phx.vista.RelacionContableTabla = {
         require:'../../../sis_contabilidad/vista/relacion_contable/RelacionContable.php',
         requireclase:'Phx.vista.RelacionContable',
-        title:'Relacion Contable',
+        title:'Relación Contable',
         tiene_partida:'no',
         tiene_auxiliar:'no',
         filtro_partida:'no',

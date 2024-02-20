@@ -790,7 +790,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 id_grupo: 2,
                 grid: true,
-                form: true
+                form: false //fRnk: oculto en el formulario, dado que en el original no existe los campos
             },
             {
                 config: {
@@ -810,7 +810,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 id_grupo: 2,
                 grid: true,
-                form: true
+                form: false
             },
              {
                 config: {
@@ -1333,14 +1333,14 @@ header("content-type: text/javascript; charset=UTF-8");
             'desc_tipo_relacion_comprobante', 'id_int_comprobante_fks', 'manual', 
             'id_tipo_relacion_comprobante', 'tipo_cambio_2', 'id_moneda_tri', 'tipo_cambio_3', 'id_moneda_act',
             'sw_tipo_cambio', 'id_config_cambiaria', 'ope_1', 'ope_2', 'ope_3',
-            'desc_moneda_tri', 'localidad', 'sw_editable', 'cbte_reversion', 'volcado', 'c31', 'fecha_c31', 'forma_cambio', 'id_service_request', 'nro_preventivo'],
+            'desc_moneda_tri', 'localidad', 'sw_editable', 'cbte_reversion', 'volcado', 'c31', 'fecha_c31', 'forma_cambio', 'id_service_request', 'nro_preventivo', 'estado_fin'], //fRnk: HR00903
 
         rowExpander: new Ext.ux.grid.RowExpander({
             //fRnk: modificado label firma 1, existía un error (frima)
             tpl: new Ext.Template('<br>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Departamento:&nbsp;&nbsp;</b> {desc_depto} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Clase cbte:&nbsp;&nbsp;</b> {desc_clase_comprobante}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Origen:&nbsp;&nbsp;</b> {desc_subsistema}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Beneficiario:&nbsp;&nbsp;</b> {beneficiario}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Glosa:&nbsp;&nbsp;</b> {glosa1} {glosa2}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Firma 1:&nbsp;&nbsp;</b> {desc_firma1} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Firma 2:&nbsp;&nbsp;</b> {desc_firma2} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Firma 3:&nbsp;&nbsp;</b> {desc_firma3} </p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:&nbsp;&nbsp;</b> {usr_reg}</p>', '<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Estado Registro:&nbsp;&nbsp;</b> {estado_reg}</p><br>')
         }),
 
-        arrayDefaultColumHidden: ['id_funcionario_firma1', 'id_funcionario_firma2', 'id_funcionario_firma3', 'id_subsistema', 'id_tipo_relacion_comprobante', 'fecha_mod', 'usr_reg', 'usr_mod', 'id_depto', 'estado', 'glosa1', 'momento', 'glosa2', 'desc_subsistema', 'desc_clase_comprobante', 'estado_reg', 'fecha_reg', 'id_service_request'],
+        arrayDefaultColumHidden: ['id_funcionario_firma1', 'id_funcionario_firma2', 'id_funcionario_firma3', 'id_subsistema', 'id_tipo_relacion_comprobante', 'fecha_mod', 'usr_reg', 'usr_mod', 'id_depto', 'estado', 'glosa1', 'momento', 'glosa2', 'desc_subsistema', 'desc_clase_comprobante', 'fecha_reg', 'id_service_request'],
 
         sortInfo: {
             field: 'id_int_comprobante',
@@ -1582,7 +1582,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     items: [{
                         id: 'b-gantti-' + this.idContenedor,
                         text: 'Gantt Imagen',
-                        tooltip: '<b>Mues un reporte gantt en formato de imagen</b>',
+                        tooltip: '<b>Muestra un reporte gantt en formato de imagen</b>',
                         handler: this.diagramGantt,
                         scope: this
                     }, {
@@ -1952,7 +1952,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         'gestion': gest,
                         'depto': dpto,
                         'id_gestion': id_gestion,
-                        'id_dpto': id_dpto,
+                        'id_dpto': id_depto,
                         'nombreVista': nombreVista,
                         'tipo_moneda': resp.tipo_moneda,
                         'cc': resp.cc,
@@ -1966,7 +1966,11 @@ header("content-type: text/javascript; charset=UTF-8");
                         'relacional': resp.relacional,
                         'fecIni': resp.fecIni,
                         'fecFin': resp.fecFin,
-                        'nro_cuenta': resp.id_cuenta
+                        'nro_cuenta': resp.id_cuenta,
+                        'desc_depto': resp.desc_depto,
+                        'nro_cbte': resp.nro_cbte
+
+
                     },
                 success: this.successExport,
                 failure: this.conexionFailure,

@@ -669,6 +669,14 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: '<b>Reporte Excel</b>'
             });
 
+            this.addButton('repPdf', {
+                text: 'Reporte Pdf',
+                iconCls: 'bpdf',
+                disabled: true,
+                handler: this.reportePdf,
+                tooltip: '<b>Reporte PDF</b>'
+            });
+
             this.addButton('btnChequeoDocumentosWf',
                 {
                     text: 'Documentos',
@@ -816,6 +824,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('chkpresupuesto').enable();
                 this.getBoton('btnDocCmpVnt').enable();
                 this.getBoton('repExcel').enable();
+                this.getBoton('repPdf').enable();
                 return tb;
             } else {
                 this.getBoton('chkdep').disable();
@@ -824,6 +833,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('chkpresupuesto').disable();
                 this.getBoton('btnDocCmpVnt').disable();
                 this.getBoton('repExcel').disable();
+                this.getBoton('repPdf').disable();
 
             }
 
@@ -837,6 +847,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('chkpresupuesto').disable();
             this.getBoton('btnDocCmpVnt').disable();
             this.getBoton('repExcel').disable();
+            this.getBoton('repPdf').disable();
 
 
         },
@@ -877,6 +888,34 @@ header("content-type: text/javascript; charset=UTF-8");
             Phx.CP.loadingShow();
             Ext.Ajax.request({
                 url: '../../sis_contabilidad/control/IntTransaccion/ReporteLibMayExcel',
+                params: {
+                    id_gestion: this.store.baseParams.id_gestion,
+                    id_config_tipo_cuenta: this.store.baseParams.id_config_tipo_cuenta,
+                    id_config_subtipo_cuenta: this.store.baseParams.id_config_subtipo_cuenta,
+                    id_depto: this.store.baseParams.id_depto,
+                    id_partida: this.store.baseParams.id_partida,
+                    id_suborden:this.store.baseParams.id_suborden,
+                    id_auxiliar:this.store.baseParams.id_auxiliar,
+                    id_centro_costo:this.store.baseParams.id_centro_costo,
+                    nro_tramite:this.store.baseParams.nro_tramite,
+                    desde:this.store.baseParams.desde,
+                    hasta: this.store.baseParams.hasta,
+                    id_cuenta: this.store.baseParams.id_cuenta,
+                    id_orden_trabajo: this.store.baseParams.id_orden_trabajo,
+                    id_tipo_cc: this.store.baseParams.id_tipo_cc,
+                    gest: this.store.baseParams.gest
+                },
+                success: this.successExport,
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope: this
+            });
+        },
+
+        reportePdf: function () {
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url: '../../sis_contabilidad/control/IntTransaccion/ReporteLibMayPdf',
                 params: {
                     id_gestion: this.store.baseParams.id_gestion,
                     id_config_tipo_cuenta: this.store.baseParams.id_config_tipo_cuenta,

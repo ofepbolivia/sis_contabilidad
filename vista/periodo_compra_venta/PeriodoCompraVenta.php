@@ -476,7 +476,7 @@ Phx.vista.PeriodoCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		}
 	],
 	tam_pag:50,
-	title:'PCV',
+	title:'<h1 style="font-size: 12px">Detalle de periodos de compra y venta<br/>por Departamento</h1>', //fRnk: HR01582 b.
 	ActSave:'../../sis_contabilidad/control/PeriodoCompraVenta/insertarPeriodoCompraVenta',
 	ActDel:'../../sis_contabilidad/control/PeriodoCompraVenta/eliminarPeriodoCompraVenta',
 	ActList:'../../sis_contabilidad/control/PeriodoCompraVenta/listarPeriodoCompraVenta',

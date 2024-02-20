@@ -349,7 +349,7 @@ Phx.vista.ClaseComprobante=Ext.extend(Phx.gridInterfaz,{
 		}
 	],
 	
-	title:'Clase Comprobante',
+	title:'Clases de Comprobantes',  //fRnk: HR01582 c.
 	ActSave:'../../sis_contabilidad/control/ClaseComprobante/insertarClaseComprobante',
 	ActDel:'../../sis_contabilidad/control/ClaseComprobante/eliminarClaseComprobante',
 	ActList:'../../sis_contabilidad/control/ClaseComprobante/listarClaseComprobante',
