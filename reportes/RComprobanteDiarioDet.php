@@ -542,7 +542,7 @@ class RComprobanteDiarioDet extends  ReportePDF {
 
 		$this->ln(5);
 		$this->SetFont('','B',12);
-		$this->Cell(0,5,'Comprobante de Diario Presupuestario',0,1,'C');
+		$this->Cell(0,5,'Comprobante de Diario',0,1,'C');
 
 		$this->SetFont('','B',8);
 		//$this->MultiCell(0,5,'','L','C',1,0);

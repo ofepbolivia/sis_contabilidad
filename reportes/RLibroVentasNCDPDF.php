@@ -23,7 +23,7 @@ class RLibroVentasNCDPDF extends  ReportePDF {
 
         $this->SetMargins(3, 40, 2);
 
-        $this->Image(dirname(__FILE__) . '/../../lib/imagenes/logos/logo.jpg', 16, 5, 30, 10);
+        $this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 16, 5, 30, 10);
         $this->ln(2);
         $this->SetFont('', 'B', 12);
         $this->Cell(0, 5, "LIBRO DE VENTAS", 0, 1, 'C');

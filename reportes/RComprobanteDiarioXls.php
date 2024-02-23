@@ -209,7 +209,11 @@ class RComprobanteDiarioXls
         
         //titulos
         //  $this->docexcel->getActiveSheet()->mergeCells('A1:A3');
-        $gdImage = imagecreatefromjpeg('../../../lib/imagenes/logos/logo.jpg');
+        $logo_=dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO']; //fRnk
+        if(strpos($logo_, '.png') !== false)
+            $gdImage = imagecreatefrompng($logo_);
+        else
+            $gdImage = imagecreatefromjpeg($logo_);
         // Add a drawing to the worksheetecho date('H:i:s') . " Add a drawing to the worksheet\n";
         $objDrawing = new PHPExcel_Worksheet_MemoryDrawing();
         $objDrawing->setName('Sample image');
@@ -420,8 +424,8 @@ class RComprobanteDiarioXls
           foreach ($datos as $value){
     
           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $contador);
-          $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['nro_tramite']);
-          $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['nro_cbte']);
+          $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['nro_cbte']);          
+          $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['nro_tramite']);
           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, date("Y-m-d", strtotime($value["fecha"])));
 
           $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['nro_cuenta']);

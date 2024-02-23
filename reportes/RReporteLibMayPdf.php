@@ -48,7 +48,7 @@ class RReporteLibMayPdf extends  ReportePDF{
                 <table  style="height: 20px;" border = "1" cellspacing="0" cellpadding="2" >
                   <tbody>
                     <tr style="height: 40px;">
-                      <td style="width: 100px; height: 42px;">&nbsp;<img  style="width: 80px;" align="middle" src="../../../lib/imagenes/logos/logo.jpg" alt="Logo"></td>
+                      <td style="width: 100px; height: 42px;">&nbsp;<img  style="width: 80px;" align="middle" src="'.dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'].'" alt="Logo"></td>
                       <td style="width: 830px; text-align: center; vertical-align: middle; height: 42px;"><h1>REPORTE<br>LIBRO MAYOR</h1></td>
                       '.$cabecera_datos.'
                     </tr>

@@ -183,7 +183,11 @@ class RReporteLibroDiarioExcel
                 ),
             ),
         );
-        $gdImage = imagecreatefromjpeg('../../../lib/imagenes/logos/logo.jpg');
+        $logo_=dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO']; //fRnk
+        if(strpos($logo_, '.png') !== false)
+            $gdImage = imagecreatefrompng($logo_);
+        else
+            $gdImage = imagecreatefromjpeg($logo_);
         // Add a drawing to the worksheetecho date('H:i:s') . " Add a drawing to the worksheet\n";
         $objDrawing = new PHPExcel_Worksheet_MemoryDrawing();
         $objDrawing->setName('Sample image');

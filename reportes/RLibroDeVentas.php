@@ -53,7 +53,7 @@ class RLibroDeVentas extends  ReportePDF {
         $newDate = date("d-m-Y", strtotime($this->objParam->getParametro('hasta')));
 
         //cabecera del reporte
-        $this->Image(dirname(__FILE__).'/../../lib/imagenes/logos/logo.jpg', 10,5,40,20);
+        $this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10,5,40,20);
         $this->ln(5);
 
 

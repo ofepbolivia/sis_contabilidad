@@ -79,17 +79,12 @@ class ACTIntComprobante extends ACTbase{
                 }else if( $this->objParam->getParametro('nombreVista') != 'IntComprobanteConsultas'){ //fRnk: adicionado b. HR00903
                     $this->objParam->addFiltro("incbte.estado_reg in (''borrador'', ''edicion'')");
                 }
-
             }
-
         }
-
-
 
         if($this->objParam->getParametro('nombreVista') == 'IntComprobanteLdEntrega'){
             $this->objParam->addFiltro(" (incbte.c31 = '''' or incbte.c31 is null )" );
         }
-
 
         if($this->objParam->getParametro('momento')!= ''){
             $this->objParam->addFiltro("incbte.momento = ''".$this->objParam->getParametro('momento')."''");
@@ -709,6 +704,8 @@ class ACTIntComprobante extends ACTbase{
 	}
 	//mp
 	function impReporteDiario() {
+
+		
 		if($this->objParam->getParametro('tipo_formato')=='pdf' and $this->objParam->getParametro('tipo_diario')=='dia'){
 			$nombreArchivo = uniqid(md5(session_id()).'LibroDiario').'.pdf';			
 			$dataSource = $this->listarRepIntComprobante();
@@ -787,7 +784,7 @@ class ACTIntComprobante extends ACTbase{
 		}				
 	}
 
-		function listarIntComprobanteTCCCuenta(){
+	function listarIntComprobanteTCCCuenta(){
 		$this->objParam->defecto('ordenacion','id_int_comprobante');
 		$this->objParam->defecto('dir_ordenacion','asc');
 		
@@ -986,6 +983,72 @@ class ACTIntComprobante extends ACTbase{
 			  exit;
 		  }
 	  }
+
+	  function generaReportLibroDiario(){	
+		$parms = $this->objParam->getParametro('params');
+		$parmsobj = json_decode($parms,true);
+		for ($i = 0; $i < count($parmsobj); $i++) {
+			if ($parmsobj[$i]['name'] == 'desde' and trim($parmsobj[$i]['value']  ?? '') !== '') {
+				$this->objParam->addParametro('fecIni', trim($parmsobj[$i]['value']  ?? ''));
+			}
+			if ($parmsobj[$i]['name'] == 'hasta' and trim($parmsobj[$i]['value']  ?? '') !== '') {
+				$this->objParam->addParametro('fecFin', trim($parmsobj[$i]['value']  ?? ''));
+			}			
+			if ($parmsobj[$i]['name'] == 'id_gestion' and trim($parmsobj[$i]['value']  ?? '') !== '') {
+				$this->objParam->addParametro('gest', trim($parmsobj[$i]['value']  ?? ''));
+			}						
+		}	
+
+		$where = $this->objParam->armarWhere($parmsobj);
+		$nombreArchivo = "";
+		$titulo = '';		
+
+		$objFunc=$this->create('MODIntComprobante');	
+		$objFunc->addUpdParametro('filtro', $where, 'varchar');
+
+		$dataSource = $objFunc->listarRepIntComprobanteDiario();		
+		if($dataSource->getTipo() != 'EXITO'){
+			$dataSource->imprimirRespuesta($dataSource->generarJson());
+			exit;
+		}
+
+		if($this->objParam->getParametro('tipo_diario')=='dia'){
+			$nombreArchivo = uniqid(md5(session_id()).'LibroDiario');
+			$titulo = 'Consolidado';			
+
+		} elseif($this->objParam->getParametro('tipo_diario')=='det'){
+			$nombreArchivo = uniqid(md5(session_id()).'LibroDiarioDet');
+			$titulo = 'Detallado';			
+		}
+
+		$this->objParam->addParametro('orientacion','P');
+		$this->objParam->addParametro('tamano','LETTER');		
+		$this->objParam->addParametro('titulo_archivo',$titulo);		
+		$nombreArchivo .= "." . $this->objParam->getParametro('tipo_formato');		
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);		
+
+		if ($this->objParam->getParametro('tipo_formato')=='xls'){
+			$reporte = new RComprobanteDiarioXls($this->objParam);
+			$reporte->datosHeader($dataSource->getDatos(), '', '');
+			$reporte->generarReporte();
+		} else {
+			if($this->objParam->getParametro('tipo_diario')!=='det'){
+				$reporte = new RComprobanteDiarioDet($this->objParam);
+			} else {
+				$reporte = new RComprobanteDiario($this->objParam);
+			}
+			
+			$reporte->datosHeader($dataSource->getDatos(),$dataSource->extraData, '' , '');		
+			$reporte->generarReporte();
+			$reporte->output($reporte->url_archivo,'F');						
+		}		
+
+
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se genera con exito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());		
+	}
 }
 
 ?>

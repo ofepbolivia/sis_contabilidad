@@ -183,7 +183,11 @@ class RReporteLibMayExcel
 
         );
 
-        $gdImage = imagecreatefromjpeg('../../../lib/imagenes/logos/logo.jpg');
+        $logo_=dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO']; //fRnk
+        if(strpos($logo_, '.png') !== false)
+            $gdImage = imagecreatefrompng($logo_);
+        else
+            $gdImage = imagecreatefromjpeg($logo_);
         //$gdImage = imagecreatefromjpeg('../../../lib/imagenes/Logo_libro_mayor.jpg');
         // Add a drawing to the worksheetecho date('H:i:s') . " Add a drawing to the worksheet\n";
         $objDrawing = new PHPExcel_Worksheet_MemoryDrawing();
