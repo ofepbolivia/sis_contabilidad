@@ -1931,7 +1931,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     config: [{
                         event: 'beforesave',
-                        delegate: this.execFormLibroDiario,
+                        delegate: this.addLibroDiario,
                     }],
                     scope: this
                 }
@@ -1969,32 +1969,15 @@ header("content-type: text/javascript; charset=UTF-8");
                         'nro_cuenta': resp.id_cuenta,
                         'desc_depto': resp.desc_depto,
                         'nro_cbte': resp.nro_cbte
+
+
                     },
                 success: this.successExport,
                 failure: this.conexionFailure,
                 timeout: this.timeout,
                 scope: this
             });
-        },
-
-        execFormLibroDiario: function (wizard, resp) {
-            var nombreVista = this.nombreVista;
-
-            Phx.CP.loadingShow();
-            Ext.Ajax.request({
-                url: '../../sis_contabilidad/control/IntComprobante/generaReportLibroDiario',
-                params: {
-                        params:JSON.stringify(resp.query_filter),
-                        tipo_formato: resp.tipo_formato,
-				        tipo_diario: resp.tipo_diario,				
-                        nombreVista: nombreVista,
-                    },
-                success: this.successExport,
-                failure: this.conexionFailure,
-                timeout: this.timeout,
-                scope: this
-            });
-        },
+        }
     })
 </script>
 
