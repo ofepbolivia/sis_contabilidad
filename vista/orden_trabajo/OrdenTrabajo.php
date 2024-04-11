@@ -35,7 +35,7 @@ Phx.vista.OrdenTrabajo=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'codigo',
-				fieldLabel: 'Codigo Orden',
+				fieldLabel: 'Código Orden',
 				allowBlank: false,
 				anchor: '80%',
 				gwidth: 100,
@@ -52,7 +52,7 @@ Phx.vista.OrdenTrabajo=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'desc_orden',
-				fieldLabel: 'Descripcion Orden',
+				fieldLabel: 'Descripción Orden',
 				allowBlank: false,
 				anchor: '80%',
 				gwidth: 100,
@@ -150,11 +150,37 @@ Phx.vista.OrdenTrabajo=Ext.extend(Phx.gridInterfaz,{
 			grid:true,
 			form:true
 		},
-		
+        { //fRnk: HR01008
+            config:{
+                name: 'cantidad_ot',
+                fieldLabel: 'Cantidad',
+                allowBlank: false,
+                anchor: '80%',
+                gwidth: 100,
+                maxLength:20,
+                maskRe: /[0-9]/
+                /*maskRe: /[0-9.-]/,
+                validator: function(v) {
+                    return /^-?[0-9]*(\.[0-9]{1,4})?$/.test(v)? true : 'Ingrese sólo números, hasta 4 decimales';
+                },
+                listeners: {
+                    change: function(e, text, prev) {
+                        if (!/^-?[0-9]*(\.[0-9]{0,4})?$/.test(text))
+                        {
+                            this.setValue(prev);
+                        }
+                    }
+                }*/
+            },
+            type:'TextField',
+            id_grupo:1,
+            grid:true,
+            form:true
+        },
 		{
 			config:{
 				name: 'movimiento',
-				qtip:'los nodos transaccionales no tienen hijos, son lo que usan en las transacciones (por ejm solicitudes de compra)',
+				qtip:'los nodos transaccionales no tienen hijos, son lo que usan en las transacciones (por ejemplo solicitudes de compra)',
 				fieldLabel: 'Transaccional',
 				allowBlank: false,
 				anchor: '40%',
@@ -185,7 +211,7 @@ Phx.vista.OrdenTrabajo=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'tipo',
-				fieldLabel: 'Tipo de Aplicacion?',
+				fieldLabel: '¿Tipo de Aplicación?',
 				allowBlank: false,
 				anchor: '80%',
 				gwidth: 50,				
@@ -305,7 +331,7 @@ Phx.vista.OrdenTrabajo=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_usuario_mod', type: 'numeric'},
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
-		{name:'usr_mod', type: 'string'},'tipo','movimiento','codigo','descripcion','id_orden_trabajo_fk','desc_otp'
+		{name:'usr_mod', type: 'string'},'tipo','movimiento','codigo','descripcion','id_orden_trabajo_fk','desc_otp', 'cantidad_ot'
 		
 	],
 	

@@ -29,9 +29,7 @@ Phx.vista.FormFiltroBalanceOrdenes=Ext.extend(Phx.frmInterfaz,{
 				    
         Phx.vista.FormFiltroBalanceOrdenes.superclass.constructor.call(this,config);
         this.init(); 
-        this.iniciarEventos();   
-       
-        
+        this.iniciarEventos();
         
     },
     
@@ -121,9 +119,27 @@ Phx.vista.FormFiltroBalanceOrdenes=Ext.extend(Phx.frmInterfaz,{
 	       		id_grupo:0,
 	       		form:true
 	      },
+        { //fRnk: adcionado para HR01008 c.
+            config:{
+                name:'es_transaccional',
+                fieldLabel:'¿Es transaccional?',
+                allowBlank:false,
+                emptyText:'¿Es transaccional?',
+                typeAhead: true,
+                triggerAction: 'all',
+                lazyRender:true,
+                width:350,
+                mode: 'local',
+                valueField: 'autentificacion',
+                store:['si','no']
+
+            },
+            type:'ComboBox',
+            id_grupo:0,
+            form:true
+        },
 	      {
    			config:{
-			
 			 name: 'id_ordenes_trabajos',
              fieldLabel: 'Orden de Costo',
              allowBlank: true,
@@ -171,7 +187,7 @@ Phx.vista.FormFiltroBalanceOrdenes=Ext.extend(Phx.frmInterfaz,{
 	     {
 			config:{
 				name: 'tipo',
-				fieldLabel: 'Tipo de Orden?',
+				fieldLabel: '¿Tipo de Orden?',
 				allowBlank: false,
 				width:350,							
 				emptyText:'tipo...',       			
@@ -262,8 +278,14 @@ Phx.vista.FormFiltroBalanceOrdenes=Ext.extend(Phx.frmInterfaz,{
 					})
                     
         }
-
-    }
+    },
+    iniciarEventos: function () {
+        this.Cmp.es_transaccional.on('select', function (cmb, rec, ind) {
+            this.Cmp.id_ordenes_trabajos.reset();
+            this.Cmp.id_ordenes_trabajos.store.baseParams.es_transaccional = cmb.getValue();
+            this.Cmp.id_ordenes_trabajos.modificado = true;
+        }, this);
+    },
     
     
 })    

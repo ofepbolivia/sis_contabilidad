@@ -499,7 +499,6 @@ class MODIntComprobante extends MODbase{
         $this->captura('tipo_partida','varchar');
         $this->captura('tipo_cambio','numeric');
         //$this->captura('id_orden_trabajo','integer');
-
         //Ejecuta la instruccion
         $this->armarConsulta();
         //echo $this->consulta;exit;
@@ -845,20 +844,10 @@ class MODIntComprobante extends MODbase{
         $this->captura('importe_debe', 'numeric');
         $this->captura('importe_haber', 'numeric');
         $this->captura('nro_cuenta', 'varchar');
-
-        $this->captura('banco','varchar');
-        $this->captura('nro_cuenta_bancaria_sigma', 'varchar');
-        $this->captura('importe', 'numeric');
-        
-        $this->captura('doc_id', 'varchar');
-        $this->captura('nombre', 'varchar');
-        
-        
-        //$this->captura('desde','date');
-		//$this->captura('hasta','date');
+        $this->captura('nombre_cuenta', 'varchar');
+        $this->captura('gestion', 'int4');
 
         $this->armarConsulta();
-        //echo $this->getConsulta();exit;
         $this->ejecutarConsulta();
         //Devuelve la respuesta
         return $this->respuesta;

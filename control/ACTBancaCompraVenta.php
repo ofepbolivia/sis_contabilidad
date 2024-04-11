@@ -32,7 +32,9 @@ class ACTBancaCompraVenta extends ACTbase{
             if($this->objParam->getParametro('id_contrato_fk') != ''){
                 $this->objParam->addFiltro("banca.id_contrato in ( ".$this->objParam->getParametro('id_contrato').", ".$this->objParam->getParametro('id_contrato_fk')." ) ");
             }else{
-                $this->objParam->addFiltro("banca.id_contrato = ".$this->objParam->getParametro('id_contrato'));
+                if ($this->objParam->getParametro('id_contrato') != null && $this->objParam->getParametro('id_contrato').trim() != '') {
+                    $this->objParam->addFiltro("banca.id_contrato = ".$this->objParam->getParametro('id_contrato'));
+                }
             }
             if($this->objParam->getParametro('autorizacion') != ''){
                 $this->objParam->addFiltro("banca.autorizacion = ".$this->objParam->getParametro('autorizacion'));
@@ -131,7 +133,7 @@ class ACTBancaCompraVenta extends ACTbase{
         $this->objParam->parametros_consulta['filtro'] = ' 0 = 0 ';
         $this->objParam->parametros_consulta['ordenacion'] = 'id_empresa';
         $this->objFunc2=$this->create('sis_parametros/MODEmpresa');
-        $this->res2=$this->objFunc2->listarEmpresa($this->objParam);
+        $this->res2=$this->objFunc2->listarEmpresa($this->objParam); //fRnk: nota, obtiene datos de la empresa
         $empresa = $this->res2->getDatos();
 
 

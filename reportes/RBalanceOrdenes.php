@@ -31,22 +31,26 @@ class RBalanceOrdenes extends  ReportePDF {
 	}
 	
 	function Header() {
-		//cabecera del reporte
-		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], $this->ancho_hoja, 5, 30, 10);
-		$this->ln(5);
-		$this->SetFont('','BU',12);
-		
-		$this->Cell(0,5,'ÁRBOL DE ORDENES DE COSTOS (BS)',0,1,'C');
-		
-		$this->SetFont('','BU',11);
-		$this->Cell(0,5,'Depto: ('.$this->codigos.')',0,1,'C');
-		$this->SetFont('','BU',10);		
-		$this->Cell(0,5,'Del '.$this->desde.' al '.$this->hasta,0,1,'C');
-		$this->SetFont('','BU',8);		
-		$this->Cell(0,5,'Incluye Cierres: '.$this->incluir_cierre,0,1,'C');
-		
-		
-		$this->Ln(3);
+		//fRnk: modificado cabecera HR01008
+		$content = '<table border="1" cellpadding="1" style="font-size: 10px;">
+            <tr>
+                <td style="width: 23%; color: #222;" rowspan="2">
+                    &nbsp;<img  style="width: 120px;" src="./../../../lib/' . $_SESSION['_DIR_LOGO'] . '" alt="Logo">
+                </td>		
+                <td style="width: 54%; color: #222;text-align: center" rowspan="2">
+                   <h4 style="font-size: 12px">ESTADO AUXILIAR DE COSTOS POR ORDENES</h4>
+                   <b style="font-size: 10px">Del '.$this->desde.' al '.$this->hasta.'</b><br/>
+                   (Expresado en Bolivianos)
+                </td>
+                <td style="width: 23%; color: #444444; text-align: left;">&nbsp;&nbsp;<b>Depto:</b> ('.$this->codigos.')<br><br></td>
+            </tr>
+            <tr>
+                <td style="width: 23%; color: #444444; text-align: left;">&nbsp;&nbsp;<b>Incluye Cierres:</b> ' . $this->incluir_cierre . '</td>
+            </tr>
+        </table>';
+		$this->writeHTMLCell(0, 10, 5, 4, $content, 0, 0, 0, true, 'L', true);
+
+		$this->Ln(27);
 		$this->SetFont('','B',10);
 		
 		//REporte de unasola columna de monto

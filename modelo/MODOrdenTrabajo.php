@@ -39,11 +39,9 @@ class MODOrdenTrabajo extends MODbase{
 		$this->captura('descripcion','varchar');
 		$this->captura('id_orden_trabajo_fk','int4');
 		$this->captura('desc_otp','varchar');
-
 		$this->captura('id_grupo_ots','varchar');
+		$this->captura('cantidad_ot','int8');
 
-
-		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -175,6 +173,7 @@ function listarOrdenTrabajoAll(){
 		$this->setParametro('movimiento','movimiento','varchar');
 		$this->setParametro('codigo','codigo','varchar');
 		$this->setParametro('id_orden_trabajo_fk','id_orden_trabajo_fk','int4');
+		$this->setParametro('cantidad_ot','cantidad_ot','int8'); //fRnk: HR01008
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -201,6 +200,7 @@ function listarOrdenTrabajoAll(){
 		$this->setParametro('movimiento','movimiento','varchar');
 		$this->setParametro('codigo','codigo','varchar');
 		$this->setParametro('id_orden_trabajo_fk','id_orden_trabajo_fk','int4');
+		$this->setParametro('cantidad_ot','cantidad_ot','int8'); //fRnk: HR01008
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

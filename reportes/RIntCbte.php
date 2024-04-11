@@ -16,18 +16,17 @@ class RIntCbte extends ReportePDF
     var $tot_haber;
     var $tot_debe_mb;
     var $tot_haber_mb;
-
+    // whf determina aux para imprimir cabeceras
+    var $newDoc=true;
     function datosHeader($detalle)
     {
-
-
+        $this->newDoc = false;
         $this->cabecera = $detalle->getParameter('cabecera');
         $this->detalleCbte = $detalle->getParameter('detalleCbte');
         $this->datosBeneficiarios = $detalle->getParameter('listadoBeneficiarios');
         $this->ancho_hoja = $this->getPageWidth() - PDF_MARGIN_LEFT - PDF_MARGIN_RIGHT - 10;
         $this->datos_detalle = $detalle;
         $this->SetMargins(15, 30, 5);
-
 
     }
 
@@ -43,23 +42,24 @@ class RIntCbte extends ReportePDF
             $content = ob_get_clean();
             $this->writeHTML($content, true, false, true, false, '');
         } else {
-            $this->SetMargins(15, 48, 5);
             ob_start();
             include(dirname(__FILE__) . '/../reportes/tpl/cabecera.php');
             $content = ob_get_clean();
             $this->writeHTML($content, true, false, true, false, '');
-            ob_start();
-            include(dirname(__FILE__) . '/../reportes/tpl/cabeceraDetalle.php');
-            $content = ob_get_clean();
-            $this->writeHTML($content, false, false, true, false, '');
+            if ($this->newDoc){
+                $this->SetMargins(15, 48, 5);
+                ob_start();
+                include(dirname(__FILE__) . '/../reportes/tpl/cabeceraDetalle.php');
+                $content = ob_get_clean();
+                $this->writeHTML($content, false, false, true, false, '');
+            }
         }
     }
 
     function generarReporte()
     {
-
+        // whf 2024-02-18: se reutiliza la clase para generar lista de comprobantes de detalle
         $this->AddPage();
-
         $dataSource = $this->datos_detalle;
         $tot_debe = 0;
         $tot_haber = 0;
@@ -71,18 +71,15 @@ class RIntCbte extends ReportePDF
 
         $with_col = $this->with_col;
 
-
         //adiciona glosa
         ob_start();
         include(dirname(__FILE__) . '/../reportes/tpl/glosa.php');
         $content = ob_get_clean();
         $this->writeHTML($content, false, false, true, false, '');
-
         //linea en blanco
         ob_start();
         $content = '<table width="100%"><tr><td style="font-size: 4px;">&nbsp;</td></tr></table>';
         $this->writeHTML($content, false, false, true, false, '');
-
         //cabecera de los beneficiarios
         $importe = 0;
         ob_start();
@@ -125,18 +122,21 @@ class RIntCbte extends ReportePDF
         ob_start();
         $content = '<table width="100%"><tr><td style="font-size: 4px;">&nbsp;</td></tr></table>';
         $this->writeHTML($content, false, false, true, false, '');
-
         //cabecera del detalle del reporte
         ob_start();
         include(dirname(__FILE__) . '/../reportes/tpl/cabeceraDetalle.php');
         $content2 = ob_get_clean();
-        // $this->writeHTML($content.$content2, false, false, true, false, '');
-        $this->writeHTML($content2, false, false, true, false, '');
 
+        $this->writeHTML($content2, false, false, true, false, '');
         $this->SetFont('helvetica', '', 5, '', 'default', true);
 
         //fRnk: modificado porque no funcionaba la impresión de reportes - SOP01
         $htmlc = '';
+        $this->newDoc = true;
+        $this->tot_debe = 0;
+        $this->tot_haber = 0;
+        $this->tot_debe_mb = 0;
+        $this->tot_haber_mb = 0;        
         foreach ($this->detalleCbte as $key => $val) {
             $sw = 1;
             if ($this->cabecera[0]['id_moneda'] == $this->cabecera[0]['id_moneda_base'] && $val['importe_debe'] == 0 && $val['importe_haber'] == 0) {
@@ -155,18 +155,11 @@ class RIntCbte extends ReportePDF
             }
         }
         $this->writeHTML($htmlc, false, false, true, false, '');
-
-        //$this->Ln();
-        //$this->revisarfinPagina($content); //fRnk: se quitó esta opción porque generaba error de impresión en algunos reportes
+        $this->newDoc = false;
         $this->subtotales('TOTALES');
-
         $this->Ln(2);
         $this->Firmas();
-
-        $this->Cell(196, 3.5, 'Reg: ' . $this->cabecera[0]['usr_reg'], '', 0, 'R');
-        //fRnk: se quitó el ID, para evitar confusión
-        //$this->Cell(10, 3.5, 'ID: ' . $this->cabecera[0]['id_int_comprobante'], '', 0, 'R');
-
+        $this->Cell(196, 3.5, 'Reg: ' . $this->cabecera[0]['usr_reg'] . '-' . $this->cabecera[0]['id_int_comprobante'], '', 0, 'R');
     }
 
     function Firmas()
@@ -179,7 +172,6 @@ class RIntCbte extends ReportePDF
         include(dirname(__FILE__) . '/../reportes/tpl/firmas.php');
         $content = ob_get_clean();
         $this->writeHTML($content, true, false, true, false, '');
-
 
     }
 

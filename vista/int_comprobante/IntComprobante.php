@@ -1889,11 +1889,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 }, rec.data, this.idContenedor, 'FormArchivoAIRBP')
         },
         //
-        postReloadPage: function (data) {
-            console.log('---->' + data);
-            //id_depto=data.id_depto;
-            //id_gestion=data.id_gestion;
-        },
         //
         addBotonesLibroDiario: function () {
             this.menuLibroDiario = new Ext.Toolbar.SplitButton({
@@ -1931,7 +1926,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     config: [{
                         event: 'beforesave',
-                        delegate: this.addLibroDiario,
+                        delegate: this.execFormLibroDiario,
                     }],
                     scope: this
                 }
@@ -1969,15 +1964,33 @@ header("content-type: text/javascript; charset=UTF-8");
                         'nro_cuenta': resp.id_cuenta,
                         'desc_depto': resp.desc_depto,
                         'nro_cbte': resp.nro_cbte
-
-
                     },
                 success: this.successExport,
                 failure: this.conexionFailure,
                 timeout: this.timeout,
                 scope: this
             });
-        }
+        },
+
+        execFormLibroDiario: function (wizard, resp) {
+            var nombreVista = this.nombreVista;
+
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url: '../../sis_contabilidad/control/IntComprobante/generaReportLibroDiario',
+                params: {
+                        params:JSON.stringify(resp.query_filter),
+                        tipo_formato: resp.tipo_formato,
+				        tipo_diario: resp.tipo_diario,				
+                        anio_gestion: resp.anio_gestion,
+                        nombreVista: nombreVista,
+                    },
+                success: this.successExport,
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope: this
+            });
+        },
     })
 </script>
 

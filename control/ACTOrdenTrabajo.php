@@ -74,9 +74,13 @@ class ACTOrdenTrabajo extends ACTbase{
 			}
 		}
 
-
 		if($this->objParam->getParametro('id_orden_trabajo') != '' ){
 			$this->objParam->addFiltro("odt.id_orden_trabajo =".$this->objParam->getParametro('id_orden_trabajo'));
+		}
+
+		//fRnk: adicionado HR01008
+		if($this->objParam->getParametro('id_orden_trabajo_fk') != '' ){
+			$this->objParam->addFiltro("odt.id_orden_trabajo_fk =".$this->objParam->getParametro('id_orden_trabajo_fk'));
 		}
 
 		if($this->objParam->getParametro('fecha_solicitud')!=''){
@@ -106,6 +110,17 @@ class ACTOrdenTrabajo extends ACTbase{
 		if($this->objParam->getParametro('filtro')=='raiz'){
             $this->objParam->addFiltro("odt.id_orden_trabajo_fk is  null");
         }
+
+		//fRnk: adicionado para HR01008 c.
+	   if(!empty($this->objParam->getParametro('es_transaccional'))){
+		   if($this->objParam->getParametro('es_transaccional')=='si'){
+			   $this->objParam->addFiltro("movimiento =''si''");
+		   }
+		   else if($this->objParam->getParametro('es_transaccional')=='no'){
+			   $this->objParam->addFiltro("movimiento =''no''");
+		   }
+	   }
+
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODOrdenTrabajo','listarOrdenTrabajoAll');
