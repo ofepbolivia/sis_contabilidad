@@ -119,6 +119,9 @@ class ACTOrdenTrabajo extends ACTbase{
 		   else if($this->objParam->getParametro('es_transaccional')=='no'){
 			   $this->objParam->addFiltro("movimiento =''no''");
 		   }
+		   else if($this->objParam->getParametro('es_transaccional')=='#'){ //fRnk: adicionado para que no liste al inicio HR00552
+			   $this->objParam->addFiltro("movimiento is null");
+		   }
 	   }
 
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
@@ -141,6 +144,9 @@ class ACTOrdenTrabajo extends ACTbase{
 		if($this->objParam->getParametro('fecha_solicitud')!=''){
             $this->objParam->addFiltro("odt.fecha_inicio <=''".$this->objParam->getParametro('fecha_solicitud')."'' and (odt.fecha_final is null or odt.fecha_final >= ''". $this->objParam->getParametro('fecha_solicitud') ."'')");
         }
+		if(!empty($this->objParam->getParametro('raiz'))){ //fRnk: HR00552
+			$this->objParam->addFiltro("id_orden_trabajo_fk is not null");
+		}
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODOrdenTrabajo','listarOrdenTrabajoRama');

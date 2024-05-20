@@ -10,7 +10,6 @@ header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
     Phx.vista.FormArchivoAIRBP=Ext.extend(Phx.frmInterfaz,{
-
             constructor:function(config)
             {
                 Phx.vista.FormArchivoAIRBP.superclass.constructor.call(this,config);
@@ -21,29 +20,20 @@ header("content-type: text/javascript; charset=UTF-8");
             loadValoresIniciales:function()
             {
                 Phx.vista.FormArchivoAIRBP.superclass.loadValoresIniciales.call(this);
-                this.getComponente('id_int_comprobante').setValue(this.id_int_comprobante);
+                this.Cmp.codigo.doQuery('', true);                
+                this.Cmp.codigo.setValue(this.codigo);
             },
 
             successSave:function(resp)
             {
                 Phx.CP.loadingHide();
                 Phx.CP.getPagina(this.idContenedorPadre).reload();
+                var objRes = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));                
                 this.panel.close();
+                Ext.Msg.alert('Mensaje', 'Respuesta: ' + objRes.ROOT.detalle.mensaje)
             },
 
-
             Atributos:[
-                {
-                    config:{
-                        labelSeparator:'',
-                        inputType:'hidden',
-                        name: 'id_int_comprobante'
-
-                    },
-                    type:'Field',
-                    form:true
-
-                },
                 {
                     config:{
                         name:'codigo',
@@ -73,7 +63,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         triggerAction: 'all',
                         lazyRender:true,
                         mode:'remote',
-                        pageSize:10,
+                        pageSize:50,
                         queryDelay:1000,
                         listWidth:260,
                         resizable:true,
@@ -98,9 +88,10 @@ header("content-type: text/javascript; charset=UTF-8");
                     form:true
                 }
             ],
-            title:'Subir Archivo AIRBP',
+            title:'Subir Archivo',
             fileUpload:true,
-            ActSave:'../../sis_contabilidad/control/ArchivoAirbp/subirArchivoAIRBP'
+            ActSave:'../../sis_contabilidad/control/ArchivoSin/importarArchivo'
+            //ActSave:'../../sis_contabilidad/control/ArchivoAirbp/subirArchivoAIRBP'
         }
     )
 </script>

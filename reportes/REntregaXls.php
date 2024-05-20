@@ -423,18 +423,17 @@ class REntregaXls
 
         //$sheet->setCellValueByColumnAndRow(0,1,$this->objParam->getParametro('titulo_rep'));
         $sheet->getStyle('A1')->getFont()->applyFromArray(array('bold'=>true,
-            'size'=>12,
-            'name'=>'Arial'));
+            'size'=>12));
 
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
         $sheet->setCellValueByColumnAndRow(0,1,strtoupper($titulo));
         $sheet->mergeCells('A1:D1');
 
         //DEPTOS TITLE
+        //fRnk: se eliminó la fuente arial porque generaba error, SOP20032024
         $sheet->getStyle('A2')->getFont()->applyFromArray(array(
             'bold'=>true,
-            'size'=>10,
-            'name'=>'Arial'));
+            'size'=>10));
 
         $sheet->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
         $sheet->setCellValueByColumnAndRow(0,2,strtoupper("ID :      ".$this->objParam->getParametro('id_entrega')));
@@ -443,8 +442,7 @@ class REntregaXls
         //FECHAS
         $sheet->getStyle('A3')->getFont()->applyFromArray(array(
             'bold'=>true,
-            'size'=>10,
-            'name'=>'Arial'));
+            'size'=>10));
 
         $sheet->getStyle('A3')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
         $sheet->setCellValueByColumnAndRow(0,3,strtoupper("NÚMERO TRÁMITE :    ".$this->objParam->getParametro('nro_tramite')));
@@ -453,8 +451,7 @@ class REntregaXls
 
         $sheet->getStyle('A4')->getFont()->applyFromArray(array(
             'bold'=>true,
-            'size'=>10,
-            'name'=>'Arial'));
+            'size'=>10));
 
         $sheet->getStyle('A4')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
         $sheet->setCellValueByColumnAndRow(0,4,"FECHA :    ".$this->objParam->getParametro('fecha'));
@@ -463,8 +460,7 @@ class REntregaXls
 
         $sheet->getStyle('A5')->getFont()->applyFromArray(array(
             'bold'=>true,
-            'size'=>10,
-            'name'=>'Arial'));
+            'size'=>10));
 
         $sheet->getStyle('A5')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
         $sheet->setCellValueByColumnAndRow(0,5,"TIPO DE CAMBIO :    ".$this->objParam->getParametro('tipo_cambio_2'));

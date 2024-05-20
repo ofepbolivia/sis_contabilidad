@@ -40,9 +40,7 @@ Phx.vista.OrdenSuborden=Ext.extend(Phx.gridInterfaz,{
 			},
 			type:'Field',
 			form:true 
-		},
-		
-		  {
+		}, {
             config:{
                     name:'id_suborden',
                     fieldLabel: 'Suborden',
@@ -60,9 +58,47 @@ Phx.vista.OrdenSuborden=Ext.extend(Phx.gridInterfaz,{
             filters:{pfiltro:'suo.nombre#suo.codigo',type:'string'},
             grid:true,
             form:true
-        },
-        
-       {
+        }, {
+            config: { //fRnk: HR00552
+                name: 'fecha_inicio',
+                fieldLabel: 'Fecha inicio',
+                allowBlank: false,
+                anchor: '80%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                renderer: function (value, p, record) {
+                    return value ? value.dateFormat('d/m/Y') : ''
+                }
+            },
+            type: 'DateField',
+            filters: {
+                pfiltro: 'afij.fecha_inicio',
+                type: 'date'
+            },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        }, {
+            config: {
+                name: 'fecha_final',
+                fieldLabel: 'Fecha final',
+                allowBlank: false,
+                anchor: '80%',
+                gwidth: 100,
+                format: 'd/m/Y',
+                renderer: function (value, p, record) {
+                    return value ? value.dateFormat('d/m/Y') : ''
+                }
+            },
+            type: 'DateField',
+            filters: {
+                pfiltro: 'afij.fecha_fin',
+                type: 'date'
+            },
+            id_grupo: 1,
+            grid: true,
+            form: true
+        }, {
 			config:{
 				name: 'estado_reg',
 				fieldLabel: 'Estado Reg.',
@@ -172,7 +208,7 @@ Phx.vista.OrdenSuborden=Ext.extend(Phx.gridInterfaz,{
 		}
 	],
 	tam_pag:50,	
-	title:'Ordenes Relacioandas',
+	title:'Ordenes Relacionadas',
 	ActSave:'../../sis_contabilidad/control/OrdenSuborden/insertarOrdenSuborden',
 	ActDel:'../../sis_contabilidad/control/OrdenSuborden/eliminarOrdenSuborden',
 	ActList:'../../sis_contabilidad/control/OrdenSuborden/listarOrdenSuborden',
@@ -189,8 +225,9 @@ Phx.vista.OrdenSuborden=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_usuario_mod', type: 'numeric'},
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
-		{name:'usr_mod', type: 'string'},'desc_suborden'
-		
+		{name:'usr_mod', type: 'string'},'desc_suborden',
+        {name:'fecha_inicio', type: 'date',dateFormat:'Y-m-d'},
+        {name:'fecha_final', type: 'date',dateFormat:'Y-m-d'}
 	],
 	
 	onReloadPage:function(m){
@@ -201,7 +238,11 @@ Phx.vista.OrdenSuborden=Ext.extend(Phx.gridInterfaz,{
 	},
 	loadValoresIniciales:function(){
 		Phx.vista.OrdenSuborden.superclass.loadValoresIniciales.call(this);
-		this.getComponente('id_orden_trabajo').setValue(this.maestro.id_orden_trabajo);		
+		this.getComponente('id_orden_trabajo').setValue(this.maestro.id_orden_trabajo);
+        this.getComponente('fecha_inicio').minValue=this.maestro.fecha_inicio;
+        this.getComponente('fecha_inicio').maxValue=this.maestro.fecha_final;
+        this.getComponente('fecha_final').minValue=this.maestro.fecha_inicio;
+        this.getComponente('fecha_final').maxValue=this.maestro.fecha_final;
 	},
 	
 	

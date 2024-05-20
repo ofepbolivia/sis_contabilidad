@@ -106,6 +106,9 @@ class MODIntTransaccion extends MODbase
         $this->captura('planilla', 'varchar');
         $this->captura('id_concepto_ingas', 'int4');
         $this->captura('desc_ingas', 'varchar');
+        //fRnk: HR00488
+        $this->captura('id_objetivo', 'int4');
+        $this->captura('observacion_poa', 'varchar');
 
 
         //Ejecuta la instruccion
@@ -154,7 +157,9 @@ class MODIntTransaccion extends MODbase
         $this->setParametro('id_suborden', 'id_suborden', 'int4');
 
         $this->setParametro('id_concepto_ingas', 'id_concepto_ingas', 'int4');
-
+        //fRnk: HR00488
+        $this->setParametro('id_objetivo', 'id_objetivo', 'int4');
+        $this->setParametro('observacion_poa', 'observacion_poa', 'varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -183,6 +188,7 @@ class MODIntTransaccion extends MODbase
         $this->setParametro('glosa', 'glosa', 'text');
         $this->setParametro('id_int_comprobante', 'id_int_comprobante', 'int4');
         $this->setParametro('id_auxiliar', 'id_auxiliar', 'int4');
+        $this->setParametro('id_doc_compra_venta', 'id_doc_compra_venta', 'int4');
 
         $this->setParametro('importe_debe', 'importe_debe', 'numeric');
         $this->setParametro('importe_haber', 'importe_haber', 'numeric');
@@ -203,7 +209,9 @@ class MODIntTransaccion extends MODbase
         $this->setParametro('id_suborden', 'id_suborden', 'int4');
 
         $this->setParametro('id_concepto_ingas', 'id_concepto_ingas', 'int4');
-
+        //fRnk: HR00488
+        $this->setParametro('id_objetivo', 'id_objetivo', 'int4');
+        $this->setParametro('observacion_poa', 'observacion_poa', 'varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();

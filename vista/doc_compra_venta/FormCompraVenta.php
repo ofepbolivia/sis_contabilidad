@@ -1683,6 +1683,19 @@ header("content-type: text/javascript; charset=UTF-8");
 				},
                 {
                     config: {
+                        name: 'id_int_transaccion',
+                        fieldLabel: 'Id transacción',
+                        allowBlank: true,
+                        allowNegative: false,
+                        anchor: '80%',
+                        gwidth: 100
+                    },
+                    type: 'NumberField',
+                    id_grupo: 2,
+                    form: true
+				},                
+                {
+                    config: {
                         labelSeparator: '',
                         inputType: 'hidden',
                         name: 'new_relation_editable'

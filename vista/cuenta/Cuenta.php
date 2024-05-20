@@ -15,14 +15,16 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 		this.maestro=config.maestro;
 		this.initButtons=[this.cmbGestion];
     	//llama al constructor de la clase padre
+
 		Phx.vista.Cuenta.superclass.constructor.call(this,config);
 		this.loaderTree.baseParams={id_gestion:0};
 		this.init();
 		this.iniciarEventos();
 		
 		this.cmbGestion.on('select',this.capturaFiltros,this);
+		this.iniciarEventosA();		
 		this.addButton('bAux',{text:'Auxiliares',iconCls: 'blist',disabled:true,handler:this.onButonAux,tooltip: '<b>Auxiliares de la cuenta</b><br/>Se habilita si esta cuenta tiene permitido el registro de auxiliares '});
-        this.addButton('btnImprimir',
+    this.addButton('btnImprimir',
 			{
 				text: 'Imprimir',
 				iconCls: 'bprint',
@@ -31,15 +33,15 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 				tooltip: '<b>Imprimir Plan de Cuentas</b><br/>Imprime el Plan de Cuentas en el formato oficial.'
 			}
 		);
-        this.addButton('btnRePar',
-            {
-                text: 'Replicar Partidas',
-                iconCls: 'bchecklist',
-                disabled: false,
-                handler: this.replicarPartidas,
-                tooltip: '<b>Replica las partidas por gestion</b>'
-            }
-        );
+		this.addButton('btnRePar',
+				{
+						text: 'Replicar Partidas',
+						iconCls: 'bchecklist',
+						disabled: false,
+						handler: this.replicarPartidas,
+						tooltip: '<b>Replica las partidas por gestion</b>'
+				}
+		);
 		//Crea el botón para llamar a la replicación
 		this.addButton('btnRepRelCon',
 			{
@@ -51,11 +53,32 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 			}
 		);
 		
-		
-		
 	},
-	
-	
+	iniciarEventosA:function() {
+			Phx.CP.loadingShow();
+			this.cmbGestion.setValue(null);
+				//Se carga el campo gestion con la gestion actual.
+				Ext.Ajax.request({
+						url: '../../sis_parametros/control/Gestion/obtenerGestionByFecha',
+						params: {fecha: new Date()},
+						success: function (resp) {
+								var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+
+								if (!reg.ROOT.error) {
+										this.cmbGestion.setValue(reg.ROOT.datos.id_gestion);
+										this.cmbGestion.setRawValue(reg.ROOT.datos.anho);
+										this.capturaFiltros(this.cmbGestion);
+										Phx.CP.loadingHide();
+								} else {
+										Phx.CP.loadingHide();
+										alert('Ocurrio un error al obtener la Gestión')
+								}
+						},
+						failure: this.conexionFailure,
+						timeout: this.timeout,
+						scope: this
+				});
+  },	
 	
 	duplicarCuentas: function(){
 		if(this.cmbGestion.getValue()){
@@ -93,7 +116,6 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
         else{
             alert('primero debe selecionar la gestion origen');
         }
-
     },
    
    successRep:function(resp){
@@ -108,7 +130,7 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 	},
 	
 	capturaFiltros:function(combo, record, index){
-		
+
 		this.loaderTree.baseParams={id_gestion:this.cmbGestion.getValue()};
 		this.root.reload();
 		if(this.cmbGestion.getValue()){
@@ -201,7 +223,7 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 			grid:false
 		},
 		{
-	       		config:{
+			config:{
 	       			name:'tipo_cuenta_pat',
 	       			fieldLabel:'Cap./Res.',
 	       			allowBlank:false,
@@ -217,8 +239,8 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 	       		id_grupo:0,
 	       		grid:false,
 	       		form:true
-	       },
-	       {
+	  },
+	  /* {
 			config:{
 				name: 'digito',
 				fieldLabel: 'Digito',
@@ -235,7 +257,7 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 			id_grupo:1,
 			grid:false,
 			form:true
-		},
+		}, */
 		{
 			config:{
 				name: 'text',
@@ -484,13 +506,35 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
        			id_grupo:0,
        			grid:true,
        			form:true
-       	}
-       	
-       	
-       	
-   	      
-		
-		
+       	},
+				 {
+       			config:{
+       				name:'afecta_iva',
+       				fieldLabel:'Afectación IVA',
+       				qtip:'Define si la cuenta tiene IVA o NO',
+       				allowBlank:false,
+							editable : false,
+       				emptyText:'Seleccione...',
+       				store: new Ext.data.ArrayStore({
+                        fields: ['variable', 'valor'],
+                        data : [ ['no', 'No'],
+                                 ['si', 'Si'],
+                               ]
+                        }),
+       				valueField: 'variable',
+				    displayField: 'valor',
+       				forceSelection:true,
+       				typeAhead: true,
+           			triggerAction: 'all',
+           			lazyRender:true,
+       				mode:'local',
+       				minChars:2,
+       			},
+       			type:'ComboBox',
+       			id_grupo:0,
+       			grid:true,
+       			form:true
+       	}       	
 	],
 	
 	title:'Cuenta',
@@ -516,8 +560,8 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 		{name:'sw_transaccional', type: 'string'},
 		{name:'id_gestion', type: 'numeric'},'desc_moneda',
 		'valor_incremento','eeff','sw_control_efectivo',
-		'id_config_subtipo_cuenta','desc_csc','tipo_act'
-		
+		'id_config_subtipo_cuenta','desc_csc','tipo_act',
+		'afecta_iva'
 	],
 	cmbGestion: new Ext.form.ComboBox({
 				fieldLabel: 'Gestion',
@@ -613,23 +657,26 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 	onButtonEdit:function(n){
 		this.ocultarComponente(this.cmpTipoCuenta);
 		this.ocultarComponente(this.cmpTipoCuentaPat);
-		this.ocultarComponente(this.cmpDigito);
+		//this.ocultarComponente(this.cmpDigito);
 		//this.cmpNroCuenta.disable();
 		Phx.vista.Cuenta.superclass.onButtonEdit.call(this);
 		
 		var nodo = this.sm.getSelectedNode(this.cmpTipoCuenta);           
 	        
-	    if(this.cmpTipoCuenta.getValue() =='patrimonio'){
+	  if(this.cmpTipoCuenta.getValue() =='patrimonio'){
 			this.mostrarComponente(this.cmpTipoCuentaPat);
 		} else{
 			this.ocultarComponente(this.cmpTipoCuentaPat);
 		}
 		
 		this.Cmp.id_config_subtipo_cuenta.store.baseParams.tipo_cuenta = this.cmpTipoCuenta.getValue();
-	    this.Cmp.id_config_subtipo_cuenta.modificado = true;
-		
-		
-		
+	  this.Cmp.id_config_subtipo_cuenta.modificado = true;
+
+		if (this.Cmp.sw_transaccional.getValue() !== 'movimiento') {
+			this.Cmp.afecta_iva.disabled = true;
+		} else {
+			this.Cmp.afecta_iva.disabled = false;
+		};		
 	},
 	
     onButtonNew:function(n){
@@ -646,7 +693,6 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 	        
 	        
 	        if(nodo && nodo.attributes.id!='id'){
-	        	console.log('nodos .... ',nodo, n)
 	        	//si no es el nodo raiz
 	        	this.cmpTipoCuenta.disable();
 	        	this.cmpTipoCuenta.setValue(this.getTipoCuentaPadre(nodo));
@@ -658,20 +704,19 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 	        	this.Cmp.valor_incremento.setValue(nodo.attributes.valor_incremento);
 	        	this.Cmp.eeff.setValue(nodo.attributes.eeff);
 	        	
-	        	
-	        	
+	        	this.Cmp.afecta_iva.setValue('no');
 	        	if(this.cmpTipoCuenta.getValue() =='patrimonio'){
-					this.mostrarComponente(this.cmpTipoCuentaPat);
-				} else{
-					this.ocultarComponente(this.cmpTipoCuentaPat);
-				}
+							this.mostrarComponente(this.cmpTipoCuentaPat);
+						} else{
+							this.ocultarComponente(this.cmpTipoCuentaPat);
+						}
 	        	
-	        	this.mostrarComponente(this.cmpDigito);
+	        	//this.mostrarComponente(this.cmpDigito);
 	        	this.cmpNroCuenta.setValue(nodo.attributes.nro_cuenta); 
 	        }
 	        else{
 	        	//si es el nodo raiz
-	        	this.ocultarComponente(this.cmpDigito);
+	        	//this.ocultarComponente(this.cmpDigito);
 	        	this.cmpTipoCuenta.enable();
 	        }
 	     }
@@ -696,10 +741,10 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
     	
     	 this.cmpTipoCuenta = this.getComponente('tipo_cuenta');
     	 this.cmpNroCuenta=this.getComponente('nro_cuenta');
-    	 this.cmpDigito =this.getComponente('digito');
-    	 this.cmpNombreCuenta=this.getComponente('nombre_cuenta')
-    	 this.cmpSwTransaccional=this.getComponente('sw_transaccional')
-    	 this.cmpTipoCuentaPat=this.getComponente('tipo_cuenta_pat')
+    	 //this.cmpDigito =this.getComponente('digito');
+    	 this.cmpNombreCuenta=this.getComponente('nombre_cuenta');
+    	 this.cmpSwTransaccional=this.getComponente('sw_transaccional');
+    	 this.cmpTipoCuentaPat=this.getComponente('tipo_cuenta_pat');
     	
 		 this.cmpTipoCuenta.on('beforeselect',function(combo,record,index){
 				
@@ -720,14 +765,24 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 			},this);
 			
 			
-			this.cmpDigito.on('change',function(field,n,o){
+/* 			this.cmpDigito.on('change',function(field,n,o){
 				
 				var nodo = this.sm.getSelectedNode(this.cmpTipoCuenta);
 				if(nodo){
 					this.cmpNroCuenta.setValue( nodo.attributes.nro_cuenta+'.'+n);
 				}
 				
-			},this);
+			},this); */
+
+			this.Cmp.sw_transaccional.on('select', function() {
+        if (this.Cmp.sw_transaccional.getValue() !== 'movimiento') {
+          this.Cmp.afecta_iva.reset();
+          this.Cmp.afecta_iva.setValue('no');
+					this.Cmp.afecta_iva.disabled = true;
+        } else {
+					this.Cmp.afecta_iva.disabled = false;
+        }
+      }, this);			
 		},
 		
 		

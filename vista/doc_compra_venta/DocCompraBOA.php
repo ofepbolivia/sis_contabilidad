@@ -14,7 +14,7 @@ header("content-type: text/javascript; charset=UTF-8");
 Phx.vista.DocCompraBOA = {
     
 	require: '../../../sis_contabilidad/vista/doc_compra_venta/DocCompraVenta.php',
-	ActList:'../../sis_contabilidad/control/DocCompraVenta/listarDocCompraCajero',
+	//ActList:'../../sis_contabilidad/control/DocCompraVenta/listarDocCompraCajero',
 	requireclase: 'Phx.vista.DocCompraVenta',
 	title: 'Libro de Compras',
 	nombreVista: 'DocCompra',
@@ -24,24 +24,24 @@ Phx.vista.DocCompraBOA = {
 	constructor: function(config) {		
 	    Phx.vista.DocCompraBOA.superclass.constructor.call(this,config);
     },
-    modificarAtributos: function(){
+/*     modificarAtributos: function(){
         	this.Atributos[this.getIndAtributo('estacion')].grid=true;
             this.Atributos[this.getIndAtributo('codigo_noiata')].grid=true;
             this.Atributos[this.getIndAtributo('nombre')].grid=true;
 
     },
-    
+ */    
     loadValoresIniciales: function() {
     	Phx.vista.DocCompraBOA.superclass.loadValoresIniciales.call(this);
         
         
    },
-   capturaFiltros:function(combo, record, index){
+/*    capturaFiltros:function(combo, record, index){
         this.store.baseParams.tipo = this.tipoDoc;
         this.store.baseParams.nombreVista = 'DocCompra';
         Phx.vista.DocCompraBOA.superclass.capturaFiltros.call(this,combo, record, index);
     },
-
+ */
     south:{
             url: '../../../sis_contabilidad/vista/historial_reg_compras/HistorialRegCompras.php',
             title: 'Historial Validación Compras',

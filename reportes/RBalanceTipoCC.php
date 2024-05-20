@@ -38,7 +38,7 @@ class RBalanceTipoCC extends  ReportePDF {
 		$this->SetFont('','BU',12);
 		
 		
-		$this->Cell(0,5,'ÁRBOL DE ÁNALISIS DE CENTROS DE COSTOS',0,1,'C');
+		$this->Cell(0,5,'ÁRBOL DE ANÁLISIS DE CENTROS DE COSTOS',0,1,'C');
 		
 		$this->SetFont('','BU',11);
 		if(isset($this->codigos) && $this->codigos !=''){

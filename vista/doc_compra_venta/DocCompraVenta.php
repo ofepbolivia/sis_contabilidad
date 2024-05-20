@@ -19,8 +19,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.initButtons = [this.cmbDepto, this.cmbGestion, this.cmbPeriodo];
             var me = this;
             this.Atributos = [
+
                 {
-                    //configuracion del componente
                     config: {
                         labelSeparator: '',
                         inputType: 'hidden',
@@ -30,7 +30,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: true
                 },
                 {
-                    //configuracion del componente
                     config: {
                         labelSeparator: '',
                         inputType: 'hidden',
@@ -40,7 +39,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: true
                 },
                 {
-                    //configuracion del componente
+                    
                     config: {
                         labelSeparator: '',
                         inputType: 'hidden',
@@ -52,7 +51,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: true
                 },
                 {
-                    //configuracion del componente
+                    
                     config: {
                         labelSeparator: '',
                         inputType: 'hidden',
@@ -64,7 +63,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: true
                 },
                 {
-                    //configuracion del componente
+                    
                     config: {
                         labelSeparator: '',
                         inputType: 'hidden',
@@ -76,7 +75,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: true
                 },
                 {
-                    //configuracion del componente
+                    
                     config: {
                         labelSeparator: '',
                         inputType: 'hidden',
@@ -87,8 +86,9 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'NumberField',
                     form: true
                 },
+ 
                 {
-                    //configuracion del componente
+                    
                     config: {
                         labelSeparator: '',
                         inputType: 'hidden',
@@ -100,7 +100,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: true
                 },
                 {
-                    //configuracion del componente
+                    
                     config: {
                         labelSeparator: '',
                         inputType: 'hidden',
@@ -142,6 +142,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     grid: true,
                     form: false
                 },
+
                 {
                     config: {
                         name: 'nit',
@@ -188,22 +189,23 @@ header("content-type: text/javascript; charset=UTF-8");
                     bottom_filter: true,
                     form: false
                 },
+
                 {
                     config: {
-                        name: 'nro_documento',
-                        fieldLabel: 'Nro Doc.',
+                        name: 'razon_social',
+                        fieldLabel: 'Razón Social',
                         allowBlank: false,
                         anchor: '80%',
                         gwidth: 100,
                         maxLength: 100
                     },
                     type: 'TextField',
-                    filters: {pfiltro: 'dcv.nro_documento', type: 'string'},
+                    filters: {pfiltro: 'dcv.razon_social', type: 'string'},
                     id_grupo: 0,
                     grid: true,
                     bottom_filter: true,
                     form: false
-                },
+                },                
                 {
                     config: {
                         name: 'nro_autorizacion',
@@ -249,6 +251,39 @@ header("content-type: text/javascript; charset=UTF-8");
                     bottom_filter: true,
                     form: false
                 },
+
+                {
+                    config: {
+                        name: 'nro_documento',
+                        fieldLabel: 'Nro Doc.',
+                        allowBlank: false,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 100
+                    },
+                    type: 'TextField',
+                    filters: {pfiltro: 'dcv.nro_documento', type: 'string'},
+                    id_grupo: 0,
+                    grid: true,
+                    bottom_filter: true,
+                    form: false
+                },
+                {
+                    config: {
+                        name: 'nro_dui',
+                        fieldLabel: 'DUI',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 16,
+                        minLength: 9
+                    },
+                    type: 'TextField',
+                    filters: {pfiltro: 'dcv.nro_dui', type: 'string'},
+                    id_grupo: 0,
+                    grid: true,
+                    form: false
+                },
                 {
                     config: {
                         name: 'fecha',
@@ -268,209 +303,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     grid: true,
                     form: false
                 },
-                {
-                    config: {
-                        name: 'fecha_vencimiento',
-                        fieldLabel: 'Fecha de Vencimiento de la Deuda',
-                        allowBlank: false,
-                        anchor: '80%',
-                        gwidth: 100,
-                        format: 'd/m/Y',
-                        readOnly: true,
-                        renderer: function (value, p, record) {
-                            return value ? value.dateFormat('d/m/Y') : ''
-                        }
-                    },
-                    type: 'DateField',
-                    filters: {pfiltro: 'dcv.fecha_vencimiento', type: 'date'},
-                    id_grupo: 0,
-                    grid: true,
-                    form: true
-                },
-                {
-                    config: {
-                        name: 'razon_social',
-                        fieldLabel: 'Razón Social',
-                        allowBlank: false,
-                        //maskRe: /[A-Za-z0-9 ]/,
-                        //fieldStyle: 'text-transform:uppercase',
-                        style: 'text-transform:uppercase;',
-                        listeners: {
-                            'change': function (field, newValue, oldValue) {
-                                console.log('keyup ...  ')
-                                field.suspendEvents(true);
-                                field.setValue(newValue.toUpperCase());
-                                field.resumeEvents(true);
-                            }
-                        },
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 180
-                    },
-                    type: 'TextField',
-                    filters: {pfiltro: 'dcv.razon_social', type: 'string'},
-                    id_grupo: 0,
-                    grid: true,
-                    bottom_filter: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'codigo_control',
-                        fieldLabel: 'Código de Control',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 200
-                    },
-                    type: 'TextField',
-                    filters: {pfiltro: 'dcv.codigo_control', type: 'string'},
-                    id_grupo: 0,
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'importe_doc',
-                        fieldLabel: 'Monto',
-                        allowBlank: false,
-                        anchor: '80%',
-                        gwidth: 80,
-                        galign: 'right ',
-                        maxLength: 1179650,
-                        renderer: function (value, p, record) {
-                            if (record.data.tipo_reg != 'summary') {
-                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                            else {
-                                Ext.util.Format.usMoney
-                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                        }
-                    },
-                    type: 'NumberField',
-                    filters: {pfiltro: 'dcv.importe_doc', type: 'numeric'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'importe_excento',
-                        fieldLabel: 'Exento',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        galign: 'right ',
-                        renderer: function (value, p, record) {
-                            if (record.data.tipo_reg != 'summary') {
-                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                            else {
-                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                        }
-                    },
-                    type: 'NumberField',
-                    filters: {pfiltro: 'dcv.importe_excento', type: 'numeric'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'importe_descuento',
-                        fieldLabel: 'Descuento',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        galign: 'right ',
-                        renderer: function (value, p, record) {
-                            if (record.data.tipo_reg != 'summary') {
-                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                            else {
-                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                        }
-                    },
-                    type: 'NumberField',
-                    filters: {pfiltro: 'dcv.importe_descuento', type: 'numeric'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'importe_neto',
-                        fieldLabel: 'Importe c/d',
-                        allowBlank: false,
-                        anchor: '80%',
-                        gwidth: 100,
-                        galign: 'right ',
-                        maxLength: 1179650,
-                        renderer: function (value, p, record) {
-                            if (record.data.tipo_reg != 'summary') {
-                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                            else {
-                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                        }
-                    },
-                    type: 'NumberField',
-                    filters: {pfiltro: 'dcv.importe_doc', type: 'numeric'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'importe_aux_neto',
-                        fieldLabel: 'Neto',
-                        allowBlank: false,
-                        anchor: '80%',
-                        gwidth: 100,
-                        galign: 'right ',
-                        maxLength: 1179650,
-                        renderer: function (value, p, record) {
-                            if (record.data.tipo_reg != 'summary') {
-                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                            else {
-                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                        }
-                    },
-                    type: 'NumberField',
-                    id_grupo: 1,
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'importe_iva',
-                        fieldLabel: 'IVA',
-                        allowBlank: true,
-                        readOnly: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        galign: 'right ',
-                        renderer: function (value, p, record) {
-                            if (record.data.tipo_reg != 'summary') {
-                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                            else {
-                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                        }
-                    },
-                    type: 'NumberField',
-                    filters: {pfiltro: 'dcv.importe_iva', type: 'numeric'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: false
-                },
+
                 {
                     config: {
                         name: 'importe_pago_liquido',
@@ -498,6 +331,30 @@ header("content-type: text/javascript; charset=UTF-8");
 
                 {
                     config: {
+                        name: 'importe_ice',
+                        fieldLabel: 'ICE',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        galign: 'right ',
+                        renderer: function (value, p, record) {
+                            if (record.data.tipo_reg != 'summary') {
+                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                            else {
+                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                        }
+                    },
+                    type: 'NumberField',
+                    filters: {pfiltro: 'dcv.importe_ice', type: 'numeric'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false
+                },                
+
+                {
+                    config: {
                         name: 'importe_iehd',
                         fieldLabel: 'importe IEHD',
                         allowBlank: false,
@@ -520,7 +377,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 1,
                     grid: true,
                     form: false
-                },
+                },                
+
                 {
                     config: {
                         name: 'importe_ipj',
@@ -546,6 +404,54 @@ header("content-type: text/javascript; charset=UTF-8");
                     grid: true,
                     form: false
                 },
+
+
+                {
+                    config: {
+                        name: 'fecha_vencimiento',
+                        fieldLabel: 'Fecha de Vencimiento de la Deuda',
+                        allowBlank: false,
+                        anchor: '80%',
+                        gwidth: 100,
+                        format: 'd/m/Y',
+                        readOnly: true,
+                        renderer: function (value, p, record) {
+                            return value ? value.dateFormat('d/m/Y') : ''
+                        }
+                    },
+                    type: 'DateField',
+                    filters: {pfiltro: 'dcv.fecha_vencimiento', type: 'date'},
+                    id_grupo: 0,
+                    grid: true,
+                    form: true
+                },
+
+                {
+                    config: {
+                        name: 'importe_doc',
+                        fieldLabel: 'Monto',
+                        allowBlank: false,
+                        anchor: '80%',
+                        gwidth: 80,
+                        galign: 'right ',
+                        maxLength: 1179650,
+                        renderer: function (value, p, record) {
+                            if (record.data.tipo_reg != 'summary') {
+                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                            else {
+                                Ext.util.Format.usMoney
+                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                        }
+                    },
+                    type: 'NumberField',
+                    filters: {pfiltro: 'dcv.importe_doc', type: 'numeric'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false
+                },
+
                 {
                     config: {
                         name: 'importe_tasas',
@@ -570,32 +476,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 1,
                     grid: true,
                     form: false
-                },
-                {
-                    config: {
-                        name: 'importe_gift_card',
-                        fieldLabel: 'Importe Gift Card',
-                        allowBlank: false,
-                        anchor: '80%',
-                        gwidth: 80,
-                        galign: 'right ',
-                        maxLength: 1179650,
-                        renderer: function (value, p, record) {
-                            if (record.data.tipo_reg != 'summary') {
-                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                            else {
-                                Ext.util.Format.usMoney
-                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                        }
-                    },
-                    type: 'NumberField',
-                    filters: {pfiltro: 'dcv.importe_gift_card', type: 'numeric'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: false
-                },
+                },           
+                
                 {
                     config: {
                         name: 'otro_no_sujeto_credito_fiscal',
@@ -620,7 +502,31 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 1,
                     grid: true,
                     form: false
+                },                
+                {
+                    config: {
+                        name: 'importe_excento',
+                        fieldLabel: 'Exento',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        galign: 'right ',
+                        renderer: function (value, p, record) {
+                            if (record.data.tipo_reg != 'summary') {
+                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                            else {
+                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                        }
+                    },
+                    type: 'NumberField',
+                    filters: {pfiltro: 'dcv.importe_excento', type: 'numeric'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false
                 },
+
                 {
                     config: {
                         name: 'importe_compras_gravadas_tasa_cero',
@@ -649,304 +555,20 @@ header("content-type: text/javascript; charset=UTF-8");
 
                 {
                     config: {
-                        name: 'id_plantilla',
-                        fieldLabel: 'Tipo Documento',
-                        allowBlank: false,
-                        emptyText: 'Elija una plantilla...',
-                        store: new Ext.data.JsonStore(
-                            {
-                                url: '../../sis_parametros/control/Plantilla/listarPlantilla',
-                                id: 'id_plantilla',
-                                root: 'datos',
-                                sortInfo: {
-                                    field: 'desc_plantilla',
-                                    direction: 'ASC'
-                                },
-                                totalProperty: 'total',
-                                fields: ['id_plantilla', 'nro_linea', 'desc_plantilla', 'tipo',
-                                    'sw_tesoro', 'sw_compro', 'sw_monto_excento', 'sw_descuento',
-                                    'sw_autorizacion', 'sw_codigo_control', 'tipo_plantilla', 'sw_nro_dui', 'sw_ice'],
-                                remoteSort: true,
-                                baseParams: {par_filtro: 'plt.desc_plantilla', sw_compro: 'si', sw_tesoro: 'si'}
-                            }),
-                        tpl: '<tpl for="."><div class="x-combo-list-item"><p>{desc_plantilla}</p></div></tpl>',
-                        valueField: 'id_plantilla',
-                        hiddenValue: 'id_plantilla',
-                        displayField: 'desc_plantilla',
-                        gdisplayField: 'desc_plantilla',
-                        listWidth: '280',
-                        forceSelection: true,
-                        typeAhead: false,
-                        triggerAction: 'all',
-                        lazyRender: true,
-                        mode: 'remote',
-                        pageSize: 20,
-                        queryDelay: 500,
-                        gwidth: 250,
-                        minChars: 2,
-                        renderer: function (value, p, record) {
-                            var color = 'black';
-                            if (record.data.tabla_origen != 'ninguno') {
-                                color = 'blue';
-                            }
-                            return String.format("<b><font color='{0}'>{1}</font></b>", color, record.data['desc_plantilla']);
-                        }
-                    },
-                    type: 'ComboBox',
-                    filters: {pfiltro: 'pla.desc_plantilla', type: 'string'},
-                    id_grupo: 0,
-                    grid: true,
-                    bottom_filter: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'id_tipo_doc_compra_venta',
-                        fieldLabel: (me.tipoDoc == 'compra') ? 'Tipo Compra' : 'Estado',
-                        allowBlank: false,
-                        emptyText: 'tipo...',
-                        store: new Ext.data.JsonStore({
-                            url: '../../sis_contabilidad/control/TipoDocCompraVenta/listarTipoDocCompraVenta',
-                            id: 'id_tipo_doc_compra_venta',
-                            root: 'datos',
-                            sortInfo: {
-                                field: 'id_tipo_doc_compra_venta',
-                                direction: 'ASC'
-                            },
-                            totalProperty: 'total',
-                            fields: ['id_tipo_doc_compra_venta', 'codigo', 'nombre', 'obs', 'tipo'],
-                            remoteSort: true,
-                            baseParams: {par_filtro: 'nombre', tipo: me.tipoDoc}
-                        }),
-                        tpl: '<tpl for="."><div class="x-combo-list-item"><p>{codigo} - {nombre}</p></div></tpl>',
-                        valueField: 'id_tipo_doc_compra_venta',
-                        hiddenName: 'id_tipo_doc_compra_venta',
-                        editable: false,
-                        displayField: 'nombre',
-                        gdisplayField: 'desc_tipo_doc_compra_venta',
-                        listWidth: '280',
-                        forceSelection: true,
-                        typeAhead: false,
-                        triggerAction: 'all',
-                        lazyRender: true,
-                        mode: 'remote',
-                        pageSize: 20,
-                        queryDelay: 500,
-                        gwidth: (me.tipoDoc == 'compra') ? 250 : 100,
-                        minChars: 2,
-                        renderer: function (value, p, record) {
-                            return String.format('{0}', record.data['desc_tipo_doc_compra_venta']);
-                        }
-                    },
-                    type: 'ComboBox',
-                    filters: {pfiltro: 'tdcv.nombre', type: 'string'},
-                    id_grupo: 1,
-                    egrid: true,
-                    grid: true,
-                    bottom_filter: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'desc_comprobante',
-                        fieldLabel: 'Cbte',
-                        allowBlank: false,
-                        gwidth: 100
-                    },
-                    type: 'Field',
-                    filters: {pfiltro: 'ic.id_int_comprobante#ic.nro_cbte', type: 'string'},
-                    id_grupo: 0,
-                    grid: true,
-                    //bottom_filter: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'c31',
-                        fieldLabel: 'C31-SIGEP',
+                        name: 'subtotal',
+                        fieldLabel: 'SubTotal',
                         allowBlank: false,
                         anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 100
-                    },
-                    type: 'TextField',
-                    id_grupo: 0,
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'id_int_comprobante',
-                        fieldLabel: 'Id Int Comprobante',
-                        allowBlank: false,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 100
-                    },
-                    type: 'TextField',
-                    id_grupo: 0,
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'nro_tramite',
-                        fieldLabel: 'Nro Trámite',
-                        allowBlank: false,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 100
-                    },
-                    type: 'TextField',
-                    filters: {pfiltro: 'ic.nro_tramite', type: 'string'},
-                    id_grupo: 0,
-                    grid: true,
-                    bottom_filter: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'id_moneda',
-                        origen: 'MONEDA',
-                        allowBlank: false,
-                        fieldLabel: 'Moneda',
-                        gdisplayField: 'desc_moneda',//mapea al store del grid
-                        gwidth: 70,
-                        width: 250,
-                        renderer: function (value, p, record) {
-                            return String.format('{0}', record.data['desc_moneda']);
-                        }
-                    },
-                    type: 'ComboRec',
-                    id_grupo: 0,
-                    filters: {
-                        pfiltro: 'incbte.desc_moneda',
-                        type: 'string'
-                    },
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'dia',
-                        fieldLabel: 'Día',
-                        allowBlank: true,
-                        allowNEgative: false,
-                        allowDecimal: false,
-                        maxValue: 31,
-                        minValue: 1,
-                        width: 40,
-                        gwidth: 100
+                        gwidth: 80,
+                        galign: 'right',
                     },
                     type: 'NumberField',
-                    id_grupo: 0,
-                    grid: false,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'nro_dui',
-                        fieldLabel: 'DUI',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 16,
-                        minLength: 9
-                    },
-                    type: 'TextField',
-                    filters: {pfiltro: 'dcv.nro_dui', type: 'string'},
-                    id_grupo: 0,
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'obs',
-                        fieldLabel: 'Observaciones',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 400
-                    },
-                    type: 'TextArea',
-                    filters: {pfiltro: 'dcv.obs', type: 'string'},
-                    id_grupo: 0,
-                    grid: true,
-                    bottom_filter: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'importe_pendiente',
-                        fieldLabel: 'Cuenta Pendiente',
-                        qtip: 'Usualmente una cuenta pendiente de  cobrar o  pagar (dependiendo si es compra o venta), posterior a la emisión del documento',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        galign: 'right ',
-                        renderer: function (value, p, record) {
-                            if (record.data.tipo_reg != 'summary') {
-                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                            else {
-                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                        }
-                    },
-                    type: 'NumberField',
-                    filters: {pfiltro: 'dcv.importe_pendiente', type: 'numeric'},
+                    filters: {pfiltro: 'dcv.subtotal', type: 'numeric'},
                     id_grupo: 1,
                     grid: true,
                     form: false
                 },
-                {
-                    config: {
-                        name: 'importe_anticipo',
-                        fieldLabel: 'Anticipo',
-                        qtip: 'Importe pagado por anticipado al documento',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        galign: 'right ',
-                        renderer: function (value, p, record) {
-                            if (record.data.tipo_reg != 'summary') {
-                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                            else {
-                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                        }
-                    },
-                    type: 'NumberField',
-                    filters: {pfiltro: 'dcv.importe_anticipo', type: 'numeric'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'importe_retgar',
-                        fieldLabel: 'Ret. Garantía',
-                        qtip: 'Importe retenido por garantia',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        galign: 'right ',
-                        renderer: function (value, p, record) {
-                            if (record.data.tipo_reg != 'summary') {
-                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                            else {
-                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                        }
-                    },
-                    type: 'NumberField',
-                    filters: {pfiltro: 'dcv.importe_retgar', type: 'numeric'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: false
-                },
+
                 {
                     config: {
                         name: 'importe_descuento_ley',
@@ -970,12 +592,66 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_grupo: 1,
                     grid: true,
                     form: false
-                },
+                },                
+
                 {
                     config: {
-                        name: 'importe_ice',
-                        fieldLabel: 'ICE',
+                        name: 'importe_gift_card',
+                        fieldLabel: 'Importe Gift Card',
+                        allowBlank: false,
+                        anchor: '80%',
+                        gwidth: 80,
+                        galign: 'right ',
+                        maxLength: 1179650,
+                        renderer: function (value, p, record) {
+                            if (record.data.tipo_reg != 'summary') {
+                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                            else {
+                                Ext.util.Format.usMoney
+                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                        }
+                    },
+                    type: 'NumberField',
+                    filters: {pfiltro: 'dcv.importe_gift_card', type: 'numeric'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false
+                },
+
+
+                {
+                    config: {
+                        name: 'importe_neto',
+                        fieldLabel: 'Importe c/d',
+                        allowBlank: false,
+                        anchor: '80%',
+                        gwidth: 100,
+                        galign: 'right ',
+                        maxLength: 1179650,
+                        renderer: function (value, p, record) {
+                            if (record.data.tipo_reg != 'summary') {
+                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                            else {
+                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
+                            }
+                        }
+                    },
+                    type: 'NumberField',
+                    filters: {pfiltro: 'dcv.importe_doc', type: 'numeric'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: false
+                },                
+
+                {
+                    config: {
+                        name: 'importe_iva',
+                        fieldLabel: 'IVA',
                         allowBlank: true,
+                        readOnly: true,
                         anchor: '80%',
                         gwidth: 100,
                         galign: 'right ',
@@ -989,32 +665,68 @@ header("content-type: text/javascript; charset=UTF-8");
                         }
                     },
                     type: 'NumberField',
-                    filters: {pfiltro: 'dcv.importe_ice', type: 'numeric'},
+                    filters: {pfiltro: 'dcv.importe_iva', type: 'numeric'},
                     id_grupo: 1,
+                    grid: true,
+                    form: false
+                },
+
+                {
+                    config: {
+                        name: 'codigo_control',
+                        fieldLabel: 'Código de Control',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 200
+                    },
+                    type: 'TextField',
+                    filters: {pfiltro: 'dcv.codigo_control', type: 'string'},
+                    id_grupo: 0,
+                    grid: true,
+                    form: false
+                },
+
+  
+                {
+                    config: {
+                        name: 'c31',
+                        fieldLabel: 'C31-SIGEP',
+                        allowBlank: false,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 100
+                    },
+                    type: 'TextField',
+                    id_grupo: 0,
                     grid: true,
                     form: false
                 },
                 {
                     config: {
-                        name: 'importe_it',
-                        fieldLabel: 'IT',
+                        name: 'id_int_comprobante',
+                        fieldLabel: 'Id Int Comprobante',
                         allowBlank: true,
                         anchor: '80%',
-                        readOnly: true,
                         gwidth: 100,
-                        galign: 'right ',
-                        renderer: function (value, p, record) {
-                            if (record.data.tipo_reg != 'summary') {
-                                return String.format('{0}', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                            else {
-                                return String.format('<b><font size=2 >{0}</font><b>', Ext.util.Format.number(value, '0,000.00'));
-                            }
-                        }
+                        maxLength: 100
                     },
-                    type: 'NumberField',
-                    filters: {pfiltro: 'dcv.importe_it', type: 'numeric'},
-                    id_grupo: 1,
+                    type: 'TextField',
+                    id_grupo: 0,
+                    grid: true,
+                    form: false
+                },
+                {
+                    config: {
+                        name: 'id_int_transaccion',
+                        fieldLabel: 'Id Transaccion',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 100
+                    },
+                    type: 'TextField',
+                    id_grupo: 0,
                     grid: true,
                     form: false
                 },
@@ -1033,221 +745,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     grid: true,
                     form: false
                 },
-                {
-                    config: {
-                        name: 'sw_contabilizar',
-                        fieldLabel: 'Contabilizar',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 3
-                    },
-                    type: 'TextField',
-                    filters: {pfiltro: 'dcv.sw_contabilizar', type: 'string'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'nombre_auxiliar',
-                        fieldLabel: 'Cuenta Corriente',
-                        allowBlank: false,
-                        anchor: '80%',
-                        gwidth: 150,
-                        maxLength: 180,
-                        renderer: function (value, p, record) {
-                            if (value) {
-                                return String.format('({0}) - {1}', record.data.codigo_auxiliar, record.data.nombre_auxiliar);
-                            }
-                        }
-                    },
-                    type: 'TextField',
-                    filters: {pfiltro: 'aux.codigo_auxiliar#aux.nombre_auxiliar', type: 'string'},
-                    id_grupo: 0,
-                    grid: true,
-                    bottom_filter: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'estacion',
-                        fieldLabel: 'Estación',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 16,
-                        minLength: 16
-                    },
-                    type: 'TextField',
-                    filters: {pfiltro: 'dcv.estacion', type: 'string'},
-                    id_grupo: 0,
-                    grid: false,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'nombre',
-                        fieldLabel: 'IATA/No IATA',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 200,
-                        maxLength: 16,
-                        minLength: 16
-                    },
-                    type: 'TextField',
-                    // filters:{pfiltro:'pv.nombre',type:'string'},
-                    filters: {pfiltro: 'ob.nombre', type: 'string'},
-                    id_grupo: 0,
-                    bottom_filter: true,
-                    grid: false,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'codigo_noiata',
-                        fieldLabel: 'Cod NO IATA',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 16,
-                        minLength: 16
-                    },
-                    type: 'TextField',
-                    filters: {pfiltro: 'age.codigo_noiata', type: 'string'},
-                    id_grupo: 0,
-                    grid: false,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'codigo_int',
-                        fieldLabel: 'OficceId',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 16,
-                        minLength: 16
-                    },
-                    type: 'TextField',
-                    filters: {pfiltro: 'ob.codigo_int', type: 'string'},
-                    id_grupo: 0,
-                    bottom_filter: true,
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'estado_reg',
-                        fieldLabel: 'Estado Reg.',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 10
-                    },
-                    type: 'TextField',
-                    filters: {pfiltro: 'dcv.estado_reg', type: 'string'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'usr_reg',
-                        fieldLabel: 'Creado por',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 4
-                    },
-                    type: 'Field',
-                    filters: {pfiltro: 'usu1.cuenta', type: 'string'},
-                    id_grupo: 1,
-                    bottom_filter: true,
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'fecha_reg',
-                        fieldLabel: 'Fecha creación',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        format: 'd/m/Y',
-                        renderer: function (value, p, record) {
-                            return value ? value.dateFormat('d/m/Y H:i:s') : ''
-                        }
-                    },
-                    type: 'DateField',
-                    filters: {pfiltro: 'dcv.fecha_reg', type: 'date'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'id_usuario_ai',
-                        fieldLabel: '',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 4
-                    },
-                    type: 'Field',
-                    filters: {pfiltro: 'dcv.id_usuario_ai', type: 'numeric'},
-                    id_grupo: 1,
-                    grid: false,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'usr_mod',
-                        fieldLabel: 'Modificado por',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 4
-                    },
-                    type: 'Field',
-                    filters: {pfiltro: 'usu2.cuenta', type: 'string'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'fecha_mod',
-                        fieldLabel: 'Fecha Modif.',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        format: 'd/m/Y',
-                        renderer: function (value, p, record) {
-                            return value ? value.dateFormat('d/m/Y H:i:s') : ''
-                        }
-                    },
-                    type: 'DateField',
-                    filters: {pfiltro: 'dcv.fecha_mod', type: 'date'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: false
-                },
-                {
-                    config: {
-                        name: 'usuario_ai',
-                        fieldLabel: 'Funcionaro AI',
-                        allowBlank: true,
-                        anchor: '80%',
-                        gwidth: 100,
-                        maxLength: 300
-                    },
-                    type: 'TextField',
-                    filters: {pfiltro: 'dcv.usuario_ai', type: 'string'},
-                    id_grupo: 1,
-                    grid: true,
-                    form: false
-                }
             ],
                 //Esta funcion se sobre carga para la version de BOA
                 this.modificarAtributos();
@@ -1295,6 +792,13 @@ header("content-type: text/javascript; charset=UTF-8");
                     tooltip: '<b>Exportar</b><br/>Exporta a archivo TXT para LCV'
                 }
             );
+			this.addButton('btnImportarXlsSIN', {
+					text : 'Importar SIN',
+					iconCls : 'bgear',
+					disabled : false,
+					handler : this.importarXlsSIN,
+					tooltip : '<b>Archivo Servicio de Impuestos</b><br/>Seleccione un archivo que haya descargado de Impuestos Nacionales.'
+			});			            
             //this.iniciarEventos();
             this.init();
             this.grid.addListener('cellclick', this.oncellclick, this);
@@ -1500,7 +1004,7 @@ header("content-type: text/javascript; charset=UTF-8");
             'importe_descuento_ley', 'importe_aux_neto',
             'importe_pago_liquido', 'nro_dui', 'id_moneda', 'desc_moneda',
             'desc_tipo_doc_compra_venta', 'id_tipo_doc_compra_venta', 'nro_tramite',
-            'desc_comprobante', 'id_int_comprobante', 'id_auxiliar', 'codigo_auxiliar', 'nombre_auxiliar', 'tipo_reg',
+            'desc_comprobante', 'id_int_comprobante','id_int_transaccion', 'id_auxiliar', 'codigo_auxiliar', 'nombre_auxiliar', 'tipo_reg',
             'estacion', 'id_punto_venta', 'nombre', 'id_agencia', 'codigo_noiata', 'codigo_int', 'c31',
             {name: 'fecha_vencimiento', type: 'date', dateFormat: 'Y-m-d'}, 'tipo_cambio',
             {name: 'importe_iehd', type: 'numeric'},
@@ -1531,7 +1035,6 @@ header("content-type: text/javascript; charset=UTF-8");
         formTitulo: 'Registro de Documento Compra',
         abrirFormulario: function (tipo, record) {
             var me = this;
-            console.log(' me.regitrarDetalle', me.regitrarDetalle)
             me.objSolForm = Phx.CP.loadWindows('../../../sis_contabilidad/vista/doc_compra_venta/FormCompraVenta.php',
                 me.formTitulo,
                 {
@@ -1704,6 +1207,17 @@ header("content-type: text/javascript; charset=UTF-8");
                 nomRep = Phx.CP.CRIPT.Encriptar(nomRep);
             }
             window.open('../../../reportes_generados/' + nomRep + '?t=' + new Date().toLocaleTimeString())
-        }
+        },
+        importarXlsSIN: function () {
+            //var rec = this.sm.getSelected();
+            Phx.CP.loadWindows('../../../sis_contabilidad/vista/archivo_airbp/FormArchivoAIRBP.php',
+                'Subir Archivo',
+                {
+                    modal: true,
+                    width: 450,
+                    height: 200
+                }, { codigo: 'XLSSIN' }, this.idContenedor, 'FormArchivoAIRBP')
+        },
+
     })
 </script>

@@ -20,8 +20,9 @@ header("content-type: text/javascript; charset=UTF-8");
             Phx.vista.DocCompraVentaCbte.superclass.constructor.call(this,config);
 
             this.disparador = this.maestro.disparador == undefined ? 'contabilidad' : this.maestro.disparador;
-
+            console.log('on construct compo vent doc ', config.id_int_transaccion);
             this.init();
+            this.grid.addListener('cellclick', this.oncellclick, this);
             this.addButton('btnShowDoc',
                 {
                     text: 'Ver Detalle',
@@ -69,16 +70,13 @@ header("content-type: text/javascript; charset=UTF-8");
                     tooltip: 'Permite relacionar un documento existente al Cbte desde Getiones Posteriores'
                 }
             );
-            console.log('maestrom', this.maestro, this.disparador);
             if (this.maestro.disparador == 'obligacion') {
-                console.log('maestro1', this.maestro.disparador);
                 this.store.baseParams = {id_plan_pago: this.id_plan_pago};
                 // this.store.baseParams = { id_int_comprobante: this.id_int_comprobante };
             } else {
-                console.log('maestro2', this.maestro.disparador);
-                this.store.baseParams = {id_int_comprobante: this.id_int_comprobante};
+                this.store.baseParams = {id_int_comprobante: this.id_int_comprobante,
+                    id_int_transaccion: config.id_int_transaccion};
             }
-            console.log('maestro22222', this.maestro, this.disparador);
             this.load({params:{start:0, limit:this.tam_pag}});
         },
 
@@ -175,27 +173,56 @@ header("content-type: text/javascript; charset=UTF-8");
                 type: 'Field',
                 form: true
             },
-
+            {
+                config: {
+                    labelSeparator: '',
+                    fieldLabel: 'XXXXXX',
+                    name: 'id_int_transaccion'
+                },
+                type: 'Field',
+                grid: true,
+                form: true
+            },
+            {
+                config: {
+                    labelSeparator: '',
+                    fieldLabel: 'RRRRRR',
+                    name: 'revisado',
+                    id:"revisadoctrl"
+                },
+                type: 'Field',
+                grid: true,
+                form: true
+            },
 
             {
                 config:{
-                    name: 'revisado',
+                    name: 'revisado1',
                     fieldLabel: 'Revisado',
                     allowBlank: true,
-                    anchor: '80%',
+                    anchor: '100%',
                     gwidth: 100,
                     maxLength:3,
-                    renderer: function (value, p, record, rowIndex, colIndex){
-
-                        //check or un check row
-                        var checked = '',
-                            momento = 'no';
-                        if(value == 'si'){
-                            checked = 'checked';;
-                        }
-                        return  String.format('<div style="vertical-align:middle;text-align:center;"><input style="height:37px;width:37px;" type="checkbox"  {0}  disabled></div>',checked);
-
-                    }
+                    renderer: function(value, p, record, rowIndex, colIndex) {
+                            //check or un check row
+                            var checked = '',
+                                state = '',
+                                momento = 'no';
+                            
+                            
+                            console.log('asdf 0> ', value, record.data.nro_autorizacion, record.data.revisado)
+                            if (record.data.id_int_transaccion && record.data.id_int_transaccion > 0) {
+                                checked = 'checked'
+                            }
+                            //return String.format('<div style="vertical-align:middle;text-align:center;"><input style="height:37px;width:37px;" type="radio"  {0} {1}></div>', checked, state);
+                            if (record.data.id_int_transaccion && record.data.id_int_transaccion > 0) {
+                                record.data.xxxwww = 'si';
+                                return String.format('<div style="vertical-align:middle;text-align:center;"><input type="button" value="Quitar"/></div>', checked, state);                                
+                            }else {
+                                record.data.xxxwww = 'no';
+                                return String.format('<div style="vertical-align:middle;text-align:center;"><input type="button" value="Vincular"/></div>', checked, state);                                   
+                            }
+                        }                    
                 },
                 type: 'TextField',
                 filters: { pfiltro:'dcv.revisado',type:'string'},
@@ -203,7 +230,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid: true,
                 form: false
             },
-
             {
                 config:{
                     name: 'desc_plantilla',
@@ -219,7 +245,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 bottom_filter: true,
                 form: false
             },
-
             {
                 config:{
                     name:'desc_moneda',
@@ -762,7 +787,9 @@ header("content-type: text/javascript; charset=UTF-8");
             {name:'importe_gift_card', type: 'numeric'},
             {name:'otro_no_sujeto_credito_fiscal', type: 'numeric'},
             {name:'importe_compras_gravadas_tasa_cero', type: 'numeric'},            
-
+            {name:'importe_neto', type: 'numeric'},
+            {name:'id_int_comprobante', type: 'numeric'},
+            {name:'id_int_transaccion', type: 'numeric'},            
         ],
         sortInfo:{
             field: 'id_doc_compra_venta',
@@ -805,15 +832,46 @@ header("content-type: text/javascript; charset=UTF-8");
                     scope:this
                 });
         },
-
-
-
-
+        oncellclick: function (grid, rowIndex, columnIndex, e) {
+            var record = this.store.getAt(rowIndex),
+                fieldName = grid.getColumnModel().getDataIndex(columnIndex); // Get field name
+                console.log('asdf asdssssssssssssssss')
+                this.cambiarRevision(record);                
+            /* if (fieldName == 'revisado') {
+                value= record.data[fieldName],
+                console.log('im in clic [', record.data.revisado, record.data.xxxwww, '] valu', value)                
+                //if (record.data.tipo_reg != 'summary' || record.data.tipo_reg == 'summary') {
+                if (record.data.id_int_transaccion && record.data.id_int_transaccion > 0) {
+                    this.cambiarRevision(record);
+                }
+            } */
+        },
+        cambiarRevision: function (record) {
+            Phx.CP.loadingShow();
+            var d = record.data
+            // whf
+            console.log('before closed')
+            this.close({respuesta:'seeeeeeeeeeee'})
+/*             Ext.Ajax.request({
+                url: '../../sis_contabilidad/control/DocCompraVenta/agregarCbteDoc',                
+                params: {
+                    id_doc_compra_venta: d.id_doc_compra_venta,
+                    id_int_comprobante: this.store.baseParams.id_int_comprobante,
+                    id_int_transaccion: record.data.id_int_transaccion
+                },
+                //success: this.successRevision,
+                success : function(resp){
+                        Phx.CP.loadingHide();
+                        //this.reload()
+                },
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope: this
+            }); */
+        },
 
         agregarArgsExtraSubmit: function() {
-
             this.argumentExtraSubmit = { id_int_comprobante: this.id_int_comprobante , id_plan_pago: this.id_plan_pago};
-
         },
 
         onButtonNew:function(){

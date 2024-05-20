@@ -143,7 +143,7 @@ Phx.vista.FormFiltroBalanceOrdenes=Ext.extend(Phx.frmInterfaz,{
 			 name: 'id_ordenes_trabajos',
              fieldLabel: 'Orden de Costo',
              allowBlank: true,
-			 tip:'Puede escoger uan rama especifica para reportar',
+			 tip:'Puede escoger una rama especifica para reportar',
 			 tinit:false,
 			 tasignacion:true,
 			 resizable:true,            
@@ -160,7 +160,7 @@ Phx.vista.FormFiltroBalanceOrdenes=Ext.extend(Phx.frmInterfaz,{
                             totalProperty: 'total',
                             fields: ['id_orden_trabajo','motivo_orden','desc_orden','motivo_orden','codigo','tipo'],
                             remoteSort: true,
-                            baseParams:{par_filtro:'desc_orden#motivo_orden'}
+                            baseParams:{par_filtro:'desc_orden#motivo_orden', es_transaccional:'#'}
                     }),
                valueField: 'id_orden_trabajo',
                displayField: 'desc_orden',
@@ -169,7 +169,7 @@ Phx.vista.FormFiltroBalanceOrdenes=Ext.extend(Phx.frmInterfaz,{
                forceSelection:true,
                typeAhead: false,
                triggerAction: 'all',
-                listWidth:350,
+               listWidth:350,
                lazyRender:true,
                mode:'remote',
                pageSize:10,

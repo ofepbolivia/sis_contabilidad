@@ -13,7 +13,9 @@ require_once(dirname(__FILE__) . '/../reportes/RResultados.php');
 require_once(dirname(__FILE__) . '/../../pxp/pxpReport/DataSource.php');
 require_once(dirname(__FILE__) . '/../reportes/RResultadosXls.php');
 require_once(dirname(__FILE__) . '/../reportes/RBalanceOrdenes.php');
+require_once(dirname(__FILE__) . '/../reportes/RBalanceOrdenesCostosDI.php');
 require_once(dirname(__FILE__) . '/../reportes/RBalanceTipoCC.php');
+require_once(dirname(__FILE__) . '/../reportes/RBalanceTipoCCostosDI.php');
 require_once(dirname(__FILE__) . '/../reportes/RBalanceTipoCcXls.php');
 require_once(dirname(__FILE__) . '/../reportes/RBalanceGeneralAPSXls.php');
 require_once('../../lib/lib_control/ACTConexionOFEP.php');
@@ -465,8 +467,7 @@ class ACTCuenta extends ACTbase
 
     function reporteBalanceOrdenes()
     {
-
-        $nombreArchivo = uniqid(md5(session_id()) . 'Ordesnes') . '.pdf';
+        $nombreArchivo = uniqid(md5(session_id()) . 'Ordenes') . '.pdf';
         $dataSource = $this->recuperarDatosBalanceOrdenes();
 
         //parametros basicos
@@ -480,8 +481,8 @@ class ACTCuenta extends ACTbase
         $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
         //Instancia la clase de pdf
 
-        $reporte = new RBalanceOrdenes($this->objParam);
-        $reporte->datosHeader($dataSource, $this->objParam->getParametro('nivel'), $this->objParam->getParametro('desde'), $this->objParam->getParametro('hasta'), $this->objParam->getParametro('codigos'), $this->objParam->getParametro('tipo_balance'), $this->objParam->getParametro('incluir_cierre'));
+        $reporte = new RBalanceOrdenesCostosDI($this->objParam);
+        $reporte->datosHeader($dataSource, $this->objParam->getParametro('nivel'), $this->objParam->getParametro('desde'), $this->objParam->getParametro('hasta'), $this->objParam->getParametro('codigos'), $this->objParam->getParametro('es_transaccional'), $this->objParam->getParametro('incluir_cierre'));
         //$this->objReporteFormato->renderDatos($this->res2->datos);
 
         $reporte->generarReporte();
@@ -526,7 +527,7 @@ class ACTCuenta extends ACTbase
             $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
             //Instancia la clase de pdf
 
-            $reporte = new RBalanceTipoCC($this->objParam);
+            $reporte = new RBalanceTipoCCostosDI($this->objParam);
             $reporte->datosHeader($dataSource, $this->objParam->getParametro('nivel'), $this->objParam->getParametro('desde'), $this->objParam->getParametro('hasta'), $this->objParam->getParametro('codigos'), $this->objParam->getParametro('tipo_balance'), $this->objParam->getParametro('incluir_cierre'));
             //$this->objReporteFormato->renderDatos($this->res2->datos);
 
@@ -553,7 +554,7 @@ class ACTCuenta extends ACTbase
         //TODO recueprar configuracion ....
 
         $config = 'carta_horizontal';
-        $titulo = 'Árbol de Ánalisis de Costos';
+        $titulo = 'Árbol de Análisis de Costos';
         $nombreArchivo = uniqid(md5(session_id()));
 
         //obtener tamaño y orientacion

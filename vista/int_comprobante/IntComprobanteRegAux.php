@@ -1,4 +1,4 @@
-<?php
+																																																																						<?php
 /**
 *@package pXP
 *@file gen-SistemaDist.php
@@ -50,7 +50,7 @@ Phx.vista.IntComprobanteRegAux = {
 				handler : this.swEditable,
 				tooltip : '<b>Hacer editable</b><br/>Si la edición esta deshabilitada toma un backup y la habilita'
 			});
-			
+
 			this.init();
     
     },
@@ -60,14 +60,11 @@ Phx.vista.IntComprobanteRegAux = {
          this.swButton = 'EDIT';
          var rec = this.sm.getSelected().data;
 
-        this.cmpFecha.enable();
-
+        //this.cmpFecha.enable();
+//		this.Cmp.fecha.setReadOnly(true);
          Phx.vista.IntComprobanteRegAux.superclass.onButtonEdit.call(this);
         this.Cmp.id_clase_comprobante.store.baseParams.tipo='diario';
          this.Cmp.id_moneda.setReadOnly(true);
-         if(rec.localidad == 'internacional'){
-         	this.Cmp.fecha.setReadOnly(true);
-         }
          //si el tic vari en lastransacciones ..
          if(rec.sw_tipo_cambio == 'si'){
             this.ocultarComponente(this.Cmp.tipo_cambio);
@@ -87,7 +84,6 @@ Phx.vista.IntComprobanteRegAux = {
             this.getConfigCambiaria('no');
              
          }
-         
        },
        
        onButtonNew:function(){
@@ -251,8 +247,8 @@ Phx.vista.IntComprobanteRegAux = {
 			}
 
 		},
-        getConfigCambiaria : function(sw_valores) {
 
+    getConfigCambiaria : function(sw_valores) {
 			var localidad = 'nacional';
 			
 			if (this.swButton == 'EDIT') {

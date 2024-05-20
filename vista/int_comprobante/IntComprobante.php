@@ -73,8 +73,6 @@ header("content-type: text/javascript; charset=UTF-8");
             });
 
             this.addBotonesPresupuesto()
-
-
             this.addBotonesGantt();
             this.addButton('btnChequeoDocumentosWf',
                 {
@@ -130,12 +128,22 @@ header("content-type: text/javascript; charset=UTF-8");
                     this.capturaFiltros();
                 }
             }, this);
-
-
             this.iniciarEventos();
             this.addBotonesLibroDiario();
         },
 
+        onButtonEdit: function() {
+            Phx.vista.IntComprobante.superclass.onButtonEdit.call(this);
+            var id_cmp = this.Cmp.id_int_comprobante.getValue();
+            this.Cmp.fecha.setReadOnly(false);
+            if (id_cmp && id_cmp > 0) {
+                this.Cmp.fecha.setReadOnly(true);
+            }
+        },
+        onButtonNew:function(){
+            this.Cmp.fecha.setReadOnly(false);
+            Phx.vista.IntComprobante.superclass.onButtonNew.call(this);
+        },
 
         capturaFiltros: function (combo, record, index) {
             this.desbloquearOrdenamientoGrid();
@@ -152,7 +160,6 @@ header("content-type: text/javascript; charset=UTF-8");
         },
 
         validarFiltros: function () {
-            console.log('values....', this.cmbDepto.getValue())
             if (this.cmbDepto.getValue() != '' && this.cmbGestion.validate()) {
 
                 return true;
@@ -889,7 +896,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'string'
                 },
                 grid: true,
-                form: true
+                form: false
             }, {
                 config: {
                     name: 'id_funcionario_firma2',
@@ -912,7 +919,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'string'
                 },
                 grid: true,
-                form: true
+                form: false
             }, {
                 config: {
                     name: 'id_funcionario_firma3',
@@ -935,7 +942,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     type: 'string'
                 },
                 grid: true,
-                form: true
+                form: false
             }, {
                 config: {
                     name: 'cbte_cierre',
@@ -1732,9 +1739,7 @@ header("content-type: text/javascript; charset=UTF-8");
         //may
         regcbte: function () {
             var rec = this.sm.getSelected();
-            console.log('llegaregrec', rec)
             var data = rec.data;
-            console.log('llegaregrec', data)
             if (data) {
                 Phx.CP.loadingShow();
                 Ext.Ajax.request({
@@ -1877,7 +1882,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 'CbteDependencias');
         },
 
-
         onButtonAIRBP: function () {
             var rec = this.sm.getSelected();
             Phx.CP.loadWindows('../../../sis_contabilidad/vista/archivo_airbp/FormArchivoAIRBP.php',
@@ -1888,7 +1892,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     height: 200
                 }, rec.data, this.idContenedor, 'FormArchivoAIRBP')
         },
-        //
+
         //
         addBotonesLibroDiario: function () {
             this.menuLibroDiario = new Ext.Toolbar.SplitButton({

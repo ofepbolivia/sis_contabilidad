@@ -33,8 +33,8 @@ class MODOrdenSuborden extends MODbase{
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
 		$this->captura('desc_suborden','varchar');
-		
-		
+        $this->captura('fecha_inicio','date'); //fRnk: HR00552
+        $this->captura('fecha_final','date');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -53,6 +53,8 @@ class MODOrdenSuborden extends MODbase{
 		$this->setParametro('id_suborden','id_suborden','int4');
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('id_orden_trabajo','id_orden_trabajo','int4');
+		$this->setParametro('fecha_inicio','fecha_inicio','date'); //fRnk: HR00552
+		$this->setParametro('fecha_final','fecha_final','date');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -73,7 +75,8 @@ class MODOrdenSuborden extends MODbase{
 		$this->setParametro('id_suborden','id_suborden','int4');
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('id_orden_trabajo','id_orden_trabajo','int4');
-
+        $this->setParametro('fecha_inicio','fecha_inicio','date'); //fRnk: HR00552
+        $this->setParametro('fecha_final','fecha_final','date');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
