@@ -338,7 +338,7 @@ class MODCuenta extends MODbase
         $this->procedimiento = 'conta.f_balance_ot_costos_di';
         $this->setCount(false);
         $this->setTipoRetorno('record');
-        $this->transaccion = 'CONTA_BALOT_SEL';
+        $this->transaccion = 'CONTA_BALOTDI_SEL';
         $this->tipo_procedimiento = 'SEL';
         $this->setParametro('desde', 'desde', 'date');
         $this->setParametro('hasta', 'hasta', 'date');
@@ -377,7 +377,7 @@ class MODCuenta extends MODbase
         $this->procedimiento = 'conta.f_balance_tcc_costos_di';
         $this->setCount(false);
         $this->setTipoRetorno('record');
-        $this->transaccion = 'CONTA_BALTCC_SEL';
+        $this->transaccion = 'CONTA_BALTCCDI_SEL';
         $this->tipo_procedimiento = 'SEL';
         $this->setParametro('desde', 'desde', 'date');
         $this->setParametro('hasta', 'hasta', 'date');
