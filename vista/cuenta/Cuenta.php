@@ -240,10 +240,10 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 	       		grid:false,
 	       		form:true
 	  },
-	  /* {
+	  { //fRnk: se habilitó nuevamente a solicitud 22052024
 			config:{
 				name: 'digito',
-				fieldLabel: 'Digito',
+				fieldLabel: 'Dígito',
 				allowBlank: false,
 				allowNegative: false,
 				vtype: 'alpha',
@@ -257,7 +257,7 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 			id_grupo:1,
 			grid:false,
 			form:true
-		}, */
+		},
 		{
 			config:{
 				name: 'text',
@@ -657,7 +657,7 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 	onButtonEdit:function(n){
 		this.ocultarComponente(this.cmpTipoCuenta);
 		this.ocultarComponente(this.cmpTipoCuentaPat);
-		//this.ocultarComponente(this.cmpDigito);
+		this.ocultarComponente(this.cmpDigito);
 		//this.cmpNroCuenta.disable();
 		Phx.vista.Cuenta.superclass.onButtonEdit.call(this);
 		
@@ -711,12 +711,12 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 							this.ocultarComponente(this.cmpTipoCuentaPat);
 						}
 	        	
-	        	//this.mostrarComponente(this.cmpDigito);
+	        	this.mostrarComponente(this.cmpDigito);
 	        	this.cmpNroCuenta.setValue(nodo.attributes.nro_cuenta); 
 	        }
 	        else{
 	        	//si es el nodo raiz
-	        	//this.ocultarComponente(this.cmpDigito);
+	        	this.ocultarComponente(this.cmpDigito);
 	        	this.cmpTipoCuenta.enable();
 	        }
 	     }
@@ -741,7 +741,7 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
     	
     	 this.cmpTipoCuenta = this.getComponente('tipo_cuenta');
     	 this.cmpNroCuenta=this.getComponente('nro_cuenta');
-    	 //this.cmpDigito =this.getComponente('digito');
+    	 this.cmpDigito =this.getComponente('digito');
     	 this.cmpNombreCuenta=this.getComponente('nombre_cuenta');
     	 this.cmpSwTransaccional=this.getComponente('sw_transaccional');
     	 this.cmpTipoCuentaPat=this.getComponente('tipo_cuenta_pat');
@@ -765,14 +765,14 @@ Phx.vista.Cuenta=Ext.extend(Phx.arbGridInterfaz,{
 			},this);
 			
 			
-/* 			this.cmpDigito.on('change',function(field,n,o){
+			this.cmpDigito.on('change',function(field,n,o){
 				
 				var nodo = this.sm.getSelectedNode(this.cmpTipoCuenta);
 				if(nodo){
 					this.cmpNroCuenta.setValue( nodo.attributes.nro_cuenta+'.'+n);
 				}
 				
-			},this); */
+			},this);
 
 			this.Cmp.sw_transaccional.on('select', function() {
         if (this.Cmp.sw_transaccional.getValue() !== 'movimiento') {
