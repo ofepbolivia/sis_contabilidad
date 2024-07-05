@@ -117,7 +117,7 @@ Phx.vista.TipoCcCuenta=Ext.extend(Phx.gridInterfaz,{
    				sysorigen:'sis_contabilidad',
        		    name:'id_auxiliar',
    				origen:'AUXILIAR',
-   				allowBlank:true,
+   				allowBlank:false, //fRnk: HR00687
    				fieldLabel:'Auxiliar',
    				gdisplayField:'desc_auxiliar',//mapea al store del grid
    				gwidth:200,

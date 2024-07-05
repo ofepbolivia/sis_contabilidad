@@ -110,6 +110,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.Cmp.id_objetivo.reset();
                 Ext.apply(this.Cmp.id_objetivo.store.baseParams,{id_partida: this.Cmp.id_partida.getValue()});
                 this.Cmp.id_objetivo.modificado = true;
+                this.getIngas();
             }, this);
         },
         onButtonEdit: function() {
@@ -245,7 +246,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     sysorigen:'sis_contabilidad',
                     name:'id_auxiliar',
                     origen:'AUXILIAR',
-                    allowBlank:true,
+                    allowBlank:false, //fRnk: HR00687
                     fieldLabel:'Auxiliar',
                     gdisplayField:'desc_auxiliar',//mapea al store del grid
                     gwidth:200,
@@ -350,7 +351,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 config:{
                     name:'id_concepto_ingas',
                     fieldLabel:'Concepto Ingreso Gasto',
-                    allowBlank:false, //fRnk: HR00488
+                    allowBlank:true, //fRnk: HR00488 ->mod. true HR00687
                     emptyText:'Concepto Ingreso Gasto...',
                     store: new Ext.data.JsonStore({
                         url: '../../sis_parametros/control/ConceptoIngas/listarConceptoIngasMasPartida',
@@ -1107,8 +1108,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 if (tb && this.bnew) {
                     this.getBoton('new').disable();
                 }
-
             }
+            this.Cmp.id_concepto_ingas.allowBlank=true;
         },
 
         getGestion:function(x){
@@ -1225,6 +1226,9 @@ header("content-type: text/javascript; charset=UTF-8");
             Phx.vista.IntTransaccion.superclass.onButtonEdit.call(this);
             Ext.apply(this.Cmp.id_objetivo.store.baseParams,{id_partida: rec.id_partida});
             this.setModificadoCombos();
+            if(rec.id_concepto_ingas == null){ //fRnk: HR00687 c.
+                this.getIngas();
+            }
             //this.setLabelsTc();
         },
 
@@ -1238,6 +1242,28 @@ header("content-type: text/javascript; charset=UTF-8");
             this.Cmp.tipo_cambio_2.setValue(this.maestro.tipo_cambio_2);
             this.Cmp.tipo_cambio_3.setValue(this.maestro.tipo_cambio_3);
             //this.setLabelsTc();
+        },
+        getIngas: function (){ //fRnk: HR00687 c.
+            Ext.Ajax.request({
+                url:'../../sis_parametros/control/ConceptoIngas/listarConceptoIngasMasPartida',
+                params:{
+                    id_partida: this.Cmp.id_partida.getValue(),
+                    movimiento:'gasto',
+                    autorizacion_nulos:'no',
+                    query:'',
+                    "start":"0","limit":"30","sort":"desc_ingas","dir":"ASC","par_filtro":"desc_ingas#par.codigo#par.nombre_partida#par.id_partida"
+                },
+                success: function(resp){
+                    var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                    if(reg.total>0)
+                        this.Cmp.id_concepto_ingas.allowBlank=false;
+                    else
+                        this.Cmp.id_concepto_ingas.allowBlank=true;
+                },
+                failure: this.conexionFailure,
+                timeout: this.timeout,
+                scope:this
+            });
         },
     })
 </script>

@@ -176,7 +176,7 @@ class ACTCuenta extends ACTbase
         //parametros basicos
         $tamano = 'LETTER';
         $orientacion = 'P';
-        $titulo = 'Plan de Cuentas Gestón XXXX';
+        $titulo = 'Plan de Cuentas Gestión';
 
         $this->objParam->addParametro('orientacion', $orientacion);
         $this->objParam->addParametro('tamano', $tamano);
