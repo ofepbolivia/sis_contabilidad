@@ -183,6 +183,7 @@ class MODCuenta extends MODbase
         $this->transaccion = 'CONTA_PLANCNT_SEL';
         $this->tipo_procedimiento = 'SEL';//tipo de transaccion
         $this->setParametro('id_gestion', 'id_gestion', 'integer');
+        $this->setParametro('bottom_filter_value', 'bottom_filter_value', 'varchar');//fRnk: HR00690
         //Definicion de la lista del resultado del query
         $this->captura('id_cuenta', 'int4');
         $this->captura('nro_cuenta', 'varchar');

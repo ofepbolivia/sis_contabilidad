@@ -624,6 +624,12 @@ class ACTCuenta extends ACTbase
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 
+    function getListaCuentas()
+    { //fRnk: HR00690
+        $this->objFunc = $this->create('MODCuenta');
+        $this->res = $this->objFunc->listarPlanCuentas($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 }
 
 ?>
