@@ -10,6 +10,7 @@ class RBalanceTipoCcXls
     private $equivalencias = array();
     private $objParam;
     public $url_archivo;
+    private $importe;
 
     function __construct(CTParametro $objParam)
     {
@@ -43,11 +44,12 @@ class RBalanceTipoCcXls
             60 => 'BI', 61 => 'BJ', 62 => 'BK', 63 => 'BL', 64 => 'BM', 65 => 'BN', 66 => 'BO', 67 => 'BP',
             68 => 'BQ', 69 => 'BR', 70 => 'BS', 71 => 'BT', 72 => 'BU', 73 => 'BV', 74 => 'BW', 75 => 'BX',
             76 => 'BY', 77 => 'BZ');
+        $this->importe = $this->objParam->getParametro('importe');
     }
 
     function imprimeTitulo($sheet)
     {
-        $titulo = 'Árbol de Análisis de Costos ';
+        $titulo = 'ESTADO AUXILIAR DE CENTROS DE COSTOS';
         $codigos = $this->objParam->getParametro('codigos');
         $fechas = 'Del ' . $this->objParam->getParametro('desde') . ' al ' . $this->objParam->getParametro('hasta');
         $moneda = 'Expresado en moneda ' . $this->objParam->getParametro('moneda');
@@ -168,38 +170,47 @@ class RBalanceTipoCcXls
             //$sheet->setCellValueByColumnAndRow(2,$fila,'');
             $sheet->setCellValueByColumnAndRow($val["nivel"] + 7, $fila, $monto_str);
             //fRnk: HR01014
-            if ($val['movimiento'] == 'si') {
-                $costo_directo = empty($val['costo_directo']) ? 0 : $val['costo_directo'];
-                $costo_indirecto = empty($val['costo_indirecto']) ? 0 : $val['costo_indirecto'];
-                $fila++;
-                $sheet->getStyle(($this->equivalencias[$val["nivel"] - 1]) . $fila . ':Q' . $fila)->getFont()->applyFromArray(array(
-                    'bold' => $bold,
-                    'italic' => $italic,
-                    'underline' => $underline,
-                    'size' => 8,
-                    'name' => 'Arial'));
-                $sheet->getStyle(($this->equivalencias[$val["nivel"] - 1]) . $fila)->getAlignment()->setHorizontal($posicion);
-                $sheet->setCellValueByColumnAndRow($val["nivel"] - 1, $fila, '  Costos Directos');
-                $sheet->mergeCells(($this->equivalencias[$val["nivel"] - 1]) . $fila . ':H' . $fila);
-                $sheet->getStyle(($this->equivalencias[$val["nivel"] - 1]) . $fila)->getAlignment()->setWrapText(true);
-                $sheet->mergeCells(($this->equivalencias[$val["nivel"] + 7]) . $fila . ':Q' . $fila);
-                $sheet->getStyle(($this->equivalencias[$val["nivel"] + 7]) . $fila)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
-                $sheet->setCellValueByColumnAndRow($val["nivel"] + 7, $fila, $costo_directo);
-                $fila++;
-                $sheet->getStyle(($this->equivalencias[$val["nivel"] - 1]) . $fila . ':Q' . $fila)->getFont()->applyFromArray(array(
-                    'bold' => $bold,
-                    'italic' => $italic,
-                    'underline' => $underline,
-                    'size' => 8,
-                    'name' => 'Arial'));
-                $sheet->getStyle(($this->equivalencias[$val["nivel"] - 1]) . $fila)->getAlignment()->setHorizontal($posicion);
-                $sheet->setCellValueByColumnAndRow($val["nivel"] - 1, $fila, '  Costos Indirectos');
-                $sheet->mergeCells(($this->equivalencias[$val["nivel"] - 1]) . $fila . ':H' . $fila);
-                $sheet->getStyle(($this->equivalencias[$val["nivel"] - 1]) . $fila)->getAlignment()->setWrapText(true);
-                $sheet->mergeCells(($this->equivalencias[$val["nivel"] + 7]) . $fila . ':Q' . $fila);
-                $sheet->getStyle(($this->equivalencias[$val["nivel"] + 7]) . $fila)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
-                $sheet->setCellValueByColumnAndRow($val["nivel"] + 7, $fila, $costo_indirecto);
-                $sheet->getStyle(($this->equivalencias[$val["nivel"] + 7]) . $fila)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+            if ($this->importe == 'ejecutado' || $this->importe == 'contabilidad') {
+                if ($val['movimiento'] == 'si') {
+                    $costo_directo = empty($val['costo_directo']) ? 0 : $val['costo_directo'];
+                    $costo_indirecto = empty($val['costo_indirecto']) ? 0 : $val['costo_indirecto'];
+                    if ($costo_directo + $costo_indirecto != $monto_str) {
+                        if ($costo_directo > $monto_str) {
+                            $costo_directo = $monto_str;
+                        }
+                        $costo_indirecto = $monto_str - $costo_directo;
+                    }
+
+                    $fila++;
+                    $sheet->getStyle(($this->equivalencias[$val["nivel"] - 1]) . $fila . ':Q' . $fila)->getFont()->applyFromArray(array(
+                        'bold' => $bold,
+                        'italic' => $italic,
+                        'underline' => $underline,
+                        'size' => 8,
+                        'name' => 'Arial'));
+                    $sheet->getStyle(($this->equivalencias[$val["nivel"] - 1]) . $fila)->getAlignment()->setHorizontal($posicion);
+                    $sheet->setCellValueByColumnAndRow($val["nivel"] - 1, $fila, '  Costos Directos');
+                    $sheet->mergeCells(($this->equivalencias[$val["nivel"] - 1]) . $fila . ':H' . $fila);
+                    $sheet->getStyle(($this->equivalencias[$val["nivel"] - 1]) . $fila)->getAlignment()->setWrapText(true);
+                    $sheet->mergeCells(($this->equivalencias[$val["nivel"] + 7]) . $fila . ':Q' . $fila);
+                    $sheet->getStyle(($this->equivalencias[$val["nivel"] + 7]) . $fila)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+                    $sheet->setCellValueByColumnAndRow($val["nivel"] + 7, $fila, $costo_directo);
+                    $fila++;
+                    $sheet->getStyle(($this->equivalencias[$val["nivel"] - 1]) . $fila . ':Q' . $fila)->getFont()->applyFromArray(array(
+                        'bold' => $bold,
+                        'italic' => $italic,
+                        'underline' => $underline,
+                        'size' => 8,
+                        'name' => 'Arial'));
+                    $sheet->getStyle(($this->equivalencias[$val["nivel"] - 1]) . $fila)->getAlignment()->setHorizontal($posicion);
+                    $sheet->setCellValueByColumnAndRow($val["nivel"] - 1, $fila, '  Costos Indirectos');
+                    $sheet->mergeCells(($this->equivalencias[$val["nivel"] - 1]) . $fila . ':H' . $fila);
+                    $sheet->getStyle(($this->equivalencias[$val["nivel"] - 1]) . $fila)->getAlignment()->setWrapText(true);
+                    $sheet->mergeCells(($this->equivalencias[$val["nivel"] + 7]) . $fila . ':Q' . $fila);
+                    $sheet->getStyle(($this->equivalencias[$val["nivel"] + 7]) . $fila)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+                    $sheet->setCellValueByColumnAndRow($val["nivel"] + 7, $fila, $costo_indirecto);
+                    $sheet->getStyle(($this->equivalencias[$val["nivel"] + 7]) . $fila)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+                }
             }
             /*$sheet->getStyle(($this->equivalencias[$val["nivel"]+7]).$fila)
                     ->getAlignment()

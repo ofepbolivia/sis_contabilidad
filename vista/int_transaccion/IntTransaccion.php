@@ -1256,7 +1256,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 success: function(resp){
                     var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
                     if(reg.total>0)
-                        this.Cmp.id_concepto_ingas.allowBlank=false;
+                        this.Cmp.id_concepto_ingas.allowBlank=true; //fRnk: se puso en true, debido a una solicitud temporal, orginal false
                     else
                         this.Cmp.id_concepto_ingas.allowBlank=true;
                 },

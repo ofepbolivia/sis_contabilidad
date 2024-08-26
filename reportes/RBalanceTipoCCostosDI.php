@@ -3,22 +3,18 @@
 // fRnk: nuevo reporte HR01014
 class RBalanceTipoCCostosDI extends ReportePDF
 {
-    var $datos_titulo;
-    var $datos_detalle;
-    var $desde;
-    var $hasta;
-    var $nivel;
-    var $ancho_hoja;
-    var $gerencia;
-    var $numeracion;
-    var $ancho_sin_totales;
-    var $cantidad_columnas_estaticas;
-    var $codigos;
-    var $total_ordenes;
-    var $tipo_balance;
-    var $incluir_cierre;
+    private $datos_detalle;
+    private $desde;
+    private $hasta;
+    private $nivel;
+    private $ancho_hoja;
+    private $codigos;
+    private $total_ordenes;
+    private $tipo_balance;
+    private $incluir_cierre;
+    private $importe;
 
-    function datosHeader($detalle, $nivel, $desde, $hasta, $codigos, $tipo_balance, $incluir_cierre)
+    function datosHeader($detalle, $nivel, $desde, $hasta, $codigos, $tipo_balance, $incluir_cierre, $importe)
     {
         $this->ancho_hoja = $this->getPageWidth() - PDF_MARGIN_LEFT - PDF_MARGIN_RIGHT - 10;
         $this->datos_detalle = $detalle;
@@ -28,6 +24,7 @@ class RBalanceTipoCCostosDI extends ReportePDF
         $this->codigos = $codigos;
         $this->incluir_cierre = $incluir_cierre;
         $this->tipo_balance = $tipo_balance;
+        $this->importe = $importe;
         $this->SetMargins(10, 50);
     }
 
@@ -64,7 +61,7 @@ class RBalanceTipoCCostosDI extends ReportePDF
             }
             $this->definirTotales($val, $var_monto);
             $html .= '<tr>';
-            $html .= '<td width="70%">'. substr('('.$val['codigo'].') '.$val['descripcion'], 0, 81) . '</td>';
+            $html .= '<td width="70%">' . substr('(' . $val['codigo'] . ') ' . $val['descripcion'], 0, 81) . '</td>';
             $html .= '<td width="15%"></td>';
             $style = '';
             if ($val['monto'] * 1 < 0) {
@@ -77,11 +74,20 @@ class RBalanceTipoCCostosDI extends ReportePDF
             }
             $html .= '<td width="15%" style="text-align: right;' . $style . '">' . number_format($var_monto, 2, '.', ',') . '</td>';
             $html .= '</tr>';
-            $costo_directo = empty($val['costo_directo']) ? 0 : $val['costo_directo'];
-            $costo_indirecto = empty($val['costo_indirecto']) ? 0 : $val['costo_indirecto'];
-            if($val['movimiento']=='si'){
-                $html .= '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Costos Directos</td><td style="text-align: right">' . number_format($costo_directo, 2, '.', ',') . '</td><td></td></tr>';
-                $html .= '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Costos Indirectos</td><td style="text-align: right">' . number_format($costo_indirecto, 2, '.', ',') . '</td><td></td></tr>';
+            if ($this->importe == 'ejecutado' || $this->importe == 'contabilidad') {
+                $costo_directo = empty($val['costo_directo']) ? 0 : $val['costo_directo'];
+                $costo_indirecto = empty($val['costo_indirecto']) ? 0 : $val['costo_indirecto'];
+                if ($val['movimiento'] == 'si') {
+                    if ($costo_directo + $costo_indirecto != $var_monto) {
+                        if ($costo_directo > $var_monto) {
+                            $costo_directo = $var_monto;
+                        }
+                        $costo_indirecto = $var_monto - $costo_directo;
+                    }
+
+                    $html .= '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Costos Directos</td><td style="text-align: right">' . number_format($costo_directo, 2, '.', ',') . '</td><td></td></tr>';
+                    $html .= '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Costos Indirectos</td><td style="text-align: right">' . number_format($costo_indirecto, 2, '.', ',') . '</td><td></td></tr>';
+                }
             }
         }
         $html .= '</table>';

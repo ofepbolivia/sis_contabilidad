@@ -86,6 +86,13 @@ class RBalanceOrdenesCostosDI extends ReportePDF
             if ($this->transaccional == 'no' && $val['nivel'] == 1) {
                 $html .= '';
             } else {
+                if ($costo_directo + $costo_indirecto != $val['monto']) {
+                    if ($costo_directo > $val['monto']) {
+                        $costo_directo = $val['monto'];
+                    }
+                    $costo_indirecto = $val['monto'] - $costo_directo;
+                }
+
                 $html .= '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Costos Directos</td><td style="text-align: right">' . number_format($costo_directo, 2, '.', ',') . '</td><td></td></tr>';
                 $html .= '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Costos Indirectos</td><td style="text-align: right">' . number_format($costo_indirecto, 2, '.', ',') . '</td><td></td></tr>';
             }
