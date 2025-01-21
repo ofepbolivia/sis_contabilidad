@@ -344,8 +344,9 @@ header("content-type: text/javascript; charset=UTF-8");
                 //if (rec.id_clase_comprobante == 3){
                     this.onEgaFirmarCIP(wizard,resp);
                 //}
+            } else { //fRnk: adicionado porque se quedaba cargando, e) HR01765-2024
+                this.onEgaFirmarCIP(wizard,resp);
             }
-
         },
 
         onEgaAprobarCIP: function(wizard, response){
