@@ -251,7 +251,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
             });
                     
 		 
-		this.addButton('btnChequeoDocumentosWf',
+		/*this.addButton('btnChequeoDocumentosWf', //fRnk: deshabilitado c) HR00528-2024
             {
                 text: 'Documentos',
                 grupo:[0,1,2],
@@ -260,13 +260,13 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
                 handler: this.loadCheckDocumentosSolWf,
                 tooltip: '<b>Documentos de la Solicitud</b><br/>Subir los documetos requeridos en la solicitud seleccionada.'
             }
-        );
+        );*/
 	
 		 
-		 this.addBotonesListaNegra();
-		 this.addBotonesRetencionGarantias();
+		 //this.addBotonesListaNegra(); // comentador por CPacha, mejorado en las partes que invoca menuAdqGantt, fRnk:HR00528-2024
+		 //this.addBotonesRetencionGarantias(); //fRnk: deshabilitado c) HR00528-2024
 
-		this.addButton('insertAuto',{argument: {imprimir: 'insertAuto'},text:'<i class="fa fa-file-text-o fa-2x"></i> insertAuto',/*iconCls:'' ,*/disabled:true,handler:this.insertAuto});
+		//this.addButton('insertAuto',{argument: {imprimir: 'insertAuto'},text:'<i class="fa fa-file-text-o fa-2x"></i> insertAuto',/*iconCls:'' ,*/disabled:true,handler:this.insertAuto}); // comentador por CPacha, mejorado en las partes que invoca menuAdqGantt, fRnk
 
 
 		 
@@ -290,7 +290,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		this.addButton('exportarGestionCompleta',{argument: {imprimir: 'exportarGestionCompleta'},text:'<i class="fa fa-file-text-o fa-2x"></i> Generar Gestion TXT - SIN',/*iconCls:'' ,*/disabled:true,handler:this.exportarGestionCompleta});
 
 
-        this.addButton('consultarPosiblesBancarizaciones',{argument: {imprimir: 'consultarPosiblesBancarizaciones'},text:'<i class="fa fa-file-text-o fa-2x"></i> Posibles Bancarizaciones',/*iconCls:'' ,*/disabled:true,handler:this.consultarPosiblesBancarizaciones});
+        // this.addButton('consultarPosiblesBancarizaciones',{argument: {imprimir: 'consultarPosiblesBancarizaciones'},text:'<i class="fa fa-file-text-o fa-2x"></i> Posibles Bancarizaciones',/*iconCls:'' ,*/disabled:true,handler:this.consultarPosiblesBancarizaciones});
 
         this.getBoton('new').disable();
         //this.load({params:{start:0, limit:this.tam_pag}})
@@ -325,36 +325,36 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
             //this.getBoton('new').enable();
 
         	if (this.cmbPeriodo.getValue()==0){
-                this.getBoton('insertAuto').disable();
+                //this.getBoton('insertAuto').disable();
                 this.getBoton('exportar').disable();
                 this.getBoton('Importar').disable();
                 this.getBoton('Acumulado').disable();
                 this.getBoton('BorrarTodo').disable();
-                this.getBoton('btnChequeoDocumentosWf').disable();
+                //this.getBoton('btnChequeoDocumentosWf').disable();
                 this.getBoton('new').disable();
                 this.getBoton('Clonar').disable();
                 this.getBoton('exportarGestionCompleta').disable();
-                this.menuAdqGantt.disable();
-                this.menuRetencionGarantias.disable();
+                //this.menuAdqGantt.disable();
+                //this.menuRetencionGarantias.disable();
             }
             else{
-                this.getBoton('insertAuto').enable();
+                //this.getBoton('insertAuto').enable();
                 this.getBoton('exportar').enable();
                 this.getBoton('Importar').enable();
                 this.getBoton('Acumulado').enable();
                 this.getBoton('BorrarTodo').enable();
-                this.getBoton('btnChequeoDocumentosWf').enable();
+                //this.getBoton('btnChequeoDocumentosWf').enable();
                 this.getBoton('Clonar').enable();
                 this.getBoton('exportarGestionCompleta').enable();
-                this.getBoton('consultarPosiblesBancarizaciones').enable();
+                //this.getBoton('consultarPosiblesBancarizaciones').enable();
                 this.getBoton('new').enable();
-                this.menuAdqGantt.enable();
-                this.menuRetencionGarantias.enable();
+                //this.menuAdqGantt.enable();
+                //this.menuRetencionGarantias.enable();
             }
             return true;
         }
         else{
-        	this.getBoton('insertAuto').disable();
+        	//this.getBoton('insertAuto').disable();
         	this.getBoton('exportar').disable();
         	this.getBoton('Importar').disable();
         	this.getBoton('Acumulado').disable();
@@ -363,7 +363,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
             //this.getBoton('save').disable();
             this.getBoton('Clonar').enable();
             this.getBoton('exportarGestionCompleta').enable();
-            this.getBoton('consultarPosiblesBancarizaciones').enable();
+            //this.getBoton('consultarPosiblesBancarizaciones').enable();
 
             return false;
             
@@ -583,8 +583,12 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 		this.Cmp.tipo_documento_pago.on('select', function(combo, record, index){ 
 			//console.log(this.Cmp.tipo_documento_pago.getValue());
 		}, this);
-		
-		/*this.Cmp.autorizacion.on('change', function(combo, record, index){ 
+
+        //fRnk: obligatorio en Compras, g) HR00528-2024
+        if(this.tipoBan == 'Compras') {
+            this.Cmp.num_documento_pago.allowBlank=false;
+        }
+        		/*this.Cmp.autorizacion.on('change', function(combo, record, index){
 			Ext.Ajax.request({
 				url: '../../sis_contabilidad/control/BancaCompraVenta/listarBancaCompraVenta',
 				params: {'autorizacion': ''+this.Cmp.autorizacion.getValue()+'','start':'0','limit':'1000',"sort":"id_banca_compra_venta","dir":"ASC"},
@@ -603,17 +607,17 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 			var res = record.data.desc_proveedor.split("(");
 			this.Cmp.nit_ci.setValue(record.data.nit);
 			this.Cmp.razon.setValue(res[0]);
-			
-			
+
+            this.Cmp.id_documento.reset(); //fRnk: filtro adicionado d) HR00528-2024
 			this.Cmp.id_documento.store.setBaseParam('nro_nit', record.data.nit);
-			
+            this.Cmp.id_documento.modificado = true;
 			
 			this.Cmp.id_contrato.enable();
 			this.Cmp.id_contrato.reset();
 			this.Cmp.id_contrato.store.baseParams.filter = "[{\"type\":\"numeric\",\"comparison\":\"eq\", \"value\":\""+combo.getValue()+"\",\"field\":\"CON.id_proveedor\"}]";
 			this.Cmp.id_contrato.modificado = true;
-			
-			
+
+
 		}, this);
 		
 		this.Cmp.tipo_transaccion.on('select', function(combo, record, index){ 
@@ -1208,8 +1212,8 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 	{
 			config: {
 				name: 'id_documento',
-				fieldLabel: 'Documento',
-				allowBlank: true,
+				fieldLabel: 'Factura/Documento', //fRnk: modificado b) HR00528-2024
+				allowBlank: false,
 				emptyText: 'Elija una opción...',
 				store: new Ext.data.JsonStore({
 					url: '../../sis_contabilidad/control/BancaCompraVenta/listarDocumento',
@@ -1223,7 +1227,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 					totalProperty: 'total',
 					fields: ['id_documento', 'razon_social', 'nro_documento','nro_autorizacion','fecha_documento','nro_nit','sw_libro_compras','importe_total'],
 					remoteSort: true,
-					baseParams: {par_filtro: 'doc.nro_documento#va.importe_total'}
+					baseParams: {par_filtro: 'dcv.nit#dcv.importe_doc'}
 				}),
 				valueField: 'id_documento',
 				displayField: 'razon_social',
@@ -2112,7 +2116,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
             this.getBoton('del').disable();
 
          } 
-	        
+
     },
     
     liberaMenu:function(tb){

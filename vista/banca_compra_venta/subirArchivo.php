@@ -24,7 +24,8 @@ Phx.vista.SubirArchivo=Ext.extend(Phx.frmInterfaz,{
         Phx.vista.SubirArchivo.superclass.loadValoresIniciales.call(this);
         //console.log(this);
         this.getComponente('id_periodo').setValue(this.id_periodo); 
-        this.getComponente('tipo').setValue(this.tipo);     
+        this.getComponente('tipo').setValue(this.tipo);
+        this.getComponente('id_depto').setValue(document.querySelector("[name='id_depto']").value);
     },
     
     successSave:function(resp)
@@ -50,6 +51,15 @@ Phx.vista.SubirArchivo=Ext.extend(Phx.frmInterfaz,{
                 labelSeparator:'',
                 inputType:'hidden',
                 name: 'tipo'
+            },
+            type:'Field',
+            form:true
+        },
+        { //fRnk: adicionado para CONTA_BANCA_IMP SOP12122024
+            config:{
+                labelSeparator:'',
+                inputType:'hidden',
+                name: 'id_depto'
             },
             type:'Field',
             form:true

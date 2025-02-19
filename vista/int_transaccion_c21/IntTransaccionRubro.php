@@ -187,6 +187,25 @@ header("content-type: text/javascript; charset=UTF-8");
                 form:true
             },
             {
+                //fRnk: campos añadidos sol. error registro imputacion c21 (id_objetivo, observacion_poa), 12092024
+                config:{
+                    labelSeparator:'',
+                    inputType:'hidden',
+                    name: 'id_objetivo'
+                },
+                type:'Field',
+                form:true
+            },
+            {
+                config:{
+                    labelSeparator:'',
+                    inputType:'hidden',
+                    name: 'observacion_poa'
+                },
+                type:'Field',
+                form:true
+            },
+            {
                 config:{
                     name: 'id_centro_costo',
                     msgTarget: 'side',

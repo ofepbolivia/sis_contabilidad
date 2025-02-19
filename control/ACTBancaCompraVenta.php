@@ -6,6 +6,8 @@
  *@date 11-09-2015 14:36:46
  *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
  */
+require_once(dirname(__FILE__) . '/../reportes/RBancarizacionComprasVentas.php');
+require_once(dirname(__FILE__) . '/../reportes/RBancarizacionComprasVentasXls.php');
 class ACTBancaCompraVenta extends ACTbase{
 
     function listarBancaCompraVenta(){
@@ -50,8 +52,9 @@ class ACTBancaCompraVenta extends ACTbase{
             $this->objParam->addFiltro("banca.resolucion = ''".$this->objParam->getParametro('resolucion')."'' ");
         }
         if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
-            $this->objReporte = new Reporte($this->objParam,$this);
-            $this->res = $this->objReporte->generarReporteListado('MODBancaCompraVenta','listarBancaCompraVenta');
+            //$this->objReporte = new Reporte($this->objParam,$this);
+            //$this->res = $this->objReporte->generarReporteListado('MODBancaCompraVenta','listarBancaCompraVenta');
+            $this->listarBancaCompraVentaExp();
         } else{
             $this->objFunc=$this->create('MODBancaCompraVenta');
             $this->res=$this->objFunc->listarBancaCompraVenta($this->objParam);
@@ -206,8 +209,10 @@ class ACTBancaCompraVenta extends ACTbase{
 
         }
 
-
-
+        //fRnk: filtro adicionado d) HR00528-2024
+        if($this->objParam->getParametro('nro_nit') != ''){
+            $this->objParam->addFiltro("dcv.nit = ''".$this->objParam->getParametro('nro_nit')."'' ");
+        }
 
 
         $this->objFunc=$this->create('MODBancaCompraVenta');
@@ -251,7 +256,35 @@ class ACTBancaCompraVenta extends ACTbase{
     }
 
 
-
+    function listarBancaCompraVentaExp() { //fRnk: reporte adicionado a) HR00528-2024
+        $this->objFunc=$this->create('MODBancaCompraVenta');
+        $data=$this->objFunc->listarBancaCompraVenta($this->objParam);
+        $tamano = 'LETTER';
+        $orientacion = 'L';
+        $titulo = 'Bancarización Compras';
+        $this->objParam->addParametro('orientacion', $orientacion);
+        $this->objParam->addParametro('tamano', $tamano);
+        $this->objParam->addParametro('titulo_archivo', $titulo);
+        if($this->objParam->getParametro('tipoReporte')=='excel_grid'){
+            $nombreArchivo = 'Bancarizacion' . uniqid(md5(session_id())) . '.xls';
+            $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
+            $this->objParam->addParametro('datos',$data->getDatos());
+            $this->objReporte = new RBancarizacionComprasVentasXls($this->objParam);
+            $this->objReporte->generarReporte();
+        }else{
+            $nombreArchivo = 'Bancarizacion' . uniqid(md5(session_id())) . '.pdf';
+            $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
+            $reporte = new RBancarizacionComprasVentas($this->objParam);
+            $reporte->datosHeader($data->getDatos(), $this->objParam->getParametro('tipo'));
+            $reporte->generarReporte();
+            $reporte->output($reporte->url_archivo, 'F');
+        }
+        $this->mensajeExito = new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado', 'Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+        exit();
+    }
 
 }
 ?>

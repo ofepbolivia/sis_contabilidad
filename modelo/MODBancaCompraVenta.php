@@ -116,7 +116,7 @@ class MODBancaCompraVenta extends MODbase{
 
 
         //Ejecuta la instruccion
-		$this->armarConsulta();
+		$this->armarConsulta();//var_dump($this->getConsulta());exit();
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
@@ -354,7 +354,7 @@ class MODBancaCompraVenta extends MODbase{
 			//si no es error fatal proceso el archivo
 			} else {
 				
-				
+
 				$nombre_archivo = $arregloFiles['archivo']['name'];
 				$partes = explode('_',$nombre_archivo);
 				$fecha_archivo = $this->str_osplit($partes[2], 2);
@@ -369,10 +369,10 @@ class MODBancaCompraVenta extends MODbase{
 				
 				$lines = file($file_path);
 				
+
 				
-				
-				
-				
+
+
 				foreach ($lines as $line_num => $line) {
 					$arr_temp = explode('|', $line);
 					
@@ -401,8 +401,8 @@ class MODBancaCompraVenta extends MODbase{
        						"nit_entidad" => $arr_temp[11],
        						"num_documento_pago" => $arr_temp[12],
        						"tipo_documento_pago" => $arr_temp[13],
-       						"fecha_de_pago" => $arr_temp[14],
-       						"comentario" => $arr_temp[15],
+       						"fecha_de_pago" => $arr_temp[14]//,
+       						//"comentario" => $arr_temp[15],
 
 						);
 					}else if($this->aParam->getParametro('tipo')=='Ventas'){
@@ -427,7 +427,7 @@ class MODBancaCompraVenta extends MODbase{
 						);
 					}
 					
-					
+
 					
 					if (count($arr_temp) != 16) {
 						$error = 'error';
@@ -466,7 +466,8 @@ class MODBancaCompraVenta extends MODbase{
 			$this->setParametro('arra_json','arra_json','text');
 			$this->setParametro('tipo','tipo','varchar');
 			$this->setParametro('id_periodo','id_periodo','int4');
-			
+			$this->setParametro('id_depto','id_depto','int4'); //fRnk: adicionado para CONTA_BANCA_IMP SOP12122024
+
 			$this->setParametro('fecha_archivo','fecha_archivo','date');
 			$this->setParametro('nombre_archivo','nombre_archivo','varchar');
 	
