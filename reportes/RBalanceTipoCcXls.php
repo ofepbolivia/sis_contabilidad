@@ -170,16 +170,16 @@ class RBalanceTipoCcXls
             //$sheet->setCellValueByColumnAndRow(2,$fila,'');
             $sheet->setCellValueByColumnAndRow($val["nivel"] + 7, $fila, $monto_str);
             //fRnk: HR01014
-            if ($this->importe == 'ejecutado' || $this->importe == 'contabilidad') {
+            if ($this->importe == 'ejecutado') {
                 if ($val['movimiento'] == 'si') {
                     $costo_directo = empty($val['costo_directo']) ? 0 : $val['costo_directo'];
                     $costo_indirecto = empty($val['costo_indirecto']) ? 0 : $val['costo_indirecto'];
-                    if ($costo_directo + $costo_indirecto != $monto_str) {
+                    /*if ($costo_directo + $costo_indirecto != $monto_str) {
                         if ($costo_directo > $monto_str) {
                             $costo_directo = $monto_str;
                         }
                         $costo_indirecto = $monto_str - $costo_directo;
-                    }
+                    }*/
 
                     $fila++;
                     $sheet->getStyle(($this->equivalencias[$val["nivel"] - 1]) . $fila . ':Q' . $fila)->getFont()->applyFromArray(array(

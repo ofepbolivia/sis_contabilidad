@@ -74,16 +74,16 @@ class RBalanceTipoCCostosDI extends ReportePDF
             }
             $html .= '<td width="15%" style="text-align: right;' . $style . '">' . number_format($var_monto, 2, '.', ',') . '</td>';
             $html .= '</tr>';
-            if ($this->importe == 'ejecutado' || $this->importe == 'contabilidad') {
+            if ($this->importe == 'ejecutado') {
                 $costo_directo = empty($val['costo_directo']) ? 0 : $val['costo_directo'];
                 $costo_indirecto = empty($val['costo_indirecto']) ? 0 : $val['costo_indirecto'];
                 if ($val['movimiento'] == 'si') {
-                    if ($costo_directo + $costo_indirecto != $var_monto) {
+                    /*if ($costo_directo + $costo_indirecto != $var_monto) {
                         if ($costo_directo > $var_monto) {
                             $costo_directo = $var_monto;
                         }
                         $costo_indirecto = $var_monto - $costo_directo;
-                    }
+                    }*/
 
                     $html .= '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Costos Directos</td><td style="text-align: right">' . number_format($costo_directo, 2, '.', ',') . '</td><td></td></tr>';
                     $html .= '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Costos Indirectos</td><td style="text-align: right">' . number_format($costo_indirecto, 2, '.', ',') . '</td><td></td></tr>';
