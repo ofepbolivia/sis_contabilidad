@@ -307,7 +307,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
         		this.store.baseParams.resolucion = this.cmbResolucion.getValue();
 
         	}
-        	
+            this.Cmp.id_documento.store.setBaseParam('tipo', this.tipoBan); //fRnk, adicionado el tipo de documento Compras o Ventas, HR00528-2024
         	
         	this.store.baseParams.id_gestion = this.cmbGestion.getValue();
 	        this.store.baseParams.id_periodo = this.cmbPeriodo.getValue();
@@ -1212,7 +1212,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 	{
 			config: {
 				name: 'id_documento',
-				fieldLabel: 'Factura/Documento', //fRnk: modificado b) HR00528-2024
+				fieldLabel: 'Factura / Documento', //fRnk: modificado b) HR00528-2024
 				allowBlank: false,
 				emptyText: 'Elija una opción...',
 				store: new Ext.data.JsonStore({
@@ -1643,7 +1643,7 @@ Phx.vista.BancaCompraVenta=Ext.extend(Phx.gridInterfaz,{
 			config:{
 				name: 'num_documento_pago',
 				fieldLabel: 'Nro Documento de Pago (Nro Transacción u Operación)',
-				allowBlank: true,
+				allowBlank: false,
 				anchor: '90%',
 				gwidth: 100,
 				maxLength:255

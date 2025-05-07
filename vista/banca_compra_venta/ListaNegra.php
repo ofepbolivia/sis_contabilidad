@@ -362,7 +362,7 @@ Phx.vista.ListaNegra=Ext.extend(Phx.gridInterfaz,{
 					totalProperty: 'total',
 					fields: ['id_documento', 'razon_social', 'nro_documento','nro_autorizacion','fecha_documento','nro_nit','sw_libro_compras','importe_total'],
 					remoteSort: true,
-					baseParams: {par_filtro: 'doc.razon_social#doc.nro_documento#doc.nro_autorizacion#doc.nro_nit'}
+					baseParams: {par_filtro: 'doc.razon_social#doc.nro_documento#doc.nro_autorizacion#doc.nro_nit', tipo:''} //fRnk: adicionado tipo b) HR00528-2024
 				}),
 				valueField: 'id_documento',
 				displayField: 'razon_social',

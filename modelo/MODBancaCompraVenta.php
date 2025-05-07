@@ -521,7 +521,8 @@ class MODBancaCompraVenta extends MODbase{
 		$this->arreglo['banca_documentos'] = $_SESSION["BANCA_DOCUMENTOS"];
 			
 		$this->setParametro('banca_documentos','banca_documentos','varchar');	
-		
+		$this->setParametro('tipo','tipo','varchar');//fRnk: adicionado tipo, HR00528-2024
+
 		//Definicion de la lista del resultado del query
 		$this->captura('id_documento','int4');
 		$this->captura('nro_autorizacion','varchar');

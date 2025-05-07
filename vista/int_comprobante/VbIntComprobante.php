@@ -335,6 +335,8 @@ header("content-type: text/javascript; charset=UTF-8");
 
             console.log('wizardSIGP:',wizard,'respSIGP:',resp, rec);
             Phx.CP.loadingShow();
+            this.onEgaFirmarCIP(wizard,resp);
+            /* fRnk: comentado el bloque mientras no esté configurado el servicio web entregas a SIGEP, HR01765-2024
             if(rec.estado_reg == 'verificado'){
                 //if (rec.id_clase_comprobante == 3){
                     this.onEgaAprobarCIP(wizard,resp);
@@ -346,7 +348,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 //}
             } else { //fRnk: adicionado porque se quedaba cargando, e) HR01765-2024
                 this.onEgaFirmarCIP(wizard,resp);
-            }
+            }*/
         },
 
         onEgaAprobarCIP: function(wizard, response){

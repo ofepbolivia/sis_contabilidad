@@ -50,7 +50,7 @@ class RBancarizacionComprasVentas extends ReportePDF
                     <td width="6%"><b>N° de factura/ N° documento</b></td>
                     <td width="4%"><b>N° de contrato</b></td>
                     <td width="6%"><b>Importe factura/importe documento</b></td>
-                    <td width="6%"><b>N° autorización factura/documento</b></td>
+                    <td width="6%"><b>N° autorización factura/ documento</b></td>
                     <td width="6%"><b>N° de cuenta del documento de pago</b></td>
                     <td width="6%"><b>Monto pagado en documento de pago</b></td>
                     <td width="6%"><b>Monto Acumulado</b></td>
@@ -81,8 +81,8 @@ class RBancarizacionComprasVentas extends ReportePDF
         } else {
             $html .= '<tr style="background-color: #cccccc;font-size: 7px;text-align: center">
                     <td width="7%"><b>Modalidad de transacción</b></td>
-                    <td width="6%"><b>Fecha factura/documento</b></td>
-                    <td width="6%"><b>N° de factura/documento</b></td>
+                    <td width="6%"><b>Fecha factura/ documento</b></td>
+                    <td width="6%"><b>N° de factura/ documento</b></td>
                     <td width="6%"><b>Importe factura/documento</b></td>
                     <td width="6%"><b>N° de contrato</b></td>
                     <td width="6%"><b>N° autorización factura</b></td>
