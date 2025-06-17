@@ -202,7 +202,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     sysorigen:'sis_presupuestos',
                     name:'id_partida',
                     origen:'PARTIDA',
-                    allowBlank:false,
+                    allowBlank:true,
                     fieldLabel:'Partida',
                     gdisplayField:'desc_partida',//mapea al store del grid
                     gwidth:200,

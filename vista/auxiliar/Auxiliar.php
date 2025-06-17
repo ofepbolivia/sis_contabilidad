@@ -21,7 +21,7 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 
         this.iniciarEventos();
 
-        this.addButton('replicar_aux',{
+        /*this.addButton('replicar_aux',{ //fRnk: se ocultó los botones replicar, nuevo y guardar, HR:00848-2025
             grupo: [0,1,2,3,4],
             text: 'Replicar',
             iconCls: 'bfolder',
@@ -29,7 +29,7 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
             handler: this.replicarAux,
             tooltip: '<b>Permite replicar un auxiliar recien registrado en la BD Ingresos</b>',
             scope:this
-        });
+        });*/
         this.momento = undefined;
 	},
 
@@ -265,8 +265,10 @@ Phx.vista.Auxiliar=Ext.extend(Phx.gridInterfaz,{
 		field: 'id_auxiliar',
 		direction: 'ASC'
 	},
-	bdel:true,
-	bsave:true,
+	bdel:false,
+	bsave:false,
+    bnew:false,
+    bedit:false,
 	replicarAux: function () {
 		Ext.Ajax.request({
 			url:'../../sis_contabilidad/control/Auxiliar/conectar',
