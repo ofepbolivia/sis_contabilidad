@@ -23,7 +23,34 @@ header("content-type: text/javascript; charset=UTF-8");
             this.grid.getBottomToolbar().disable();
             this.init();
 
-            this.obtenerVariableGlobal('conta_partidas');
+            
+            // --- Habilitar/Deshabilitar id_doc_compra_venta según 'factura' //hr 0917---
+            this.toggleDocCV = function(valor){
+                if (valor === 'si') {
+                    this.Cmp.id_doc_compra_venta.setDisabled(false);
+                    this.Cmp.id_doc_compra_venta.allowBlank = false;
+                    document.querySelector('label[for="id_doc_compra_venta"]').textContent='*Afectable IVA:';
+                } else {
+                    this.Cmp.id_doc_compra_venta.setDisabled(true);
+                    if (this.Cmp.id_doc_compra_venta.reset) {
+                        this.Cmp.id_doc_compra_venta.reset();
+                    }
+                    this.Cmp.id_doc_compra_venta.allowBlank = true;
+                    var ail=document.querySelector('label[for="id_doc_compra_venta"]');
+                    if(ail){ail.textContent='Afectable IVA:';}
+                }
+            };
+            // Estado inicial
+            this.toggleDocCV(this.Cmp.factura.getValue());
+            // Eventos de cambio
+            this.Cmp.factura.on('select', function(combo, rec, idx){
+                this.toggleDocCV(combo.getValue());
+            }, this);
+            this.Cmp.factura.on('change', function(field, newVal, oldVal){
+                this.toggleDocCV(newVal);
+            }, this);
+            // --- fin toggle ---
+this.obtenerVariableGlobal('conta_partidas');
             this.Cmp.importe_gasto.on('change',function(cmp,value){
                 this.Cmp.importe_haber.suspendEvents();
                 this.Cmp.importe_haber.setValue(0);
@@ -101,9 +128,22 @@ header("content-type: text/javascript; charset=UTF-8");
                 var afectaIVA = record.json['afecta_iva'];
                 var ai = this.getComponente('id_doc_compra_venta');
                 if (afectaIVA == 'si'){
+                    this.Cmp.factura.setValue('Si');
+                    this.Cmp.factura.setDisabled(false);
                     this.mostrarComponente(ai);
+                    ai.setDisabled(false);
+                    this.Cmp.id_doc_compra_venta.allowBlank = false; //fRnk: se añadió la validacion de Afectable IVA, HR01217-2024
+                    document.querySelector('label[for="id_doc_compra_venta"]').textContent='*Afectable IVA:';
+                    document.querySelector('label[for="factura"]').textContent='*¿Tiene Factura?:';
+                    //this.Cmp.id_concepto_ingas.allowBlank=true;
                 } else {
-                    this.ocultarComponente(ai) ;                   
+                    this.Cmp.factura.setDisabled(true);
+                    this.ocultarComponente(ai);
+                    this.Cmp.id_doc_compra_venta.allowBlank = true;
+                    var ail=document.querySelector('label[for="id_doc_compra_venta"]');
+                    if(ail){ail.textContent='Afectable IVA:';}
+                    this.Cmp.factura.setValue('No');
+                    document.querySelector('label[for="factura"]').textContent='¿Tiene Factura?:';
                 }
             }, this);
             this.Cmp.id_partida.on('change',function (combo, record, index ) {
@@ -117,9 +157,13 @@ header("content-type: text/javascript; charset=UTF-8");
             Phx.vista.IntTransaccion.superclass.onButtonEdit.call(this);
             var ai = this.getComponente('id_cuenta');
             ai.setValue(ai.getValue());
+        
+            this.toggleDocCV(this.Cmp.factura.getValue());
         },
         onButtonNew:function(){
             Phx.vista.IntTransaccion.superclass.onButtonNew.call(this);
+        
+            this.toggleDocCV(this.Cmp.factura.getValue());
         },        
         Atributos:[
             { 
@@ -265,10 +309,47 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid:false,
                 form:true
             },
+            //hr 0917
+            {
+                config: {
+                    name: 'factura',
+                    id: 'factura',
+                    fieldLabel: '¿Tiene Factura?',
+                    allowBlank: false,
+                    emptyText: 'Seleccione...',
+                    typeAhead: false,
+                    triggerAction: 'all',
+                    lazyRender: true,
+                    mode: 'local',
+                    store: new Ext.data.ArrayStore({
+                        fields: ['valor', 'desc'],
+                        data: [
+                            ['si', 'Sí'],
+                            ['no', 'No']
+                        ]
+                    }),
+                    valueField: 'valor',
+                    displayField: 'desc',
+                    width: 495,
+                    listWidth: 495,
+                    renderer: function (value, p, record) {
+                        return value === 'si' ? 'Sí' : value === 'no' ? 'No' : '';
+                    }
+                },
+                type: 'ComboBox',
+                id_grupo: 0,
+                filters: {
+                    pfiltro: 'factura',
+                    type: 'string'
+                },
+                grid: false,
+                form: true
+            },
             {
                 // whf : 202403 modificacion de la vinculacion de una factura a un renglon 
                 config:{
                     name: 'id_doc_compra_venta',
+                    id: 'id_doc_compra_venta',
                     fieldLabel: 'Afectable IVA',
                     allowBlank: true,
                     emptyText:'Elija una factura',
@@ -288,6 +369,7 @@ header("content-type: text/javascript; charset=UTF-8");
                             remoteSort: true,
                             baseParams:{par_filtro:'pla.desc_plantilla#dcv.razon_social#dcv.nro_documento#dcv.nit#dcv.importe_doc#dcv.codigo_control', filgestion: 'si'},
                         }),
+                    
                     tpl:'<tpl for="."><div class="x-combo-list-item"><p><b>{razon_social}</b>,  NIT: {nit}</p><p>{desc_plantilla} </p><p ><span style="color: #F00000">Doc: {nro_documento}</span> de Fecha: {fecha}</p><p style="color: green;"> {importe_doc} {desc_moneda}  </p></div></tpl>',
                     valueField: 'id_doc_compra_venta',
                     hiddenValue: 'id_doc_compra_venta',
@@ -303,7 +385,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     gwidth: 250,
                     minChars:2,
                     resizable: true,
-                    anchor: '100%'
+                    anchor: '100%',
+                    disabled: true
                 },
                 type:'ComboBox',
                 id_grupo: 0,
@@ -313,7 +396,7 @@ header("content-type: text/javascript; charset=UTF-8");
             {
                 config:{
                     name:'id_orden_trabajo',
-                    fieldLabel: 'Linea OT',
+                    fieldLabel: 'Orden/Línea Producto',//Teffo cambio realizado el 09/07/25 HR00961-2025
                     sysorigen:'sis_contabilidad',
                     origen:'OT',
                     allowBlank:true,
@@ -331,7 +414,7 @@ header("content-type: text/javascript; charset=UTF-8");
             {
                 config:{
                     name:'id_suborden',
-                    fieldLabel: 'Suborden',
+                    fieldLabel: 'Servicio/Producto Derivado',//Teffo cambio realizado el 09/07/25 HR00961-2025
                     sysorigen:'sis_contabilidad',
                     origen:'SUBORDEN',
                     allowBlank:true,
@@ -873,6 +956,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         fields: [
             {name:'id_int_transaccion', type: 'numeric'},
+            {name:'factura', type: 'string'}, //HR 0917
             {name:'id_partida', type: 'numeric'},
             {name:'id_centro_costo', type: 'numeric'},
             {name:'id_partida_ejecucion', type: 'numeric'},
@@ -1229,6 +1313,25 @@ header("content-type: text/javascript; charset=UTF-8");
             if(rec.id_concepto_ingas == null){ //fRnk: HR00687 c.
                 this.getIngas();
             }
+            var ai = this.getComponente('id_doc_compra_venta');//fRnk: nos quedamos aqui
+            if (rec.afecta_iva=='si'){
+                this.Cmp.factura.setValue('Si');
+                this.Cmp.factura.setDisabled(false);
+                this.mostrarComponente(ai);
+                ai.setDisabled(false);
+                this.Cmp.id_doc_compra_venta.allowBlank = false; //fRnk: se añadió la validacion de Afectable IVA, HR01217-2024
+                document.querySelector('label[for="id_doc_compra_venta"]').textContent='*Afectable IVA:';
+                document.querySelector('label[for="factura"]').textContent='*¿Tiene Factura?:';
+                //this.Cmp.id_concepto_ingas.allowBlank=true;
+            } else {
+                this.Cmp.factura.setDisabled(true);
+                this.ocultarComponente(ai);
+                this.Cmp.id_doc_compra_venta.allowBlank = true;
+                var ail=document.querySelector('label[for="id_doc_compra_venta"]');
+                if(ail){ail.textContent='Afectable IVA:';}
+                this.Cmp.factura.setValue('No');
+                document.querySelector('label[for="factura"]').textContent='¿Tiene Factura?:';
+            }
             //this.setLabelsTc();
         },
 
@@ -1266,4 +1369,5 @@ header("content-type: text/javascript; charset=UTF-8");
             });
         },
     })
+    
 </script>
