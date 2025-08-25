@@ -24,7 +24,11 @@
 	   		<?php } ?>
 	   		<?php if ($this->cabecera[0]['localidad']!='internacional'){if  ($this->cabecera[0]['sw_tipo_cambio']=='si'){ ?>
                 <br/><b>Tipo Cambio.:</b> <?php  echo number_format($val['tipo_cambio'], 2, '.', ','); ?>
-            <?php }} ?>	</div><br>
+            <?php } ?>
+            <?php if (!empty($val['factura'])) { //fRnk: HR01217-2024 ?>
+                    <br/><b>Fact.:</b> <?php  echo $val['factura']; ?>
+            <?php } ?>
+            <?php }?></div><br>
 			</td>
 			
 		<?php

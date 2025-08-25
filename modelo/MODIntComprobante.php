@@ -498,6 +498,7 @@ class MODIntComprobante extends MODbase{
         $this->captura('sw_movimiento','varchar');
         $this->captura('tipo_partida','varchar');
         $this->captura('tipo_cambio','numeric');
+        $this->captura('factura','varchar'); //fRnk: HR01217-2024
         //$this->captura('id_orden_trabajo','integer');
         //Ejecuta la instruccion
         $this->armarConsulta();
