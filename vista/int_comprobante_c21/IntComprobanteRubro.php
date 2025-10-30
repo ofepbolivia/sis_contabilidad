@@ -1496,7 +1496,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     url: '../../sis_parametros/control/Depto/listarDeptoFiltradoPrioridadEXT',
                     origen: 'DEPTO',
                     allowBlank: false,
-                    fieldLabel: 'Depto',
+                    fieldLabel: 'Depto. Contable',//Teffo 18/07/2025 HR01232-2024
                     editable: false,
                     gdisplayField: 'desc_depto', //dibuja el campo extra de la consulta al hacer un inner join con orra tabla
                     /*width: 290,
@@ -1529,7 +1529,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     //url: '../../sis_parametros/control/Depto/listarDepto',
                     origen: 'DEPTO',
                     allowBlank: false,
-                    fieldLabel: 'Libro de Bancos',
+                    fieldLabel: 'Depto. Tesorería',//Teffo 18/07/2025 HR01232-2024
                     disabled: false,
                     baseParams: {estado: 'activo', codigo_subsistema: 'TES', modulo: 'LB', tipo_filtro: 'DEPTO_UO'},
                     gdisplayField: 'desc_depto_lb',
@@ -1550,7 +1550,7 @@ header("content-type: text/javascript; charset=UTF-8");
             {
                 config: {
                     name: 'id_cuenta_bancaria',
-                    fieldLabel: 'Cuenta Bancaria Ingreso (BOA)',
+                    fieldLabel: 'Cuenta/Libreta Bancaria Ingreso',//Teffo 18/07/2025 HR01232-2024
                     allowBlank: false,
                     resizable: true,
                     emptyText: 'Elija una Cuenta...',

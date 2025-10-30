@@ -221,7 +221,8 @@ header("content-type: text/javascript; charset=UTF-8");
                     anchor:'97%',
                     gwidth:600,
                     tipo_pres:"gasto,administrativo,recurso,ingreso_egreso",
-                    baseParams: { tipo_pres: "recurso"},
+                    baseParams: { tipo_pres: "recurso", estado: "aprobado"},
+                   
                     renderer:function (value, p, record){
                         var color = 'green';//console.log('record.data[desc_orden]', record.data);
                         if(record.data["tipo_reg"] != 'summary'){
@@ -252,7 +253,7 @@ header("content-type: text/javascript; charset=UTF-8");
                             return '<b><p align="right">Total: &nbsp;&nbsp; </p></b>';
                         }
 
-                    }
+                    },
                 },
                 type:'ComboRec',
                 filters:{
@@ -269,7 +270,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     name:'id_concepto_ingas',
                     fieldLabel:'Concepto Ingreso',
                     allowBlank:true,
-                    emptyText:'Concepto Ingreso :qqq...',
+                    emptyText:'Concepto Ingreso :...',
                     store: new Ext.data.JsonStore({
                         url: '../../sis_parametros/control/ConceptoIngas/listarConceptoIngasMasPartida',
                         id: 'id_concepto_ingas',
@@ -301,6 +302,38 @@ header("content-type: text/javascript; charset=UTF-8");
                     /*width: 380,
                     listWidth:380,*/
                     anchor:'97%',
+                    listeners: { //Teffo: 22/07/2025 HR01232-2024
+                       expand: function(combo) {
+                            var form = combo.findParentByType('form');
+                            var idCentroCosto = form.getForm().findField('id_centro_costo').getValue();
+
+                            if (!idCentroCosto) {
+                                combo.store.removeAll();
+                                return;
+                            }
+                            combo.store.baseParams.id_centro_costo = idCentroCosto;
+                            combo.store.removeAll();
+                            combo.lastQuery = null;
+                            combo.store.load({
+                                params: {
+                                    start: 0,
+                                    limit: combo.pageSize,
+                                    query: ''
+                                },
+                                callback: function(records, options, success) {
+                                    if (success) {
+                                        if (records.length === 0) {
+                                           
+                                            Ext.Msg.alert('Aviso', 'No se encontraron conceptos de ingreso para este centro de costo.');
+                                        } else {
+                                           
+                                            combo.expand();
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    },
                     renderer:function(value, p, record){return String.format('{0}', record.data['desc_ingas']);}
                 },
                 type:'ComboBox',
@@ -314,53 +347,120 @@ header("content-type: text/javascript; charset=UTF-8");
             },
 
             {
-                config:{
-                    sysorigen:'sis_presupuestos',
-                    name:'id_partida',
+                config: {
+                    sysorigen: 'sis_presupuestos',
+                    name: 'id_partida',
                     msgTarget: 'side',
-                    origen:'PARTIDA',
-                    allowBlank:false,
-                    fieldLabel:'Partida',
-                    gdisplayField:'desc_partida',//mapea al store del grid
-                    gwidth:200,
-                    anchor:'97%',
-                    /*width: 380,
-                    listWidth: 380,*/
-                    baseParams: {par_filtro:'par.codigo#par.nombre_partida#par.id_gestion',sw_transaccional:'movimiento',tipo:'recurso'}
+                    origen: 'PARTIDA',
+                    allowBlank: false,
+                    fieldLabel: 'Partida',
+                    gdisplayField: 'desc_partida',
+                    gwidth: 200,
+                    anchor: '97%',
+                    baseParams: {
+                        par_filtro: 'par.codigo#par.nombre_partida#par.id_gestion',
+                        sw_transaccional: 'movimiento',
+                        tipo: 'recurso'
+                    },
+                    listeners: {
+                        expand: function(combo) {
+                            var form = combo.findParentByType('form');
+                            var idConcepto = form.getForm().findField('id_concepto_ingas').getValue();
+                            if (!idConcepto) {
+                                combo.getStore().removeAll(); 
+                                Ext.Msg.alert('Aviso', 'Debe seleccionar un concepto de ingreso antes de elegir una partida.');
+                                return;
+                            }
+                            var store = combo.getStore();
+                            store.baseParams.id_concepto_ingas = idConcepto;
+                            store.removeAll();
+                            combo.lastQuery = null;
+                            store.load({
+                                params: {
+                                    start: 0,
+                                    limit: combo.pageSize,
+                                    query: ''
+                                },
+                                callback: function(records, options, success) {
+                                    if (success) {
+                                        if (records.length === 0) {
+                                            Ext.Msg.alert('Aviso', 'No se encontraron partidas para el concepto seleccionado.');
+                                        } else {
+                                            combo.expand();
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
                 },
-                type:'ComboRec',
-                id_grupo:0,
-                filters:{
+                type: 'ComboRec',
+                id_grupo: 0,
+                filters: {
                     pfiltro: 'par.codigo_partida#par.nombre_partida',
                     type: 'string'
                 },
-
-                grid:true,
-
-                form:true
+                grid: true,
+                form: true
             },
             {
-                config:{
-                    sysorigen:'sis_contabilidad',
-                    name:'id_cuenta',
+                config: {
+                    sysorigen: 'sis_contabilidad',
+                    name: 'id_cuenta',
                     msgTarget: 'side',
-                    origen:'CUENTA',
-                    allowBlank:false,
-                    fieldLabel:'Cuenta',
-                    gdisplayField:'desc_cuenta',//mapea al store del grid
-                    gwidth:600,
-                    anchor:'97%',
-                    /*width: 380,
-                    listWidth: 380*/
+                    origen: 'CUENTA',
+                    allowBlank: false,
+                    fieldLabel: 'Cuenta',
+                    gdisplayField: 'desc_cuenta',
+                    gwidth: 600,
+                    anchor: '97%',
+                    listeners: { //Teffo: 22/07/2025 HR01232-2024
+                        expand: function(combo) {
+                            var form = combo.findParentByType('form');
+                            var idPartida = form.getForm().findField('id_partida').getValue();
+                            var idConcepto = form.getForm().findField('id_concepto_ingas').getValue();
+
+                            if (!idPartida || !idConcepto) {
+                                combo.getStore().removeAll();
+                                Ext.Msg.alert('Aviso', 'Debe seleccionar un concepto de ingreso y una partida antes de elegir una cuenta.');
+                                return;
+                            }
+
+                            var store = combo.getStore();
+
+                            store.baseParams.id_partida = idPartida;
+                            store.baseParams.id_concepto_ingas = idConcepto;
+
+                            store.removeAll();
+                            combo.lastQuery = null;
+
+                            store.load({
+                                params: {
+                                    start: 0,
+                                    limit: combo.pageSize,
+                                    query: ''
+                                },
+                                callback: function(records, options, success) {
+                                    if (success) {
+                                        if (records.length === 0) {
+                                            Ext.Msg.alert('Aviso', 'No se encontraron cuentas para la partida y concepto seleccionados.');
+                                        } else {
+                                            combo.expand();
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
                 },
-                type:'ComboRec',
-                id_grupo:0,
-                filters:{
-                    pfiltro:'cue.nombre_cuenta#cue.nro_cuenta',
-                    type:'string'
+                type: 'ComboRec',
+                id_grupo: 0,
+                filters: {
+                    pfiltro: 'cue.nombre_cuenta#cue.nro_cuenta',
+                    type: 'string'
                 },
-                grid:true,
-                form:true
+                grid: true,
+                form: true
             },
             {
                 config:{
