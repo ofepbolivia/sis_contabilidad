@@ -19,14 +19,12 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.init();
                 this.load({params: {start: 0, limit: this.tam_pag}})
 
-               /* this.addButton('Abrir/Cerrar Gestion', {
-                    argument: {imprimir: 'Abrir/Cerrar Gestion'},
-                    text: '<i class="fa fa-file-text-o fa-2x"></i> Abrir/Cerrar Gestion', /!*iconCls:'' ,*!/
-                    disabled: false,
-                    handler: this.abrirCerrarGestion
-                });*/
-
-
+                /* this.addButton('Abrir/Cerrar Gestion', {
+                     argument: {imprimir: 'Abrir/Cerrar Gestion'},
+                     text: '<i class="fa fa-file-text-o fa-2x"></i> Abrir/Cerrar Gestion', /!*iconCls:'' ,*!/
+                     disabled: false,
+                     handler: this.abrirCerrarGestion
+                 });*/
             },
 
             Atributos: [
@@ -44,14 +42,14 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     config: {
                         name: 'tipo',
-                        fieldLabel: 'tipo',
+                        fieldLabel: 'Tipo',
                         allowBlank: true,
                         emptyText: 'Tipo...',
                         typeAhead: true,
                         triggerAction: 'all',
                         lazyRender: true,
                         mode: 'local',
-                        store: ['Tipo de documento de pago', 'Modalidad de transacción', 'Tipo de transacción'],
+                        store: ['Tipo de documento de pago', 'Forma de pago', 'Tipo de transacción'], //fRnk: HR00586, 2do original: "Modalidad de transacción"
                         width: 200
                     },
                     type: 'ComboBox',
@@ -242,5 +240,3 @@ header("content-type: text/javascript; charset=UTF-8");
         }
     )
 </script>
-		
-		

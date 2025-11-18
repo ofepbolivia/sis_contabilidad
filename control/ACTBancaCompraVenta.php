@@ -8,14 +8,15 @@
  */
 require_once(dirname(__FILE__) . '/../reportes/RBancarizacionComprasVentas.php');
 require_once(dirname(__FILE__) . '/../reportes/RBancarizacionComprasVentasXls.php');
+require_once(dirname(__FILE__) . '/../reportes/RBancarizacionComprasVentasExpSINXls.php');
 class ACTBancaCompraVenta extends ACTbase{
 
     function listarBancaCompraVenta(){
         $this->objParam->defecto('ordenacion','id_periodo');
         $this->objParam->defecto('dir_ordenacion','asc');
-        $this->objParam->addFiltro("confmo.tipo = ''Modalidad de transacción''
+        $this->objParam->addFiltro("confmo.tipo = ''Forma de pago''
                         and conftt.tipo = ''Tipo de transacción''
-                        and conftd.tipo = ''Tipo de documento de pago'' ");
+                        and conftd.tipo = ''Tipo de documento de pago'' "); //fRnk: HR00586 "confmo.tipo = ''Modalidad de transacción''
         if($this->objParam->getParametro('tipo') != ''){
             $this->objParam->addFiltro("banca.tipo = ''".$this->objParam->getParametro('tipo')."'' ");
         }
@@ -124,9 +125,9 @@ class ACTBancaCompraVenta extends ACTbase{
             $mostrar_contrato = 'no';
         }else{
         }
-        $this->objParam->addFiltro("confmo.tipo = ''Modalidad de transacción''
+        $this->objParam->addFiltro("confmo.tipo = ''Forma de pago''
                         and conftt.tipo = ''Tipo de transacción''
-                        and conftd.tipo = ''Tipo de documento de pago'' ");
+                        and conftd.tipo = ''Tipo de documento de pago'' "); //Modalidad de transacción
         $this->objFunc=$this->create('MODBancaCompraVenta');
         $this->res=$this->objFunc->listarBancaCompraVenta($this->objParam);
         $datos = $this->res->getDatos();
@@ -191,6 +192,61 @@ class ACTBancaCompraVenta extends ACTbase{
 
 
         //$this->res->imprimirRespuesta($this->res->generarJson());
+    }
+
+    function exportarXls(){
+        $this->objFunc2=$this->create('MODBancaCompraVenta');
+        $this->res2=$this->objFunc2->listarPeriodoGestion($this->objParam);
+        $periodo_gestion = $this->res2;
+        $periodo = $periodo_gestion[0]['periodo'];
+        $gestion = $periodo_gestion[0]['gestion'];
+        if($periodo < 10){
+            $periodo = "0".$periodo;
+        }
+        $this->objParam->defecto('ordenacion','id_periodo');
+        $this->objParam->defecto('dir_ordenacion','asc');
+        $this->objParam->addFiltro("banca.tipo = ''".$this->objParam->getParametro('tipo')."'' ");
+        if($this->objParam->getParametro('id_periodo') != '' &&  $this->objParam->getParametro('gestion') == ''){
+            $this->objParam->addFiltro("banca.id_periodo = ''".$this->objParam->getParametro('id_periodo')."'' ");
+        }
+        if($this->objParam->getParametro('gestion') != ''){
+            $this->objParam->addFiltro("ges.gestion = ''".$gestion."'' ");
+        }
+
+        $this->objParam->addFiltro("confmo.tipo = ''Forma de pago''
+                        and conftt.tipo = ''Tipo de transacción''
+                        and conftd.tipo = ''Tipo de documento de pago'' "); //Modalidad de transacción
+        $this->objFunc=$this->create('MODBancaCompraVenta');
+        $this->res=$this->objFunc->listarBancaCompraVenta($this->objParam);
+        $datos = $this->res->getDatos();
+
+        $this->objParam->defecto('dir_ordenacion','asc');
+        $this->objParam->parametros_consulta['filtro'] = ' 0 = 0 ';
+        $this->objParam->parametros_consulta['ordenacion'] = 'id_empresa';
+        $this->objFunc2=$this->create('sis_parametros/MODEmpresa');
+        $this->res2=$this->objFunc2->listarEmpresa($this->objParam);
+        $empresa = $this->res2->getDatos();
+
+        $nit_empresa = $empresa[0]['nit'];
+        $tipo = $this->objParam->getParametro('tipo');
+
+        $nombreArchivo = uniqid(md5(session_id()) . 'BancarizacionComprasVentasExpSINXls') . '.xls';
+        $tamano = 'LETTER';
+        $orientacion = 'L';
+        $titulo = 'BancarizacionComprasVentasExpSINXls';
+        $this->objParam->addParametro('orientacion', $orientacion);
+        $this->objParam->addParametro('tamano', $tamano);
+        $this->objParam->addParametro('titulo_archivo', $titulo);
+        $this->objParam->addParametro('nombre_archivo', $nombreArchivo);
+        $this->objParam->addParametro('datos', $datos);
+
+        $reporte = new RBancarizacionComprasVentasExpSINXls($this->objParam);
+        $reporte->generarReporte();
+
+        $this->mensajeExito = new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado', 'Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
     }
 
     function listarDocumento(){
