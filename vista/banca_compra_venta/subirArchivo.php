@@ -34,8 +34,8 @@ Phx.vista.SubirArchivo=Ext.extend(Phx.frmInterfaz,{
         Phx.CP.getPagina(this.idContenedorPadre).reload();
         this.panel.close();
     },
-                
-    
+
+
     Atributos:[
         {
             config:{
@@ -66,14 +66,15 @@ Phx.vista.SubirArchivo=Ext.extend(Phx.frmInterfaz,{
         },
         {
             config:{
-                fieldLabel: "Documento (archivo TXT)", //fRnk: label modificado pdf,word
+                fieldLabel: "Documento (archivo CSV)", //fRnk: label modificado pdf,word
                 gwidth: 130,
                 inputType: 'file',
                 name: 'archivo',
                 allowBlank: false,
                 buttonText: '', 
                 maxLength: 150,
-                anchor:'100%'                   
+                anchor:'100%',
+                acceptMimes: ['csv']
             },
             type:'Field',
             form:true 

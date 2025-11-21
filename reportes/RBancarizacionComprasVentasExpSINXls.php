@@ -120,7 +120,7 @@ class RBancarizacionComprasVentasExpSINXls
                     $row['num_contrato'],
                     $row['tipo_documento_pago'],
                     implode('/', array_reverse(explode('-', $row['fecha_de_pago']))),
-                    $row['id_cuenta_bancaria'],
+                    $row['num_cuenta_compra'],//$row['id_cuenta_bancaria'],
                     $row['num_cuenta_pago'],
                     $row['nit_entidad'],
                     $row['nit_financiera_abono'],
@@ -212,7 +212,7 @@ class RBancarizacionComprasVentasExpSINXls
                     $row['tipo_documento_pago'],
                     implode('/', array_reverse(explode('-', $row['fecha_de_pago']))),
                     $row['num_cuenta_pago'],
-                    $row['nit_entidad'],
+                    $row['nit_financiera_abono'],
                     $row['num_documento_pago'],
                     $row['monto_pagado'],
                 );

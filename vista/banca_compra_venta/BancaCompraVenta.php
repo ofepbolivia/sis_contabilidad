@@ -607,17 +607,19 @@ header("content-type: text/javascript; charset=UTF-8");
                 }, this);
 
                 this.Cmp.importe_documento.fieldLabel = 'Monto facturado venta (Bs)';
-                this.Cmp.nit_entidad.fieldLabel = 'NIT Entidad Financiera de abono';
+                this.Cmp.fecha_de_pago.fieldLabel = 'Fecha del documento de la transacción financiera';
                 //fRnk: obligatorio en Compras, g) HR00528-2024
                 if (this.tipoBan === 'Compras') {
                     this.Cmp.num_documento_pago.allowBlank = false;
                     this.Cmp.importe_documento.fieldLabel = 'Monto facturado compra (Bs)';
-                    this.Cmp.nit_entidad.fieldLabel = 'NIT Entidad Financiera de débito';
+                    this.Cmp.nit_entidad.show();
                 } else {
+                    this.Cmp.nit_entidad.hide();
                     this.Cmp.nit_ci.fieldLabel = 'NIT / CI Cliente';
                     this.Cmp.razon.fieldLabel = 'Nombre o Razón Social del Cliente';
                     this.Cmp.num_cuenta_pago.fieldLabel = 'Número de Cuenta del Proveedor/Vendedor (abono)';
                     this.Cmp.monto_pagado.fieldLabel = 'Monto percibido';
+                    this.Cmp.fecha_de_pago.fieldLabel = 'Fecha del documento de pago';
                 }
                 /*this.Cmp.autorizacion.on('change', function(combo, record, index){
 			Ext.Ajax.request({
@@ -734,7 +736,8 @@ header("content-type: text/javascript; charset=UTF-8");
                         });
 
                     }
-                    this.Cmp.num_cuenta_pago.setValue(record.data.nro_cuenta);
+                    //this.Cmp.num_cuenta_pago.setValue(record.data.nro_cuenta);
+                    this.Cmp.num_cuenta_compra.setValue(record.data.nro_cuenta);
                     this.Cmp.nit_entidad.setValue(record.data.doc_id);
 
 
@@ -800,8 +803,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 }, this);
 
                 this.Cmp.id_documento.on('select', function (combo, record, index) {
-
-                    console.log(record)
                     this.Cmp.fecha_documento.setValue(record.data.fecha_documento);
                     this.Cmp.autorizacion.setValue(record.data.nro_autorizacion);
                     this.Cmp.nit_ci.setValue(record.data.nro_nit);
@@ -1215,7 +1216,7 @@ header("content-type: text/javascript; charset=UTF-8");
                             id: 'id_config_banca',
                             root: 'datos',
                             sortInfo: {
-                                field: 'digito',
+                                field: 'descripcion',
                                 direction: 'ASC',
                                 tipo: 'favio'
 
@@ -1502,8 +1503,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     grid: false,
                     form: true
                 },
-
-
                 {
                     config: {
                         name: 'importe_documento',
@@ -1511,7 +1510,11 @@ header("content-type: text/javascript; charset=UTF-8");
                         allowBlank: true,
                         anchor: '80%',
                         gwidth: 100,
-                        maxLength: 655362
+                        maxLength: 18,
+                        decimalPrecision: 2,
+                        allowDecimals: true,
+                        decimalSeparator: '.',
+
                     },
                     type: 'NumberField',
                     filters: {pfiltro: 'banca.importe_documento', type: 'numeric'},
@@ -1538,7 +1541,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {
                     config: {
                         name: 'id_cuenta_bancaria',
-                        fieldLabel: 'Número de cuenta del Comprador',
+                        fieldLabel: 'Denominación de la Cuenta del Comprador',
                         allowBlank: true,
                         emptyText: 'Elija una opción...',
                         store: new Ext.data.JsonStore({
@@ -1582,16 +1585,29 @@ header("content-type: text/javascript; charset=UTF-8");
                     grid: true,
                     form: true
                 },
-
-
                 {
                     config: {
-                        name: 'num_cuenta_pago',
-                        fieldLabel: 'Número de Cuenta del Proveedor',
+                        name: 'num_cuenta_compra',
+                        fieldLabel: 'Número de cuenta del Comprador',
                         allowBlank: true,
                         anchor: '90%',
                         gwidth: 100,
-                        maxLength: 255
+                        maxLength: 20
+                    },
+                    type: 'TextField',
+                    filters: {pfiltro: 'banca.num_cuenta_compra', type: 'string'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'num_cuenta_pago',
+                        fieldLabel: 'Número de Cuenta del Proveedor/Vendedor',
+                        allowBlank: true,
+                        anchor: '90%',
+                        gwidth: 100,
+                        maxLength: 20
                     },
                     type: 'TextField',
                     filters: {pfiltro: 'banca.num_cuenta_pago', type: 'string'},
@@ -1654,8 +1670,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     grid: true,
                     form: true
                 },
-
-
                 {
                     config: {
                         name: 'nit_entidad',
@@ -1667,6 +1681,21 @@ header("content-type: text/javascript; charset=UTF-8");
                     },
                     type: 'TextField',
                     filters: {pfiltro: 'banca.nit_entidad', type: 'string'},
+                    id_grupo: 2,
+                    grid: true,
+                    form: true
+                },
+                {
+                    config: {
+                        name: 'nit_financiera_abono',
+                        fieldLabel: 'NIT Entidad Financiera de abono',
+                        allowBlank: true,
+                        anchor: '90%',
+                        gwidth: 100,
+                        maxLength: 15
+                    },
+                    type: 'TextField',
+                    filters: {pfiltro: 'banca.nit_financiera_abono', type: 'string'},
                     id_grupo: 2,
                     grid: true,
                     form: true
@@ -1921,7 +1950,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     form: false,
                     bottom_filter: true
                 },
-
                 {
                     config: {
                         name: 'comentario',
@@ -1933,8 +1961,6 @@ header("content-type: text/javascript; charset=UTF-8");
                         width: 250,
                         maxLength: 500,
                         renderer: function (value, p, record) {
-
-
                             p.css = 'multilineColumn';
                             return String.format('{0}', value);
                         }
@@ -1956,6 +1982,7 @@ header("content-type: text/javascript; charset=UTF-8");
             id_store: 'id_banca_compra_venta',
             fields: [
                 {name: 'id_banca_compra_venta', type: 'numeric'},
+                {name: 'num_cuenta_compra', type: 'string'},
                 {name: 'num_cuenta_pago', type: 'string'},
                 {name: 'tipo_documento_pago', type: 'numeric'},
                 {name: 'num_documento', type: 'string'},
@@ -1975,6 +2002,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 {name: 'num_documento_pago', type: 'string'},
                 {name: 'num_contrato', type: 'string'},
                 {name: 'nit_entidad', type: 'numeric'},
+                {name: 'nit_financiera_abono', type: 'string'},
                 {name: 'fecha_reg', type: 'date', dateFormat: 'Y-m-d H:i:s.u'},
                 {name: 'usuario_ai', type: 'string'},
                 {name: 'id_usuario_reg', type: 'numeric'},

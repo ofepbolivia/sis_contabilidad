@@ -37,6 +37,7 @@ class MODBancaCompraVenta extends MODbase
         $this->setParametro('id_banca_compra_venta', 'id_banca_compra_venta', 'int4');
         //Definicion de la lista del resultado del query
         $this->captura('id_banca_compra_venta', 'int4');
+        $this->captura('num_cuenta_compra', 'varchar');
         $this->captura('num_cuenta_pago', 'varchar');
         $this->captura('tipo_documento_pago', 'numeric');
         $this->captura('num_documento', 'varchar');
@@ -56,6 +57,7 @@ class MODBancaCompraVenta extends MODbase
         $this->captura('num_documento_pago', 'varchar');
         $this->captura('num_contrato', 'varchar');
         $this->captura('nit_entidad', 'numeric');
+        $this->captura('nit_financiera_abono', 'varchar');
         $this->captura('fecha_reg', 'timestamp');
         $this->captura('usuario_ai', 'varchar');
         $this->captura('id_usuario_reg', 'int4');
@@ -115,6 +117,7 @@ class MODBancaCompraVenta extends MODbase
         $this->tipo_procedimiento = 'IME';
 
         //Define los parametros para la funcion
+        $this->setParametro('num_cuenta_compra', 'num_cuenta_compra', 'varchar');
         $this->setParametro('num_cuenta_pago', 'num_cuenta_pago', 'varchar');
         $this->setParametro('tipo_documento_pago', 'tipo_documento_pago', 'numeric');
         $this->setParametro('num_documento', 'num_documento', 'varchar');
@@ -134,6 +137,7 @@ class MODBancaCompraVenta extends MODbase
         $this->setParametro('num_documento_pago', 'num_documento_pago', 'varchar');
         $this->setParametro('num_contrato', 'num_contrato', 'varchar');
         $this->setParametro('nit_entidad', 'nit_entidad', 'numeric');
+        $this->setParametro('nit_financiera_abono', 'nit_financiera_abono', 'numeric');
         $this->setParametro('id_periodo', 'id_periodo', 'int4');
         $this->setParametro('id_depto_conta', 'id_depto_conta', 'int4');
         $this->setParametro('id_proveedor', 'id_proveedor', 'int4');
@@ -162,6 +166,7 @@ class MODBancaCompraVenta extends MODbase
 
         //Define los parametros para la funcion
         $this->setParametro('id_banca_compra_venta', 'id_banca_compra_venta', 'int4');
+        $this->setParametro('num_cuenta_compra', 'num_cuenta_compra', 'varchar');
         $this->setParametro('num_cuenta_pago', 'num_cuenta_pago', 'varchar');
         $this->setParametro('tipo_documento_pago', 'tipo_documento_pago', 'numeric');
         $this->setParametro('num_documento', 'num_documento', 'varchar');
@@ -181,6 +186,7 @@ class MODBancaCompraVenta extends MODbase
         $this->setParametro('num_documento_pago', 'num_documento_pago', 'varchar');
         $this->setParametro('num_contrato', 'num_contrato', 'varchar');
         $this->setParametro('nit_entidad', 'nit_entidad', 'numeric');
+        $this->setParametro('nit_financiera_abono', 'nit_financiera_abono', 'numeric');
         $this->setParametro('id_periodo', 'id_periodo', 'int4');
         $this->setParametro('id_depto_conta', 'id_depto_conta', 'int4');
         $this->setParametro('id_proveedor', 'id_proveedor', 'int4');
@@ -383,7 +389,8 @@ class MODBancaCompraVenta extends MODbase
                                 'num_contrato' => $arr_temp[12],
                                 'tipo_documento_pago' => $arr_temp[13],
                                 'fecha_de_pago' => $arr_temp[14],
-                                'id_cuenta_bancaria' => $arr_temp[15],
+                                'id_cuenta_bancaria' => 0,//$arr_temp[15],
+                                'num_cuenta_compra' => $arr_temp[15],
                                 'num_cuenta_pago' => $arr_temp[16],
                                 'nit_entidad' => $arr_temp[17],
                                 'nit_financiera_abono' => $arr_temp[18],
