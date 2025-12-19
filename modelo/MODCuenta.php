@@ -408,8 +408,9 @@ class MODCuenta extends MODbase
         //fRnk: HR01014
         $this->captura('costo_directo', 'numeric');
         $this->captura('costo_indirecto', 'numeric');
+        $this->captura('ingresos', 'numeric');  //NMQ: HR 2025-01175
         $this->armarConsulta();
-        //echo $this->getConsulta();exit;
+        // echo $this->getConsulta();exit;
         $this->ejecutarConsulta();
         return $this->respuesta;
     }

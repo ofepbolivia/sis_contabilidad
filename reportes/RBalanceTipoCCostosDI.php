@@ -77,6 +77,7 @@ class RBalanceTipoCCostosDI extends ReportePDF
             if ($this->importe == 'ejecutado') {
                 $costo_directo = empty($val['costo_directo']) ? 0 : $val['costo_directo'];
                 $costo_indirecto = empty($val['costo_indirecto']) ? 0 : $val['costo_indirecto'];
+                $ingresos = empty($val['ingresos']) ? 0 : $val['ingresos']; //NMQ: HR 2025-01175
                 if ($val['movimiento'] == 'si') {
                     /*if ($costo_directo + $costo_indirecto != $var_monto) {
                         if ($costo_directo > $var_monto) {
@@ -85,6 +86,7 @@ class RBalanceTipoCCostosDI extends ReportePDF
                         $costo_indirecto = $var_monto - $costo_directo;
                     }*/
 
+                    $html .= '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Ingresos</td><td style="text-align: right">' . number_format($ingresos, 2, '.', ',') . '</td><td></td></tr>'; //NMQ: HR 2025-01175
                     $html .= '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Costos Directos</td><td style="text-align: right">' . number_format($costo_directo, 2, '.', ',') . '</td><td></td></tr>';
                     $html .= '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Costos Indirectos</td><td style="text-align: right">' . number_format($costo_indirecto, 2, '.', ',') . '</td><td></td></tr>';
                 }
