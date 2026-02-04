@@ -109,7 +109,7 @@ class MODIntTransaccion extends MODbase
         //fRnk: HR00488
         $this->captura('id_objetivo', 'int4');
         $this->captura('observacion_poa', 'varchar');
-        $this->captura('afecta_iva', 'varchar'); //HR01217-2024
+        $this->captura('afecta_iva', 'varchar'); //HR00586
 
 
         //Ejecuta la instruccion

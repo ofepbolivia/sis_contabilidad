@@ -109,7 +109,7 @@ Phx.vista.IntRelDevengado=Ext.extend(Phx.gridInterfaz,{
 			          '<b>Cta.:</b>{desc_cuenta}<br>'+
 					  '<b>Aux.:</b>{desc_auxiliar}</br>'+
                       '<b>Ptda.:</b> <font color="black">{desc_partida}</font><br>'+
-                      '<b>Ot.: {desc_orden}</b></br> '+
+                      '<b>ORD.: {desc_orden}</b></br> '+//Teffo HR OFEP/2025-00961
                       '<b>Monto Gasto.: {importe_gasto}</b></br> '+
                       '<b>Monto Recurso.: {importe_recurso}</b>,   ID; {id_int_transaccion}</div></tpl>'),
                       
@@ -133,7 +133,7 @@ Phx.vista.IntRelDevengado=Ext.extend(Phx.gridInterfaz,{
 			   				}
 		   					
 			   				if(record.data['desc_orden_pag']){
-			   					retorno = retorno + '<b>Ot.:</b> '+record.data['desc_orden_pag'];
+			   					retorno = retorno + '<b>ORD.:</b> '+record.data['desc_orden_pag'];//Teffo HR OFEP/2025-00961
 			   				}	
 		   				return String.format('<div class="gridmultiline">{0}</div>',retorno);	
 	   			 }
@@ -213,7 +213,7 @@ Phx.vista.IntRelDevengado=Ext.extend(Phx.gridInterfaz,{
 			          '<b>Cta.:</b>{desc_cuenta}<br>'+
 					  '<b>Aux.:</b>{desc_auxiliar}</br>'+
                       '<b>Ptda.:</b> <font color="black">{desc_partida}</font><br>'+
-                      '<b>Ot.: {desc_orden}</b></br> '+
+                      '<b>ORD.: {desc_orden}</b></br> '+//Teffo HR OFEP/2025-00961
                       '<b>Monto Gasto.: {importe_gasto}</b></br> '+  
                       '<b>Monto Recurso.: {importe_recurso}</b>, ID; {id_int_transaccion}</div></tpl>'),
                       
@@ -237,7 +237,7 @@ Phx.vista.IntRelDevengado=Ext.extend(Phx.gridInterfaz,{
 			   				}
 		   					
 			   				if(record.data['desc_orden_dev']){
-			   					retorno = retorno + '<b>Ot.:</b> '+record.data['desc_orden_dev'];
+			   					retorno = retorno + '<b>ORD.:</b> '+record.data['desc_orden_dev'];//Teffo HR OFEP/2025-00961
 			   				}	
 		   				return String.format('<div class="gridmultiline">{0}</div>',retorno);	
 	   			 }

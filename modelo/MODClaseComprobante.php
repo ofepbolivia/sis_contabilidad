@@ -14,6 +14,7 @@ class MODClaseComprobante extends MODbase{
 	}
 			
 	function listarClaseComprobante(){
+		
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='conta.ft_clase_comprobante_sel';
 		$this->transaccion='CONTA_CCOM_SEL';
@@ -38,7 +39,7 @@ class MODClaseComprobante extends MODbase{
 		$this->captura('codigo','varchar');
 		$this->captura('tiene_apertura','varchar');
 		$this->captura('movimiento','varchar');
-		
+		$this->captura('clase','varchar');//Teffo cambio realizado 14/07/25 HR 01220-2024
 		
 		
 		
@@ -69,8 +70,7 @@ class MODClaseComprobante extends MODbase{
 		$this->setParametro('momento_pagado','momento_pagado','varchar');
 		$this->setParametro('tiene_apertura','tiene_apertura','varchar');
 		$this->setParametro('movimiento','movimiento','varchar');
-		
-
+		$this->setParametro('clase','clase','varchar');//Teffo cambio realizado 14/07/25 HR 01220-2024
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -80,6 +80,7 @@ class MODClaseComprobante extends MODbase{
 	}
 			
 	function modificarClaseComprobante(){
+		
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='conta.ft_clase_comprobante_ime';
 		$this->transaccion='CONTA_CCOM_MOD';
@@ -97,7 +98,7 @@ class MODClaseComprobante extends MODbase{
 		$this->setParametro('momento_pagado','momento_pagado','varchar');
 		$this->setParametro('tiene_apertura','tiene_apertura','varchar');
 		$this->setParametro('movimiento','movimiento','varchar');
-		
+		$this->setParametro('clase','clase','varchar');//Teffo cambio realizado 14/07/25 HR 01220-2024
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

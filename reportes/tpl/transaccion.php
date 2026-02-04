@@ -16,8 +16,8 @@
 	   			<br/><b>Aux.:</b> <?php  echo $val['codigo_auxiliar'].' - '.$val['nombre_auxiliar']; ?>
 	   		<?php } ?>	
 	   		
-	   		<?php if  ($val['desc_orden']!=''){ ?>	
-	   			<br/><b>OT.:</b> <?php  echo $val['desc_orden']; ?>
+	   		<?php if  ($val['desc_orden']!=''){ ?>
+                <br/><b>ORD.:</b> <?php  echo $val['desc_orden']; ?><!--Teffo HR OFEP/2025-00961 -->
 	   		<?php } ?>	
 	   		<?php if  ($val['glosa']!=''){ ?>	
 	   		    <br/><?php  echo trim($val['glosa']); ?>

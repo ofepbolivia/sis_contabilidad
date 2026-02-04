@@ -228,6 +228,26 @@ header("content-type: text/javascript; charset=UTF-8");
 
             }, this);
 
+            this.Cmp.id_tipo_relacion_comprobante.on('change', function () { //fRnk: HR00920-2025
+                this.Cmp.id_int_comprobante_fks.reset();
+                this.Cmp.id_int_comprobante_fks.clearValue();
+                this.Cmp.id_int_comprobante_fks.getStore().removeAll();
+                this.Cmp.id_int_comprobante_fks.getStore().load({
+                    params: {
+                        start: 0,
+                        limit: 15,
+                        tipo_rel: this.Cmp.id_tipo_relacion_comprobante.getValue(),
+                        sortInfo: {
+                            field: 'id_int_comprobante',
+                            direction: 'desc'
+                        },
+                        baseParams: {
+                            par_filtro: 'inc.id_int_comprobante#inc.nro_cbte#inc.fecha#inc.glosa1#inc.glosa2#inc.nro_tramite'
+                        }
+                    }
+                });
+            }, this);
+
             this.Cmp.id_int_comprobante_fks.on('beforequery', function (queryEvent) {
                 var id_m = this.Cmp.id_moneda.getValue(),
                     id_g = this.cmbGestion.getValue();
@@ -239,6 +259,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 } else {
                     queryEvent.cancel = true;
                 }
+                this.Cmp.id_int_comprobante_fks.store.baseParams.tipo_rel = this.Cmp.id_tipo_relacion_comprobante.getValue(); //fRnk: HR00920-2025
             }, this);
         },
 
@@ -347,7 +368,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 grid: true,
                 form: false
-            }, 
+            },
             {
                 config: {
                     name: 'nro_cbte',
@@ -664,7 +685,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid: true,
                 form: true
             },
-            
+
             {
                 config: {
                     name: 'id_moneda',
@@ -819,7 +840,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid: true,
                 form: false
             },
-             {
+            {
                 config: {
                     name: 'glosa1',
                     fieldLabel: 'Glosa',
@@ -992,7 +1013,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid: true,
                 //egrid: true,
                 form: true
-            }, 
+            },
             {
                 config: {
                     name: 'cbte_aitb',
@@ -1337,7 +1358,7 @@ header("content-type: text/javascript; charset=UTF-8");
             dateFormat: 'Y-m-d'
         }, 'momento_comprometido', 'momento_ejecutado', 'id_moneda_base', 'id_proceso_wf', 'id_estado_wf',
             'cbte_cierre', 'cbte_apertura', 'cbte_aitb', 'momento_pagado', 'manual', 'importe_debe', 'importe_haber',
-            'desc_tipo_relacion_comprobante', 'id_int_comprobante_fks', 'manual', 
+            'desc_tipo_relacion_comprobante', 'id_int_comprobante_fks', 'manual',
             'id_tipo_relacion_comprobante', 'tipo_cambio_2', 'id_moneda_tri', 'tipo_cambio_3', 'id_moneda_act',
             'sw_tipo_cambio', 'id_config_cambiaria', 'ope_1', 'ope_2', 'ope_3',
             'desc_moneda_tri', 'localidad', 'sw_editable', 'cbte_reversion', 'volcado', 'c31', 'fecha_c31', 'forma_cambio', 'id_service_request', 'nro_preventivo', 'estado_fin'], //fRnk: HR00903
@@ -1473,13 +1494,13 @@ header("content-type: text/javascript; charset=UTF-8");
                 title : 'Transacciones',
                 height : '50%', //altura de la ventana hijo
                 cls : 'IntTransaccionAux'
-		    },
+            },
             {
                 url : '../../../sis_contabilidad/vista/int_beneficiario/IntBeneficiarioAux.php',
                 title : 'Beneficiario',
                 height : '50%', //altura de la ventana hijo
                 cls : 'IntBeneficiarioAux'
-		    }
+            }
         ],
 
 
@@ -1983,12 +2004,12 @@ header("content-type: text/javascript; charset=UTF-8");
             Ext.Ajax.request({
                 url: '../../sis_contabilidad/control/IntComprobante/generaReportLibroDiario',
                 params: {
-                        params:JSON.stringify(resp.query_filter),
-                        tipo_formato: resp.tipo_formato,
-				        tipo_diario: resp.tipo_diario,				
-                        anio_gestion: resp.anio_gestion,
-                        nombreVista: nombreVista,
-                    },
+                    params:JSON.stringify(resp.query_filter),
+                    tipo_formato: resp.tipo_formato,
+                    tipo_diario: resp.tipo_diario,
+                    anio_gestion: resp.anio_gestion,
+                    nombreVista: nombreVista,
+                },
                 success: this.successExport,
                 failure: this.conexionFailure,
                 timeout: this.timeout,
